@@ -160,6 +160,12 @@ namespace Social.Domain.DomainServices
                         Url = share.link,
                     };
 
+                    if (!string.IsNullOrWhiteSpace(messageShare.Url) && string.IsNullOrWhiteSpace(messageShare.MimeType))
+                    {
+                        Uri uri = new Uri(messageShare.Url);
+                        messageShare.MimeType = uri.GetMimeType();
+                    }
+
                     message.Attachments.Add(messageShare);
                 }
             }
