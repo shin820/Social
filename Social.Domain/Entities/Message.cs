@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Social.Domain.Entities
 {
     [Table("t_Social_Message")]
-    public class Message : EntityWithSite
+    public class Message : EntityWithSite, ISoftDelete
     {
         public Message()
         {
@@ -43,6 +43,8 @@ namespace Social.Domain.Entities
         public int ReceiverId { get; set; }
 
         public string Content { get; set; }
+
+        public bool IsDeleted { get; set; }
 
         public virtual Conversation Conversation { get; set; }
 

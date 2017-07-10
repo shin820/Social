@@ -3,20 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Social.Domain.Entities;
 using Social.Infrastructure.Facebook;
 using Framework.Core;
+using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
+using Facebook;
 
 namespace Social.Domain.DomainServices.Facebook
 {
-    public class VisitorPostStrategy : IConversationSrategy
+    /// <summary>
+    /// Process facebook hook data when a new facebook message created.
+    /// </summary>
+    public class NewMessageStrategy : IWebHookSrategy
     {
         private IRepository<Conversation> _conversationRepo;
         private IRepository<Message> _messageRepo;
         private ISocialUserInfoService _socialUserInfoService;
 
-        public VisitorPostStrategy(
+        public NewMessageStrategy(
             IRepository<Conversation> conversationRepo,
             IRepository<Message> messageRepo,
             ISocialUserInfoService socialUserInfoService
@@ -29,19 +33,23 @@ namespace Social.Domain.DomainServices.Facebook
 
         public bool IsMatch(FbHookChange change)
         {
-            return change.Field == "feed"
-                && change.Value.PostId != null
-                && change.Value.Item == "post"
-                && change.Value.Verb == "add";
+            return change.Field == "conversations" && change.Value.ThreadId != null;
         }
 
         public async Task Process(SocialAccount socialAccount, FbHookChange change)
         {
-            FbMessage fbMessage = await FbClient.GetMessageFromPostId(socialAccount.Token, change.Value.PostId);
+            FbMessage fbMessage = await FbClient.GetLastMessageFromConversationId(socialAccount.Token, change.Value.ThreadId);
+
+            bool isDuplicated = _messageRepo.FindAll().Any(t => t.SiteId == socialAccount.SiteId && t.SocialId == fbMessage.Id);
+            if (isDuplicated)
+            {
+                return;
+            }
 
             SocialUser sender = await _socialUserInfoService.GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.SenderId, fbMessage.SenderEmail);
             SocialUser receiver = await _socialUserInfoService.GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.ReceiverId, fbMessage.ReceiverEmail);
-            var existingConversation = _conversationRepo.FindAll().Where(t => t.SiteId == socialAccount.SiteId && t.SocialId == change.Value.PostId).FirstOrDefault();
+            var existingConversation = _conversationRepo.FindAll().FirstOrDefault(t => t.SiteId == socialAccount.SiteId && t.SocialId == change.Value.ThreadId && t.Status != ConversationStatus.Closed);
+
             if (existingConversation != null)
             {
                 Message message = Convert(fbMessage, sender, receiver, socialAccount);
@@ -59,7 +67,7 @@ namespace Social.Domain.DomainServices.Facebook
                 var conversation = new Conversation
                 {
                     SocialId = change.Value.ThreadId,
-                    Source = ConversationSource.FacebookVisitorPost,
+                    Source = ConversationSource.FacebookMessage,
                     Priority = ConversationPriority.Normal,
                     Status = ConversationStatus.New,
                     SiteId = socialAccount.SiteId,

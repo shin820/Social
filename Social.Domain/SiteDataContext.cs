@@ -13,7 +13,7 @@ namespace Social.Domain
 
         public SiteDataContext(string nameOrConnectionString, IUserContext userContext) : base(nameOrConnectionString, userContext)
         {
-            //Database.SetInitializer<SiteDataContext>(null);
+            Database.SetInitializer<SiteDataContext>(null);
             Database.Log = t => logger.Debug(t);
         }
 

@@ -105,14 +105,17 @@ namespace Social.Infrastructure.Facebook
             Checker.NotNullOrWhiteSpace(fbPostId, nameof(fbPostId));
 
             FacebookClient client = new FacebookClient(token);
-            string url = "/" + fbPostId + "?fields=fields=id,message,created_time,to{id,name,pic,username},from";
+            string url = "/" + fbPostId + "?fields=id,message,created_time,to{id,name,pic,username},from,permalink_url";
 
             dynamic post = await client.GetTaskAsync(url);
             var message = new FbMessage
             {
                 Id = post.id,
                 SendTime = Convert.ToDateTime(post.created_time).ToUniversalTime(),
-                Content = post.message
+                SenderId = post.from.id,
+                ReceiverId = post.to.data[0].id, // multiple receivers?
+                Content = post.message,
+                Link = post.permalink_url
             };
 
             return message;

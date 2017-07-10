@@ -20,6 +20,7 @@ namespace Social.Infrastructure.Facebook
         public string ReceiverId { get; set; }
         public string ReceiverEmail { get; set; }
         public string Content { get; set; }
+        public string Link { get; set; }
 
         public IList<FbMessageAttachment> Attachments { get; set; }
     }
