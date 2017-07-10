@@ -38,11 +38,11 @@ namespace Social.Domain.DomainServices.Facebook
             FbMessage fbMessage = await FacebookService.GetLastMessageFromConversationId(socialAccount.Token, change.Value.ThreadId);
 
             // ignore if message is sent by social account itself.
-            bool isSendByIntegrationAccont = fbMessage.SenderId == socialAccount.SocialUser.SocialId;
-            if (isSendByIntegrationAccont)
-            {
-                return;
-            }
+            //bool isSendByIntegrationAccont = fbMessage.SenderId == socialAccount.SocialUser.SocialId;
+            //if (isSendByIntegrationAccont)
+            //{
+            //    return;
+            //}
 
             // ignore if existed same message in conversation.
             bool isDuplicatedMessage = _messageRepo.FindAll().Any(t => t.SiteId == socialAccount.SiteId && t.SocialId == fbMessage.Id);

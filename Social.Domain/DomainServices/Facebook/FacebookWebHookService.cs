@@ -12,17 +12,17 @@ using System.Threading.Tasks;
 
 namespace Social.Domain.DomainServices
 {
-    public interface IFacebookService : ITransient
+    public interface IFacebookWebHookService : ITransient
     {
         Task ProcessWebHookData(FbHookData fbData);
     }
 
-    public class FacebookService : IFacebookService
+    public class FacebookWebHookService : IFacebookWebHookService
     {
         private IRepository<SocialAccount> _socialAccountRepo;
         private IConversationStrategyFactory _strategyFactory;
 
-        public FacebookService(
+        public FacebookWebHookService(
             IRepository<SocialAccount> socialAccountRepo,
             IConversationStrategyFactory strategyFactory
             )
@@ -156,6 +156,7 @@ namespace Social.Domain.DomainServices
                 {
                     var messageShare = new FbMessageAttachment
                     {
+                        Name = share.name,
                         Id = share.id,
                         Url = share.link,
                     };
