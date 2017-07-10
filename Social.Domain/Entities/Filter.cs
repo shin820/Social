@@ -18,8 +18,6 @@ namespace Social.Domain.Entities
             Conditions = new List<FilterCondition>();
         }
 
-        public int ConversationId { get; set; }
-
         [Required]
         [MaxLength(200)]
         public string Name { get; set; }
@@ -32,7 +30,6 @@ namespace Social.Domain.Entities
         public int? ModifiedBy { get; set; }
         public DateTime? ModifiedTime { get; set; }
 
-        public virtual Conversation Conversation { get; set; }
         public virtual IList<FilterCondition> Conditions { get; set; }
     }
 }

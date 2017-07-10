@@ -37,12 +37,15 @@ namespace Social.Domain.DomainServices.Facebook
 
         public async Task Process(SocialAccount socialAccount, FbHookChange change)
         {
-            Message message = await FacebookService.GetMessageFromPostId(socialAccount.Token, change.Value.PostId);
-            message.SiteId = socialAccount.SiteId;
+            FbMessage fbMessage = await FbClient.GetMessageFromPostId(socialAccount.Token, change.Value.PostId);
 
+            SocialUser sender = await _socialUserInfoService.GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.SenderId, fbMessage.SenderEmail);
+            SocialUser receiver = await _socialUserInfoService.GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.ReceiverId, fbMessage.ReceiverEmail);
             var existingConversation = _conversationRepo.FindAll().Where(t => t.SiteId == socialAccount.SiteId && t.SocialId == change.Value.PostId).FirstOrDefault();
             if (existingConversation != null)
             {
+                Message message = Convert(fbMessage, sender, receiver, socialAccount);
+                message.ConversationId = existingConversation.Id;
                 existingConversation.IfRead = false;
                 existingConversation.Messages.Add(message);
                 existingConversation.Status = ConversationStatus.PendingInternal;
@@ -52,19 +55,51 @@ namespace Social.Domain.DomainServices.Facebook
             }
             else
             {
+                Message message = Convert(fbMessage, sender, receiver, socialAccount);
                 var conversation = new Conversation
                 {
-                    SocialId = change.Value.PostId,
-                    Source = ConversationSource.FacebookMessage,
+                    SocialId = change.Value.ThreadId,
+                    Source = ConversationSource.FacebookVisitorPost,
+                    Priority = ConversationPriority.Normal,
+                    Status = ConversationStatus.New,
                     SiteId = socialAccount.SiteId,
                     Subject = GetSubject(message.Content),
-                    //SocialAccountId = socialAccount.Id,
                     LastMessageSenderId = message.SenderId,
                     LastMessageSentTime = message.SendTime
                 };
                 conversation.Messages.Add(message);
                 await _conversationRepo.InsertAsync(conversation);
             }
+        }
+
+        private Message Convert(FbMessage fbMessage, SocialUser Sender, SocialUser Receiver, SocialAccount account)
+        {
+            Message message = new Message
+            {
+                SenderId = Sender.Id,
+                ReceiverId = Receiver.Id,
+                Source = MessageSource.FacebookMessage,
+                SocialId = fbMessage.Id,
+                SendTime = fbMessage.SendTime,
+                Content = fbMessage.Content,
+                SiteId = account.SiteId
+            };
+
+            foreach (var attachment in fbMessage.Attachments)
+            {
+                message.Attachments.Add(new MessageAttachment
+                {
+                    SocialId = attachment.Id,
+                    Name = attachment.Name,
+                    MimeType = attachment.MimeType,
+                    Size = attachment.Size,
+                    Url = attachment.Url,
+                    PreviewUrl = attachment.PreviewUrl,
+                    SiteId = account.SiteId
+                });
+            }
+
+            return message;
         }
 
         private string GetSubject(string message)

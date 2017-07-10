@@ -79,8 +79,10 @@
     <Compile Include="Enum\ConditionRuleTriggerType.cs" />
     <Compile Include="Enum\SocialAccountType.cs" />
     <Compile Include="Facebook\FacebookWebHookClient.cs" />
+    <Compile Include="Facebook\FbClient.cs" />
     <Compile Include="Facebook\FbMessage.cs" />
     <Compile Include="Facebook\FbMessageAttachment.cs" />
+    <Compile Include="Facebook\FbUser.cs" />
     <Compile Include="Facebook\WebHook\FbHookChange.cs" />
     <Compile Include="Facebook\WebHook\FbHookChangeValue.cs" />
     <Compile Include="Facebook\WebHook\FbHookData.cs" />

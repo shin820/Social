@@ -37,11 +37,6 @@ namespace Social.Domain
                 .HasForeignKey(t => t.ConversationId)
                 .WillCascadeOnDelete(false);
             modelBuilder.Entity<Conversation>()
-                .HasMany(t => t.Filters)
-                .WithRequired(t => t.Conversation)
-                .HasForeignKey(t => t.ConversationId)
-                .WillCascadeOnDelete(false);
-            modelBuilder.Entity<Conversation>()
                 .HasRequired(t => t.LastMessageSender)
                 .WithMany(t => t.LastSendConversations)
                 .HasForeignKey(t => t.LastMessageSenderId)

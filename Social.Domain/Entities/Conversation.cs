@@ -17,7 +17,6 @@ namespace Social.Domain.Entities
         {
             Messages = new List<Message>();
             Logs = new List<ConversationLog>();
-            Filters = new List<Filter>();
             Fields = new List<ConversationField>();
         }
 
@@ -55,8 +54,6 @@ namespace Social.Domain.Entities
         public virtual IList<Message> Messages { get; set; }
 
         public virtual IList<ConversationLog> Logs { get; set; }
-
-        public virtual IList<Filter> Filters { get; set; }
 
         public virtual IList<ConversationField> Fields { get; set; }
 

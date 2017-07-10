@@ -35,28 +35,18 @@ namespace Social.Domain.DomainServices.Facebook
 
         public async Task Process(SocialAccount socialAccount, FbHookChange change)
         {
-            FbMessage fbMessage = await FacebookService.GetLastMessageFromConversationId(socialAccount.Token, change.Value.ThreadId);
+            FbMessage fbMessage = await FbClient.GetLastMessageFromConversationId(socialAccount.Token, change.Value.ThreadId);
 
-            // ignore if message is sent by social account itself.
-            //bool isSendByIntegrationAccont = fbMessage.SenderId == socialAccount.SocialUser.SocialId;
-            //if (isSendByIntegrationAccont)
-            //{
-            //    return;
-            //}
-
-            // ignore if existed same message in conversation.
-            bool isDuplicatedMessage = _messageRepo.FindAll().Any(t => t.SiteId == socialAccount.SiteId && t.SocialId == fbMessage.Id);
-            if (isDuplicatedMessage)
+            bool isDuplicated = _messageRepo.FindAll().Any(t => t.SiteId == socialAccount.SiteId && t.SocialId == fbMessage.Id);
+            if (isDuplicated)
             {
                 return;
             }
 
-            bool isSendByAgent = fbMessage.SenderId == socialAccount.SocialUser.SocialId;
             SocialUser sender = await _socialUserInfoService.GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.SenderId, fbMessage.SenderEmail);
             SocialUser receiver = await _socialUserInfoService.GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.ReceiverId, fbMessage.ReceiverEmail);
             var existingConversation = _conversationRepo.FindAll().FirstOrDefault(t => t.SiteId == socialAccount.SiteId && t.SocialId == change.Value.ThreadId && t.Status != ConversationStatus.Closed);
 
-            //message.Shares.Foreach(t => t.SiteId = message.SiteId);
             if (existingConversation != null)
             {
                 Message message = Convert(fbMessage, sender, receiver, socialAccount);

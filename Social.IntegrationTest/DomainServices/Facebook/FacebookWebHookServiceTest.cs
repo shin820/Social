@@ -20,7 +20,7 @@ namespace Social.IntegrationTest
             string rawData = "{\"entry\": [{\"changes\": [{\"field\": \"conversations\", \"value\": {\"thread_id\": \"t_mid.$cAAdZrm4k4UZh9X1vd1bxDgkg7Bo9\", \"page_id\": 1974003879498745}}], \"id\": \"1974003879498745\", \"time\": 1498785109}], \"object\": \"page\"}";
 
             var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData);
-            IFacebookService facebookService = DependencyResolver.Resolve<IFacebookService>();
+            IFacebookWebHookService facebookService = DependencyResolver.Resolve<IFacebookWebHookService>();
             await facebookService.ProcessWebHookData(data);
         }
     }
