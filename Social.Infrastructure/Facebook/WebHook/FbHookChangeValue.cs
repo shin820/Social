@@ -31,5 +31,9 @@ namespace Social.Infrastructure.Facebook
         public string ThreadId { get; set; }
         [JsonProperty("page_id")]
         public string PageId { get; set; }
+        [JsonProperty("link")]
+        public string Link { get; set; }
+        [JsonProperty("published")]
+        public bool IsPublished { get; set; }
     }
 }
