@@ -16,25 +16,28 @@ namespace Social.Application.Dto
 
         public string SocialId { get; set; }
 
-        public bool IsRead { get; set; }
+        public bool IfRead { get; set; }
 
-        public TimeSpan HandlingTime { get; set; }
+        public DateTime LastMessageSentTime { get; set; }
 
-        public string Requester { get; set; }
+        public int LastMessageSenderId { get; set; }
 
-        public string Receiver { get; set; }
+        public int? LastRepliedAgentId { get; set; }
 
-        public int? AgentAssignee { get; set; }
+        public int? AgentId { get; set; }
 
-        public int? DepartmentAssignee { get; set; }
+        public int? DepartmentId { get; set; }
 
-        public ConversationStatus Status { get; set; } = ConversationStatus.New;
+        public ConversationStatus Status { get; set; }
 
+        [Required]
+        [MaxLength(200)]
         public string Subject { get; set; }
 
-        public string Comment { get; set; }
+        public ConversationPriority Priority { get; set; }
 
-        public ConversationPriority Priority { get; set; } = ConversationPriority.Normal;
+        [MaxLength(2000)]
+        public string Note { get; set; }
 
         public int? ModifiedBy { get; set; }
         public DateTime? ModifiedTime { get; set; }
