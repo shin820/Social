@@ -1,33 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Social.Domain.Entities;
 using Social.Infrastructure.Facebook;
-using Framework.Core;
 using Social.Infrastructure.Enum;
 
 namespace Social.Domain.DomainServices.Facebook
 {
     public class NewCommentStrategy : WebHookStrategy
     {
-        private IRepository<Conversation> _conversationRepo;
-        private IRepository<Message> _messageRepo;
-        private ISocialUserInfoService _socialUserInfoService;
-
-        public NewCommentStrategy(
-            IRepository<Conversation> conversationRepo,
-            IRepository<Message> messageRepo,
-            ISocialUserInfoService socialUserInfoService
-            )
-        {
-            _conversationRepo = conversationRepo;
-            _messageRepo = messageRepo;
-            _socialUserInfoService = socialUserInfoService;
-        }
-
-
         public override bool IsMatch(FbHookChange change)
         {
             return change.Field == "feed"
@@ -40,16 +19,14 @@ namespace Social.Domain.DomainServices.Facebook
         public async override Task Process(SocialAccount socialAccount, FbHookChange change)
         {
             FbMessage fbMessage = await FbClient.GetMessageFromCommentId(socialAccount.Token, change.Value.PostId, change.Value.CommentId);
-            SocialUser sender = await _socialUserInfoService.GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.SenderId, fbMessage.SenderEmail);
+            SocialUser sender = await GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.SenderId, fbMessage.SenderEmail);
 
-            var conversation = _conversationRepo.FindAll().Where(t => t.SiteId == socialAccount.SiteId && t.SocialId == change.Value.PostId).FirstOrDefault();
-
-            bool isDuplicatedComment = conversation.Messages.Any(t => t.SocialId == fbMessage.Id);
-            if (isDuplicatedComment)
+            if (IsDuplicatedMessage(socialAccount.SiteId, fbMessage.Id))
             {
                 return;
             }
 
+            var conversation = GetConversation(socialAccount.SiteId, change.Value.PostId);
             if (conversation == null)
             {
                 // todo : add log
@@ -73,7 +50,7 @@ namespace Social.Domain.DomainServices.Facebook
                 conversation.IsHidden = false;
             }
 
-            await _conversationRepo.UpdateAsync(conversation);
+            await UpdateConversation(conversation);
         }
 
         private void FillParentId(string postId, Message message, FbMessage fbMessage, SocialAccount socialAccount)
@@ -83,7 +60,7 @@ namespace Social.Domain.DomainServices.Facebook
                 return;
             }
 
-            Message parent = _messageRepo.FindAll(t => t.SiteId == socialAccount.SiteId && t.SocialId == fbMessage.ParentId).FirstOrDefault();
+            Message parent = GetMessage(socialAccount.SiteId, fbMessage.ParentId);
             if (parent != null)
             {
                 message.ParentId = parent.Id;
