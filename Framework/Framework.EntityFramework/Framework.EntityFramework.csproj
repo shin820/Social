@@ -72,13 +72,19 @@
     <Compile Include="IDbContextProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository\EFRepository.cs" />
+    <Compile Include="Repository\UnitOfWorkEfRepository.cs" />
     <Compile Include="ShardingTableInterceptor.cs" />
     <Compile Include="UnitOfWork\CurrentUnitOfWorkProvider.cs" />
     <Compile Include="UnitOfWork\ICurrentUnitOfWorkProvider.cs" />
+    <Compile Include="UnitOfWork\InnerUnitOfWorkCompleteHandle.cs" />
     <Compile Include="UnitOfWork\ITransactionStrategy.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWorkManager.cs" />
     <Compile Include="UnitOfWork\IUnitOfWork.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWorkCompleteHandle.cs" />
     <Compile Include="UnitOfWork\TransactionStrategy.cs" />
     <Compile Include="UnitOfWork\UnitOfWork.cs" />
+    <Compile Include="UnitOfWork\UnitOfWorkFailedEventArgs.cs" />
+    <Compile Include="UnitOfWork\UnitOfWorkManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

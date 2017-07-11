@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Quartz;
+using Framework.Core;
+using Social.Domain.Entities;
+using Framework.EntityFramework.UnitOfWork;
 
 namespace Social.Job.Jobs
 {
@@ -28,7 +31,13 @@ namespace Social.Job.Jobs
         {
             return Task.Run(() =>
              {
-                 Console.WriteLine("11111");
+                 var uowManager = DependencyResolver.Resolve<IUnitOfWorkManager>();
+                 using (var uow = uowManager.Begin())
+                 {
+                     var repo = DependencyResolver.Resolve<IRepository<Conversation>>();
+                     var a = repo.FindAll().ToList();
+                     uow.Complete();
+                 }
              });
         }
     }

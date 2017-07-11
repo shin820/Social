@@ -4,12 +4,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common.Logging;
 using Quartz;
+using Framework.Core;
 
 namespace Social.Job
 {
     public abstract class JobBase : IJob
     {
+        protected static DependencyResolver DependencyResolver;
         protected static ILog Logger = SchedulerLogger.GetLogger();
+
+        static JobBase()
+        {
+            DependencyResolver = new DependencyResolver();
+            DependencyResolver.Install(new JobInstaller());
+        }
 
         public async void Execute(IJobExecutionContext context)
         {

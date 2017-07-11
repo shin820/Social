@@ -21,6 +21,13 @@ namespace Framework.EntityFramework.UnitOfWork
         public bool IsDisposed { get; private set; }
         private bool _isBeginCalled;
         private bool _isCompleteCalled;
+        private bool _isSucceed;
+
+        public event EventHandler Completed;
+        public event EventHandler<UnitOfWorkFailedEventArgs> Failed;
+        public event EventHandler Disposed;
+
+        private Exception _exception;
 
         public UnitOfWork(
             IDependencyResolver dependencyResolver,
@@ -34,7 +41,7 @@ namespace Framework.EntityFramework.UnitOfWork
 
         public virtual TDbContext GetOrCreateDbContext<TDbContext>() where TDbContext : DbContext
         {
-            var connectionString = ConfigurationManager.ConnectionStrings["KBDataContext"].ConnectionString;
+            var connectionString = ConfigurationManager.ConnectionStrings["SiteDataContext"].ConnectionString;
             var dbContextKey = typeof(TDbContext).FullName + "#" + connectionString;
 
             DbContext dbContext;
@@ -64,9 +71,19 @@ namespace Framework.EntityFramework.UnitOfWork
                 throw new NotSupportedException("This unit of work has completed.");
             }
 
-            SaveChanges();
-            _isCompleteCalled = true;
-            _transactionStrategy.Commit();
+            try
+            {
+                SaveChanges();
+                _isCompleteCalled = true;
+                _transactionStrategy.Commit();
+                _isSucceed = true;
+                OnCompleted();
+            }
+            catch (Exception ex)
+            {
+                _exception = ex;
+                throw;
+            }
         }
 
         public void Dispose()
@@ -78,7 +95,14 @@ namespace Framework.EntityFramework.UnitOfWork
 
             IsDisposed = true;
 
+            if (!_isSucceed)
+            {
+                OnFailed(_exception);
+            }
+
             _transactionStrategy.Dispose();
+            OnDisposed();
+
         }
 
         private void SaveChanges()
@@ -93,6 +117,36 @@ namespace Framework.EntityFramework.UnitOfWork
         public override string ToString()
         {
             return $"[UnitOfWork {Id}]";
+        }
+
+        protected virtual void OnCompleted()
+        {
+            if (Completed == null)
+            {
+                return;
+            }
+
+            Completed(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnDisposed()
+        {
+            if (Disposed == null)
+            {
+                return;
+            }
+
+            Disposed(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnFailed(Exception exception)
+        {
+            if (Failed == null)
+            {
+                return;
+            }
+
+            Failed(this, new UnitOfWorkFailedEventArgs(exception));
         }
     }
 }
