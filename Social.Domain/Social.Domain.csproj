@@ -69,8 +69,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DbContextFactory.cs" />
-    <Compile Include="DomainServices\Facebook\Strategies\NewCommentStrategy.cs" />
+    <Compile Include="DomainServices\Facebook\Strategies\NewPostCommentStrategy.cs" />
     <Compile Include="DomainServices\Facebook\Strategies\NewVisitorPostWithPhotoOrVideoStrategy.cs" />
+    <Compile Include="DomainServices\Facebook\Strategies\RemovePostCommentStrategy.cs" />
     <Compile Include="DomainServices\Facebook\Strategies\RemoveVisitorPostStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategyFactory.cs" />
     <Compile Include="DomainServices\Facebook\IWebHookStrategyFactory.cs" />

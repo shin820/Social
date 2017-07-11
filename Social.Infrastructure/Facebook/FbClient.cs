@@ -128,7 +128,7 @@ namespace Social.Infrastructure.Facebook
             Checker.NotNullOrWhiteSpace(fbCommentId, nameof(fbCommentId));
 
             FacebookClient client = new FacebookClient(token);
-            string url = "/" + fbCommentId + "?fields=id,parent{id},from,created_time,message,permalink_url";
+            string url = "/" + fbCommentId + "?fields=id,parent{id},from,created_time,message,permalink_url,attachment";
 
             dynamic comment = await client.GetTaskAsync(url);
             var message = new FbMessage
@@ -147,6 +147,15 @@ namespace Social.Infrastructure.Facebook
             else
             {
                 message.ParentId = fbPostId;
+            }
+
+            if (comment.attachment != null && comment.attachment.media != null && comment.attachment.media.image != null)
+            {
+                message.Attachments.Add(new FbMessageAttachment
+                {
+                    Url = comment.attachment.media.image.src,
+                    MimeType = new Uri(comment.attachment.media.image.src).GetMimeType()
+                });
             }
 
             return message;
