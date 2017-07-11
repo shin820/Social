@@ -73,6 +73,7 @@
     <Compile Include="DomainServices\Facebook\Strategies\NewVisitorPostWithPhotoOrVideoStrategy.cs" />
     <Compile Include="DomainServices\Facebook\Strategies\RemovePostCommentStrategy.cs" />
     <Compile Include="DomainServices\Facebook\Strategies\RemoveVisitorPostStrategy.cs" />
+    <Compile Include="DomainServices\Facebook\WebHookStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategyFactory.cs" />
     <Compile Include="DomainServices\Facebook\IWebHookStrategyFactory.cs" />
     <Compile Include="DomainServices\Facebook\Strategies\NewVisitorPostStrategy.cs" />

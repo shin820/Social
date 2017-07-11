@@ -10,7 +10,7 @@ using Social.Infrastructure.Enum;
 
 namespace Social.Domain.DomainServices.Facebook
 {
-    public class NewCommentStrategy : IWebHookSrategy
+    public class NewCommentStrategy : WebHookStrategy
     {
         private IRepository<Conversation> _conversationRepo;
         private IRepository<Message> _messageRepo;
@@ -28,7 +28,7 @@ namespace Social.Domain.DomainServices.Facebook
         }
 
 
-        public bool IsMatch(FbHookChange change)
+        public override bool IsMatch(FbHookChange change)
         {
             return change.Field == "feed"
                 && change.Value.PostId != null
@@ -37,7 +37,7 @@ namespace Social.Domain.DomainServices.Facebook
                 && change.Value.Verb == "add";
         }
 
-        public async Task Process(SocialAccount socialAccount, FbHookChange change)
+        public async override Task Process(SocialAccount socialAccount, FbHookChange change)
         {
             FbMessage fbMessage = await FbClient.GetMessageFromCommentId(socialAccount.Token, change.Value.PostId, change.Value.CommentId);
             SocialUser sender = await _socialUserInfoService.GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.SenderId, fbMessage.SenderEmail);
@@ -118,16 +118,6 @@ namespace Social.Domain.DomainServices.Facebook
             }
 
             return message;
-        }
-
-        private string GetSubject(string message)
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                return "No Subject";
-            }
-
-            return message.Length <= 200 ? message : message.Substring(200);
         }
     }
 }

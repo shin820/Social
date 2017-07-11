@@ -9,7 +9,7 @@ using Framework.Core;
 
 namespace Social.Domain.DomainServices.Facebook.Strategies
 {
-    public class RemovePostCommentStrategy : IWebHookSrategy
+    public class RemovePostCommentStrategy : WebHookStrategy
     {
         private IRepository<Conversation> _conversationRepo;
         private IRepository<Message> _messageRepo;
@@ -26,7 +26,7 @@ namespace Social.Domain.DomainServices.Facebook.Strategies
             _socialUserInfoService = socialUserInfoService;
         }
 
-        public bool IsMatch(FbHookChange change)
+        public override bool IsMatch(FbHookChange change)
         {
             return change.Field == "feed"
                 && change.Value.PostId != null
@@ -35,7 +35,7 @@ namespace Social.Domain.DomainServices.Facebook.Strategies
                 && change.Value.Verb == "remove";
         }
 
-        public async Task Process(SocialAccount socialAccount, FbHookChange change)
+        public async override Task Process(SocialAccount socialAccount, FbHookChange change)
         {
             var message = _messageRepo.FindAll().FirstOrDefault(t => t.SiteId == socialAccount.SiteId && t.SocialId == change.Value.CommentId);
             if (message != null)

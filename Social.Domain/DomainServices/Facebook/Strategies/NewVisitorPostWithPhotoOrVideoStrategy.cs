@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Social.Domain.DomainServices.Facebook
 {
-    public class NewVisitorPostWithPhotoOrVideoStrategy : IWebHookSrategy
+    public class NewVisitorPostWithPhotoOrVideoStrategy : WebHookStrategy
     {
         private IRepository<Conversation> _conversationRepo;
         private IRepository<Message> _messageRepo;
@@ -27,7 +27,7 @@ namespace Social.Domain.DomainServices.Facebook
             _socialUserInfoService = socialUserInfoService;
         }
 
-        public bool IsMatch(FbHookChange change)
+        public override bool IsMatch(FbHookChange change)
         {
             return change.Field == "feed"
                 && change.Value.PostId != null
@@ -37,7 +37,7 @@ namespace Social.Domain.DomainServices.Facebook
                 && change.Value.IsPublished;
         }
 
-        public async Task Process(SocialAccount socialAccount, FbHookChange change)
+        public async override Task Process(SocialAccount socialAccount, FbHookChange change)
         {
             FbMessage fbMessage = await FbClient.GetMessageFromPostId(socialAccount.Token, change.Value.PostId);
 
@@ -100,16 +100,6 @@ namespace Social.Domain.DomainServices.Facebook
             message.Attachments.Add(attachment);
 
             return message;
-        }
-
-        private string GetSubject(string message)
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                return "No Subject";
-            }
-
-            return message.Length <= 200 ? message : message.Substring(200);
         }
     }
 }

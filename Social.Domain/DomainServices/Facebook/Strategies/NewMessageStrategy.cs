@@ -14,7 +14,7 @@ namespace Social.Domain.DomainServices.Facebook
     /// <summary>
     /// Process facebook hook data when a new facebook message created.
     /// </summary>
-    public class NewMessageStrategy : IWebHookSrategy
+    public class NewMessageStrategy : WebHookStrategy
     {
         private IRepository<Conversation> _conversationRepo;
         private IRepository<Message> _messageRepo;
@@ -31,12 +31,12 @@ namespace Social.Domain.DomainServices.Facebook
             _socialUserInfoService = socialUserInfoService;
         }
 
-        public bool IsMatch(FbHookChange change)
+        public override bool IsMatch(FbHookChange change)
         {
             return change.Field == "conversations" && change.Value.ThreadId != null;
         }
 
-        public async Task Process(SocialAccount socialAccount, FbHookChange change)
+        public async override Task Process(SocialAccount socialAccount, FbHookChange change)
         {
             FbMessage fbMessage = await FbClient.GetLastMessageFromConversationId(socialAccount.Token, change.Value.ThreadId);
 
@@ -108,16 +108,6 @@ namespace Social.Domain.DomainServices.Facebook
             }
 
             return message;
-        }
-
-        private string GetSubject(string message)
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                return "No Subject";
-            }
-
-            return message.Length <= 200 ? message : message.Substring(200);
         }
     }
 }
