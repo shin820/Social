@@ -12,3 +12,4 @@ packages/
 *.log
 *.2017-05-18
 /KB.WebApi/App_Data/
+/Social.WebApi/App_Data/Logs.log.*

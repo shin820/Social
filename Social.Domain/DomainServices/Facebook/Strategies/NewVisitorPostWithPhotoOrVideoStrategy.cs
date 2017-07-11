@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Social.Domain.DomainServices.Facebook.Strategies
+namespace Social.Domain.DomainServices.Facebook
 {
     public class NewVisitorPostWithPhotoOrVideoStrategy : IWebHookSrategy
     {

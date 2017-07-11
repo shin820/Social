@@ -7,7 +7,7 @@ using Social.Domain.Entities;
 using Social.Infrastructure.Facebook;
 using Framework.Core;
 
-namespace Social.Domain.DomainServices.Facebook.Strategies
+namespace Social.Domain.DomainServices.Facebook
 {
     public class RemoveVisitorPostStrategy : IWebHookSrategy
     {

@@ -51,7 +51,7 @@ namespace Social.Domain
                 .WithMany(t => t.SendMessages)
                 .HasForeignKey(t => t.SenderId).WillCascadeOnDelete(false);
             modelBuilder.Entity<Message>()
-                .HasRequired(t => t.Receiver)
+                .HasOptional(t => t.Receiver)
                 .WithMany(t => t.ReceiveMessages)
                 .HasForeignKey(t => t.ReceiverId).WillCascadeOnDelete(false);
             modelBuilder.Entity<Message>()

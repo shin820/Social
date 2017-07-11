@@ -48,6 +48,8 @@ namespace Social.Domain.Entities
 
         public bool IsDeleted { get; set; }
 
+        public bool IsHidden { get; set; }
+
         public int? ModifiedBy { get; set; }
 
         public DateTime? ModifiedTime { get; set; }

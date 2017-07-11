@@ -54,6 +54,16 @@ namespace Social.IntegrationTest
             await facebookService.ProcessWebHookData(data);
         }
 
+        [Fact]
+        public async Task ShouldProcessData_WhenNewComment()
+        {
+            string rawData = "{\"entry\": [{\"changes\": [{\"field\": \"feed\", \"value\": {\"item\": \"comment\", \"sender_name\": \"Vivi Xu\", \"comment_id\": \"2015985455300587_2015999091965890\", \"sender_id\": \"121361878431739\", \"post_id\": \"1974003879498745_2015985455300587\", \"verb\": \"add\", \"parent_id\": \"1974003879498745_2015985455300587\", \"created_time\": 1499683257, \"message\": \"AAAA\"}}], \"id\": \"1974003879498745\", \"time\": 1499683259}], \"object\": \"page\"}";
+
+            var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData);
+            IFacebookWebHookService facebookService = DependencyResolver.Resolve<IFacebookWebHookService>();
+            await facebookService.ProcessWebHookData(data);
+        }
+
 
         //[Fact]
         //public async Task ShouldProcessData_WhenPostCommentCreated()

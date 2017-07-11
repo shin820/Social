@@ -22,6 +22,8 @@ namespace Social.Infrastructure.Facebook
         public string Content { get; set; }
         public string Link { get; set; }
 
+        // Comment Id or Post Id
+        public string ParentId { get; set; }
         public IList<FbMessageAttachment> Attachments { get; set; }
     }
 }

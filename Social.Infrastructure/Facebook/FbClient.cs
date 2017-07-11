@@ -120,5 +120,36 @@ namespace Social.Infrastructure.Facebook
 
             return message;
         }
+
+        public async static Task<FbMessage> GetMessageFromCommentId(string token, string fbPostId, string fbCommentId)
+        {
+            Checker.NotNullOrWhiteSpace(token, nameof(token));
+            Checker.NotNullOrWhiteSpace(token, nameof(fbPostId));
+            Checker.NotNullOrWhiteSpace(fbCommentId, nameof(fbCommentId));
+
+            FacebookClient client = new FacebookClient(token);
+            string url = "/" + fbCommentId + "?fields=id,parent{id},from,created_time,message,permalink_url";
+
+            dynamic comment = await client.GetTaskAsync(url);
+            var message = new FbMessage
+            {
+                Id = comment.id,
+                SendTime = Convert.ToDateTime(comment.created_time).ToUniversalTime(),
+                SenderId = comment.from.id,
+                Content = comment.message,
+                Link = comment.permalink_url
+            };
+
+            if (comment.parent != null)
+            {
+                message.ParentId = comment.parent.id;
+            }
+            else
+            {
+                message.ParentId = fbPostId;
+            }
+
+            return message;
+        }
     }
 }

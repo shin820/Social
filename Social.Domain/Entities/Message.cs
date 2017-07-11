@@ -35,12 +35,7 @@ namespace Social.Domain.Entities
 
         public int SenderId { get; set; }
 
-        [NotMapped]
-        public string SenderSocialId { get; set; }
-        [NotMapped]
-        public string SenderEmail { get; set; }
-
-        public int ReceiverId { get; set; }
+        public int? ReceiverId { get; set; }
 
         public string Content { get; set; }
 
