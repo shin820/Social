@@ -70,13 +70,13 @@
   <ItemGroup>
     <Compile Include="DbContextFactory.cs" />
     <Compile Include="DomainServices\Facebook\Strategies\NewPostCommentStrategy.cs" />
-    <Compile Include="DomainServices\Facebook\Strategies\NewVisitorPostWithPhotoOrVideoStrategy.cs" />
+    <Compile Include="DomainServices\Facebook\Strategies\NewPostWithPhotoOrVideoStrategy.cs" />
     <Compile Include="DomainServices\Facebook\Strategies\RemovePostCommentStrategy.cs" />
     <Compile Include="DomainServices\Facebook\Strategies\RemoveVisitorPostStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategyFactory.cs" />
     <Compile Include="DomainServices\Facebook\IWebHookStrategyFactory.cs" />
-    <Compile Include="DomainServices\Facebook\Strategies\NewVisitorPostStrategy.cs" />
+    <Compile Include="DomainServices\Facebook\Strategies\NewPostStrategy.cs" />
     <Compile Include="DomainServices\Facebook\FacebookWebHookService.cs" />
     <Compile Include="DomainServices\Facebook\IWebHookSrategy.cs" />
     <Compile Include="DomainServices\Facebook\Strategies\NewMessageStrategy.cs" />
