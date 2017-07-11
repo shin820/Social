@@ -46,8 +46,10 @@ namespace Social.WebApi.Controllers
             {
                 var request = Request;
                 string rawData = await request.Content.ReadAsStringAsync();
+                _facebookWebHookAppService.InsertWebHookData(rawData);
                 FbHookData data = await request.Content.ReadAsAsync<FbHookData>();
-                //_facebookWebHookAppService.ProcessWebHookData(data);
+                //await _facebookWebHookAppService.ProcessWebHookData(data);
+
                 if (data == null || !data.Entry.Any())
                 {
                     return Ok();

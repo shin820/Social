@@ -13,7 +13,7 @@ namespace Social.Domain
 
         public SiteDataContext(string nameOrConnectionString, IUserContext userContext) : base(nameOrConnectionString, userContext)
         {
-            Database.SetInitializer<SiteDataContext>(null);
+            //Database.SetInitializer<SiteDataContext>(null);
             Database.Log = t => logger.Debug(t);
         }
 
@@ -21,6 +21,7 @@ namespace Social.Domain
         public virtual DbSet<Message> Messages { get; set; }
         public virtual DbSet<SocialAccount> SocialAccounts { get; set; }
         public virtual DbSet<SocialUser> SocialUsers { get; set; }
+        public virtual DbSet<FacebookWebHookRawData> FacebookWebHookRawData { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -66,7 +67,7 @@ namespace Social.Domain
             modelBuilder.Entity<FilterCondition>()
                 .HasRequired(t => t.Field)
                 .WithMany(t => t.Conditions)
-                .HasForeignKey(t => t.FilterId).WillCascadeOnDelete(false);
+                .HasForeignKey(t => t.FieldId).WillCascadeOnDelete(false);
 
             modelBuilder.Entity<SocialUser>()
                 .HasOptional(t => t.SocialAccount)

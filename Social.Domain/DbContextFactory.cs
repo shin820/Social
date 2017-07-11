@@ -14,13 +14,13 @@ namespace Social.Domain
         {
             var connectionString = ConfigurationManager.ConnectionStrings["SiteDataContext"].ConnectionString;
             var userContext = kernel.Resolve<IUserContext>();
-            if (userContext != null && userContext.SiteId.HasValue)
-            {
-                // returne new SiteDataContext(DbConfigure.GetConnectionStringForSiteDatabase(userContext.SiteId.Value),userContext);
-                return new SiteDataContext(connectionString, userContext);
-            }
+            //if (userContext != null && userContext.SiteId.HasValue)
+            //{
+            // returne new SiteDataContext(DbConfigure.GetConnectionStringForSiteDatabase(userContext.SiteId.Value),userContext);
+            return new SiteDataContext(connectionString, userContext);
+            //}
 
-            return new DbContext("error");
+            //return new DbContext("error");
         }
     }
 }

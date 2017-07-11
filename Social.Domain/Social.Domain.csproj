@@ -92,6 +92,7 @@
     <Compile Include="Entities\ConversationLog.cs" />
     <Compile Include="Entities\SocialAccount.cs" />
     <Compile Include="Entities\SocialUser.cs" />
+    <Compile Include="Entities\FacebookWebHookRawData.cs" />
     <Compile Include="SiteDataContext.cs" />
     <Compile Include="DomainIocInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
