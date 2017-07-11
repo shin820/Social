@@ -10,6 +10,9 @@ namespace Social.Application
         {
             CreateMap<Conversation, ConversationDto>();
             CreateMap<ConversationCreateDto, Conversation>();
+            CreateMap<FilterCreateDto, Filter>();
+            CreateMap<Filter, FilterDto>();
+            CreateMap<FilterConditionCreateDto, FilterCondition>();
         }
     }
 }

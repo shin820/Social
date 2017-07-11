@@ -246,6 +246,7 @@
     <Compile Include="Controllers\ConversationsController.cs" />
     <Compile Include="Controllers\FacebookController.cs" />
     <Compile Include="Controllers\FacebookWebHookController.cs" />
+    <Compile Include="Controllers\FilterController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Core\ApiAuthorizeAttribute.cs" />

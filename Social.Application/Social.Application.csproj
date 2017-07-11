@@ -53,6 +53,10 @@
   <ItemGroup>
     <Compile Include="ApplicationIocFacility.cs" />
     <Compile Include="AppServices\ConversationAppService.cs" />
+    <Compile Include="AppServices\Dto\Filter\FilterConditionCreateDto.cs" />
+    <Compile Include="AppServices\Dto\Filter\FilterCreateDto.cs" />
+    <Compile Include="AppServices\Dto\Filter\FilterDto.cs" />
+    <Compile Include="AppServices\FilterAppService.cs" />
     <Compile Include="DtoMappings.cs" />
     <Compile Include="AppServices\Dto\Conversation\ConversationCreateDto.cs" />
     <Compile Include="AppServices\Dto\Conversation\ConversationDto.cs" />
