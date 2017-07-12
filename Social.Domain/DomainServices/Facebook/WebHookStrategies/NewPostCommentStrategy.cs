@@ -18,13 +18,13 @@ namespace Social.Domain.DomainServices.Facebook
 
         public async override Task Process(SocialAccount socialAccount, FbHookChange change)
         {
-            FbMessage fbMessage = await FbClient.GetMessageFromCommentId(socialAccount.Token, change.Value.PostId, change.Value.CommentId);
-            SocialUser sender = await GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.SenderId, fbMessage.SenderEmail);
-
-            if (IsDuplicatedMessage(socialAccount.SiteId, fbMessage.Id))
+            if (IsDuplicatedMessage(socialAccount.SiteId, change.Value.CommentId))
             {
                 return;
             }
+
+            FbMessage fbMessage = await FbClient.GetMessageFromCommentId(socialAccount.Token, change.Value.PostId, change.Value.CommentId);
+            SocialUser sender = await GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.SenderId, fbMessage.SenderEmail);
 
             var conversation = GetConversation(socialAccount.SiteId, change.Value.PostId);
             if (conversation == null)
@@ -44,8 +44,7 @@ namespace Social.Domain.DomainServices.Facebook
             conversation.LastMessageSentTime = message.SendTime;
 
             // if comment a Wall Post, the Wall Post conversation should be visible.
-            if (conversation.Source == ConversationSource.FacebookWallPost
-                && conversation.IsHidden)
+            if (conversation.Source == ConversationSource.FacebookWallPost && message.SenderId != socialAccount.SocialUserId && conversation.IsHidden)
             {
                 conversation.IsHidden = false;
             }

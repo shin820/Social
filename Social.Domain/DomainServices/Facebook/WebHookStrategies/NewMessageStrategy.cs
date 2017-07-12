@@ -54,7 +54,7 @@ namespace Social.Domain.DomainServices.Facebook
                     LastMessageSentTime = message.SendTime
                 };
                 conversation.Messages.Add(message);
-                await AddConversation(conversation);
+                await AddConversation(socialAccount, conversation);
             }
         }
 

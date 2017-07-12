@@ -113,10 +113,14 @@ namespace Social.Infrastructure.Facebook
                 Id = post.id,
                 SendTime = Convert.ToDateTime(post.created_time).ToUniversalTime(),
                 SenderId = post.from.id,
-                ReceiverId = post.to.data[0].id, // multiple receivers?
                 Content = post.message,
                 Link = post.permalink_url
             };
+
+            if (post.to != null)
+            {
+                message.ReceiverId = post.to.data[0].id;
+            }
 
             return message;
         }

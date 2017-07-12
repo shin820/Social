@@ -58,8 +58,20 @@ namespace Social.Domain.DomainServices.Facebook
             await ConversationRepository.UpdateAsync(conversation);
         }
 
-        protected async Task AddConversation(Conversation conversation)
+        protected async Task AddConversation(SocialAccount socialAccount, Conversation conversation)
         {
+            if (socialAccount.ConversationDepartmentId.HasValue)
+            {
+                conversation.DepartmentId = socialAccount.ConversationDepartmentId.Value;
+                conversation.Priority = socialAccount.ConversationPriority ?? ConversationPriority.Normal;
+            }
+
+            if (socialAccount.ConversationAgentId.HasValue)
+            {
+                conversation.AgentId = socialAccount.ConversationAgentId.Value;
+                conversation.Priority = socialAccount.ConversationPriority ?? ConversationPriority.Normal;
+            }
+
             await ConversationRepository.InsertAsync(conversation);
         }
 

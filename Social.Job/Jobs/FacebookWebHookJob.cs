@@ -37,7 +37,7 @@ namespace Social.Job.Jobs
                 {
                     using (CurrentUnitOfWork.SetSiteId(siteId))
                     {
-                        rawDataList = _hookRawDataRepo.FindAll().Where(t => t.IsDeleted == false).Take(50).ToList();
+                        rawDataList = _hookRawDataRepo.FindAll().Where(t => t.IsDeleted == false).OrderBy(t => t.CreatedTime).Take(50).ToList();
                         uow.Complete();
                     }
                 }

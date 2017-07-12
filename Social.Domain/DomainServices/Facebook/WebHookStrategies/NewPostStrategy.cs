@@ -23,15 +23,31 @@ namespace Social.Domain.DomainServices.Facebook
                 && !string.IsNullOrWhiteSpace(change.Value.Link)
                 && change.Value.IsPublished;
 
-            return isTextPost || isPhotOrVideoPost;
+            bool isWallPost = change.Field == "feed"
+                && change.Value.PostId != null
+                && change.Value.Item == "status"
+                && change.Value.Verb == "add"
+                && change.Value.IsPublished;
+
+            return isTextPost || isPhotOrVideoPost || isWallPost;
         }
 
         public override async Task Process(SocialAccount socialAccount, FbHookChange change)
         {
+            if (IsDuplicatedMessage(socialAccount.SiteId, change.Value.PostId))
+            {
+                return;
+            }
+
             FbMessage fbMessage = await FbClient.GetMessageFromPostId(socialAccount.Token, change.Value.PostId);
 
             SocialUser sender = await GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.SenderId, fbMessage.SenderEmail);
-            SocialUser receiver = await GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.ReceiverId, fbMessage.ReceiverEmail);
+
+            SocialUser receiver = null;
+            if (!string.IsNullOrEmpty(fbMessage.ReceiverId))
+            {
+                receiver = await GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.ReceiverId, fbMessage.ReceiverEmail);
+            }
 
             var existingConversation = GetConversation(socialAccount.SiteId, change.Value.PostId);
             if (existingConversation != null)
@@ -60,14 +76,14 @@ namespace Social.Domain.DomainServices.Facebook
                     LastMessageSentTime = message.SendTime
                 };
 
-                if (message.SenderId == socialAccount.SocialUserId)
+                if (change.Value.Item == "status" && message.SenderId == socialAccount.SocialUserId)
                 {
                     conversation.Source = ConversationSource.FacebookWallPost;
                     conversation.IsHidden = true;
                 }
 
                 conversation.Messages.Add(message);
-                await AddConversation(conversation);
+                await AddConversation(socialAccount, conversation);
             }
         }
 
@@ -76,7 +92,6 @@ namespace Social.Domain.DomainServices.Facebook
             Message message = new Message
             {
                 SenderId = Sender.Id,
-                ReceiverId = Receiver.Id,
                 Source = MessageSource.FacebookPost,
                 SocialId = fbMessage.Id,
                 SendTime = fbMessage.SendTime,
@@ -84,6 +99,11 @@ namespace Social.Domain.DomainServices.Facebook
                 SiteId = account.SiteId,
                 SocialLink = fbMessage.Link,
             };
+
+            if (Receiver != null)
+            {
+                message.ReceiverId = Receiver.Id;
+            }
 
             if (!string.IsNullOrWhiteSpace(change.Value.Link))
             {
