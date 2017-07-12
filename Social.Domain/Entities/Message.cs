@@ -39,6 +39,8 @@ namespace Social.Domain.Entities
 
         public string Content { get; set; }
 
+        public string Story { get; set; }
+
         public bool IsDeleted { get; set; }
 
         public virtual Conversation Conversation { get; set; }

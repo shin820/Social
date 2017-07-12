@@ -105,7 +105,7 @@ namespace Social.Infrastructure.Facebook
             Checker.NotNullOrWhiteSpace(fbPostId, nameof(fbPostId));
 
             FacebookClient client = new FacebookClient(token);
-            string url = "/" + fbPostId + "?fields=id,message,created_time,to{id,name,pic,username},from,permalink_url";
+            string url = "/" + fbPostId + "?fields=id,message,created_time,to{id,name,pic,username},from,permalink_url,story";
 
             dynamic post = await client.GetTaskAsync(url);
             var message = new FbMessage
@@ -114,7 +114,8 @@ namespace Social.Infrastructure.Facebook
                 SendTime = Convert.ToDateTime(post.created_time).ToUniversalTime(),
                 SenderId = post.from.id,
                 Content = post.message,
-                Link = post.permalink_url
+                Link = post.permalink_url,
+                Story = post.story
             };
 
             if (post.to != null)

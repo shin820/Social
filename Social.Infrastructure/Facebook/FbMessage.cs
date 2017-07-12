@@ -21,6 +21,7 @@ namespace Social.Infrastructure.Facebook
         public string ReceiverEmail { get; set; }
         public string Content { get; set; }
         public string Link { get; set; }
+        public string Story { get; set; }
 
         // Comment Id or Post Id
         public string ParentId { get; set; }

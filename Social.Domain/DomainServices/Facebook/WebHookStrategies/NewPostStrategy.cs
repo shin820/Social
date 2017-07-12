@@ -98,6 +98,7 @@ namespace Social.Domain.DomainServices.Facebook
                 Content = fbMessage.Content,
                 SiteId = account.SiteId,
                 SocialLink = fbMessage.Link,
+                Story = fbMessage.Story
             };
 
             if (Receiver != null)
