@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Common.Logging;
 using Quartz;
 using Framework.Core;
-using Framework.EntityFramework.UnitOfWork;
+using Framework.Core.UnitOfWork;
 
 namespace Social.Job
 {

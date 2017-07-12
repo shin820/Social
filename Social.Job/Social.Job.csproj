@@ -87,7 +87,7 @@
     <Compile Include="ScheduleJobManager.cs" />
     <Compile Include="SchedulerBootstrap.cs" />
     <Compile Include="SchedulerLogger.cs" />
-    <Compile Include="TestUserContext.cs" />
+    <Compile Include="JobUserContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

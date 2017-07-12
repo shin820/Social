@@ -8,7 +8,7 @@ using Framework.Core;
 
 namespace Framework.EntityFramework
 {
-    public class UnitOfWorkEfRepository<TDbContext, TEntity> : IRepository<TEntity>
+    public class UnitOfWorkEfRepository<TDbContext, TEntity> : ServiceBase, IRepository<TEntity>
         where TEntity : Entity
         where TDbContext : DbContext
     {
@@ -24,14 +24,12 @@ namespace Framework.EntityFramework
         {
             get
             {
-                return _dbContextProvider.GetDbContext();
+                return CurrentUnitOfWork.GetOrCreateDbContext<TDbContext>();
             }
         }
 
-        private IDbContextProvider<TDbContext> _dbContextProvider;
-        public UnitOfWorkEfRepository(IDbContextProvider<TDbContext> dbContextProvider)
+        public UnitOfWorkEfRepository()
         {
-            _dbContextProvider = dbContextProvider;
         }
 
         public IQueryable<TEntity> FindAll()

@@ -11,7 +11,7 @@ namespace Social.Domain
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(SiteDataContext));
 
-        public SiteDataContext(string nameOrConnectionString, IUserContext userContext) : base(nameOrConnectionString, userContext)
+        public SiteDataContext(string nameOrConnectionString) : base(nameOrConnectionString)
         {
             //Database.SetInitializer<SiteDataContext>(null);
             Database.Log = t => logger.Debug(t);

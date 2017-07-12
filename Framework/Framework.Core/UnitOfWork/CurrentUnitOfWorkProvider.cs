@@ -4,7 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Runtime.Remoting.Messaging;
 
-namespace Framework.EntityFramework.UnitOfWork
+namespace Framework.Core.UnitOfWork
 {
     public class CurrentUnitOfWorkProvider : ICurrentUnitOfWorkProvider, ITransient
     {

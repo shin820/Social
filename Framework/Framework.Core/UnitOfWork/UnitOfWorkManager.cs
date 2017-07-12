@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
-namespace Framework.EntityFramework.UnitOfWork
+namespace Framework.Core.UnitOfWork
 {
     public class UnitOfWorkManager : IUnitOfWorkManager, ITransient
     {
@@ -28,8 +29,20 @@ namespace Framework.EntityFramework.UnitOfWork
 
         public IUnitOfWorkCompleteHandle Begin()
         {
+            return Begin(new UnitOfWorkOptions());
+        }
+
+        public IUnitOfWorkCompleteHandle Begin(TransactionScopeOption scope)
+        {
+            return Begin(new UnitOfWorkOptions { Scope = scope });
+        }
+
+        public IUnitOfWorkCompleteHandle Begin(UnitOfWorkOptions options)
+        {
+            options = options ?? new UnitOfWorkOptions();
+
             var outerUow = _currentUnitOfWorkProvider.Current;
-            if (outerUow != null)
+            if (options.Scope == TransactionScopeOption.Required && outerUow != null)
             {
                 return new InnerUnitOfWorkCompleteHandle();
             }
@@ -51,7 +64,7 @@ namespace Framework.EntityFramework.UnitOfWork
                 _dependencyResolver.Release(uow);
             };
 
-            uow.Begin();
+            uow.Begin(options);
 
             _currentUnitOfWorkProvider.Current = uow;
 

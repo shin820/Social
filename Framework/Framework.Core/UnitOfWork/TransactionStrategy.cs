@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 
-namespace Framework.EntityFramework.UnitOfWork
+namespace Framework.Core.UnitOfWork
 {
     public class TransactionStrategy : ITransactionStrategy, ITransient
     {
@@ -23,22 +23,37 @@ namespace Framework.EntityFramework.UnitOfWork
             DbContexts = new List<DbContext>();
         }
 
-        public DbContext CreateDbContext<TDbContext>(string connectionString)
+        public DbContext CreateDbContext<TDbContext>(string nameOrConnectionString)
          where TDbContext : DbContext
         {
-            var dbContext = _dependencyResolver.Resolve<TDbContext>(connectionString);
+            IDbContextResolver dbContextResolver = _dependencyResolver.Resolve<IDbContextResolver>();
+            var dbContext = dbContextResolver.Resolve<TDbContext>(nameOrConnectionString);
             DbContexts.Add(dbContext);
             return dbContext;
         }
 
-        public void StartTransaction()
+        public void StartTransaction(UnitOfWorkOptions options)
         {
+            options = options ?? new UnitOfWorkOptions();
+
             if (CurrentTransaction != null)
             {
                 return;
             }
 
+            var transactionOptions = new TransactionOptions
+            {
+                IsolationLevel = options.IsolationLevel.GetValueOrDefault(IsolationLevel.ReadCommitted)
+            };
+
+            if (options.Timeout.HasValue)
+            {
+                transactionOptions.Timeout = options.Timeout.Value;
+            }
+
             CurrentTransaction = new TransactionScope(
+                options.Scope,
+                transactionOptions,
                 TransactionScopeAsyncFlowOption.Enabled
             );
         }

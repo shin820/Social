@@ -3,7 +3,7 @@ using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using Framework.Core;
 using Framework.EntityFramework;
-using Framework.EntityFramework.UnitOfWork;
+using Framework.Core.UnitOfWork;
 using Social.Domain;
 
 namespace Social.Job
@@ -43,20 +43,18 @@ namespace Social.Job
                 Component.For<IUnitOfWorkManager>().ImplementedBy<UnitOfWorkManager>().LifestyleTransient(),
                 Component.For<IUnitOfWork>().ImplementedBy<UnitOfWork>().LifestyleTransient(),
                 Component.For<ITransactionStrategy>().ImplementedBy<TransactionStrategy>().LifestyleTransient(),
-                Component.For(typeof(IDbContextProvider<>)).ImplementedBy(typeof(DbContextProvider<>)).LifestyleTransient(),
+                Component.For<IDbContextResolver>().ImplementedBy<DefaultDbContextResolver>().LifestyleTransient(),
+                Component.For<IConnectionStringResolver>().ImplementedBy<DefaultConnectionStringResolver>().LifestyleTransient(),
                 Component.For<ICurrentUnitOfWorkProvider>().ImplementedBy<CurrentUnitOfWorkProvider>().LifestyleTransient(),
 
-               Component.For(typeof(SiteDataContext))
-               .UsingFactoryMethod(k => { return DbContextFactory.Create(k); })
+               Component.For<SiteDataContext>().ImplementedBy<SiteDataContext>()
+               //.UsingFactoryMethod(k => { return DbContextFactory.Create(k); })
                .LifestyleTransient()
            );
         }
 
         public class JobRepository<TEntity> : UnitOfWorkEfRepository<SiteDataContext, TEntity>, IRepository<TEntity> where TEntity : Entity
         {
-            public JobRepository(IDbContextProvider<SiteDataContext> dbContextProvider) : base(dbContextProvider)
-            {
-            }
         }
 
 

@@ -2,10 +2,12 @@
 using Framework.Core;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Configuration;
 using System.Data.Entity;
+using System.Threading.Tasks;
 
-namespace Framework.EntityFramework.UnitOfWork
+namespace Framework.Core.UnitOfWork
 {
     public class UnitOfWork : IDisposable, IUnitOfWork, ITransient
     {
@@ -13,6 +15,8 @@ namespace Framework.EntityFramework.UnitOfWork
 
         [DoNotWire]
         public IUnitOfWork Outer { get; set; }
+
+        public UnitOfWorkOptions Options { get; private set; }
 
         private IDependencyResolver _dependencyResolver;
         private IDictionary<string, DbContext> _activeDbContexts;
@@ -29,39 +33,76 @@ namespace Framework.EntityFramework.UnitOfWork
 
         private Exception _exception;
 
+        private readonly IConnectionStringResolver _connectionStringResolver;
+        private readonly IDbContextResolver _dbContextResolver;
+        private readonly IUserContext _userContext;
+
+        private int? _siteId;
+
         public UnitOfWork(
+            IConnectionStringResolver connectionStringResolver,
+            IDbContextResolver dbContextResolver,
             IDependencyResolver dependencyResolver,
-            ITransactionStrategy transactionStrategy)
+            ITransactionStrategy transactionStrategy,
+            IUserContext userContext)
         {
             Id = Guid.NewGuid().ToString("N");
             _dependencyResolver = dependencyResolver;
             _transactionStrategy = transactionStrategy;
+            _connectionStringResolver = connectionStringResolver;
+            _dbContextResolver = dbContextResolver;
             _activeDbContexts = new Dictionary<string, DbContext>();
+            _userContext = userContext;
         }
 
         public virtual TDbContext GetOrCreateDbContext<TDbContext>() where TDbContext : DbContext
         {
-            var connectionString = ConfigurationManager.ConnectionStrings["SiteDataContext"].ConnectionString;
+            var connectionString = _connectionStringResolver.GetNameOrConnectionStringForSiteDb(_siteId.GetValueOrDefault());
             var dbContextKey = typeof(TDbContext).FullName + "#" + connectionString;
 
             DbContext dbContext;
             if (!_activeDbContexts.TryGetValue(dbContextKey, out dbContext))
             {
-                dbContext = _transactionStrategy.CreateDbContext<TDbContext>(connectionString);
+                if (Options.IsTransactional)
+                {
+                    dbContext = _transactionStrategy.CreateDbContext<TDbContext>(connectionString);
+                }
+                else
+                {
+                    dbContext = _dbContextResolver.Resolve<TDbContext>(connectionString);
+                }
+
+                if (Options.Timeout.HasValue && !dbContext.Database.CommandTimeout.HasValue)
+                {
+                    dbContext.Database.CommandTimeout = (int)Convert.ChangeType(Options.Timeout.Value.TotalSeconds, typeof(int));
+                }
+
                 _activeDbContexts[dbContextKey] = dbContext;
             }
             return (TDbContext)dbContext;
         }
 
-        public void Begin()
+        public void Begin(UnitOfWorkOptions options)
+        {
+            PreventMultipleBegin();
+
+            Options = options;
+
+            SetSiteId(_userContext.SiteId);
+
+            if (Options.IsTransactional)
+            {
+                _transactionStrategy.StartTransaction(Options);
+            }
+        }
+
+        private void PreventMultipleBegin()
         {
             if (_isBeginCalled)
             {
                 throw new NotSupportedException("This unit of work has started before.");
             }
-
             _isBeginCalled = true;
-            _transactionStrategy.StartTransaction();
         }
 
         public void Complete()
@@ -75,7 +116,12 @@ namespace Framework.EntityFramework.UnitOfWork
             {
                 SaveChanges();
                 _isCompleteCalled = true;
-                _transactionStrategy.Commit();
+
+                if (Options.IsTransactional)
+                {
+                    _transactionStrategy.Commit();
+                }
+
                 _isSucceed = true;
                 OnCompleted();
             }
@@ -100,17 +146,38 @@ namespace Framework.EntityFramework.UnitOfWork
                 OnFailed(_exception);
             }
 
-            _transactionStrategy.Dispose();
-            OnDisposed();
+            if (Options.IsTransactional)
+            {
+                _transactionStrategy.Dispose();
+            }
+            else
+            {
+                foreach (var dbContext in GetAllActiveDbContexts())
+                {
+                    dbContext.Dispose();
+                    _dependencyResolver.Release(dbContext);
+                }
+            }
 
+            _activeDbContexts.Clear();
+
+            OnDisposed();
         }
 
-        private void SaveChanges()
+        public void SaveChanges()
         {
             // _activeDbContexts.Values.ToImmutableList()
-            foreach (var dbContext in _activeDbContexts.Values)
+            foreach (var dbContext in GetAllActiveDbContexts())
             {
                 dbContext.SaveChanges();
+            }
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            foreach (var dbContext in GetAllActiveDbContexts())
+            {
+                await dbContext.SaveChangesAsync();
             }
         }
 
@@ -147,6 +214,27 @@ namespace Framework.EntityFramework.UnitOfWork
             }
 
             Failed(this, new UnitOfWorkFailedEventArgs(exception));
+        }
+
+        public IReadOnlyList<DbContext> GetAllActiveDbContexts()
+        {
+            return _activeDbContexts.Values.ToImmutableList();
+        }
+
+        public IDisposable SetSiteId(int? siteId)
+        {
+            var oldSiteId = _siteId;
+            _siteId = siteId;
+
+            return new DisposeAction(() =>
+            {
+                _siteId = oldSiteId;
+            });
+        }
+
+        public int? GetSiteId()
+        {
+            return _siteId;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using EntityFramework.DynamicFilters;
 using Framework.Core;
+using Framework.Core.UnitOfWork;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -18,12 +19,12 @@ namespace Framework.EntityFramework
     {
         private const string SITE_FILTER_NAME = "SiteIdFilter";
 
-        protected IUserContext UserContext { get; private set; }
+        public ICurrentUnitOfWorkProvider CurrentUnitOfWorkProver { get; set; }
+        public IUserContext UserContext { get; set; }
 
-        protected DataContext(string nameOrConnectionString, IUserContext userContext)
+        protected DataContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
-            UserContext = userContext;
         }
 
         static DataContext()
@@ -206,7 +207,7 @@ namespace Framework.EntityFramework
 
         private int? GetSiteId()
         {
-            return UserContext.SiteId;
+            return CurrentUnitOfWorkProver.Current.GetSiteId();
         }
 
         private int? GetUserId()

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 
-namespace Framework.EntityFramework.UnitOfWork
+namespace Framework.Core.UnitOfWork
 {
     public interface IUnitOfWorkManager
     {
@@ -14,6 +14,10 @@ namespace Framework.EntityFramework.UnitOfWork
         /// </summary>
         /// <returns>A handle to be able to complete the unit of work</returns>
         IUnitOfWorkCompleteHandle Begin();
+
+        IUnitOfWorkCompleteHandle Begin(TransactionScopeOption scope);
+
+        IUnitOfWorkCompleteHandle Begin(UnitOfWorkOptions options);
 
         IUnitOfWork Current { get; }
     }

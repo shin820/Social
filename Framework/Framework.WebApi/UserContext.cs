@@ -11,19 +11,23 @@ namespace Framework.WebApi
 {
     public class UserContext : IUserContext
     {
-        private int _userId;
         public UserContext()
         {
-            var userIdOrNull = Thread.CurrentPrincipal.Identity.GetUserId();
-            if (userIdOrNull != null)
-            {
-                this._userId = userIdOrNull.Value;
-            }
         }
 
         public int UserId
         {
-            get { return _userId; }
+            get
+            {
+                int userId = 0;
+                var userIdOrNull = Thread.CurrentPrincipal.Identity.GetUserId();
+                if (userIdOrNull != null)
+                {
+                    userId = userIdOrNull.Value;
+                }
+
+                return userId;
+            }
         }
 
         public int? SiteId

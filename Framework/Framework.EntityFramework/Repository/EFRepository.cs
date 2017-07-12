@@ -8,7 +8,7 @@ using Framework.Core;
 
 namespace Framework.EntityFramework
 {
-    public class EFRepository<TEntity> : IRepository<TEntity> where TEntity : Entity
+    public class EFRepository<TEntity> : ServiceBase, IRepository<TEntity> where TEntity : Entity
     {
         protected DbContext _dbContext;
         protected IDbSet<TEntity> DataSet;
