@@ -1,4 +1,5 @@
-﻿using Framework.EntityFramework.UnitOfWork;
+﻿using Framework.Core;
+using Framework.EntityFramework.UnitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Framework.EntityFramework
 {
-    public class DbContextProvider<TDbContext> : IDbContextProvider<TDbContext>
+    public class DbContextProvider<TDbContext> : IDbContextProvider<TDbContext>, ITransient
         where TDbContext : DbContext
     {
         private ICurrentUnitOfWorkProvider _currentUnitOfWorkProvider;

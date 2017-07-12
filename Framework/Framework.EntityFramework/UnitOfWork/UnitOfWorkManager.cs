@@ -7,10 +7,15 @@ using System.Threading.Tasks;
 
 namespace Framework.EntityFramework.UnitOfWork
 {
-    public class UnitOfWorkManager : IUnitOfWorkManager
+    public class UnitOfWorkManager : IUnitOfWorkManager, ITransient
     {
         private readonly IDependencyResolver _dependencyResolver;
         private readonly ICurrentUnitOfWorkProvider _currentUnitOfWorkProvider;
+
+        public IUnitOfWork Current
+        {
+            get { return _currentUnitOfWorkProvider.Current; }
+        }
 
         public UnitOfWorkManager(
             IDependencyResolver dependencyResolver,

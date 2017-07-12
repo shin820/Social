@@ -1,4 +1,5 @@
 ﻿using Common.Logging;
+using Framework.Core;
 using Quartz;
 using Quartz.Impl;
 using Social.Job.Jobs;
@@ -9,40 +10,38 @@ namespace Social.Job
 {
     public class SchedulerBootstrap
     {
-        private readonly IScheduler _scheduler;
-        private readonly ILog _log = SchedulerLogger.GetLogger();
+        private IScheduleJobManager _scheduleJobManager;
 
         public SchedulerBootstrap()
         {
-            _log.Info("------- Initializing ----------------------");
-            ISchedulerFactory schedulerFactory = new StdSchedulerFactory();
-            _scheduler = schedulerFactory.GetScheduler();
-            _log.Info("------- Initialization Complete -----------");
+            var dependencyResolver = new DependencyResolver();
+            dependencyResolver.Install(new JobInstaller());
 
-            _log.Info("------- Scheduling Job  -------------------");
+            _scheduleJobManager = dependencyResolver.Resolve<IScheduleJobManager>();
 
-            try
+            _scheduleJobManager.ScheduleAsync<FacebookWebHookJob>(
+            job =>
             {
-                new FacebookWebHookJob().Register(_scheduler);
-            }
-            catch (Exception ex)
+                job.WithDescription("FacebookWebHookJob").WithIdentity("FacebookWebHookJobKey");
+            },
+            trigger =>
             {
-                _log.Error(ex.Message, ex);
-                throw ex;
-            }
+                trigger.WithIdentity("FacebookWebHookJobTrigger")
+                .WithDescription("FacebookWebHookJobTriggerDescription")
+                //.WithCronSchedule("0 0/5 * * * ?", x => x.WithMisfireHandlingInstructionDoNothing())
+                .StartNow()
+                .Build();
+            });
         }
 
         public void Start()
         {
-            _scheduler.Start();
-            _log.Info("------- Started Scheduler -----------------");
+            _scheduleJobManager.Start();
         }
 
         public void Stop()
         {
-            _log.Info("------- Shutting Down ---------------------");
-            _scheduler.Shutdown(true);
-            _log.Info("------- Shutdown Complete -----------------");
+            _scheduleJobManager.Shutdown();
         }
     }
 }

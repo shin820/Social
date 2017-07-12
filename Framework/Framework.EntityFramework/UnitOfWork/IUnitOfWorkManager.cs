@@ -14,5 +14,7 @@ namespace Framework.EntityFramework.UnitOfWork
         /// </summary>
         /// <returns>A handle to be able to complete the unit of work</returns>
         IUnitOfWorkCompleteHandle Begin();
+
+        IUnitOfWork Current { get; }
     }
 }

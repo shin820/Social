@@ -9,7 +9,7 @@ using System.Transactions;
 
 namespace Framework.EntityFramework.UnitOfWork
 {
-    public class TransactionStrategy : ITransactionStrategy
+    public class TransactionStrategy : ITransactionStrategy, ITransient
     {
         protected TransactionScope CurrentTransaction { get; set; }
 

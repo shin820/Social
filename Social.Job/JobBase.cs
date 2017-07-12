@@ -5,18 +5,32 @@ using System.Threading.Tasks;
 using Common.Logging;
 using Quartz;
 using Framework.Core;
+using Framework.EntityFramework.UnitOfWork;
 
 namespace Social.Job
 {
     public abstract class JobBase : IJob
     {
-        protected static DependencyResolver DependencyResolver;
         protected static ILog Logger = SchedulerLogger.GetLogger();
 
-        static JobBase()
+        private IUnitOfWorkManager _unitOfWorkManager;
+        public IUnitOfWorkManager UnitOfWorkManager
         {
-            DependencyResolver = new DependencyResolver();
-            DependencyResolver.Install(new JobInstaller());
+            get
+            {
+                if (_unitOfWorkManager == null)
+                {
+                    throw new InvalidOperationException("Must set UnitOfWorkManager before use it.");
+                }
+
+                return _unitOfWorkManager;
+            }
+            set { _unitOfWorkManager = value; }
+        }
+
+        protected IUnitOfWork CurrentUnitOfWork
+        {
+            get { return UnitOfWorkManager.Current; }
         }
 
         public async void Execute(IJobExecutionContext context)
@@ -38,7 +52,5 @@ namespace Social.Job
         }
 
         protected abstract Task ExecuteJob(IJobExecutionContext context);
-
-        public abstract void Register(IScheduler scheduler);
     }
 }

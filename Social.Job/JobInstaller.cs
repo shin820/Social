@@ -22,6 +22,11 @@ namespace Social.Job
               .WithServiceSelf()
               .LifestyleTransient(),
 
+              Classes.FromAssemblyInThisApplication()
+                       .BasedOn(typeof(AppService))
+                       .WithServiceAllInterfaces()
+                       .LifestyleTransient(),
+
               Component.For(typeof(IDomainService<>))
               .ImplementedBy(typeof(DomainService<>))
               .LifestyleTransient(),

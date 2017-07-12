@@ -7,38 +7,49 @@ using Quartz;
 using Framework.Core;
 using Social.Domain.Entities;
 using Framework.EntityFramework.UnitOfWork;
+using Social.Infrastructure.Facebook;
+using Social.Application.AppServices;
 
 namespace Social.Job.Jobs
 {
-    public class FacebookWebHookJob : JobBase
+    public class FacebookWebHookJob : JobBase, ITransient
     {
-        public override void Register(IScheduler scheduler)
+        private IFacebookWebHookAppService _fbWebHookAppService;
+        private IRepository<FacebookWebHookRawData> _hookRawDataRepo;
+        public FacebookWebHookJob(
+            IFacebookWebHookAppService fbWebHookAppService,
+            IRepository<FacebookWebHookRawData> hookRawDataRepo
+            )
         {
-            IJobDetail job = JobBuilder.Create(this.GetType())
-              .WithIdentity(this.GetType().FullName)
-              .Build();
-
-            var trigger = TriggerBuilder.Create()
-                .WithIdentity(this.GetType().FullName)
-                //.WithCronSchedule("0 0/5 * * * ?", x => x.WithMisfireHandlingInstructionDoNothing())
-                .StartNow()
-                .Build();
-
-            scheduler.ScheduleJob(job, trigger);
+            _fbWebHookAppService = fbWebHookAppService;
+            _hookRawDataRepo = hookRawDataRepo;
         }
 
-        protected override Task ExecuteJob(IJobExecutionContext context)
+
+        protected async override Task ExecuteJob(IJobExecutionContext context)
         {
-            return Task.Run(() =>
-             {
-                 var uowManager = DependencyResolver.Resolve<IUnitOfWorkManager>();
-                 using (var uow = uowManager.Begin())
-                 {
-                     var repo = DependencyResolver.Resolve<IRepository<Conversation>>();
-                     var a = repo.FindAll().ToList();
-                     uow.Complete();
-                 }
-             });
+            int[] siteIds = new[] { 10000 };
+
+            foreach (int siteId in siteIds)
+            {
+                List<FacebookWebHookRawData> rawDataList = new List<FacebookWebHookRawData>();
+                using (var uow = UnitOfWorkManager.Begin(/*siteId*/))
+                {
+                    rawDataList = _hookRawDataRepo.FindAll().Where(t => t.IsDeleted == false).Take(50).ToList();
+                    uow.Complete();
+                }
+
+                foreach (FacebookWebHookRawData rawData in rawDataList)
+                {
+                    using (var uow = UnitOfWorkManager.Begin(/*siteId*/))
+                    {
+                        var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData.Data);
+                        await _fbWebHookAppService.ProcessWebHookData(data);
+                        _hookRawDataRepo.Delete(rawData);
+                        uow.Complete();
+                    }
+                }
+            }
         }
     }
 }

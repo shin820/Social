@@ -12,13 +12,26 @@ namespace Framework.EntityFramework
         where TEntity : Entity
         where TDbContext : DbContext
     {
-        protected IDbSet<TEntity> DataSet;
-        private TDbContext _dbContext;
+        protected IDbSet<TEntity> DataSet
+        {
+            get
+            {
+                return _dbContext.Set<TEntity>();
+            }
+        }
 
+        private TDbContext _dbContext
+        {
+            get
+            {
+                return _dbContextProvider.GetDbContext();
+            }
+        }
+
+        private IDbContextProvider<TDbContext> _dbContextProvider;
         public UnitOfWorkEfRepository(IDbContextProvider<TDbContext> dbContextProvider)
         {
-            _dbContext = dbContextProvider.GetDbContext();
-            DataSet = _dbContext.Set<TEntity>();
+            _dbContextProvider = dbContextProvider;
         }
 
         public IQueryable<TEntity> FindAll()

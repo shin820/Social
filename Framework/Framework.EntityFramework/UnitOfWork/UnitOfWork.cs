@@ -7,7 +7,7 @@ using System.Data.Entity;
 
 namespace Framework.EntityFramework.UnitOfWork
 {
-    public class UnitOfWork : IDisposable, IUnitOfWork
+    public class UnitOfWork : IDisposable, IUnitOfWork, ITransient
     {
         public string Id { get; }
 
