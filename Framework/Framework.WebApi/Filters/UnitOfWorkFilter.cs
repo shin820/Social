@@ -24,7 +24,7 @@ namespace Framework.WebApi.Filters
 
         public async Task<HttpResponseMessage> ExecuteActionFilterAsync(HttpActionContext actionContext, CancellationToken cancellationToken, Func<Task<HttpResponseMessage>> continuation)
         {
-            using (var uow = _uowManager.Begin(new UnitOfWorkOptions { IsTransactional=false}))
+            using (var uow = _uowManager.Begin())
             {
                 var result = await continuation();
                 uow.Complete();
