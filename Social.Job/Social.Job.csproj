@@ -78,11 +78,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IScheduleJobManager.cs" />
+    <Compile Include="JobExtensions.cs" />
     <Compile Include="JobFactory.cs" />
     <Compile Include="JobInstaller.cs" />
     <Compile Include="JobBase.cs" />
     <Compile Include="Jobs\FacebookTaggedVisitorPostJob.cs" />
     <Compile Include="Jobs\FacebookWebHookJob.cs" />
+    <Compile Include="Jobs\SchedulerJob.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScheduleJobManager.cs" />

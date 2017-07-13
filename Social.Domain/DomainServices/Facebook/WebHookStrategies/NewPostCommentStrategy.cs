@@ -44,7 +44,7 @@ namespace Social.Domain.DomainServices.Facebook
             conversation.LastMessageSentTime = message.SendTime;
 
             // if comment a Wall Post, the Wall Post conversation should be visible.
-            if (conversation.Source == ConversationSource.FacebookWallPost && message.SenderId != socialAccount.SocialUserId && conversation.IsHidden)
+            if (conversation.Source == ConversationSource.FacebookWallPost && message.SenderId != socialAccount.Id && conversation.IsHidden)
             {
                 conversation.IsHidden = false;
             }

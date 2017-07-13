@@ -37,14 +37,12 @@ namespace Social.Domain.Entities
         [MaxLength(200)]
         public string SocialLink { get; set; }
 
-        public int? SocialAccountId { get; set; }
-
         [NotMapped]
         public bool IsSocialAccount
         {
             get
             {
-                return SocialAccountId != null;
+                return SocialAccount != null;
             }
         }
 

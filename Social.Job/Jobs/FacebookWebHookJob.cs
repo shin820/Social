@@ -28,31 +28,28 @@ namespace Social.Job.Jobs
 
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
-            int[] siteIds = new[] { 10000 };
+            int siteId = context.JobDetail.GetCustomData<int>();
 
-            foreach (int siteId in siteIds)
+            List<FacebookWebHookRawData> rawDataList = new List<FacebookWebHookRawData>();
+            using (var uow = UnitOfWorkManager.Begin())
             {
-                List<FacebookWebHookRawData> rawDataList = new List<FacebookWebHookRawData>();
-                using (var uow = UnitOfWorkManager.Begin(/*siteId*/))
+                using (CurrentUnitOfWork.SetSiteId(siteId))
+                {
+                    rawDataList = _hookRawDataRepo.FindAll().Where(t => t.IsDeleted == false).OrderBy(t => t.CreatedTime).Take(50).ToList();
+                    uow.Complete();
+                }
+            }
+
+            foreach (FacebookWebHookRawData rawData in rawDataList)
+            {
+                using (var uow = UnitOfWorkManager.Begin())
                 {
                     using (CurrentUnitOfWork.SetSiteId(siteId))
                     {
-                        rawDataList = _hookRawDataRepo.FindAll().Where(t => t.IsDeleted == false).OrderBy(t => t.CreatedTime).Take(50).ToList();
+                        var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData.Data);
+                        await _fbWebHookAppService.ProcessWebHookData(data);
+                        _hookRawDataRepo.Delete(rawData);
                         uow.Complete();
-                    }
-                }
-
-                foreach (FacebookWebHookRawData rawData in rawDataList)
-                {
-                    using (var uow = UnitOfWorkManager.Begin(/*siteId*/))
-                    {
-                        using (CurrentUnitOfWork.SetSiteId(siteId))
-                        {
-                            var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData.Data);
-                            await _fbWebHookAppService.ProcessWebHookData(data);
-                            _hookRawDataRepo.Delete(rawData);
-                            uow.Complete();
-                        }
                     }
                 }
             }

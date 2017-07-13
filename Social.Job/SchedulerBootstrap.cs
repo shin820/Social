@@ -19,16 +19,17 @@ namespace Social.Job
 
             _scheduleJobManager = dependencyResolver.Resolve<IScheduleJobManager>();
 
-            _scheduleJobManager.ScheduleAsync<FacebookWebHookJob>(
+            _scheduleJobManager.ScheduleAsync<SchedulerJob>(
             job =>
             {
-                job.WithDescription("FacebookWebHookJob").WithIdentity("FacebookWebHookJobKey");
+                job.WithDescription("ScheduleJob").WithIdentity("ScheduleJobKey");
             },
             trigger =>
             {
-                trigger.WithIdentity("FacebookWebHookJobTrigger")
-                .WithDescription("FacebookWebHookJobTriggerDescription")
-                //.WithCronSchedule("0 0/5 * * * ?", x => x.WithMisfireHandlingInstructionDoNothing())
+                trigger.WithIdentity("ScheduleJobJobTrigger")
+                .WithDescription("ScheduleJobTriggerDescription")
+                //.WithCronSchedule("0 0/1 * * * ?", x => x.WithMisfireHandlingInstructionDoNothing())
+                .WithCalendarIntervalSchedule(x => x.WithIntervalInSeconds(10))
                 .StartNow()
                 .Build();
             });

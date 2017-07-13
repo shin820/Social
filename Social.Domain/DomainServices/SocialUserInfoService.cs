@@ -24,9 +24,9 @@ namespace Social.Domain.DomainServices
                 FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId, fbUserEmail);
                 user = new SocialUser
                 {
-                    SocialId = fbUser.Id,
-                    Name = fbUser.Name,
-                    Email = fbUser.Email
+                    SocialId = fbUser.id,
+                    Name = fbUser.name,
+                    Email = fbUser.email
                 };
                 user.SiteId = siteId;
                 await Repository.InsertAsync(user);

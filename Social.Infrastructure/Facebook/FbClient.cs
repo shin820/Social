@@ -14,21 +14,12 @@ namespace Social.Infrastructure.Facebook
         {
             FacebookClient client = new FacebookClient(token);
             string url = "/" + fbUserId + "?fields=id,name,first_name,last_name,picture,gender,email,location";
-            dynamic userInfo = await client.GetTaskAsync(url);
-
-            var user = new FbUser
-            {
-                Id = fbUserId,
-                Name = userInfo.name,
-                Email = fbUserEmail
-            };
+            return await client.GetTaskAsync<FbUser>(url);
 
             //if (userInfo.picture != null && userInfo.picture.data.url != null)
             //{
             //    user.Avatar = userInfo.picture.data.url;
             //}
-
-            return user;
         }
 
         public async static Task<FbMessage> GetLastMessageFromConversationId(string token, string fbConversationId)
@@ -164,6 +155,37 @@ namespace Social.Infrastructure.Facebook
             }
 
             return message;
+        }
+
+        public async static Task<FbPagingData<FbPost>> GetTaggedVisitorPosts(string pageId, string token, int limit = 100, string after = null)
+        {
+            Checker.NotNullOrWhiteSpace(token, nameof(token));
+            Checker.NotNullOrWhiteSpace(token, nameof(pageId));
+            FacebookClient client = new FacebookClient(token);
+
+            string toFields = $"to{{id,name,pic,username,profile_type,link}}";
+            string innnerCommentsFields = $"comments.limit({limit}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden}}";
+            string commentFieds = $"comments{{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden,{innnerCommentsFields}}}";
+            string url = $"/{pageId}/tagged?fields=id,message,created_time,from,permalink_url,story,type,status_type,link,is_hidden,is_published,attachments,updated_time,tagged_time,{toFields},{commentFieds}&limit={limit}";
+
+            if (!string.IsNullOrWhiteSpace(after))
+            {
+                url += "&after=" + after;
+            }
+
+            return await client.GetTaskAsync<FbPagingData<FbPost>>(url);
+        }
+
+
+        public async static Task<FbComment> GetPostComment(string commentId, string token, int limit = 100)
+        {
+            Checker.NotNullOrWhiteSpace(token, nameof(commentId));
+            Checker.NotNullOrWhiteSpace(token, nameof(token));
+            FacebookClient client = new FacebookClient(token);
+
+            string url = $"/{commentId}?fields=id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden,comments.limit({limit}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden}}";
+
+            return await client.GetTaskAsync<FbComment>(url);
         }
     }
 }

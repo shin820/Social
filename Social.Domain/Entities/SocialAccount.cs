@@ -53,8 +53,6 @@ namespace Social.Domain.Entities
 
         public virtual IList<Conversation> Conversations { get; set; }
 
-        [Required]
-        public int SocialUserId { get; set; }
         public virtual SocialUser SocialUser { get; set; }
     }
 }

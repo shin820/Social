@@ -14,6 +14,7 @@ using Framework.EntityFramework;
 using Castle.MicroKernel;
 using System.Configuration;
 using Social.Domain.DomainServices.Facebook;
+using Framework.Core.UnitOfWork;
 
 namespace Social.IntegrationTest
 {
@@ -25,43 +26,40 @@ namespace Social.IntegrationTest
 
               Component.For<IUserContext>().ImplementedBy<NullUserContext>().LifestyleTransient(),
 
-              //Component.For<IFacebookService>()
-              //  .ImplementedBy<FacebookService>()
-              //  .LifestyleTransient(),
-
-              //Classes.FromAssemblyInThisApplication()
-              //.BasedOn<IConversationSrategy>()
-              //.WithServiceSelf()
-              //.WithServiceAllInterfaces()
-              //.LifestylePerThread(),
               Classes.FromAssemblyInThisApplication()
               .BasedOn<ITransient>()
               .WithServiceAllInterfaces()
               .WithServiceSelf()
               .LifestyleTransient(),
 
+              Classes.FromAssemblyInThisApplication()
+                       .BasedOn(typeof(AppService))
+                       .WithServiceAllInterfaces()
+                       .LifestyleTransient(),
 
-                Component.For(typeof(IDomainService<>))
-                .ImplementedBy(typeof(DomainService<>))
-                .LifestylePerThread(),
+              Component.For(typeof(IDomainService<>))
+              .ImplementedBy(typeof(DomainService<>))
+              .LifestyleTransient(),
 
                 Classes.FromAssemblyInThisApplication()
                 .BasedOn(typeof(DomainService<>))
                 .WithServiceAllInterfaces()
-                .LifestylePerThread(),
-
-                Component.For<SiteDataContext>().LifestyleTransient(),
-                //.UsingFactoryMethod(k => { return TestDbContextFactory.Create(k); })
-                //.LifestylePerThread(),
+                .LifestyleTransient(),
 
                 Component.For(typeof(IRepository<>))
-                .ImplementedBy(typeof(EFRepository<>))
-                .LifestylePerThread(),
+                .ImplementedBy(typeof(SiteDataRepository<>))
+                .LifestyleTransient(),
 
-                Classes.FromAssemblyInThisApplication()
-                .BasedOn(typeof(EFRepository<>))
-                .WithServiceAllInterfaces()
-                .LifestylePerThread()
+                Component.For<IUnitOfWorkManager>().ImplementedBy<UnitOfWorkManager>().LifestyleTransient(),
+                Component.For<IUnitOfWork>().ImplementedBy<UnitOfWork>().LifestyleTransient(),
+                Component.For<ITransactionStrategy>().ImplementedBy<TransactionStrategy>().LifestyleTransient(),
+                Component.For<IDbContextResolver>().ImplementedBy<DefaultDbContextResolver>().LifestyleTransient(),
+                Component.For<IConnectionStringResolver>().ImplementedBy<DefaultConnectionStringResolver>().LifestyleTransient(),
+                Component.For<ICurrentUnitOfWorkProvider>().ImplementedBy<CurrentUnitOfWorkProvider>().LifestyleTransient(),
+
+               Component.For<SiteDataContext>().ImplementedBy<SiteDataContext>()
+               //.UsingFactoryMethod(k => { return DbContextFactory.Create(k); })
+               .LifestyleTransient()
            );
         }
 
