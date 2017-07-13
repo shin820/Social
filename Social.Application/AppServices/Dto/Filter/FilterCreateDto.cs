@@ -15,7 +15,7 @@ namespace Social.Application.Dto
         {
             Conditions = new List<FilterConditionCreateDto>();
         }
-        public int ConversationId { get; set; }
+     //   public int ConversationId { get; set; }
         [Required]
         [MaxLength(200)]
         public string Name { get; set; }
@@ -23,12 +23,7 @@ namespace Social.Application.Dto
         public bool IfPublic { get; set; }
         public ConditionRuleTriggerType ConditionRuleTriggerType { get; set; }
 
-        //public int CreatedBy { get; set; }
-        //public DateTime CreatedTime { get; set; }
-        //public int? ModifiedBy { get; set; }
-        //public DateTime? ModifiedTime { get; set; }
-
-        //public virtual Conversation Conversation { get; set; }
+       // public virtual Conversation Conversation { get; set; }
         public virtual IList<FilterConditionCreateDto> Conditions { get; set; }
     }
 }

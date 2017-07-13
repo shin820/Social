@@ -75,6 +75,7 @@
     <Compile Include="DomainServices\Facebook\FacebookService.cs" />
     <Compile Include="DomainServices\Facebook\ConversationStrategy\IConverationSrategy.cs" />
     <Compile Include="DomainServices\Facebook\ConversationStrategy\MessageStrategy.cs" />
+    <Compile Include="DomainServices\Filter\FilterService.cs" />
     <Compile Include="DomainServices\SocialUserInfoService.cs" />
     <Compile Include="Entities\Conversation.cs" />
     <Compile Include="Entities\ConversationField.cs" />

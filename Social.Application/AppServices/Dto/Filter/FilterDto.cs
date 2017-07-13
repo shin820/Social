@@ -24,8 +24,8 @@ namespace Social.Application.Dto
         public int? ModifiedBy { get; set; }
         public DateTime? ModifiedTime { get; set; }
 
-        public int ConversationId { get; set; }
-      //  public virtual Conversation Conversation { get; set; }
+       // public int ConversationId { get; set; }
+       // public virtual Conversation Conversation { get; set; }
         public virtual IList<FilterConditionCreateDto> Conditions { get; set; }
     }
 }

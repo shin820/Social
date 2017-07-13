@@ -9,7 +9,6 @@ namespace Social.Application.Dto
 {
     public class FilterConditionCreateDto
     {
-        public int FilterId { get; set; }
         public int FieldId { get; set; }
         public ConditionMatchType MatchType { get; set; }
         public string Value { get; set; }

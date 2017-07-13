@@ -13,7 +13,7 @@ namespace Social.Domain
 
         public SiteDataContext(string nameOrConnectionString, IUserContext userContext) : base(nameOrConnectionString, userContext)
         {
-            //Database.SetInitializer<SiteDataContext>(null);
+            Database.SetInitializer<SiteDataContext>(null);
             Database.Log = t => logger.Debug(t);
         }
 
@@ -36,11 +36,11 @@ namespace Social.Domain
                 .WithRequired(t => t.Conversation)
                 .HasForeignKey(t => t.ConversationId)
                 .WillCascadeOnDelete(false);
-            modelBuilder.Entity<Conversation>()
-                .HasMany(t => t.Filters)
-                .WithRequired(t => t.Conversation)
-                .HasForeignKey(t => t.ConversationId)
-                .WillCascadeOnDelete(false);
+           // modelBuilder.Entity<Conversation>()
+               // .HasMany(t => t.Filters)
+               // .WithRequired(t => t.Conversation)
+               // .HasForeignKey(t => t.ConversationId)
+               // .WillCascadeOnDelete(false);
             modelBuilder.Entity<Conversation>()
                 .HasRequired(t => t.LastMessageSender)
                 .WithMany(t => t.LastSendConversations)
@@ -67,11 +67,12 @@ namespace Social.Domain
             modelBuilder.Entity<Filter>()
                 .HasMany(t => t.Conditions)
                 .WithRequired(t => t.Filter)
-                .HasForeignKey(t => t.FilterId).WillCascadeOnDelete(false);
+                .HasForeignKey(t => t.FilterId).WillCascadeOnDelete(true);
+
             modelBuilder.Entity<FilterCondition>()
                 .HasRequired(t => t.Field)
                 .WithMany(t => t.Conditions)
-                .HasForeignKey(t => t.FilterId).WillCascadeOnDelete(false);
+                .HasForeignKey(t => t.FieldId).WillCascadeOnDelete(false);
 
             modelBuilder.Entity<SocialUser>()
                 .HasOptional(t => t.SocialAccount)

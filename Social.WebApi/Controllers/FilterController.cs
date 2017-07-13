@@ -11,7 +11,7 @@ using System.Web.Http.Description;
 
 namespace Social.WebApi.Controllers
 {
-    [RoutePrefix("filter")]
+    [RoutePrefix("filters")]
     public class FilterController:ApiController
     {
         private IFilterAppService _appService;
@@ -41,6 +41,16 @@ namespace Social.WebApi.Controllers
             var filter = _appService.Insert(createDto);
 
             return CreatedAtRoute("GetFilter", new { id = filter.Id }, filter);
+        }
+
+        [Route()]
+        [ResponseType(typeof(FilterUpdateDto))]
+        public IHttpActionResult PutFilter(FilterUpdateDto createDto)
+        {
+            createDto = createDto ?? new FilterUpdateDto();
+            _appService.Update(createDto);
+
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         [Route("{id}")]
