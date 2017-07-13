@@ -11,13 +11,12 @@ using System.Threading.Tasks;
 namespace Social.Domain.Entities
 {
     [Table("t_Social_Conversation")]
-    public class Conversation : EntityWithSite, IHaveModification
+    public class Conversation : EntityWithSite, IHaveModification, ISoftDelete
     {
         public Conversation()
         {
             Messages = new List<Message>();
             Logs = new List<ConversationLog>();
-            Fields = new List<ConversationField>();
         }
 
         public ConversationSource Source { get; set; }
@@ -47,6 +46,10 @@ namespace Social.Domain.Entities
         [MaxLength(2000)]
         public string Note { get; set; }
 
+        public bool IsDeleted { get; set; }
+
+        public bool IsHidden { get; set; }
+
         public int? ModifiedBy { get; set; }
 
         public DateTime? ModifiedTime { get; set; }
@@ -54,8 +57,6 @@ namespace Social.Domain.Entities
         public virtual IList<Message> Messages { get; set; }
 
         public virtual IList<ConversationLog> Logs { get; set; }
-
-        public virtual IList<ConversationField> Fields { get; set; }
 
         public virtual SocialUser LastMessageSender { get; set; }
     }

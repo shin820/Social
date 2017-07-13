@@ -8,18 +8,18 @@ using System.Threading.Tasks;
 
 namespace Social.Domain.DomainServices.Facebook
 {
-    public class ConversationStrategyFactory : IConversationStrategyFactory
+    public class WebHookStrategyFactory : IConversationStrategyFactory
     {
         private IDependencyResolver _dependencyResolver;
 
-        public ConversationStrategyFactory(IDependencyResolver dependencyResolver)
+        public WebHookStrategyFactory(IDependencyResolver dependencyResolver)
         {
             _dependencyResolver = dependencyResolver;
         }
 
-        public IConversationSrategy Create(FbHookChange change)
+        public IWebHookSrategy Create(FbHookChange change)
         {
-            var strategies = _dependencyResolver.ResolveAll<IConversationSrategy>();
+            var strategies = _dependencyResolver.ResolveAll<IWebHookSrategy>();
             var strategory = strategies.FirstOrDefault(t => t.IsMatch(change));
             return strategory;
         }

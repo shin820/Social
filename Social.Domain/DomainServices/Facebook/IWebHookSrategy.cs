@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Social.Domain.DomainServices.Facebook
 {
-    public interface IConversationSrategy : ITransient
+    public interface IWebHookSrategy : ITransient
     {
-        Task Process(SocialAccount socialAccount, FbHookChange data);
-        bool IsMatch(FbHookChange data);
+        Task Process(SocialAccount socialAccount, FbHookChange change);
+        bool IsMatch(FbHookChange change);
     }
 }

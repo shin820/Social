@@ -6,13 +6,10 @@ using System.Threading.Tasks;
 
 namespace Social.Infrastructure.Facebook
 {
-    public class FbMessageAttachment
+    public class FbUser
     {
         public string Id { get; set; }
-        public string MimeType { get; set; }
         public string Name { get; set; }
-        public long Size { get; set; }
-        public string Url { get; set; }
-        public string PreviewUrl { get; set; }
+        public string Email { get; set; }
     }
 }
