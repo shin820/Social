@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Social.Domain.DomainServices
+namespace Social.Domain
 {
     public interface IFilterService
     {
@@ -19,10 +19,11 @@ namespace Social.Domain.DomainServices
 
         public void DeleteConditons(Filter updateFilter)
         {
-            if(updateFilter.Conditions.Count() >0)
-            //foreach (var conditon in updateFilter.Conditions)
-            //    ids.Add(conditon.Id);
-            //foreach (int id in ids)
+            if (updateFilter.Conditions.Count() > 0)
+                //foreach (var conditon in updateFilter.Conditions)
+                //    ids.Add(conditon.Id);
+                //foreach (int id in ids
+              //  FilterCondition[] Conditons =new updateFilter.Conditions.ToArray();
                 _filterConditionRepo.DeleteMany(updateFilter.Conditions.ToArray());
         }
     }

@@ -69,17 +69,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DbContextFactory.cs" />
-    <Compile Include="DomainServices\Facebook\WebHookStrategies\NewPostCommentStrategy.cs" />
-    <Compile Include="DomainServices\Facebook\WebHookStrategies\RemovePostCommentStrategy.cs" />
-    <Compile Include="DomainServices\Facebook\WebHookStrategies\RemoveVisitorPostStrategy.cs" />
-    <Compile Include="DomainServices\Facebook\WebHookStrategy.cs" />
-    <Compile Include="DomainServices\Facebook\WebHookStrategyFactory.cs" />
-    <Compile Include="DomainServices\Facebook\IWebHookStrategyFactory.cs" />
-    <Compile Include="DomainServices\Facebook\WebHookStrategies\NewPostStrategy.cs" />
-    <Compile Include="DomainServices\Facebook\FacebookWebHookService.cs" />
-    <Compile Include="DomainServices\Facebook\IWebHookSrategy.cs" />
-    <Compile Include="DomainServices\Facebook\WebHookStrategies\NewMessageStrategy.cs" />
-    <Compile Include="DomainServices\SocialUserInfoService.cs" />
     <Compile Include="Entities\Conversation.cs" />
     <Compile Include="Entities\ConversationField.cs" />
     <Compile Include="Entities\ConversationFieldOption.cs" />
