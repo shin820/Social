@@ -18,7 +18,6 @@ namespace Social.Application.AppServices
         void Delete(int id);
     }
 
-
     public class ConversationAppService : AppService, IConversationAppService
     {
         private IDomainService<Conversation> _domainService;

@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace Framework.Core
 {
-    public class DomainService<TEntity> : IDomainService<TEntity> where TEntity : Entity
+    public class DomainService<TEntity> : ServiceBase, IDomainService<TEntity> where TEntity : Entity
     {
         public IRepository<TEntity> Repository { get; set; }
-        public IUserContext UserContext { get; set; }
 
         public virtual TEntity Find(int id)
         {

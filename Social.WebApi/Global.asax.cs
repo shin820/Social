@@ -22,13 +22,13 @@ namespace Social.WebApi
         {
             log.Info("Application starting...");
 
+            IocContainer.Setup();
+
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-
-            IocContainer.Setup();
 
             Mapper.Initialize(cfg =>
                 cfg.AddProfiles(new[] {

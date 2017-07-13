@@ -1,11 +1,12 @@
 ﻿using Castle.Core;
+using Framework.Core;
 using System;
 using System.Collections.Concurrent;
 using System.Runtime.Remoting.Messaging;
 
-namespace Framework.EntityFramework.UnitOfWork
+namespace Framework.Core.UnitOfWork
 {
-    public class CurrentUnitOfWorkProvider : ICurrentUnitOfWorkProvider
+    public class CurrentUnitOfWorkProvider : ICurrentUnitOfWorkProvider, ITransient
     {
         [DoNotWire]
         public IUnitOfWork Current
@@ -61,7 +62,7 @@ namespace Framework.EntityFramework.UnitOfWork
                 {
                     if (outer == value)
                     {
-                       //logger.Warn("Setting the same UOW to the CallContext, no need to set again!");
+                        //logger.Warn("Setting the same UOW to the CallContext, no need to set again!");
                         return;
                     }
 

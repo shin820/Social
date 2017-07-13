@@ -40,12 +40,24 @@
     <Reference Include="Castle.Windsor, Version=3.4.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Castle.Windsor.3.4.0\lib\net45\Castle.Windsor.dll</HintPath>
     </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Collections.Immutable.1.3.1\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Linq.Dynamic, Version=1.0.6132.35681, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Linq.Dynamic.1.0.7\lib\net40\System.Linq.Dynamic.dll</HintPath>
     </Reference>
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -55,6 +67,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppService.cs" />
+    <Compile Include="DefaultConnectionStringResolver.cs" />
+    <Compile Include="DisposeAction.cs" />
+    <Compile Include="Entities\ISoftDelete.cs" />
     <Compile Include="Extensions\ClaimsIdentityExtensions.cs" />
     <Compile Include="Dependency\DependencyResolver.cs" />
     <Compile Include="Dependency\IDependencyResolver.cs" />
@@ -63,6 +78,8 @@
     <Compile Include="Exception\ExceptionWithCode.cs" />
     <Compile Include="Extensions\IListExtensions.cs" />
     <Compile Include="Extensions\UriExtensions.cs" />
+    <Compile Include="IConnectionStringResolver.cs" />
+    <Compile Include="IDbContextProvider.cs" />
     <Compile Include="IDomainService.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\EntityWithSite.cs" />
@@ -78,6 +95,12 @@
     <Compile Include="OAuth\OAuthClient.cs" />
     <Compile Include="ErrorInfo.cs" />
     <Compile Include="OAuth\OAuthRefreshToken.cs" />
+    <Compile Include="ServiceBase.cs" />
+    <Compile Include="UnitOfWork\CurrentUnitOfWorkProvider.cs" />
+    <Compile Include="UnitOfWork\ICurrentUnitOfWorkProvider.cs" />
+    <Compile Include="UnitOfWork\InnerUnitOfWorkCompleteHandle.cs" />
+    <Compile Include="UnitOfWork\ITransactionStrategy.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWorkManager.cs" />
     <Compile Include="Paging\PagedList.cs" />
     <Compile Include="Paging\Pager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -85,8 +108,16 @@
     <Compile Include="Extensions\QueryableExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="IUserContext.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWork.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWorkCompleteHandle.cs" />
+    <Compile Include="UnitOfWork\TransactionStrategy.cs" />
+    <Compile Include="UnitOfWork\UnitOfWork.cs" />
+    <Compile Include="UnitOfWork\UnitOfWorkFailedEventArgs.cs" />
+    <Compile Include="UnitOfWork\UnitOfWorkManager.cs" />
+    <Compile Include="UnitOfWork\UnitOfWorkOptions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

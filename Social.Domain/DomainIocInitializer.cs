@@ -2,6 +2,7 @@
 using Castle.MicroKernel.Registration;
 using Framework.Core;
 using Framework.EntityFramework;
+using Framework.Core.UnitOfWork;
 using Social.Domain.DomainServices;
 using System.Data.Entity;
 
@@ -26,18 +27,29 @@ namespace Social.Domain
                 .WithServiceAllInterfaces()
                 .LifestylePerWebRequest(),
 
-                Component.For(typeof(DbContext))
-                .UsingFactoryMethod(k => { return DbContextFactory.Create(k); })
-                .LifestylePerWebRequest(),
+                //Component.For(typeof(DbContext))
+                //.UsingFactoryMethod(k => { return DbContextFactory.Create(k); })
+                //.LifestylePerWebRequest(),
 
                 Component.For(typeof(IRepository<>))
-                .ImplementedBy(typeof(EFRepository<>))
+                .ImplementedBy(typeof(SiteDataRepository<>))
                 .LifestylePerWebRequest(),
 
                 Classes.FromAssemblyInThisApplication()
-                .BasedOn(typeof(EFRepository<>))
+                .BasedOn(typeof(SiteDataRepository<>))
                 .WithServiceAllInterfaces()
-                .LifestylePerWebRequest()
+                .LifestylePerWebRequest(),
+
+                Component.For<IUnitOfWorkManager>().ImplementedBy<UnitOfWorkManager>().LifestyleTransient(),
+                Component.For<IUnitOfWork>().ImplementedBy<UnitOfWork>().LifestyleTransient(),
+                Component.For<ITransactionStrategy>().ImplementedBy<TransactionStrategy>().LifestyleTransient(),
+                Component.For<IDbContextResolver>().ImplementedBy<DefaultDbContextResolver>().LifestyleTransient(),
+                Component.For<IConnectionStringResolver>().ImplementedBy<DefaultConnectionStringResolver>().LifestyleTransient(),
+                Component.For<ICurrentUnitOfWorkProvider>().ImplementedBy<CurrentUnitOfWorkProvider>().LifestyleTransient(),
+
+               Component.For<SiteDataContext>().ImplementedBy<SiteDataContext>()
+               //.UsingFactoryMethod(k => { return DbContextFactory.Create(k); })
+               .LifestyleTransient()
             );
         }
     }

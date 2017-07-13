@@ -50,9 +50,9 @@ namespace Social.IntegrationTest
                 .WithServiceAllInterfaces()
                 .LifestylePerThread(),
 
-                Component.For(typeof(DbContext))
-                .UsingFactoryMethod(k => { return TestDbContextFactory.Create(k); })
-                .LifestylePerThread(),
+                Component.For<SiteDataContext>().LifestyleTransient(),
+                //.UsingFactoryMethod(k => { return TestDbContextFactory.Create(k); })
+                //.LifestylePerThread(),
 
                 Component.For(typeof(IRepository<>))
                 .ImplementedBy(typeof(EFRepository<>))
@@ -67,12 +67,12 @@ namespace Social.IntegrationTest
 
         public class TestDbContextFactory
         {
-            public static DbContext Create(IKernel kernel)
-            {
-                var connectionString = ConfigurationManager.ConnectionStrings["SiteDataContext"].ConnectionString;
-                var userContext = kernel.Resolve<IUserContext>();
-                return new SiteDataContext(connectionString, userContext);
-            }
+            //public static DbContext Create(IKernel kernel)
+            //{
+            //    var connectionString = ConfigurationManager.ConnectionStrings["SiteDataContext"].ConnectionString;
+            //    var userContext = kernel.Resolve<IUserContext>();
+            //    return new SiteDataContext(connectionString, userContext);
+            //}
         }
     }
 }

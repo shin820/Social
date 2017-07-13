@@ -1,5 +1,6 @@
 ﻿using Framework.WebApi;
 using Microsoft.AspNet.SignalR;
+using Social.Application.AppServices;
 using Social.Infrastructure.Facebook;
 using Social.WebApi.Hubs;
 using System;
@@ -16,6 +17,13 @@ namespace Social.WebApi.Controllers
     [IgnoreSiteId]
     public class FacebookWebHookController : ApiController
     {
+        private IFacebookWebHookAppService _facebookWebHookAppService;
+
+        public FacebookWebHookController(IFacebookWebHookAppService facebookWebHookAppService)
+        {
+            _facebookWebHookAppService = facebookWebHookAppService;
+        }
+
         private Lazy<IHubContext> _hub = new Lazy<IHubContext>(() => GlobalHost.ConnectionManager.GetHubContext<FacebookHub>());
 
         protected IHubContext Hub
@@ -38,7 +46,9 @@ namespace Social.WebApi.Controllers
             {
                 var request = Request;
                 string rawData = await request.Content.ReadAsStringAsync();
+                _facebookWebHookAppService.InsertWebHookData(rawData);
                 FbHookData data = await request.Content.ReadAsAsync<FbHookData>();
+                //await _facebookWebHookAppService.ProcessWebHookData(data);
 
                 if (data == null || !data.Entry.Any())
                 {

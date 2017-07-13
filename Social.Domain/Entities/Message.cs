@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Social.Domain.Entities
 {
     [Table("t_Social_Message")]
-    public class Message : EntityWithSite
+    public class Message : EntityWithSite, ISoftDelete
     {
         public Message()
         {
@@ -35,14 +35,13 @@ namespace Social.Domain.Entities
 
         public int SenderId { get; set; }
 
-        [NotMapped]
-        public string SenderSocialId { get; set; }
-        [NotMapped]
-        public string SenderEmail { get; set; }
-
-        public int ReceiverId { get; set; }
+        public int? ReceiverId { get; set; }
 
         public string Content { get; set; }
+
+        public string Story { get; set; }
+
+        public bool IsDeleted { get; set; }
 
         public virtual Conversation Conversation { get; set; }
 

@@ -1,4 +1,6 @@
-﻿using Framework.WebApi;
+﻿using Framework.Core;
+using Framework.Core.UnitOfWork;
+using Framework.WebApi;
 using Framework.WebApi.Filters;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -28,8 +30,11 @@ namespace Social.WebApi
                 defaults: new { id = RouteParameter.Optional }
             );
 
+            IDependencyResolver resolver = config.DependencyResolver.GetService(typeof(IDependencyResolver)) as IDependencyResolver;
+
             config.Filters.Add(new SiteIdRequiredAttribute());
             config.Filters.Add(new ValidateModelAttribute());
+            config.Filters.Add(new UnitOfWorkFilter(resolver.Resolve<IUnitOfWorkManager>()));
             config.Filters.Add(new ApiExceptionFilterAttribute());
         }
     }

@@ -1,79 +1,25 @@
 ﻿using Facebook;
 using Framework.Core;
-using Social.Domain.DomainServices.Facebook;
-using Social.Domain.Entities;
-using Social.Infrastructure.Enum;
-using Social.Infrastructure.Facebook;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Social.Domain.DomainServices
+namespace Social.Infrastructure.Facebook
 {
-    public interface IFacebookService : ITransient
+    public static class FbClient
     {
-        Task ProcessWebHookData(FbHookData fbData);
-    }
-
-    public class FacebookService : IFacebookService
-    {
-        private IRepository<SocialAccount> _socialAccountRepo;
-        private IConversationStrategyFactory _strategyFactory;
-
-        public FacebookService(
-            IRepository<SocialAccount> socialAccountRepo,
-            IConversationStrategyFactory strategyFactory
-            )
-        {
-            _socialAccountRepo = socialAccountRepo;
-            _strategyFactory = strategyFactory;
-        }
-
-        public async Task ProcessWebHookData(FbHookData fbData)
-        {
-            if (fbData == null || !fbData.Entry.Any())
-            {
-                return;
-            }
-
-            var changes = fbData.Entry.First().Changes;
-            if (changes == null || !changes.Any())
-            {
-                return;
-            }
-
-            if (fbData.Object != "page")
-            {
-                return;
-            }
-
-            string pageId = fbData.Entry.First().Id;
-            var socialAccount = _socialAccountRepo.FindAll().FirstOrDefault(t => t.SocialUser.SocialId == pageId);
-            foreach (var change in changes)
-            {
-                if (socialAccount != null)
-                {
-                    var strategory = _strategyFactory.Create(change);
-                    if (strategory != null)
-                    {
-                        await strategory.Process(socialAccount, change);
-                    }
-                }
-            }
-        }
-
-        public static async Task<SocialUser> GetUserInfo(string token, string fbUserId, string fbUserEmail)
+        public static async Task<FbUser> GetUserInfo(string token, string fbUserId, string fbUserEmail)
         {
             FacebookClient client = new FacebookClient(token);
             string url = "/" + fbUserId + "?fields=id,name,first_name,last_name,picture,gender,email,location";
             dynamic userInfo = await client.GetTaskAsync(url);
 
-            var user = new SocialUser
+            var user = new FbUser
             {
+                Id = fbUserId,
                 Name = userInfo.name,
-                SocialId = fbUserId,
                 Email = fbUserEmail
             };
 
@@ -83,27 +29,6 @@ namespace Social.Domain.DomainServices
             //}
 
             return user;
-        }
-
-        public async static Task<Message> GetMessageFromPostId(string token, string fbPostId)
-        {
-            Checker.NotNullOrWhiteSpace(token, nameof(token));
-            Checker.NotNullOrWhiteSpace(fbPostId, nameof(fbPostId));
-
-            FacebookClient client = new FacebookClient(token);
-            string url = "/" + fbPostId + "?fields=fields=id,message,created_time,to{id,name,pic,username},from";
-
-            dynamic post = await client.GetTaskAsync(url);
-            var message = new Message
-            {
-                SocialId = post.id,
-                SendTime = Convert.ToDateTime(post.created_time).ToUniversalTime(),
-                SenderSocialId = post.from.id,
-                Source = MessageSource.FacebookPost,
-                Content = post.message
-            };
-
-            return message;
         }
 
         public async static Task<FbMessage> GetLastMessageFromConversationId(string token, string fbConversationId)
@@ -156,6 +81,7 @@ namespace Social.Domain.DomainServices
                 {
                     var messageShare = new FbMessageAttachment
                     {
+                        Name = share.name,
                         Id = share.id,
                         Url = share.link,
                     };
@@ -168,6 +94,73 @@ namespace Social.Domain.DomainServices
 
                     message.Attachments.Add(messageShare);
                 }
+            }
+
+            return message;
+        }
+
+        public async static Task<FbMessage> GetMessageFromPostId(string token, string fbPostId)
+        {
+            Checker.NotNullOrWhiteSpace(token, nameof(token));
+            Checker.NotNullOrWhiteSpace(fbPostId, nameof(fbPostId));
+
+            FacebookClient client = new FacebookClient(token);
+            string url = "/" + fbPostId + "?fields=id,message,created_time,to{id,name,pic,username},from,permalink_url,story";
+
+            dynamic post = await client.GetTaskAsync(url);
+            var message = new FbMessage
+            {
+                Id = post.id,
+                SendTime = Convert.ToDateTime(post.created_time).ToUniversalTime(),
+                SenderId = post.from.id,
+                Content = post.message,
+                Link = post.permalink_url,
+                Story = post.story
+            };
+
+            if (post.to != null)
+            {
+                message.ReceiverId = post.to.data[0].id;
+            }
+
+            return message;
+        }
+
+        public async static Task<FbMessage> GetMessageFromCommentId(string token, string fbPostId, string fbCommentId)
+        {
+            Checker.NotNullOrWhiteSpace(token, nameof(token));
+            Checker.NotNullOrWhiteSpace(token, nameof(fbPostId));
+            Checker.NotNullOrWhiteSpace(fbCommentId, nameof(fbCommentId));
+
+            FacebookClient client = new FacebookClient(token);
+            string url = "/" + fbCommentId + "?fields=id,parent{id},from,created_time,message,permalink_url,attachment";
+
+            dynamic comment = await client.GetTaskAsync(url);
+            var message = new FbMessage
+            {
+                Id = comment.id,
+                SendTime = Convert.ToDateTime(comment.created_time).ToUniversalTime(),
+                SenderId = comment.from.id,
+                Content = comment.message,
+                Link = comment.permalink_url
+            };
+
+            if (comment.parent != null)
+            {
+                message.ParentId = comment.parent.id;
+            }
+            else
+            {
+                message.ParentId = fbPostId;
+            }
+
+            if (comment.attachment != null && comment.attachment.media != null && comment.attachment.media.image != null)
+            {
+                message.Attachments.Add(new FbMessageAttachment
+                {
+                    Url = comment.attachment.media.image.src,
+                    MimeType = new Uri(comment.attachment.media.image.src).GetMimeType()
+                });
             }
 
             return message;
