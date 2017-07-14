@@ -10,16 +10,17 @@ using Framework.Core.UnitOfWork;
 using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
 using System.Data.Entity;
+using Social.Application.AppServices;
 
 namespace Social.Job.Jobs
 {
-    public class FacebookTaggedVisitorPostJob : JobBase, ITransient
+    public class FacebookTaggedDataSyncJob : JobBase, ITransient
     {
-        private ITaggedVisitorPostService _service;
+        private IFacebookAppService _service;
         private IRepository<SocialAccount> _socialAccountRepo;
 
-        public FacebookTaggedVisitorPostJob(
-            ITaggedVisitorPostService service,
+        public FacebookTaggedDataSyncJob(
+            IFacebookAppService service,
             IRepository<SocialAccount> socialAccountRepo
             )
         {
@@ -42,7 +43,7 @@ namespace Social.Job.Jobs
 
                 if (account != null)
                 {
-                    await _service.Process(account);
+                    await _service.ProcessTaggedData(account);
                 }
 
                 uow.Complete();

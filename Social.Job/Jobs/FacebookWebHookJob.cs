@@ -14,10 +14,10 @@ namespace Social.Job.Jobs
 {
     public class FacebookWebHookJob : JobBase, ITransient
     {
-        private IFacebookWebHookAppService _fbWebHookAppService;
+        private IFacebookAppService _fbWebHookAppService;
         private IRepository<FacebookWebHookRawData> _hookRawDataRepo;
         public FacebookWebHookJob(
-            IFacebookWebHookAppService fbWebHookAppService,
+            IFacebookAppService fbWebHookAppService,
             IRepository<FacebookWebHookRawData> hookRawDataRepo
             )
         {

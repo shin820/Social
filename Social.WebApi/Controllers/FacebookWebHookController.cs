@@ -17,9 +17,9 @@ namespace Social.WebApi.Controllers
     [IgnoreSiteId]
     public class FacebookWebHookController : ApiController
     {
-        private IFacebookWebHookAppService _facebookWebHookAppService;
+        private IFacebookAppService _facebookWebHookAppService;
 
-        public FacebookWebHookController(IFacebookWebHookAppService facebookWebHookAppService)
+        public FacebookWebHookController(IFacebookAppService facebookWebHookAppService)
         {
             _facebookWebHookAppService = facebookWebHookAppService;
         }

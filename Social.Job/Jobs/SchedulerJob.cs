@@ -72,7 +72,7 @@ namespace Social.Job.Jobs
                 string jobKey = GetFacebookSyncTaggedVisitorPostJob(siteId);
                 if (jobKeys.All(t => t.Name != jobKey))
                 {
-                    _scheduleJobManager.ScheduleAsync<FacebookTaggedVisitorPostJob, int>(
+                    _scheduleJobManager.ScheduleAsync<FacebookTaggedDataSyncJob, int>(
                     job =>
                     {
                         job.WithIdentity(jobKey, groupName);

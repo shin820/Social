@@ -69,7 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DbContextFactory.cs" />
-    <Compile Include="DomainServices\Facebook\FacebookWebHookService.cs" />
+    <Compile Include="DomainServices\Facebook\WebHookService.cs" />
     <Compile Include="DomainServices\Facebook\IWebHookSrategy.cs" />
     <Compile Include="DomainServices\Facebook\IWebHookStrategyFactory.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\NewMessageStrategy.cs" />
