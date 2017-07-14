@@ -18,5 +18,7 @@ namespace Social.Infrastructure.Facebook
         public int comment_count { get; set; }
         public bool is_hidden { get; set; }
         public FbPagingData<FbComment> comments { get; set; }
+
+        public string PostId { get; set; }
     }
 }

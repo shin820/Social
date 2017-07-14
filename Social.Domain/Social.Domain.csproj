@@ -81,6 +81,7 @@
     <Compile Include="DomainServices\Facebook\WebHookStrategyFactory.cs" />
     <Compile Include="DomainServices\Filter\FilterService.cs" />
     <Compile Include="DomainServices\SocialUserInfoService.cs" />
+    <Compile Include="DomainServices\Facebook\TaggedVisitorPostService.cs" />
     <Compile Include="Entities\Conversation.cs" />
     <Compile Include="Entities\ConversationField.cs" />
     <Compile Include="Entities\ConversationFieldOption.cs" />

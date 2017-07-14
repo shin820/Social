@@ -29,6 +29,10 @@ namespace Social.Job.Jobs
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
             int siteId = context.JobDetail.GetCustomData<int>();
+            if (siteId == 0)
+            {
+                return;
+            }
 
             List<FacebookWebHookRawData> rawDataList = new List<FacebookWebHookRawData>();
             using (var uow = UnitOfWorkManager.Begin())

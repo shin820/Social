@@ -1,4 +1,5 @@
 ﻿using Framework.Core;
+using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,6 +14,9 @@ namespace Social.Domain.Entities
     {
         public int MessageId { get; set; }
         public string SocialId { get; set; }
+        public string SocialLink { get; set; }
+        public MessageAttachmentType Type { get; set; }
+
         public string Name { get; set; }
         public string MimeType { get; set; }
         public long Size { get; set; }

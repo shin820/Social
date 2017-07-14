@@ -85,7 +85,7 @@ namespace Social.Domain.DomainServices.Facebook
             var user = SocialUserRepository.FindAll().Where(t => t.SiteId == siteId && t.SocialId == fbUserId).FirstOrDefault();
             if (user == null)
             {
-                FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId, fbUserEmail);
+                FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId);
                 user = new SocialUser
                 {
                     SocialId = fbUser.id,

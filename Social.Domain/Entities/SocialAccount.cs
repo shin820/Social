@@ -15,7 +15,6 @@ namespace Social.Domain.Entities
     {
         public SocialAccount()
         {
-            Conversations = new List<Conversation>();
         }
 
         [Required]
@@ -47,11 +46,7 @@ namespace Social.Domain.Entities
 
         public int? ConversationAgentId { get; set; }
 
-        public ConversationStatus Status { get; set; }
-
         public ConversationPriority? ConversationPriority { get; set; }
-
-        public virtual IList<Conversation> Conversations { get; set; }
 
         public virtual SocialUser SocialUser { get; set; }
     }

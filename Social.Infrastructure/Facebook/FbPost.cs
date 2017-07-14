@@ -28,5 +28,6 @@ namespace Social.Infrastructure.Facebook
         public FbData<FbUser> to { get; set; }
         public string permalink_url { get; set; }
         public FbPagingData<FbComment> comments { get; set; }
+        public FbData<FbAttachment> attachments { get; set; }
     }
 }

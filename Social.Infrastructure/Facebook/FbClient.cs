@@ -10,10 +10,11 @@ namespace Social.Infrastructure.Facebook
 {
     public static class FbClient
     {
-        public static async Task<FbUser> GetUserInfo(string token, string fbUserId, string fbUserEmail)
+        public static async Task<FbUser> GetUserInfo(string token, string fbUserId)
         {
             FacebookClient client = new FacebookClient(token);
             string url = "/" + fbUserId + "?fields=id,name,first_name,last_name,picture,gender,email,location";
+
             return await client.GetTaskAsync<FbUser>(url);
 
             //if (userInfo.picture != null && userInfo.picture.data.url != null)
@@ -157,21 +158,19 @@ namespace Social.Infrastructure.Facebook
             return message;
         }
 
-        public async static Task<FbPagingData<FbPost>> GetTaggedVisitorPosts(string pageId, string token, int limit = 100, string after = null)
+        public async static Task<FbPagingData<FbPost>> GetTaggedVisitorPosts(string pageId, string token)
         {
             Checker.NotNullOrWhiteSpace(token, nameof(token));
             Checker.NotNullOrWhiteSpace(token, nameof(pageId));
             FacebookClient client = new FacebookClient(token);
 
-            string toFields = $"to{{id,name,pic,username,profile_type,link}}";
-            string innnerCommentsFields = $"comments.limit({limit}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden}}";
-            string commentFieds = $"comments{{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden,{innnerCommentsFields}}}";
-            string url = $"/{pageId}/tagged?fields=id,message,created_time,from,permalink_url,story,type,status_type,link,is_hidden,is_published,attachments,updated_time,tagged_time,{toFields},{commentFieds}&limit={limit}";
+            long since = DateTimeOffset.UtcNow.AddMonths(-1).ToUnixTimeSeconds();
 
-            if (!string.IsNullOrWhiteSpace(after))
-            {
-                url += "&after=" + after;
-            }
+            string toFields = $"to{{id,name,pic,username,profile_type,link}}";
+            string innnerCommentsFields = $"comments.since({since}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden}}";
+            string commentFieds = $"comments.since({since}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden,{innnerCommentsFields}}}";
+            string url = $"/{pageId}/tagged?fields=id,message,created_time,from,permalink_url,story,type,status_type,link,is_hidden,is_published,attachments,updated_time,tagged_time,{toFields},{commentFieds}&since={since}";
+
 
             return await client.GetTaskAsync<FbPagingData<FbPost>>(url);
         }
@@ -186,6 +185,21 @@ namespace Social.Infrastructure.Facebook
             string url = $"/{commentId}?fields=id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden,comments.limit({limit}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden}}";
 
             return await client.GetTaskAsync<FbComment>(url);
+        }
+
+        public async static Task Process<T>(int siteId, string token, FbPagingData<T> fbPagingData, Func<int, string, T, Task> processFunc)
+        {
+            FacebookClient facebookClient = new FacebookClient(token);
+            foreach (var data in fbPagingData.data)
+            {
+                await processFunc(siteId, token, data);
+            }
+
+            if (!string.IsNullOrEmpty(fbPagingData.paging.next))
+            {
+                var nextData = await facebookClient.GetTaskAsync<FbPagingData<T>>(fbPagingData.paging.next);
+                await Process(siteId, token, nextData, processFunc);
+            }
         }
     }
 }

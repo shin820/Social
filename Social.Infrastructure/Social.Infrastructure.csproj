@@ -75,6 +75,7 @@
     <Compile Include="Enum\ConversationSource.cs" />
     <Compile Include="Enum\ConversationStatus.cs" />
     <Compile Include="Enum\FieldDataType.cs" />
+    <Compile Include="Enum\MessageAttachmentType.cs" />
     <Compile Include="Enum\MessageType.cs" />
     <Compile Include="Enum\ConditionRuleTriggerType.cs" />
     <Compile Include="Enum\SocialAccountType.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Facebook\FbData.cs" />
     <Compile Include="Facebook\FbMessage.cs" />
     <Compile Include="Facebook\FbMessageAttachment.cs" />
+    <Compile Include="Facebook\FbPagingSummary.cs" />
     <Compile Include="Facebook\FbPost.cs" />
     <Compile Include="Facebook\FbComment.cs" />
     <Compile Include="Facebook\FbUser.cs" />

@@ -22,14 +22,11 @@ namespace Social.Job
             _scheduleJobManager.ScheduleAsync<SchedulerJob>(
             job =>
             {
-                job.WithDescription("ScheduleJob").WithIdentity("ScheduleJobKey");
+                job.WithIdentity("ScheduleJobKey");
             },
             trigger =>
             {
-                trigger.WithIdentity("ScheduleJobJobTrigger")
-                .WithDescription("ScheduleJobTriggerDescription")
-                //.WithCronSchedule("0 0/1 * * * ?", x => x.WithMisfireHandlingInstructionDoNothing())
-                .WithCalendarIntervalSchedule(x => x.WithIntervalInSeconds(10))
+                trigger/*.WithSimpleSchedule(x => x.WithIntervalInSeconds(10).RepeatForever().WithMisfireHandlingInstructionIgnoreMisfires())*/
                 .StartNow()
                 .Build();
             });

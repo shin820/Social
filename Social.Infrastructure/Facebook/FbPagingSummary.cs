@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace Social.Infrastructure.Facebook
 {
-    public class FbData<T>
+    public class FbPagingSummary
     {
-        public List<T> data { get; set; }
+        public string order { get; set; }
+        public int total_count { get; set; }
+        public bool can_comment { get; set; }
     }
 }

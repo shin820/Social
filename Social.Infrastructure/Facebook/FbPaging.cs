@@ -9,5 +9,7 @@ namespace Social.Infrastructure.Facebook
     public class FbPaging
     {
         public FbCursors cursors { get; set; }
+        public string next { get; set; }
+        public string previous { get; set; }
     }
 }

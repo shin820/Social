@@ -18,10 +18,10 @@ namespace Social.Application.AppServices
 
     public class FacebookWebHookAppService : AppService, IFacebookWebHookAppService
     {
-        private IFacebookWebHookService _facebookWebHookService;
+        private IFacebookService _facebookWebHookService;
         private IRepository<FacebookWebHookRawData> _hookDataRepo;
 
-        public FacebookWebHookAppService(IFacebookWebHookService facebookWebHookService, IRepository<FacebookWebHookRawData> hookDataRepo)
+        public FacebookWebHookAppService(IFacebookService facebookWebHookService, IRepository<FacebookWebHookRawData> hookDataRepo)
         {
             _facebookWebHookService = facebookWebHookService;
             _hookDataRepo = hookDataRepo;
