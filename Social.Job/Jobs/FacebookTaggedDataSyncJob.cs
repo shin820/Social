@@ -39,14 +39,17 @@ namespace Social.Job.Jobs
 
             using (var uow = UnitOfWorkManager.Begin(new UnitOfWorkOptions { IsTransactional = false }))
             {
-                SocialAccount account = _socialAccountRepo.FindAll().Include(t => t.SocialUser).FirstOrDefault(t => t.SiteId == siteId && t.SocialUser.Type == SocialUserType.Facebook && t.IfEnable);
-
-                if (account != null)
+                using (CurrentUnitOfWork.SetSiteId(siteId))
                 {
-                    await _service.ProcessTaggedData(account);
-                }
+                    SocialAccount account = _socialAccountRepo.FindAll().Include(t => t.SocialUser).FirstOrDefault(t => t.SocialUser.Type == SocialUserType.Facebook && t.IfEnable);
 
-                uow.Complete();
+                    if (account != null)
+                    {
+                        await _service.ProcessTaggedData(account);
+                    }
+
+                    uow.Complete();
+                }
             }
         }
     }

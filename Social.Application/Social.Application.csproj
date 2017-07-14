@@ -58,7 +58,7 @@
     <Compile Include="AppServices\Dto\Filter\FilterCreateDto.cs" />
     <Compile Include="AppServices\Dto\Filter\FilterDto.cs" />
     <Compile Include="AppServices\Dto\Filter\FilterUpdateDto.cs" />
-    <Compile Include="AppServices\FacebookWebHookAppService.cs" />
+    <Compile Include="AppServices\FacebookAppService.cs" />
     <Compile Include="AppServices\FilterAppService.cs" />
     <Compile Include="AppServices\FilterConditonAppService.cs" />
     <Compile Include="DtoMappings.cs" />

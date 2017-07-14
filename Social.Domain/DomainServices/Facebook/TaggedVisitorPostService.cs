@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 
-namespace Social.Domain.DomainServices
+namespace Social.Domain.DomainServices.Facebook
 {
     public interface ITaggedVisitorPostService : ITransient
     {
@@ -75,7 +75,8 @@ namespace Social.Domain.DomainServices
                             continue;
                         }
 
-                        var firstMessage = GetMessageFromPost(_account.Token, post, sender);
+                        var firstMessage = FacebookConverter.ConvertToMessage(_account.Token, post);
+                        firstMessage.SenderId = sender.Id;
                         var conversation = new Conversation
                         {
                             SocialId = post.id,
@@ -145,7 +146,8 @@ namespace Social.Domain.DomainServices
                             continue;
                         }
 
-                        var message = GetMessageFromComment(_account.Token, comment, sender);
+                        var message = FacebookConverter.ConvertToMessage(_account.Token, comment);
+                        message.SenderId = sender.Id;
                         message.ParentId = parent.Id;
                         conversation.Messages.Add(message);
                         conversation.Status = ConversationStatus.PendingInternal;
@@ -198,7 +200,8 @@ namespace Social.Domain.DomainServices
                             continue;
                         }
 
-                        var message = GetMessageFromComment(_account.Token, replyComment, sender);
+                        var message = FacebookConverter.ConvertToMessage(_account.Token, replyComment);
+                        message.SenderId = sender.Id;
                         message.ParentId = parent.Id;
                         conversation.Messages.Add(message);
                         conversation.Status = ConversationStatus.PendingInternal;
@@ -218,98 +221,6 @@ namespace Social.Domain.DomainServices
             }
 
             return message.Length <= 200 ? message : message.Substring(200);
-        }
-
-        private Message GetMessageFromPost(string token, FbPost post, SocialUser sender)
-        {
-            var message = new Message
-            {
-                SenderId = sender.Id,
-                Source = MessageSource.FacebookPost,
-                SocialId = post.id,
-                SendTime = post.created_time,
-                Content = post.message,
-                SocialLink = post.permalink_url,
-                Story = post.story
-            };
-
-            if (post.attachments != null)
-            {
-                foreach (var attachment in post.attachments.data)
-                {
-                    if (attachment.media != null && attachment.media.image != null)
-                    {
-                        message.Attachments.Add(GetAttachment(attachment));
-                    }
-                }
-            }
-
-            return message;
-        }
-
-        private Message GetMessageFromComment(string token, FbComment comment, SocialUser sender)
-        {
-            Message message = new Message
-            {
-                SenderId = sender.Id,
-                Source = MessageSource.FacebookPostComment,
-                SocialId = comment.id,
-                SendTime = comment.created_time,
-                Content = comment.message,
-                SocialLink = comment.permalink_url,
-            };
-
-            if (comment.attachment != null && comment.attachment.media != null)
-            {
-                message.Attachments.Add(GetAttachment(comment.attachment));
-            }
-
-            return message;
-        }
-
-        private MessageAttachment GetAttachment(FbAttachment attachment)
-        {
-            if (attachment.type == "photo" || attachment.type == "sticker")
-            {
-                return new MessageAttachment
-                {
-                    SocialLink = attachment.url,
-                    Url = attachment.media.image.src,
-                    Type = MessageAttachmentType.Image,
-                    MimeType = new Uri(attachment.media.image.src).GetMimeType()
-                };
-            }
-            if (attachment.type.Contains("animated_image"))
-            {
-                return new MessageAttachment
-                {
-                    SocialLink = attachment.url,
-                    PreviewUrl = attachment.media.image.src,
-                    Url = attachment.url,
-                    Type = MessageAttachmentType.AnimatedImage,
-                    MimeType = new Uri(attachment.url).GetMimeType()
-                };
-            }
-
-            if (attachment.type.Contains("video"))
-            {
-                return new MessageAttachment
-                {
-                    SocialLink = attachment.url,
-                    PreviewUrl = attachment.media.image.src,
-                    Url = attachment.url,
-                    Type = MessageAttachmentType.Video,
-                    MimeType = new Uri(attachment.url).GetMimeType()
-                };
-            }
-
-            return new MessageAttachment
-            {
-                SocialLink = attachment.url,
-                Url = attachment.url,
-                Type = MessageAttachmentType.File,
-                MimeType = new Uri(attachment.url).GetMimeType()
-            };
         }
 
         private async Task<List<SocialUser>> GetOrCreateSocialUsers(string token, List<FbUser> fbSenders)

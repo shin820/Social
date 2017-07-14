@@ -91,6 +91,28 @@ namespace Social.Infrastructure.Facebook
             return message;
         }
 
+        public async static Task<FbPost> GetPost(string token, string fbPostId)
+        {
+            Checker.NotNullOrWhiteSpace(token, nameof(token));
+            Checker.NotNullOrWhiteSpace(fbPostId, nameof(fbPostId));
+
+            FacebookClient client = new FacebookClient(token);
+            string url = $"/{fbPostId}?fields=id,message,created_time,from,permalink_url,story,type,status_type,link,is_hidden,is_published,updated_time,attachments";
+
+            return await client.GetTaskAsync<FbPost>(url);
+        }
+
+        public async static Task<FbComment> GetComment(string token, string fbCommentId)
+        {
+            Checker.NotNullOrWhiteSpace(token, nameof(token));
+            Checker.NotNullOrWhiteSpace(fbCommentId, nameof(fbCommentId));
+
+            FacebookClient client = new FacebookClient(token);
+            string url = $"/{fbCommentId}?fields=id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden";
+
+            return await client.GetTaskAsync<FbComment>(url);
+        }
+
         public async static Task<FbMessage> GetMessageFromPostId(string token, string fbPostId)
         {
             Checker.NotNullOrWhiteSpace(token, nameof(token));

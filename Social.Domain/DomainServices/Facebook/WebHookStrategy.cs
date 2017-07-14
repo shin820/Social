@@ -30,14 +30,14 @@ namespace Social.Domain.DomainServices.Facebook
             return message.Length <= 200 ? message : message.Substring(200);
         }
 
-        protected bool IsDuplicatedMessage(int siteId, string socialId)
+        protected bool IsDuplicatedMessage(string socialId)
         {
-            return MessageRepository.FindAll().Any(t => t.SiteId == siteId && t.SocialId == socialId);
+            return MessageRepository.FindAll().Any(t => t.SocialId == socialId);
         }
 
-        protected Message GetMessage(int siteId, string socialId)
+        protected Message GetMessage(string socialId)
         {
-            return MessageRepository.FindAll().Where(t => t.SiteId == siteId && t.SocialId == socialId).FirstOrDefault();
+            return MessageRepository.FindAll().Where(t => t.SocialId == socialId).FirstOrDefault();
         }
 
         protected async Task DeleteMessage(Message message)
@@ -45,9 +45,9 @@ namespace Social.Domain.DomainServices.Facebook
             await MessageRepository.DeleteAsync(message);
         }
 
-        protected Conversation GetConversation(int siteId, string socialId, ConversationStatus? status = null)
+        protected Conversation GetConversation(string socialId, ConversationStatus? status = null)
         {
-            var conversations = ConversationRepository.FindAll().Where(t => t.SiteId == siteId && t.SocialId == socialId);
+            var conversations = ConversationRepository.FindAll().Where(t => t.SocialId == socialId);
             conversations.WhereIf(status != null, t => t.Status == status.Value);
 
             return conversations.FirstOrDefault();
@@ -80,9 +80,9 @@ namespace Social.Domain.DomainServices.Facebook
             await ConversationRepository.DeleteAsync(conversation);
         }
 
-        protected async Task<SocialUser> GetOrCreateSocialUser(int siteId, string token, string fbUserId, string fbUserEmail)
+        protected async Task<SocialUser> GetOrCreateSocialUser(string token, string fbUserId)
         {
-            var user = SocialUserRepository.FindAll().Where(t => t.SiteId == siteId && t.SocialId == fbUserId).FirstOrDefault();
+            var user = SocialUserRepository.FindAll().Where(t => t.SocialId == fbUserId).FirstOrDefault();
             if (user == null)
             {
                 FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId);
@@ -92,7 +92,6 @@ namespace Social.Domain.DomainServices.Facebook
                     Name = fbUser.name,
                     Email = fbUser.email
                 };
-                user.SiteId = siteId;
                 await SocialUserRepository.InsertAsync(user);
             }
 

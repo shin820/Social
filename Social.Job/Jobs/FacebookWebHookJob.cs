@@ -9,6 +9,8 @@ using Social.Domain.Entities;
 using Framework.Core.UnitOfWork;
 using Social.Infrastructure.Facebook;
 using Social.Application.AppServices;
+using Social.Infrastructure.Enum;
+using System.Data.Entity;
 
 namespace Social.Job.Jobs
 {
@@ -16,13 +18,17 @@ namespace Social.Job.Jobs
     {
         private IFacebookAppService _fbWebHookAppService;
         private IRepository<FacebookWebHookRawData> _hookRawDataRepo;
+        private IRepository<SocialAccount> _socialAccountRepo;
+
         public FacebookWebHookJob(
             IFacebookAppService fbWebHookAppService,
-            IRepository<FacebookWebHookRawData> hookRawDataRepo
+            IRepository<FacebookWebHookRawData> hookRawDataRepo,
+            IRepository<SocialAccount> socialAccountRepo
             )
         {
             _fbWebHookAppService = fbWebHookAppService;
             _hookRawDataRepo = hookRawDataRepo;
+            _socialAccountRepo = socialAccountRepo;
         }
 
 
@@ -35,26 +41,23 @@ namespace Social.Job.Jobs
             }
 
             List<FacebookWebHookRawData> rawDataList = new List<FacebookWebHookRawData>();
-            using (var uow = UnitOfWorkManager.Begin())
+            using (var uow = UnitOfWorkManager.Begin(new UnitOfWorkOptions { IsTransactional = false }))
             {
                 using (CurrentUnitOfWork.SetSiteId(siteId))
                 {
-                    rawDataList = _hookRawDataRepo.FindAll().Where(t => t.IsDeleted == false).OrderBy(t => t.CreatedTime).Take(50).ToList();
-                    uow.Complete();
-                }
-            }
-
-            foreach (FacebookWebHookRawData rawData in rawDataList)
-            {
-                using (var uow = UnitOfWorkManager.Begin())
-                {
-                    using (CurrentUnitOfWork.SetSiteId(siteId))
+                    SocialAccount account = _socialAccountRepo.FindAll().Include(t => t.SocialUser).FirstOrDefault(t => t.SocialUser.Type == SocialUserType.Facebook && t.IfEnable);
+                    if (account != null)
                     {
-                        var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData.Data);
-                        await _fbWebHookAppService.ProcessWebHookData(data);
-                        _hookRawDataRepo.Delete(rawData);
-                        uow.Complete();
+                        rawDataList = _hookRawDataRepo.FindAll().Where(t => t.IsDeleted == false).OrderBy(t => t.CreatedTime).Take(50).ToList();
+
+                        foreach (FacebookWebHookRawData rawData in rawDataList)
+                        {
+                            var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData.Data);
+                            await _fbWebHookAppService.ProcessWebHookData(account, data);
+                            _hookRawDataRepo.Delete(rawData);
+                        }
                     }
+                    uow.Complete();
                 }
             }
         }

@@ -6,15 +6,17 @@ using Social.Infrastructure.Enum;
 using Social.Infrastructure.Facebook;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Social.Domain.DomainServices.Facebook
 {
     public interface IWebHookService : ITransient
     {
-        Task ProcessWebHookData(FbHookData fbData);
+        Task ProcessWebHookData(SocialAccount socialAccount, FbHookData fbData);
     }
 
     public class WebHookService : ServiceBase, IWebHookService
@@ -31,7 +33,7 @@ namespace Social.Domain.DomainServices.Facebook
             _strategyFactory = strategyFactory;
         }
 
-        public async Task ProcessWebHookData(FbHookData fbData)
+        public async Task ProcessWebHookData(SocialAccount socialAccount, FbHookData fbData)
         {
             if (fbData == null || !fbData.Entry.Any())
             {
@@ -50,7 +52,6 @@ namespace Social.Domain.DomainServices.Facebook
             }
 
             string pageId = fbData.Entry.First().Id;
-            var socialAccount = _socialAccountRepo.FindAll().FirstOrDefault(t => t.SocialUser.SocialId == pageId);
             foreach (var change in changes)
             {
                 if (socialAccount != null)
@@ -58,7 +59,14 @@ namespace Social.Domain.DomainServices.Facebook
                     var strategory = _strategyFactory.Create(change);
                     if (strategory != null)
                     {
-                        await strategory.Process(socialAccount, change);
+                        using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+                        {
+                            using (CurrentUnitOfWork.SetSiteId(socialAccount.SiteId))
+                            {
+                                await strategory.Process(socialAccount, change);
+                                uow.Complete();
+                            }
+                        }
                     }
                 }
             }

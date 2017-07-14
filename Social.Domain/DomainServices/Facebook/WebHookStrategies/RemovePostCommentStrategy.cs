@@ -17,7 +17,7 @@ namespace Social.Domain.DomainServices.Facebook
 
         public async override Task Process(SocialAccount socialAccount, FbHookChange change)
         {
-            var message = GetMessage(socialAccount.SiteId, change.Value.CommentId);
+            var message = GetMessage(change.Value.CommentId);
             if (message != null)
             {
                 await DeleteMessage(message);

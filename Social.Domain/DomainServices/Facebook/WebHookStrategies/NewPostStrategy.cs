@@ -4,6 +4,7 @@ using Social.Domain.Entities;
 using Social.Infrastructure.Facebook;
 using Framework.Core;
 using Social.Infrastructure.Enum;
+using System.Linq;
 
 namespace Social.Domain.DomainServices.Facebook
 {
@@ -34,25 +35,20 @@ namespace Social.Domain.DomainServices.Facebook
 
         public override async Task Process(SocialAccount socialAccount, FbHookChange change)
         {
-            if (IsDuplicatedMessage(socialAccount.SiteId, change.Value.PostId))
+            string token = socialAccount.Token;
+            if (IsDuplicatedMessage(change.Value.PostId))
             {
                 return;
             }
 
-            FbMessage fbMessage = await FbClient.GetMessageFromPostId(socialAccount.Token, change.Value.PostId);
+            FbPost post = await FbClient.GetPost(socialAccount.Token, change.Value.PostId);
+            SocialUser sender = await GetOrCreateSocialUser(socialAccount.Token, post.from.id);
 
-            SocialUser sender = await GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.SenderId, fbMessage.SenderEmail);
-
-            SocialUser receiver = null;
-            if (!string.IsNullOrEmpty(fbMessage.ReceiverId))
-            {
-                receiver = await GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.ReceiverId, fbMessage.ReceiverEmail);
-            }
-
-            var existingConversation = GetConversation(socialAccount.SiteId, change.Value.PostId);
+            var existingConversation = GetConversation(change.Value.PostId);
             if (existingConversation != null)
             {
-                Message message = Convert(fbMessage, sender, receiver, socialAccount, change);
+                Message message = FacebookConverter.ConvertToMessage(token, post);
+                message.SenderId = sender.Id;
                 message.ConversationId = existingConversation.Id;
                 existingConversation.IfRead = false;
                 existingConversation.Messages.Add(message);
@@ -63,14 +59,14 @@ namespace Social.Domain.DomainServices.Facebook
             }
             else
             {
-                Message message = Convert(fbMessage, sender, receiver, socialAccount, change);
+                Message message = FacebookConverter.ConvertToMessage(token, post);
+                message.SenderId = sender.Id;
                 var conversation = new Conversation
                 {
                     SocialId = change.Value.PostId,
                     Source = ConversationSource.FacebookVisitorPost,
                     Priority = ConversationPriority.Normal,
                     Status = ConversationStatus.New,
-                    SiteId = socialAccount.SiteId,
                     Subject = GetSubject(message.Content),
                     LastMessageSenderId = message.SenderId,
                     LastMessageSentTime = message.SendTime
@@ -85,41 +81,6 @@ namespace Social.Domain.DomainServices.Facebook
                 conversation.Messages.Add(message);
                 await AddConversation(socialAccount, conversation);
             }
-        }
-
-        private Message Convert(FbMessage fbMessage, SocialUser Sender, SocialUser Receiver, SocialAccount account, FbHookChange change)
-        {
-            Message message = new Message
-            {
-                SenderId = Sender.Id,
-                Source = MessageSource.FacebookPost,
-                SocialId = fbMessage.Id,
-                SendTime = fbMessage.SendTime,
-                Content = fbMessage.Content,
-                SiteId = account.SiteId,
-                SocialLink = fbMessage.Link,
-                Story = fbMessage.Story
-            };
-
-            if (Receiver != null)
-            {
-                message.ReceiverId = Receiver.Id;
-            }
-
-            if (!string.IsNullOrWhiteSpace(change.Value.Link))
-            {
-                var attachment = new MessageAttachment
-                {
-                    SocialId = fbMessage.Id,
-                    Url = change.Value.Link,
-                    MimeType = new Uri(change.Value.Link).GetMimeType(),
-                    SiteId = account.SiteId
-                };
-
-                message.Attachments.Add(attachment);
-            }
-
-            return message;
         }
     }
 }
