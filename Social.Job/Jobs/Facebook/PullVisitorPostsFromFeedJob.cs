@@ -14,12 +14,12 @@ using Social.Application.AppServices;
 
 namespace Social.Job.Jobs.Facebook
 {
-    public class PullTaggedVisitorPostsJob : JobBase, ITransient
+    public class PullVisitorPostsFromFeedJob : JobBase, ITransient
     {
         private IFacebookAppService _service;
         private IRepository<SocialAccount> _socialAccountRepo;
 
-        public PullTaggedVisitorPostsJob(
+        public PullVisitorPostsFromFeedJob(
             IFacebookAppService service,
             IRepository<SocialAccount> socialAccountRepo
             )
@@ -45,7 +45,7 @@ namespace Social.Job.Jobs.Facebook
 
                     if (account != null)
                     {
-                        await _service.PullTaggedVisitorPosts(account);
+                        await _service.PullVisitorPostsFromFeed(account);
                     }
 
                     uow.Complete();

@@ -84,6 +84,7 @@
     <Compile Include="JobBase.cs" />
     <Compile Include="Jobs\Facebook\PullTaggedVisitorPostsJob.cs" />
     <Compile Include="Jobs\Facebook\FacebookWebHookJob.cs" />
+    <Compile Include="Jobs\Facebook\PullVisitorPostsFromFeedJob.cs" />
     <Compile Include="Jobs\SchedulerJob.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

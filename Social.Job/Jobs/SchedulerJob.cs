@@ -25,7 +25,8 @@ namespace Social.Job.Jobs
 
             int[] siteIds = new int[] { 10000 };
             //ScheduleFacebookWebHookJob(siteIds, context);
-            ScheduleFacebookPullTaggedVisitorPostsJob(siteIds, context);
+            //ScheduleFacebookPullTaggedVisitorPostsJob(siteIds, context);
+            ScheduleFacebookPullVisitorPostsFromFeedJob(siteIds, context);
             taskSrc.SetResult(null);
             return taskSrc.Task;
         }
@@ -56,7 +57,6 @@ namespace Social.Job.Jobs
                 }
             }
         }
-
         private string GetFacebookWebHookJobKey(int siteId)
         {
             return $"FacebookWebHookJobKey - {siteId}";
@@ -64,13 +64,13 @@ namespace Social.Job.Jobs
 
         private void ScheduleFacebookPullTaggedVisitorPostsJob(int[] siteIds, IJobExecutionContext context)
         {
-            const string groupName = "FacebookSyncTaggedVisitorPostJobGroup";
+            const string groupName = "FacebookPullTaggedVisitorPostsJobGroup";
 
             foreach (var siteId in siteIds)
             {
                 var groupMatcher = GroupMatcher<JobKey>.GroupEquals(groupName);
                 var jobKeys = context.Scheduler.GetJobKeys(groupMatcher);
-                string jobKey = GetFacebookSyncTaggedVisitorPostJob(siteId);
+                string jobKey = GetFacebookPullTaggedVisitorPostsJobKey(siteId);
                 if (jobKeys.All(t => t.Name != jobKey))
                 {
                     _scheduleJobManager.ScheduleAsync<PullTaggedVisitorPostsJob, int>(
@@ -89,10 +89,41 @@ namespace Social.Job.Jobs
                 }
             }
         }
-
-        private string GetFacebookSyncTaggedVisitorPostJob(int siteId)
+        private string GetFacebookPullTaggedVisitorPostsJobKey(int siteId)
         {
-            return $"FacebookSyncTaggedVisitorPostJob - {siteId}";
+            return $"FacebookPullTaggedVisitorPostsJob - {siteId}";
+        }
+
+        private void ScheduleFacebookPullVisitorPostsFromFeedJob(int[] siteIds, IJobExecutionContext context)
+        {
+            const string groupName = "FacebookPullVisitorPostsFromFeedJobGroup";
+
+            foreach (var siteId in siteIds)
+            {
+                var groupMatcher = GroupMatcher<JobKey>.GroupEquals(groupName);
+                var jobKeys = context.Scheduler.GetJobKeys(groupMatcher);
+                string jobKey = GetFacebookPullVisitorPostsFromFeedJobKey(siteId);
+                if (jobKeys.All(t => t.Name != jobKey))
+                {
+                    _scheduleJobManager.ScheduleAsync<PullVisitorPostsFromFeedJob, int>(
+                    job =>
+                    {
+                        job.WithIdentity(jobKey, groupName);
+                    },
+                    trigger =>
+                    {
+                        trigger/*.WithSimpleSchedule(x => x.WithIntervalInMinutes(5).RepeatForever().WithMisfireHandlingInstructionIgnoreMisfires())*/
+                        .StartNow()
+                        .Build();
+                    },
+                    siteId
+                    );
+                }
+            }
+        }
+        private string GetFacebookPullVisitorPostsFromFeedJobKey(int siteId)
+        {
+            return $"FacebookPullVisitorPostsFromFeedJob - {siteId}";
         }
     }
 }

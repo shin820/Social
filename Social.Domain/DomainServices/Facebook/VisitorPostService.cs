@@ -12,25 +12,24 @@ using System.Transactions;
 
 namespace Social.Domain.DomainServices.Facebook
 {
-    public interface ITaggedVisitorPostService : ITransient
+    public interface IVisitorPostService : ITransient
     {
-        Task Process(SocialAccount account);
+        Task PullTaggedVisitorPosts(SocialAccount account);
+        Task PullVisitorPostsFromFeed(SocialAccount account);
     }
 
-    public class TaggedVisitorPostService : ServiceBase, ITaggedVisitorPostService
+    public class VisitorPostService : ServiceBase, IVisitorPostService
     {
         private List<FbPost> PostsToBeCreated { get; set; } = new List<FbPost>();
         private List<FbComment> CommentsToBeCreated { get; set; } = new List<FbComment>();
         private List<FbComment> ReplyCommentsToBeCretaed { get; set; } = new List<FbComment>();
-
         private SocialAccount _account;
 
         private IRepository<Conversation> _conersationRepo;
         private IRepository<Message> _messageRepo;
         private IRepository<SocialUser> _socialUserRepo;
-        private int _siteId;
 
-        public TaggedVisitorPostService(
+        public VisitorPostService(
             IRepository<Conversation> conersationRepo,
             IRepository<Message> messageRepo,
             IRepository<SocialUser> socialUserRepo
@@ -41,7 +40,19 @@ namespace Social.Domain.DomainServices.Facebook
             _socialUserRepo = socialUserRepo;
         }
 
-        public async Task Process(SocialAccount account)
+        public async Task PullVisitorPostsFromFeed(SocialAccount account)
+        {
+            _account = account;
+            var data = await FbClient.GetVisitorPosts(_account.SocialUser.OriginalId, _account.Token);
+            await Init(data);
+            RemoveDuplicated();
+            await AddPosts(PostsToBeCreated);
+            await AddComments(CommentsToBeCreated);
+            await AddReplyComments(ReplyCommentsToBeCretaed);
+            Clear();
+        }
+
+        public async Task PullTaggedVisitorPosts(SocialAccount account)
         {
             _account = account;
             var data = await FbClient.GetTaggedVisitorPosts(_account.SocialUser.OriginalId, _account.Token);
@@ -50,6 +61,7 @@ namespace Social.Domain.DomainServices.Facebook
             await AddPosts(PostsToBeCreated);
             await AddComments(CommentsToBeCreated);
             await AddReplyComments(ReplyCommentsToBeCretaed);
+            Clear();
         }
 
         private async Task AddPosts(List<FbPost> posts)
@@ -88,6 +100,12 @@ namespace Social.Domain.DomainServices.Facebook
                             LastMessageSentTime = firstMessage.SendTime
                         };
                         conversation.Messages.Add(firstMessage);
+
+                        if (sender.OriginalId == _account.SocialUser.OriginalId)
+                        {
+                            conversation.Source = ConversationSource.FacebookWallPost;
+                            conversation.IsHidden = true;
+                        }
 
                         if (_account.ConversationAgentId.HasValue && _account.ConversationPriority.HasValue)
                         {
@@ -153,6 +171,10 @@ namespace Social.Domain.DomainServices.Facebook
                         conversation.Status = ConversationStatus.PendingInternal;
                         conversation.LastMessageSenderId = message.SenderId;
                         conversation.LastMessageSentTime = message.SendTime;
+                        if (conversation.Source == ConversationSource.FacebookWallPost && conversation.IsHidden)
+                        {
+                            conversation.IsHidden = false;
+                        }
                     }
 
                     uow.Complete();
@@ -207,6 +229,10 @@ namespace Social.Domain.DomainServices.Facebook
                         conversation.Status = ConversationStatus.PendingInternal;
                         conversation.LastMessageSenderId = message.SenderId;
                         conversation.LastMessageSentTime = message.SendTime;
+                        if (conversation.Source == ConversationSource.FacebookWallPost && conversation.IsHidden)
+                        {
+                            conversation.IsHidden = false;
+                        }
                     }
                     uow.Complete();
                 }
@@ -262,6 +288,13 @@ namespace Social.Domain.DomainServices.Facebook
                 var nextPagePosts = await client.GetTaskAsync<FbPagingData<FbPost>>(posts.paging.next);
                 await Init(nextPagePosts);
             }
+        }
+
+        private void Clear()
+        {
+            PostsToBeCreated.Clear();
+            CommentsToBeCreated.Clear();
+            ReplyCommentsToBeCretaed.Clear();
         }
 
         private void FillPostIdForComments(FbPagingData<FbComment> comments, string postId)

@@ -180,6 +180,23 @@ namespace Social.Infrastructure.Facebook
             return message;
         }
 
+        public async static Task<FbPagingData<FbPost>> GetVisitorPosts(string pageId, string token)
+        {
+            Checker.NotNullOrWhiteSpace(token, nameof(token));
+            Checker.NotNullOrWhiteSpace(token, nameof(pageId));
+            FacebookClient client = new FacebookClient(token);
+
+            long since = DateTimeOffset.UtcNow.AddMonths(-1).ToUnixTimeSeconds();
+
+            string toFields = $"to{{id,name,pic,username,profile_type,link}}";
+            string innnerCommentsFields = $"comments.since({since}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden}}";
+            string commentFieds = $"comments.since({since}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden,{innnerCommentsFields}}}";
+            string url = $"/{pageId}/feed?fields=id,message,created_time,from,permalink_url,story,type,status_type,link,is_hidden,is_published,attachments,updated_time,tagged_time,{toFields},{commentFieds}&since={since}";
+
+
+            return await client.GetTaskAsync<FbPagingData<FbPost>>(url);
+        }
+
         public async static Task<FbPagingData<FbPost>> GetTaggedVisitorPosts(string pageId, string token)
         {
             Checker.NotNullOrWhiteSpace(token, nameof(token));
