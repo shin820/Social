@@ -63,7 +63,7 @@ namespace Social.Domain.DomainServices.Facebook
                 message.SenderId = sender.Id;
                 var conversation = new Conversation
                 {
-                    SocialId = change.Value.PostId,
+                    OriginalId = change.Value.PostId,
                     Source = ConversationSource.FacebookVisitorPost,
                     Priority = ConversationPriority.Normal,
                     Status = ConversationStatus.New,

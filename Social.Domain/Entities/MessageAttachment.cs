@@ -2,6 +2,7 @@
 using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -13,8 +14,10 @@ namespace Social.Domain.Entities
     public class MessageAttachment : EntityWithSite
     {
         public int MessageId { get; set; }
-        public string SocialId { get; set; }
-        public string SocialLink { get; set; }
+        [MaxLength(200)]
+        public string OriginalId { get; set; }
+        [MaxLength(500)]
+        public string OriginalLink { get; set; }
         public MessageAttachmentType Type { get; set; }
 
         public string Name { get; set; }

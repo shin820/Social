@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Social.Domain.Entities
 {
     [Table("t_Social_Conversation")]
-    public class Conversation : EntityWithSite, IHaveModification, ISoftDelete
+    public class Conversation : EntityWithSite, ISoftDelete
     {
         public Conversation()
         {
@@ -21,7 +21,8 @@ namespace Social.Domain.Entities
 
         public ConversationSource Source { get; set; }
 
-        public string SocialId { get; set; }
+        [MaxLength(200)]
+        public string OriginalId { get; set; }
 
         public bool IfRead { get; set; }
 
@@ -49,10 +50,6 @@ namespace Social.Domain.Entities
         public bool IsDeleted { get; set; }
 
         public bool IsHidden { get; set; }
-
-        public int? ModifiedBy { get; set; }
-
-        public DateTime? ModifiedTime { get; set; }
 
         public virtual IList<Message> Messages { get; set; }
 

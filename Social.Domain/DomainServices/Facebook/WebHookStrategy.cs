@@ -32,12 +32,12 @@ namespace Social.Domain.DomainServices.Facebook
 
         protected bool IsDuplicatedMessage(string socialId)
         {
-            return MessageRepository.FindAll().Any(t => t.SocialId == socialId);
+            return MessageRepository.FindAll().Any(t => t.OriginalId == socialId);
         }
 
         protected Message GetMessage(string socialId)
         {
-            return MessageRepository.FindAll().Where(t => t.SocialId == socialId).FirstOrDefault();
+            return MessageRepository.FindAll().Where(t => t.OriginalId == socialId).FirstOrDefault();
         }
 
         protected async Task DeleteMessage(Message message)
@@ -47,7 +47,7 @@ namespace Social.Domain.DomainServices.Facebook
 
         protected Conversation GetConversation(string socialId, ConversationStatus? status = null)
         {
-            var conversations = ConversationRepository.FindAll().Where(t => t.SocialId == socialId);
+            var conversations = ConversationRepository.FindAll().Where(t => t.OriginalId == socialId);
             conversations.WhereIf(status != null, t => t.Status == status.Value);
 
             return conversations.FirstOrDefault();
@@ -82,13 +82,13 @@ namespace Social.Domain.DomainServices.Facebook
 
         protected async Task<SocialUser> GetOrCreateSocialUser(string token, string fbUserId)
         {
-            var user = SocialUserRepository.FindAll().Where(t => t.SocialId == fbUserId).FirstOrDefault();
+            var user = SocialUserRepository.FindAll().Where(t => t.OriginalId == fbUserId).FirstOrDefault();
             if (user == null)
             {
                 FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId);
                 user = new SocialUser
                 {
-                    SocialId = fbUser.id,
+                    OriginalId = fbUser.id,
                     Name = fbUser.name,
                     Email = fbUser.email
                 };

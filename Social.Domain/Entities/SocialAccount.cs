@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Social.Domain.Entities
 {
     [Table("t_Social_Account")]
-    public class SocialAccount : EntityWithSite, IHaveCreation, IHaveModification
+    public class SocialAccount : EntityWithSite, IHaveCreation
     {
         public SocialAccount()
         {
@@ -30,17 +30,14 @@ namespace Social.Domain.Entities
 
         public bool IfConvertTweetToConversation { get; set; }
 
+        [MaxLength(200)]
         public string FacebookPageCategory { get; set; }
-
+        [MaxLength(200)]
         public string FacebookSignInAs { get; set; }
 
         public DateTime CreatedTime { get; set; }
 
         public int CreatedBy { get; set; }
-
-        public int? ModifiedBy { get; set; }
-
-        public DateTime? ModifiedTime { get; set; }
 
         public int? ConversationDepartmentId { get; set; }
 

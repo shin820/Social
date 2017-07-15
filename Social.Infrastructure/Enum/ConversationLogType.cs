@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Framework.Core
+namespace Social.Infrastructure.Enum
 {
-    public interface IConnectionStringResolver
+    public enum ConversationLogType : short
     {
-        string GetNameOrConnectionString(int? siteId);
+        NewConversation = 1
     }
 }

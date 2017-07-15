@@ -44,7 +44,7 @@ namespace Social.Domain.DomainServices.Facebook
         public async Task Process(SocialAccount account)
         {
             _account = account;
-            var data = await FbClient.GetTaggedVisitorPosts(_account.SocialUser.SocialId, _account.Token);
+            var data = await FbClient.GetTaggedVisitorPosts(_account.SocialUser.OriginalId, _account.Token);
             await Init(data);
             RemoveDuplicated();
             await AddPosts(PostsToBeCreated);
@@ -69,7 +69,7 @@ namespace Social.Domain.DomainServices.Facebook
                     List<Conversation> conversations = new List<Conversation>();
                     foreach (var post in posts)
                     {
-                        var sender = senders.FirstOrDefault(t => t.SocialId == post.from.id);
+                        var sender = senders.FirstOrDefault(t => t.OriginalId == post.from.id);
                         if (sender == null)
                         {
                             continue;
@@ -79,7 +79,7 @@ namespace Social.Domain.DomainServices.Facebook
                         firstMessage.SenderId = sender.Id;
                         var conversation = new Conversation
                         {
-                            SocialId = post.id,
+                            OriginalId = post.id,
                             Source = ConversationSource.FacebookVisitorPost,
                             Priority = ConversationPriority.Normal,
                             Status = ConversationStatus.New,
@@ -123,24 +123,24 @@ namespace Social.Domain.DomainServices.Facebook
                 {
                     List<SocialUser> senders = await GetOrCreateSocialUsers(_account.Token, comments.Select(t => t.from).ToList());
                     var postIds = comments.Select(t => t.PostId).Distinct().ToList();
-                    var conversations = _conersationRepo.FindAll().Where(t => postIds.Contains(t.SocialId)).ToList();
-                    var parents = _messageRepo.FindAll().Where(t => postIds.Contains(t.SocialId)).ToList();
+                    var conversations = _conersationRepo.FindAll().Where(t => postIds.Contains(t.OriginalId)).ToList();
+                    var parents = _messageRepo.FindAll().Where(t => postIds.Contains(t.OriginalId)).ToList();
 
                     foreach (var comment in comments)
                     {
-                        var sender = senders.FirstOrDefault(t => t.SocialId == comment.from.id);
+                        var sender = senders.FirstOrDefault(t => t.OriginalId == comment.from.id);
                         if (sender == null)
                         {
                             continue;
                         }
 
-                        var conversation = conversations.FirstOrDefault(t => t.SocialId == comment.PostId);
+                        var conversation = conversations.FirstOrDefault(t => t.OriginalId == comment.PostId);
                         if (conversation == null)
                         {
                             continue;
                         }
 
-                        var parent = parents.FirstOrDefault(t => t.SocialId == comment.PostId);
+                        var parent = parents.FirstOrDefault(t => t.OriginalId == comment.PostId);
                         if (parent == null)
                         {
                             continue;
@@ -175,26 +175,26 @@ namespace Social.Domain.DomainServices.Facebook
                     List<SocialUser> senders = await GetOrCreateSocialUsers(_account.Token, replyComments.Select(t => t.from).ToList());
 
                     var postIds = replyComments.Select(t => t.PostId).Distinct().ToList();
-                    var conversations = _conersationRepo.FindAll().Where(t => postIds.Contains(t.SocialId)).ToList();
+                    var conversations = _conersationRepo.FindAll().Where(t => postIds.Contains(t.OriginalId)).ToList();
 
                     var parentIds = replyComments.Select(t => t.parent.id).Distinct().ToList();
-                    var parents = _messageRepo.FindAll().Where(t => parentIds.Contains(t.SocialId)).ToList();
+                    var parents = _messageRepo.FindAll().Where(t => parentIds.Contains(t.OriginalId)).ToList();
 
                     foreach (var replyComment in replyComments)
                     {
-                        var sender = senders.FirstOrDefault(t => t.SocialId == replyComment.from.id);
+                        var sender = senders.FirstOrDefault(t => t.OriginalId == replyComment.from.id);
                         if (sender == null)
                         {
                             continue;
                         }
 
-                        var conversation = conversations.FirstOrDefault(t => t.SocialId == replyComment.PostId);
+                        var conversation = conversations.FirstOrDefault(t => t.OriginalId == replyComment.PostId);
                         if (conversation == null)
                         {
                             continue;
                         }
 
-                        var parent = parents.FirstOrDefault(t => t.SocialId == replyComment.parent.id);
+                        var parent = parents.FirstOrDefault(t => t.OriginalId == replyComment.parent.id);
                         if (parent == null)
                         {
                             continue;
@@ -227,14 +227,14 @@ namespace Social.Domain.DomainServices.Facebook
         {
             List<SocialUser> senders = new List<SocialUser>();
             var fbSenderIds = fbSenders.Select(t => t.id).ToList();
-            var existingUsers = _socialUserRepo.FindAll().Where(t => fbSenderIds.Contains(t.SocialId)).ToList();
+            var existingUsers = _socialUserRepo.FindAll().Where(t => fbSenderIds.Contains(t.OriginalId)).ToList();
             senders.AddRange(existingUsers);
-            fbSenders.RemoveAll(t => existingUsers.Any(e => e.SocialId == t.id));
+            fbSenders.RemoveAll(t => existingUsers.Any(e => e.OriginalId == t.id));
             foreach (var fbSender in fbSenders)
             {
                 var sender = new SocialUser()
                 {
-                    SocialId = fbSender.id,
+                    OriginalId = fbSender.id,
                     Name = fbSender.name,
                     Email = fbSender.email
                 };
@@ -337,19 +337,19 @@ namespace Social.Domain.DomainServices.Facebook
             if (PostsToBeCreated.Any())
             {
                 var postIds = PostsToBeCreated.Select(t => t.id).ToList();
-                var existingPostIds = _conersationRepo.FindAll().Where(t => postIds.Contains(t.SocialId)).Select(t => t.SocialId).ToList();
+                var existingPostIds = _conersationRepo.FindAll().Where(t => postIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
                 PostsToBeCreated.RemoveAll(t => existingPostIds.Contains(t.id));
             }
             if (CommentsToBeCreated.Any())
             {
                 var commentIds = CommentsToBeCreated.Select(t => t.id).ToList();
-                var existingCommentIds = _messageRepo.FindAll().Where(t => commentIds.Contains(t.SocialId)).Select(t => t.SocialId).ToList();
+                var existingCommentIds = _messageRepo.FindAll().Where(t => commentIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
                 CommentsToBeCreated.RemoveAll(t => existingCommentIds.Contains(t.id));
             }
             if (ReplyCommentsToBeCretaed.Any())
             {
                 var replyCommentIds = ReplyCommentsToBeCretaed.Select(t => t.id).ToList();
-                var existingReplyCommentIds = _messageRepo.FindAll().Where(t => replyCommentIds.Contains(t.SocialId)).Select(t => t.SocialId).ToList();
+                var existingReplyCommentIds = _messageRepo.FindAll().Where(t => replyCommentIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
                 ReplyCommentsToBeCretaed.RemoveAll(t => existingReplyCommentIds.Contains(t.id));
             }
         }

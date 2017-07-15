@@ -1,6 +1,8 @@
 ﻿using Framework.Core;
+using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -12,6 +14,8 @@ namespace Social.Domain.Entities
     public class ConversationLog : EntityWithSite, IHaveCreation
     {
         public int ConversationId { get; set; }
+        public ConversationLogType Type { get; set; }
+        [MaxLength(500)]
         public string Content { get; set; }
         public DateTime CreatedTime { get; set; }
         public int CreatedBy { get; set; }

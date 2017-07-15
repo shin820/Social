@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enum\ConditionMatchType.cs" />
+    <Compile Include="Enum\ConversationLogType.cs" />
     <Compile Include="Enum\ConversationPriority.cs" />
     <Compile Include="Enum\ConversationSource.cs" />
     <Compile Include="Enum\ConversationStatus.cs" />

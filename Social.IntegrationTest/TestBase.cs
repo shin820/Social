@@ -33,25 +33,28 @@ namespace Social.IntegrationTest
         public TestBase()
         {
             UnitOfWorkManager = DependencyResolver.Resolve<IUnitOfWorkManager>();
-            _unitOfWork = UnitOfWorkManager.Begin(/*new UnitOfWorkOptions { IsTransactional = false }*/) as IUnitOfWork;
+            _unitOfWork = UnitOfWorkManager.Begin() as IUnitOfWork;
             CreateTestFacebookAccount();
         }
 
         private void CreateTestFacebookAccount()
         {
+            string testPageId = "1974003879498745";
+            int testSiteId = 10000;
+
             using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
             {
-                using (CurrentUnitOfWork.SetSiteId(10000))
+                using (CurrentUnitOfWork.SetSiteId(testSiteId))
                 {
-                    IRepository<SocialUser> socailUserRepo = DependencyResolver.Resolve<IRepository<SocialUser>>();
-                    TestFacebookAccount = socailUserRepo.FindAll().Where(t => t.SocialId == "1974003879498745").Select(t => t.SocialAccount).FirstOrDefault();
+                    var socailUserRepo = DependencyResolver.Resolve<IRepository<SocialUser>>();
+                    TestFacebookAccount = socailUserRepo.FindAll().Where(t => t.OriginalId == testPageId).Select(t => t.SocialAccount).FirstOrDefault();
 
                     if (TestFacebookAccount == null)
                     {
                         SocialUser socialUser = new SocialUser
                         {
-                            Name = "Shin's Test",
-                            SocialId = "1974003879498745",
+                            Name = "Facebook Test Page",
+                            OriginalId = testPageId,
                             Type = SocialUserType.Facebook,
                             SocialAccount = new SocialAccount
                             {
@@ -66,6 +69,22 @@ namespace Social.IntegrationTest
                         socailUserRepo.Insert(socialUser);
                         TestFacebookAccount = socialUser.SocialAccount;
                     }
+
+                    uow.Complete();
+                }
+            }
+
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                using (CurrentUnitOfWork.SetSiteId(null))
+                {
+                    var siteSocialAccountRepo = DependencyResolver.Resolve<IRepository<GeneralDataContext, SiteSocialAccount>>();
+                    siteSocialAccountRepo.Insert(new SiteSocialAccount
+                    {
+                        FacebookPageId = testPageId,
+                        SiteId = testSiteId
+                    });
+
                     uow.Complete();
                 }
             }

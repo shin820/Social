@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Social.Domain.Entities
 {
     [Table("t_Social_ConversationField")]
-    public class ConversationField : EntityWithSite, IHaveCreation, IHaveModification
+    public class ConversationField : EntityWithSite
     {
         public ConversationField()
         {
@@ -20,10 +20,6 @@ namespace Social.Domain.Entities
         public bool IfSystem { get; set; }
         public FieldDataType DataType { get; set; }
         public string Name { get; set; }
-        public DateTime CreatedTime { get; set; }
-        public int CreatedBy { get; set; }
-        public int? ModifiedBy { get; set; }
-        public DateTime? ModifiedTime { get; set; }
 
         public virtual IList<FilterCondition> Conditions { get; set; }
 

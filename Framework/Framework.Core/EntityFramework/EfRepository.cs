@@ -8,7 +8,7 @@ using Framework.Core;
 
 namespace Framework.Core.EntityFramework
 {
-    public class EfRepository<TDbContext, TEntity> : ServiceBase, IRepository<TEntity>
+    public class EfRepository<TDbContext, TEntity> : ServiceBase, IRepository<TEntity>, IRepository<TDbContext, TEntity>
         where TEntity : Entity
         where TDbContext : DbContext
     {

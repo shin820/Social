@@ -14,7 +14,7 @@ namespace Social.IntegrationTest.Infrastructure.Facebook
         [Fact]
         public async Task ShouldGetTaggedVisitorPost()
         {
-            var result = await FbClient.GetTaggedVisitorPosts(TestFacebookAccount.SocialUser.SocialId, TestFacebookAccount.Token);
+            var result = await FbClient.GetTaggedVisitorPosts(TestFacebookAccount.SocialUser.OriginalId, TestFacebookAccount.Token);
 
             Assert.True(result.data.Count > 0);
             Assert.NotNull(result.paging);

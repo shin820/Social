@@ -24,10 +24,11 @@ namespace Social.Domain.Entities
         public MessageSource Source { get; set; }
 
         [Required]
-        public string SocialId { get; set; }
+        [MaxLength(200)]
+        public string OriginalId { get; set; }
 
         [MaxLength(500)]
-        public string SocialLink { get; set; }
+        public string OriginalLink { get; set; }
 
         public int? ParentId { get; set; }
 
@@ -37,8 +38,10 @@ namespace Social.Domain.Entities
 
         public int? ReceiverId { get; set; }
 
+        [MaxLength(10000)]
         public string Content { get; set; }
 
+        [MaxLength(500)]
         public string Story { get; set; }
 
         public bool IsDeleted { get; set; }

@@ -18,13 +18,13 @@ namespace Social.Domain.DomainServices
     {
         public async Task<SocialUser> GetOrCreateSocialUser(int siteId, string token, string fbUserId, string fbUserEmail)
         {
-            var user = Repository.FindAll().Where(t => t.SiteId == siteId && t.SocialId == fbUserId).FirstOrDefault();
+            var user = Repository.FindAll().Where(t => t.SiteId == siteId && t.OriginalId == fbUserId).FirstOrDefault();
             if (user == null)
             {
                 FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId);
                 user = new SocialUser
                 {
-                    SocialId = fbUser.id,
+                    OriginalId = fbUser.id,
                     Name = fbUser.name,
                     Email = fbUser.email
                 };

@@ -44,7 +44,7 @@ namespace Social.Domain.DomainServices.Facebook
                 Message message = Convert(fbMessage, sender, receiver, socialAccount);
                 var conversation = new Conversation
                 {
-                    SocialId = change.Value.ThreadId,
+                    OriginalId = change.Value.ThreadId,
                     Source = ConversationSource.FacebookMessage,
                     Priority = ConversationPriority.Normal,
                     Status = ConversationStatus.New,
@@ -64,7 +64,7 @@ namespace Social.Domain.DomainServices.Facebook
                 SenderId = Sender.Id,
                 ReceiverId = Receiver.Id,
                 Source = MessageSource.FacebookMessage,
-                SocialId = fbMessage.Id,
+                OriginalId = fbMessage.Id,
                 SendTime = fbMessage.SendTime,
                 Content = fbMessage.Content
             };
@@ -73,7 +73,7 @@ namespace Social.Domain.DomainServices.Facebook
             {
                 message.Attachments.Add(new MessageAttachment
                 {
-                    SocialId = attachment.Id,
+                    OriginalId = attachment.Id,
                     Name = attachment.Name,
                     MimeType = attachment.MimeType,
                     Size = attachment.Size,
