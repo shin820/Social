@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace Framework.WebApi
+namespace Social.WebApi.Core
 {
     public class UserContext : IUserContext
     {

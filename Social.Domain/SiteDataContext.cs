@@ -7,13 +7,13 @@ namespace Social.Domain
     using Social.Infrastructure.Enum;
     using System.Data.Entity;
 
-    public class SiteDataContext : DataContext
+    public class SiteDataContext : DataContext, ITransient
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(SiteDataContext));
 
         public SiteDataContext(string nameOrConnectionString) : base(nameOrConnectionString)
         {
-            Database.SetInitializer<SiteDataContext>(null);
+            //Database.SetInitializer<SiteDataContext>(null);
             Database.Log = t => logger.Debug(t);
         }
 

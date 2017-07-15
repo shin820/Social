@@ -81,7 +81,6 @@
     <Compile Include="IScheduleJobManager.cs" />
     <Compile Include="JobExtensions.cs" />
     <Compile Include="JobFactory.cs" />
-    <Compile Include="JobInstaller.cs" />
     <Compile Include="JobBase.cs" />
     <Compile Include="Jobs\FacebookTaggedDataSyncJob.cs" />
     <Compile Include="Jobs\FacebookWebHookJob.cs" />

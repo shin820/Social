@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Framework.Core
 {
-    public interface IUserContext
+    public interface IUserContext : ITransient
     {
         int UserId { get; }
         int? SiteId { get; }

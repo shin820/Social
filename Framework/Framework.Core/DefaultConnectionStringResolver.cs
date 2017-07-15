@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Framework.Core
 {
-    public class DefaultConnectionStringResolver : IConnectionStringResolver
+    public class DefaultConnectionStringResolver : IConnectionStringResolver, ITransient
     {
         public string GetNameOrConnectionStringForSiteDb(int siteId)
         {

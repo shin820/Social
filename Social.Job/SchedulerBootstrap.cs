@@ -2,9 +2,12 @@
 using Framework.Core;
 using Quartz;
 using Quartz.Impl;
+using Social.Application;
+using Social.Domain;
 using Social.Job.Jobs;
 using System;
 using System.Net;
+using System.Reflection;
 
 namespace Social.Job
 {
@@ -15,7 +18,8 @@ namespace Social.Job
         public SchedulerBootstrap()
         {
             var dependencyResolver = new DependencyResolver();
-            dependencyResolver.Install(new JobInstaller());
+            dependencyResolver.RegisterAssemblyByConvention(Assembly.GetExecutingAssembly());
+            new ApplicationServicesRegistrar(dependencyResolver).RegisterServices();
 
             _scheduleJobManager = dependencyResolver.Resolve<IScheduleJobManager>();
 

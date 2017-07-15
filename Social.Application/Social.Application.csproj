@@ -51,7 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationIocFacility.cs" />
+    <Compile Include="ApplicationServicesRegistrar.cs" />
     <Compile Include="AppServices\ConversationAppService.cs" />
     <Compile Include="AppServices\Dto\Filter\FilterConditionCreateDto.cs" />
     <Compile Include="AppServices\Dto\Filter\FilterConditionDto.cs" />
