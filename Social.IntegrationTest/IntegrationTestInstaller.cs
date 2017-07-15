@@ -10,7 +10,7 @@ using Framework.Core;
 using Social.Domain.DomainServices;
 using System.Data.Entity;
 using Social.Domain;
-using Framework.EntityFramework;
+using Framework.Core.EntityFramework;
 using Castle.MicroKernel;
 using System.Configuration;
 using Social.Domain.DomainServices.Facebook;

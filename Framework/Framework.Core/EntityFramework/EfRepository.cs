@@ -6,9 +6,9 @@ using System.Linq.Dynamic;
 using System.Threading.Tasks;
 using Framework.Core;
 
-namespace Framework.EntityFramework
+namespace Framework.Core.EntityFramework
 {
-    public class UnitOfWorkEfRepository<TDbContext, TEntity> : ServiceBase, IRepository<TEntity>
+    public class EfRepository<TDbContext, TEntity> : ServiceBase, IRepository<TEntity>
         where TEntity : Entity
         where TDbContext : DbContext
     {
@@ -28,7 +28,7 @@ namespace Framework.EntityFramework
             }
         }
 
-        public UnitOfWorkEfRepository()
+        public EfRepository()
         {
         }
 

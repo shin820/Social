@@ -2,7 +2,7 @@
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using Framework.Core;
-using Framework.EntityFramework;
+using Framework.Core.EntityFramework;
 using Framework.Core.UnitOfWork;
 using Social.Domain;
 
@@ -53,7 +53,7 @@ namespace Social.Job
            );
         }
 
-        public class JobRepository<TEntity> : UnitOfWorkEfRepository<SiteDataContext, TEntity>, IRepository<TEntity> where TEntity : Entity
+        public class JobRepository<TEntity> : EfRepository<SiteDataContext, TEntity>, IRepository<TEntity> where TEntity : Entity
         {
         }
 

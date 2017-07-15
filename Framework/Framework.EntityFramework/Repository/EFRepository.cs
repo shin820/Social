@@ -8,14 +8,28 @@ using Framework.Core;
 
 namespace Framework.EntityFramework
 {
-    public class EFRepository<TEntity> : ServiceBase, IRepository<TEntity> where TEntity : Entity
+    public class UnitOfWorkEfRepository<TDbContext, TEntity> : ServiceBase, IRepository<TEntity>
+        where TEntity : Entity
+        where TDbContext : DbContext
     {
-        protected DbContext _dbContext;
-        protected IDbSet<TEntity> DataSet;
-        public EFRepository(DbContext dbContext)
+        protected IDbSet<TEntity> DataSet
         {
-            DataSet = dbContext.Set<TEntity>();
-            _dbContext = dbContext;
+            get
+            {
+                return _dbContext.Set<TEntity>();
+            }
+        }
+
+        private TDbContext _dbContext
+        {
+            get
+            {
+                return CurrentUnitOfWork.GetOrCreateDbContext<TDbContext>();
+            }
+        }
+
+        public UnitOfWorkEfRepository()
+        {
         }
 
         public IQueryable<TEntity> FindAll()
@@ -36,13 +50,11 @@ namespace Framework.EntityFramework
         public void Insert(TEntity entity)
         {
             DataSet.Add(entity);
-            _dbContext.SaveChanges();
         }
 
         public async Task InsertAsync(TEntity entity)
         {
             DataSet.Add(entity);
-            await _dbContext.SaveChangesAsync();
         }
 
         public void InsertMany(TEntity[] entities)
@@ -51,7 +63,6 @@ namespace Framework.EntityFramework
             {
                 DataSet.Add(entity);
             }
-            _dbContext.SaveChanges();
         }
 
         public async Task InsertManyAsync(TEntity[] entities)
@@ -60,19 +71,16 @@ namespace Framework.EntityFramework
             {
                 DataSet.Add(entity);
             }
-            await _dbContext.SaveChangesAsync();
         }
 
         public void Delete(TEntity entity)
         {
             SoftDelete(entity);
-            _dbContext.SaveChanges();
         }
 
         public async Task DeleteAsync(TEntity entity)
         {
             SoftDelete(entity);
-            await _dbContext.SaveChangesAsync();
         }
 
         public void DeleteMany(TEntity[] entities)
@@ -81,7 +89,6 @@ namespace Framework.EntityFramework
             {
                 SoftDelete(entity);
             }
-            _dbContext.SaveChanges();
         }
 
         private void SoftDelete(TEntity entity)
@@ -104,19 +111,16 @@ namespace Framework.EntityFramework
             {
                 DataSet.Remove(entity);
             }
-            await _dbContext.SaveChangesAsync();
         }
 
         public void Update(TEntity entity)
         {
             _dbContext.Entry(entity).State = EntityState.Modified;
-            _dbContext.SaveChanges();
         }
 
         public async Task UpdateAsync(TEntity entity)
         {
             _dbContext.Entry(entity).State = EntityState.Modified;
-            await _dbContext.SaveChangesAsync();
         }
 
         public void UpdateMany(TEntity[] entities)
@@ -125,7 +129,6 @@ namespace Framework.EntityFramework
             {
                 _dbContext.Entry(entity).State = EntityState.Modified;
             }
-            _dbContext.SaveChanges();
         }
 
         public async Task UpdateManyAsync(TEntity[] entities)
@@ -134,7 +137,6 @@ namespace Framework.EntityFramework
             {
                 _dbContext.Entry(entity).State = EntityState.Modified;
             }
-            await _dbContext.SaveChangesAsync();
         }
 
         public virtual int Count(Expression<Func<TEntity, bool>> predicate)

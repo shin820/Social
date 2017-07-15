@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Social.Infrastructure", "Social.Infrastructure\Social.Infrastructure.csproj", "{FE79D2DF-6B23-4278-9C84-FC1D6487C45B}"
 EndProject
@@ -12,8 +12,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Framework", "Framework", "{F27721B3-7966-42FE-87EA-A169BB5A802D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework.Core", "Framework\Framework.Core\Framework.Core.csproj", "{1D101296-5F63-46CF-AB35-4A72EA5A9C08}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework.EntityFramework", "Framework\Framework.EntityFramework\Framework.EntityFramework.csproj", "{D53C16D3-88F7-4567-BA34-CDBAAC9B4902}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework.WebApi", "Framework\Framework.WebApi\Framework.WebApi.csproj", "{A4E4B66A-A602-4D0B-A2B8-5E0336F0B473}"
 EndProject
@@ -51,10 +49,6 @@ Global
 		{1D101296-5F63-46CF-AB35-4A72EA5A9C08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D101296-5F63-46CF-AB35-4A72EA5A9C08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D101296-5F63-46CF-AB35-4A72EA5A9C08}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D53C16D3-88F7-4567-BA34-CDBAAC9B4902}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D53C16D3-88F7-4567-BA34-CDBAAC9B4902}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D53C16D3-88F7-4567-BA34-CDBAAC9B4902}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D53C16D3-88F7-4567-BA34-CDBAAC9B4902}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A4E4B66A-A602-4D0B-A2B8-5E0336F0B473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A4E4B66A-A602-4D0B-A2B8-5E0336F0B473}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4E4B66A-A602-4D0B-A2B8-5E0336F0B473}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -85,7 +79,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1D101296-5F63-46CF-AB35-4A72EA5A9C08} = {F27721B3-7966-42FE-87EA-A169BB5A802D}
-		{D53C16D3-88F7-4567-BA34-CDBAAC9B4902} = {F27721B3-7966-42FE-87EA-A169BB5A802D}
 		{A4E4B66A-A602-4D0B-A2B8-5E0336F0B473} = {F27721B3-7966-42FE-87EA-A169BB5A802D}
 		{9CD2AF68-E0C0-4957-A002-90B18B931AEC} = {F2A2C673-AEE4-4DB3-92FC-79DAB018C043}
 		{FF6844BD-69A3-409A-A330-EC77BE12282A} = {F2A2C673-AEE4-4DB3-92FC-79DAB018C043}

@@ -70,8 +70,7 @@
   <ItemGroup>
     <Compile Include="DataContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repository\EFRepository.cs" />
-    <Compile Include="Repository\UnitOfWorkEfRepository.cs" />
+    <Compile Include="Repository\EfRepository.cs" />
     <Compile Include="ShardingTableInterceptor.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -83,10 +83,6 @@
       <Project>{1d101296-5f63-46cf-ab35-4a72ea5a9c08}</Project>
       <Name>Framework.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Framework.EntityFramework\Framework.EntityFramework.csproj">
-      <Project>{d53c16d3-88f7-4567-ba34-cdbaac9b4902}</Project>
-      <Name>Framework.EntityFramework</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

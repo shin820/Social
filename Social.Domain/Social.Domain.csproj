@@ -110,10 +110,6 @@
       <Project>{1D101296-5F63-46CF-AB35-4A72EA5A9C08}</Project>
       <Name>Framework.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Framework\Framework.EntityFramework\Framework.EntityFramework.csproj">
-      <Project>{D53C16D3-88F7-4567-BA34-CDBAAC9B4902}</Project>
-      <Name>Framework.EntityFramework</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Social.Infrastructure\Social.Infrastructure.csproj">
       <Project>{fe79d2df-6b23-4278-9c84-fc1d6487c45b}</Project>
       <Name>Social.Infrastructure</Name>

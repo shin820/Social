@@ -1,7 +1,7 @@
 namespace Social.Domain
 {
     using Framework.Core;
-    using Framework.EntityFramework;
+    using Framework.Core.EntityFramework;
     using log4net;
     using Social.Domain.Entities;
     using Social.Infrastructure.Enum;

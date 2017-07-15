@@ -1,7 +1,7 @@
 ﻿using Castle.MicroKernel;
 using Castle.MicroKernel.Registration;
 using Framework.Core;
-using Framework.EntityFramework;
+using Framework.Core.EntityFramework;
 using Framework.Core.UnitOfWork;
 using Social.Domain.DomainServices;
 using System.Data.Entity;

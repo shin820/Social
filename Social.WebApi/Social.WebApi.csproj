@@ -345,10 +345,6 @@
       <Project>{1d101296-5f63-46cf-ab35-4a72ea5a9c08}</Project>
       <Name>Framework.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Framework\Framework.EntityFramework\Framework.EntityFramework.csproj">
-      <Project>{D53C16D3-88F7-4567-BA34-CDBAAC9B4902}</Project>
-      <Name>Framework.EntityFramework</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Framework\Framework.WebApi\Framework.WebApi.csproj">
       <Project>{a4e4b66a-a602-4d0b-a2b8-5e0336f0b473}</Project>
       <Name>Framework.WebApi</Name>
