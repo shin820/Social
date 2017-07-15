@@ -14,7 +14,7 @@ namespace Social.Application.Dto
 
         public ConversationSource Source { get; set; }
 
-        public string SocialId { get; set; }
+        public string OriginalId { get; set; }
 
         public bool IfRead { get; set; }
 
@@ -38,8 +38,5 @@ namespace Social.Application.Dto
 
         [MaxLength(2000)]
         public string Note { get; set; }
-
-        public int? ModifiedBy { get; set; }
-        public DateTime? ModifiedTime { get; set; }
     }
 }

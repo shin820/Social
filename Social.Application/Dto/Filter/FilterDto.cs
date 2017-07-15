@@ -15,14 +15,12 @@ namespace Social.Application.Dto
         [Required]
         [MaxLength(200)]
         public string Name { get; set; }
-        public int Order { get; set; }
+        public int Index { get; set; }
         public bool IfPublic { get; set; }
         public ConditionRuleTriggerType ConditionRuleTriggerType { get; set; }
 
         public int CreatedBy { get; set; }
         public DateTime CreatedTime { get; set; }
-        public int? ModifiedBy { get; set; }
-        public DateTime? ModifiedTime { get; set; }
 
        // public int ConversationId { get; set; }
        // public virtual Conversation Conversation { get; set; }

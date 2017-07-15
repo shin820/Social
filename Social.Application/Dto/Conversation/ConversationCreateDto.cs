@@ -12,7 +12,7 @@ namespace Social.Application.Dto
     {
         public ConversationSource Source { get; set; }
 
-        public string SocialId { get; set; }
+        public string OriginalId { get; set; }
 
         public bool IfRead { get; set; }
 
