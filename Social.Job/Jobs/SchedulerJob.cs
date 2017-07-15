@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Quartz;
 using Quartz.Impl.Matchers;
+using Social.Job.Jobs.Facebook;
 
 namespace Social.Job.Jobs
 {
@@ -24,7 +25,7 @@ namespace Social.Job.Jobs
 
             int[] siteIds = new int[] { 10000 };
             //ScheduleFacebookWebHookJob(siteIds, context);
-            ScheduleFacebookSyncTaggedVisitorPostJob(siteIds, context);
+            ScheduleFacebookPullTaggedVisitorPostsJob(siteIds, context);
             taskSrc.SetResult(null);
             return taskSrc.Task;
         }
@@ -61,7 +62,7 @@ namespace Social.Job.Jobs
             return $"FacebookWebHookJobKey - {siteId}";
         }
 
-        private void ScheduleFacebookSyncTaggedVisitorPostJob(int[] siteIds, IJobExecutionContext context)
+        private void ScheduleFacebookPullTaggedVisitorPostsJob(int[] siteIds, IJobExecutionContext context)
         {
             const string groupName = "FacebookSyncTaggedVisitorPostJobGroup";
 
@@ -72,7 +73,7 @@ namespace Social.Job.Jobs
                 string jobKey = GetFacebookSyncTaggedVisitorPostJob(siteId);
                 if (jobKeys.All(t => t.Name != jobKey))
                 {
-                    _scheduleJobManager.ScheduleAsync<FacebookTaggedDataSyncJob, int>(
+                    _scheduleJobManager.ScheduleAsync<PullTaggedVisitorPostsJob, int>(
                     job =>
                     {
                         job.WithIdentity(jobKey, groupName);

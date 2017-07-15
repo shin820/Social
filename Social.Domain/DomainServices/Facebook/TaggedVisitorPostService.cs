@@ -252,8 +252,6 @@ namespace Social.Domain.DomainServices.Facebook
                 return;
             }
 
-            FillPostIdForComments(posts);
-
             PostsToBeCreated.AddRange(posts.data);
 
             await AddCommentIds(posts);
@@ -266,22 +264,16 @@ namespace Social.Domain.DomainServices.Facebook
             }
         }
 
-        private void FillPostIdForComments(FbPagingData<FbPost> posts)
+        private void FillPostIdForComments(FbPagingData<FbComment> comments, string postId)
         {
-            foreach (var post in posts.data)
+            if (comments == null || comments.data == null)
             {
-                foreach (var comment in post.comments.data)
-                {
-                    comment.PostId = post.id;
+                return;
+            }
 
-                    if (comment.comments != null)
-                    {
-                        foreach (var replyComment in comment.comments.data)
-                        {
-                            replyComment.PostId = post.id;
-                        }
-                    }
-                }
+            foreach (var comment in comments.data)
+            {
+                comment.PostId = postId;
             }
         }
 
@@ -293,6 +285,7 @@ namespace Social.Domain.DomainServices.Facebook
 
                 while (comments != null && comments.data.Any())
                 {
+                    FillPostIdForComments(comments, post.id);
                     CommentsToBeCreated.AddRange(comments.data);
 
                     await AddReplyCommentIds(comments);
@@ -317,6 +310,7 @@ namespace Social.Domain.DomainServices.Facebook
                 var replyComments = comment.comments;
                 while (replyComments != null && replyComments.data.Any())
                 {
+                    FillPostIdForComments(replyComments, comment.PostId);
                     ReplyCommentsToBeCretaed.AddRange(replyComments.data);
 
                     if (replyComments.paging.next != null)

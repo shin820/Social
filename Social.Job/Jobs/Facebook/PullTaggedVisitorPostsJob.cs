@@ -12,14 +12,14 @@ using Social.Infrastructure.Enum;
 using System.Data.Entity;
 using Social.Application.AppServices;
 
-namespace Social.Job.Jobs
+namespace Social.Job.Jobs.Facebook
 {
-    public class FacebookTaggedDataSyncJob : JobBase, ITransient
+    public class PullTaggedVisitorPostsJob : JobBase, ITransient
     {
         private IFacebookAppService _service;
         private IRepository<SocialAccount> _socialAccountRepo;
 
-        public FacebookTaggedDataSyncJob(
+        public PullTaggedVisitorPostsJob(
             IFacebookAppService service,
             IRepository<SocialAccount> socialAccountRepo
             )
