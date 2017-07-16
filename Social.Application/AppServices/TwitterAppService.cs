@@ -6,13 +6,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using Tweetinvi.Models;
 
 namespace Social.Application.AppServices
 {
     public interface ITwitterAppService
     {
-        Task ReceivedTweet(SocialAccount account, ITweet currentTweet);
+        Task ProcessTweet(SocialAccount account, ITweet currentTweet);
+        Task ProcessDirectMessage(SocialAccount account, IMessage directMsg);
     }
 
     public class TwitterAppService : AppService, ITwitterAppService
@@ -24,9 +26,28 @@ namespace Social.Application.AppServices
             _twitterService = twitterService;
         }
 
-        public async Task ReceivedTweet(SocialAccount account, ITweet currentTweet)
+        public async Task ProcessTweet(SocialAccount account, ITweet currentTweet)
         {
-            await _twitterService.ReceivedTweet(account, currentTweet);
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                using (CurrentUnitOfWork.SetSiteId(account.SiteId))
+                {
+                    await _twitterService.ProcessTweet(account, currentTweet);
+                    uow.Complete();
+                }
+            }
+        }
+
+        public async Task ProcessDirectMessage(SocialAccount account, IMessage directMsg)
+        {
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                using (CurrentUnitOfWork.SetSiteId(account.SiteId))
+                {
+                    await _twitterService.ProcessDirectMessage(account, directMsg);
+                    uow.Complete();
+                }
+            }
         }
     }
 }

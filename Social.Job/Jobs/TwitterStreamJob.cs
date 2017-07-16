@@ -57,21 +57,19 @@ namespace Social.Job.Jobs
                 Console.WriteLine($"Stream is ready...");
             };
 
-            stream.MessageReceived += (sender, args) =>
+            stream.MessageReceived += async (sender, args) =>
             {
-                Console.WriteLine($"[{args.Message.CreatedAt}] {args.Message.SenderScreenName} : {args.Message.Text}");
-                var user = User.GetUserFromScreenName(args.Message.SenderScreenName);
-                var b = user;
+                await _twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
             };
 
-            stream.MessageSent += (sender, args) =>
+            stream.MessageSent += async (sender, args) =>
             {
-                Console.WriteLine($"[{args.Message.CreatedAt}] {args.Message.SenderScreenName} : {args.Message.Text}");
+                await _twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
             };
 
             stream.TweetCreatedByAnyone += async (sender, args) =>
             {
-                await _twitterAppService.ReceivedTweet(socialAccount, args.Tweet);
+                await _twitterAppService.ProcessTweet(socialAccount, args.Tweet);
             };
 
             stream.StreamStopped += (sender, args) =>

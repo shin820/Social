@@ -16,7 +16,8 @@ namespace Social.Domain.DomainServices
 {
     public interface ITwitterService
     {
-        Task ReceivedTweet(SocialAccount account, ITweet currentTweet);
+        Task ProcessDirectMessage(SocialAccount account, IMessage directMsg);
+        Task ProcessTweet(SocialAccount account, ITweet currentTweet);
     }
 
     public class TwitterService : ServiceBase, ITwitterService
@@ -25,7 +26,70 @@ namespace Social.Domain.DomainServices
         public IRepository<Entities.Message> MessageRepository { get; set; }
         public IRepository<SocialUser> SocialUserRepository { get; set; }
 
-        public async Task ReceivedTweet(SocialAccount account, ITweet currentTweet)
+        public async Task ProcessDirectMessage(SocialAccount account, IMessage directMsg)
+        {
+            if (IsDuplicatedMessage(MessageSource.TwitterDirectMessage, directMsg.Id.ToString()))
+            {
+                return;
+            }
+
+            bool isSendByAccount = directMsg.SenderId.ToString() == account.SocialUser.OriginalId;
+            SocialUser sender = await GetOrCreateTwitterUser(directMsg.Sender);
+            SocialUser recipient = await GetOrCreateTwitterUser(directMsg.Recipient);
+            SocialUser user = sender.OriginalId != account.SocialUser.OriginalId ? sender : recipient;
+            var existingConversation = ConversationRepository.FindAll().Where(t => t.Source == ConversationSource.TwitterDirectMessage && t.Status != ConversationStatus.Closed && t.Messages.Any(m => m.SenderId == user.Id || m.ReceiverId == user.Id)).FirstOrDefault();
+            if (existingConversation != null)
+            {
+                var message = ConvertToMessage(directMsg);
+                message.SenderId = sender.Id;
+                message.ReceiverId = recipient.Id;
+                message.ConversationId = existingConversation.Id;
+                existingConversation.IfRead = false;
+                existingConversation.Status = ConversationStatus.PendingInternal;
+                existingConversation.LastMessageSenderId = message.SenderId;
+                existingConversation.LastMessageSentTime = message.SendTime;
+                existingConversation.Messages.Add(message);
+                await ConversationRepository.UpdateAsync(existingConversation);
+            }
+            else
+            {
+                if (sender.Id == account.SocialUser.Id)
+                {
+                    return;
+                }
+
+                var message = ConvertToMessage(directMsg);
+                message.SenderId = sender.Id;
+                message.ReceiverId = recipient.Id;
+                var conversation = new Conversation
+                {
+                    OriginalId = directMsg.Id.ToString(),
+                    Source = ConversationSource.TwitterDirectMessage,
+                    Priority = ConversationPriority.Normal,
+                    Status = ConversationStatus.New,
+                    Subject = GetSubject(message.Content),
+                    LastMessageSenderId = message.SenderId,
+                    LastMessageSentTime = message.SendTime
+                };
+                conversation.Messages.Add(message);
+                await AddConversation(account, conversation);
+            }
+        }
+
+        private Entities.Message ConvertToMessage(IMessage directMsg)
+        {
+            var message = new Entities.Message
+            {
+                Source = MessageSource.TwitterDirectMessage,
+                Content = directMsg.Text,
+                OriginalId = directMsg.Id.ToString(),
+                SendTime = directMsg.CreatedAt
+            };
+
+            return message;
+        }
+
+        public async Task ProcessTweet(SocialAccount account, ITweet currentTweet)
         {
             bool isFristTweetSendByAccount = currentTweet.InReplyToStatusId == null && currentTweet.CreatedBy.IdStr == account.SocialUser.OriginalId;
             if (isFristTweetSendByAccount)
@@ -33,16 +97,9 @@ namespace Social.Domain.DomainServices
                 return;
             }
 
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
-            {
-                using (CurrentUnitOfWork.SetSiteId(account.SiteId))
-                {
-                    List<ITweet> tweets = new List<ITweet>();
-                    await RecursivelyFillTweet(tweets, currentTweet);
-                    await AddTweets(account, tweets);
-                    uow.Complete();
-                }
-            }
+            List<ITweet> tweets = new List<ITweet>();
+            await RecursivelyFillTweet(tweets, currentTweet);
+            await AddTweets(account, tweets);
         }
 
         private async Task AddTweets(SocialAccount account, List<ITweet> tweets)
@@ -51,6 +108,11 @@ namespace Social.Domain.DomainServices
             {
                 return;
             }
+            //if (tweets.All(t => t.CreatedBy.Id.ToString() == account.SocialUser.OriginalId))
+            //{
+            //    return;
+            //}
+
             tweets = tweets.OrderBy(t => t.CreatedAt).ToList();
 
             foreach (var tweet in tweets)
@@ -106,6 +168,12 @@ namespace Social.Domain.DomainServices
 
             tweets.Add(tweet);
 
+            // for performance reason, we just get 10 parent tweet in the tree.
+            if (tweets.Count >= 10)
+            {
+                return;
+            }
+
             if (tweet.InReplyToStatusId != null)
             {
                 ITweet inReplyToTweet = Tweet.GetTweet(tweet.InReplyToStatusId.Value);
@@ -147,7 +215,7 @@ namespace Social.Domain.DomainServices
                 Source = tweet.QuotedStatusId == null ? MessageSource.TwitterTypicalTweet : MessageSource.TwitterQuoteTweet,
                 OriginalId = tweet.IdStr,
                 SendTime = tweet.CreatedAt,
-                Content = tweet.Text,
+                Content = string.IsNullOrWhiteSpace(tweet.Text) ? tweet.FullText : tweet.Text,
                 OriginalLink = tweet.Url
             };
 
@@ -215,7 +283,7 @@ namespace Social.Domain.DomainServices
                 user = new SocialUser
                 {
                     OriginalId = twitterUser.IdStr,
-                    Name = twitterUser.Name,
+                    Name = twitterUser.ScreenName,
                     Type = SocialUserType.Twitter
                 };
                 await SocialUserRepository.InsertAsync(user);
