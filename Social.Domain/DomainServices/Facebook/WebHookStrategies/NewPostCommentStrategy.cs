@@ -25,7 +25,7 @@ namespace Social.Domain.DomainServices.Facebook
             }
 
             FbComment comment = await FbClient.GetComment(socialAccount.Token, change.Value.CommentId);
-            SocialUser sender = await GetOrCreateSocialUser(socialAccount.Token, comment.from.id);
+            SocialUser sender = await GetOrCreateFacebookUser(socialAccount.Token, comment.from.id);
 
             var conversation = GetConversation(change.Value.PostId);
             if (conversation == null)

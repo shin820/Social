@@ -80,9 +80,9 @@ namespace Social.Domain.DomainServices.Facebook
             await ConversationRepository.DeleteAsync(conversation);
         }
 
-        protected async Task<SocialUser> GetOrCreateSocialUser(string token, string fbUserId)
+        protected async Task<SocialUser> GetOrCreateFacebookUser(string token, string fbUserId)
         {
-            var user = SocialUserRepository.FindAll().Where(t => t.OriginalId == fbUserId).FirstOrDefault();
+            var user = SocialUserRepository.FindAll().Where(t => t.OriginalId == fbUserId && t.Type == SocialUserType.Facebook).FirstOrDefault();
             if (user == null)
             {
                 FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId);
@@ -90,22 +90,11 @@ namespace Social.Domain.DomainServices.Facebook
                 {
                     OriginalId = fbUser.id,
                     Name = fbUser.name,
-                    Email = fbUser.email
+                    Email = fbUser.email,
+                    Type = SocialUserType.Facebook
                 };
                 await SocialUserRepository.InsertAsync(user);
             }
-
-            //bool ifUserInfoUpdated =
-            //    socialUser.Email != facebookUser.Email
-            //    || socialUser.Avatar != facebookUser.Avatar;
-            //if (ifUserInfoUpdated)
-            //{
-            //    socialUser.Email = facebookUser.Email;
-            //    socialUser.Avatar = facebookUser.Avatar;
-            //    await Repository.UpdateAsync(socialUser);
-            //    return socialUser;
-            //}
-
             return user;
         }
     }

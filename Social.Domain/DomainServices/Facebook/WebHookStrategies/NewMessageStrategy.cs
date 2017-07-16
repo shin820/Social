@@ -24,8 +24,8 @@ namespace Social.Domain.DomainServices.Facebook
                 return;
             }
 
-            SocialUser sender = await GetOrCreateSocialUser(socialAccount.Token, fbMessage.SenderId);
-            SocialUser receiver = await GetOrCreateSocialUser(socialAccount.Token, fbMessage.ReceiverId);
+            SocialUser sender = await GetOrCreateFacebookUser(socialAccount.Token, fbMessage.SenderId);
+            SocialUser receiver = await GetOrCreateFacebookUser(socialAccount.Token, fbMessage.ReceiverId);
 
             var existingConversation = GetConversation(change.Value.ThreadId, ConversationStatus.Closed);
             if (existingConversation != null)

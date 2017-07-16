@@ -35,7 +35,7 @@ namespace Social.Job
             //    .Build();
             //});
 
-            _scheduleJobManager.ScheduleAsync<TwitterStreamJob>(
+            _scheduleJobManager.ScheduleAsync<TwitterStreamJob, int>(
             job =>
             {
                 job.WithIdentity("TwitterStreamJobKey");
@@ -45,7 +45,7 @@ namespace Social.Job
                 trigger/*.WithSimpleSchedule(x => x.WithIntervalInSeconds(10).RepeatForever().WithMisfireHandlingInstructionIgnoreMisfires())*/
                 .StartNow()
                 .Build();
-            });
+            }, 10000);
         }
 
         public void Start()

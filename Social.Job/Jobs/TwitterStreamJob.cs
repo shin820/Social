@@ -7,15 +7,49 @@ using System.Threading.Tasks;
 using Quartz;
 using Tweetinvi.Models;
 using Tweetinvi;
+using Social.Application.AppServices;
+using Framework.Core.UnitOfWork;
+using Social.Domain.Entities;
+using System.Data.Entity;
+using Social.Infrastructure.Enum;
 
 namespace Social.Job.Jobs
 {
     public class TwitterStreamJob : JobBase, ITransient
     {
+        private ITwitterAppService _twitterAppService;
+        private IRepository<SocialAccount> _socialAccountRepo;
+
+        public TwitterStreamJob(
+            ITwitterAppService twitterAppService,
+            IRepository<SocialAccount> socialAccountRepo
+            )
+        {
+            _twitterAppService = twitterAppService;
+            _socialAccountRepo = socialAccountRepo;
+        }
+
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
+            int siteId = context.JobDetail.GetCustomData<int>();
+            if (siteId == 0)
+            {
+                return;
+            }
+
+            SocialAccount socialAccount = null;
+            using (var uow = UnitOfWorkManager.Begin(new UnitOfWorkOptions { IsTransactional = false }))
+            {
+                using (CurrentUnitOfWork.SetSiteId(siteId))
+                {
+                    socialAccount = _socialAccountRepo.FindAll().Include(t => t.SocialUser).FirstOrDefault(t => t.SocialUser.OriginalId == "855320911989194753" && t.SocialUser.Type == SocialUserType.Twitter && t.IfEnable);
+                    uow.Complete();
+                }
+            }
+
             ITwitterCredentials creds =
-                            new TwitterCredentials("Mj6zNyYU0GGHcdAqAHv5q0oHi",                            "FBPUNsy5HYUdz4cRTFIST0FA0EBxi0bMPwCvae9KtIOxHenbn4",    "855320911989194753-25EU8AmKqJw8HhPJYdCUcje2mat9UxV","HQYSviXLSEFHZkF2xqj8R9KxWRtIHG3Tp4yBdjpEutUa3");
+                    new TwitterCredentials("Mj6zNyYU0GGHcdAqAHv5q0oHi", "FBPUNsy5HYUdz4cRTFIST0FA0EBxi0bMPwCvae9KtIOxHenbn4",
+                    socialAccount.Token, socialAccount.TokenSecret);
             var stream = Stream.CreateUserStream(creds);
 
             stream.StreamIsReady += (sender, args) =>
@@ -35,11 +69,9 @@ namespace Social.Job.Jobs
                 Console.WriteLine($"[{args.Message.CreatedAt}] {args.Message.SenderScreenName} : {args.Message.Text}");
             };
 
-            stream.TweetCreatedByAnyone += (sender, args) =>
+            stream.TweetCreatedByAnyone += async (sender, args) =>
             {
-                Console.WriteLine($"[{args.Tweet.CreatedAt}] {args.Tweet.CreatedBy.ScreenName} : {args.Tweet.Text}");
-                var user = User.GetUserFromScreenName(args.Tweet.CreatedBy.ScreenName);
-                var b = user;
+                await _twitterAppService.ReceivedTweet(socialAccount, args.Tweet);
             };
 
             stream.StreamStopped += (sender, args) =>

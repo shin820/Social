@@ -42,7 +42,7 @@ namespace Social.Domain.DomainServices.Facebook
             }
 
             FbPost post = await FbClient.GetPost(socialAccount.Token, change.Value.PostId);
-            SocialUser sender = await GetOrCreateSocialUser(socialAccount.Token, post.from.id);
+            SocialUser sender = await GetOrCreateFacebookUser(socialAccount.Token, post.from.id);
 
             var existingConversation = GetConversation(change.Value.PostId);
             if (existingConversation != null)
