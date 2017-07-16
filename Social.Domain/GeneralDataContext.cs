@@ -17,7 +17,7 @@ namespace Social.Domain
 
         public GeneralDataContext(string nameOrConnectionString) : base(nameOrConnectionString)
         {
-            //Database.SetInitializer<SiteDataContext>(null);
+            Database.SetInitializer<GeneralDataContext>(null);
             Database.Log = t => logger.Debug(t);
         }
 

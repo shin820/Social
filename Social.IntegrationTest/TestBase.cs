@@ -18,6 +18,7 @@ namespace Social.IntegrationTest
     {
         protected static DependencyResolver DependencyResolver;
         protected SocialAccount TestFacebookAccount;
+        protected SocialAccount TestTwitterAccount;
         protected IUnitOfWorkManager UnitOfWorkManager { get; set; }
         protected IUnitOfWork CurrentUnitOfWork { get { return UnitOfWorkManager.Current; } }
 
@@ -35,6 +36,60 @@ namespace Social.IntegrationTest
             UnitOfWorkManager = DependencyResolver.Resolve<IUnitOfWorkManager>();
             _unitOfWork = UnitOfWorkManager.Begin() as IUnitOfWork;
             CreateTestFacebookAccount();
+            CreateTestTwitterAccount();
+        }
+
+        private void CreateTestTwitterAccount()
+        {
+            string testUserId = "855320911989194753";
+            int testSiteId = 10000;
+
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                using (CurrentUnitOfWork.SetSiteId(testSiteId))
+                {
+                    var socailUserRepo = DependencyResolver.Resolve<IRepository<SocialUser>>();
+                    TestTwitterAccount = socailUserRepo.FindAll().Where(t => t.OriginalId == testUserId).Select(t => t.SocialAccount).FirstOrDefault();
+
+                    if (TestTwitterAccount == null)
+                    {
+                        SocialUser socialUser = new SocialUser
+                        {
+                            Name = "Twitter Test User",
+                            OriginalId = testUserId,
+                            Type = SocialUserType.Twitter,
+                            SocialAccount = new SocialAccount
+                            {
+                                Token = "855320911989194753-25EU8AmKqJw8HhPJYdCUcje2mat9UxV",
+                                TokenSecret = "HQYSviXLSEFHZkF2xqj8R9KxWRtIHG3Tp4yBdjpEutUa3",
+                                IfConvertMessageToConversation = true,
+                                IfConvertTweetToConversation = true,
+                                IfEnable = true,
+                            }
+                        };
+
+                        socailUserRepo.Insert(socialUser);
+                        TestTwitterAccount = socialUser.SocialAccount;
+                    }
+
+                    uow.Complete();
+                }
+            }
+
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                using (CurrentUnitOfWork.SetSiteId(null))
+                {
+                    var siteSocialAccountRepo = DependencyResolver.Resolve<IRepository<GeneralDataContext, SiteSocialAccount>>();
+                    siteSocialAccountRepo.Insert(new SiteSocialAccount
+                    {
+                        TwitterUserId = testUserId,
+                        SiteId = testSiteId
+                    });
+
+                    uow.Complete();
+                }
+            }
         }
 
         private void CreateTestFacebookAccount()

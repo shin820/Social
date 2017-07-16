@@ -23,10 +23,22 @@ namespace Social.Job
 
             _scheduleJobManager = dependencyResolver.Resolve<IScheduleJobManager>();
 
-            _scheduleJobManager.ScheduleAsync<SchedulerJob>(
+            //_scheduleJobManager.ScheduleAsync<SchedulerJob>(
+            //job =>
+            //{
+            //    job.WithIdentity("ScheduleJobKey");
+            //},
+            //trigger =>
+            //{
+            //    trigger/*.WithSimpleSchedule(x => x.WithIntervalInSeconds(10).RepeatForever().WithMisfireHandlingInstructionIgnoreMisfires())*/
+            //    .StartNow()
+            //    .Build();
+            //});
+
+            _scheduleJobManager.ScheduleAsync<TwitterStreamJob>(
             job =>
             {
-                job.WithIdentity("ScheduleJobKey");
+                job.WithIdentity("TwitterStreamJobKey");
             },
             trigger =>
             {

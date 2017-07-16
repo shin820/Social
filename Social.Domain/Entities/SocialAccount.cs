@@ -20,6 +20,8 @@ namespace Social.Domain.Entities
         [Required]
         public string Token { get; set; }
 
+        public string TokenSecret { get; set; }
+
         public bool IfEnable { get; set; }
 
         public bool IfConvertMessageToConversation { get; set; }
