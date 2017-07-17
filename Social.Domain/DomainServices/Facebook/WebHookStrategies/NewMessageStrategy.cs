@@ -41,7 +41,7 @@ namespace Social.Domain.DomainServices.Facebook
                 Message message = Convert(fbMessage, sender, receiver, socialAccount);
                 message.ConversationId = existingConversation.Id;
                 existingConversation.IfRead = false;
-                existingConversation.Status = ConversationStatus.PendingInternal;
+                existingConversation.Status = sender.Id != socialAccount.SocialUser.Id ? ConversationStatus.PendingInternal : ConversationStatus.PendingExternal;
                 existingConversation.LastMessageSenderId = message.SenderId;
                 existingConversation.LastMessageSentTime = message.SendTime;
                 existingConversation.Messages.Add(message);
