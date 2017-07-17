@@ -124,6 +124,10 @@
     <Compile Include="Dto\Filter\FilterDto.cs" />
     <Compile Include="Dto\Filter\FilterUpdateDto.cs" />
     <Compile Include="AppServices\FacebookAppService.cs" />
+    <Compile Include="AppServices\ConversationFieldAppService.cs" />
+    <Compile Include="Dto\ConversationField\ConversationFieldDto.cs" />
+    <Compile Include="Dto\ConversationField\Options.cs" />
+    <Compile Include="Dto\Conversation\ConversationUpdateDto.cs" />
     <Compile Include="AppServices\FilterAppService.cs" />
     <Compile Include="AppServices\FilterConditonAppService.cs" />
     <Compile Include="DtoMappings.cs" />

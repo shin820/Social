@@ -257,6 +257,7 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\AccountsController.cs" />
+    <Compile Include="Controllers\ConversationFieldsController.cs" />
     <Compile Include="Controllers\ConversationsController.cs" />
     <Compile Include="Controllers\FacebookController.cs" />
     <Compile Include="Controllers\FacebookWebHookController.cs" />

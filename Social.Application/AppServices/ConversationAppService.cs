@@ -16,6 +16,7 @@ namespace Social.Application.AppServices
         PagedList<ConversationDto> Find(ConversationSearchDto searchDto);
         ConversationDto Insert(ConversationCreateDto createDto);
         void Delete(int id);
+        void Update(int id,ConversationUpdateDto updateDto);
     }
 
     public class ConversationAppService : AppService, IConversationAppService
@@ -29,13 +30,20 @@ namespace Social.Application.AppServices
 
         public PagedList<ConversationDto> Find(ConversationSearchDto searchDto)
         {
-            return _domainService.FindAll().PagingAndMapping<Conversation, ConversationDto>(searchDto);
+            return _domainService.FindAll().Where(u => u.IsDeleted == false).PagingAndMapping<Conversation, ConversationDto>(searchDto);
         }
 
         public ConversationDto Find(int id)
         {
             var conversation = _domainService.Find(id);
-            return Mapper.Map<ConversationDto>(conversation);
+            if (conversation.IsDeleted == false)
+            {
+                return Mapper.Map<ConversationDto>(conversation);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public ConversationDto Insert(ConversationCreateDto createDto)
@@ -49,6 +57,14 @@ namespace Social.Application.AppServices
         public void Delete(int id)
         {
             _domainService.Delete(id);
+        }
+
+        public void Update(int id,ConversationUpdateDto updateDto)
+        {
+            var conversationDto = _domainService.Find(id);
+            var conversation = Mapper.Map<Conversation>(conversationDto);
+            Mapper.Map(updateDto, conversation);
+            _domainService.Update(conversation);
         }
     }
 }

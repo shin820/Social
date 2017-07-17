@@ -8,7 +8,10 @@ namespace Social.Application
     {
         public DtoMappings()
         {
-            CreateMap<Conversation, ConversationDto>();
+            CreateMap<Conversation, ConversationDto>().ForMember(dto => dto.LastMessageSenderName, opt =>
+            {
+                opt.MapFrom(s => s.LastMessageSender.Name);
+            });
             CreateMap<ConversationCreateDto, Conversation>();
             CreateMap<FilterCreateDto, Filter>();
             CreateMap<Filter, FilterDto>();
@@ -17,6 +20,8 @@ namespace Social.Application
             CreateMap<FilterUpdateDto, Filter>();
             CreateMap<FilterConditionDto, FilterCondition>();
             CreateMap<FilterCondition, FilterConditionDto>();
+            CreateMap<ConversationUpdateDto, Conversation>();
+            CreateMap<ConversationDto, Conversation>();
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Social.Domain.Entities;
-using Social.Infrastructure.Enum;
+﻿using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -9,23 +8,21 @@ using System.Threading.Tasks;
 
 namespace Social.Application.Dto
 {
-    public class ConversationDto
+    public class ConversationUpdateDto
     {
-        public int Id { get; set; }
+      //  public int Id { get; set; }
 
         public ConversationSource Source { get; set; }
 
-        public string OriginalId { get; set; }
+        //public string SocialId { get; set; }
 
         public bool IfRead { get; set; }
 
-        public DateTime LastMessageSentTime { get; set; }
+        //public DateTime LastMessageSentTime { get; set; }
 
-        public int LastMessageSenderId { get; set; }
+        //public int LastMessageSenderId { get; set; }
 
-        public  string LastMessageSenderName { get; set; }
-
-        public int? LastRepliedAgentId { get; set; }
+        //public int? LastRepliedAgentId { get; set; }
 
         public int? AgentId { get; set; }
 
@@ -41,5 +38,8 @@ namespace Social.Application.Dto
 
         [MaxLength(2000)]
         public string Note { get; set; }
+
+        //public int? ModifiedBy { get; set; }
+        //public DateTime? ModifiedTime { get; set; }
     }
 }

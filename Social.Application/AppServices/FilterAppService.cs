@@ -2,7 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using Framework.Core;
 using Social.Application.Dto;
-using Social.Domain.DomainServices;
+using Social.Domain;
 using Social.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -25,19 +25,16 @@ namespace Social.Application.AppServices
 
     public class FilterAppService : AppService, IFilterAppService
     {
-        private IDomainService<Filter> _domainService;
-        private IDomainService<FilterCondition> _domainForConditonService;
-       // private IFilterService _FilterService;
+        private IFilterService _domainService;
 
-        public FilterAppService(IDomainService<Filter> domainService, IDomainService<FilterCondition> domainForConditonService)
+        public FilterAppService(IFilterService domainService)
         {
             _domainService = domainService;
-            _domainForConditonService = domainForConditonService;
         }
 
         public List<FilterDto> FindAll()
         {
-            return _domainService.FindAll().Where(u =>u.IfPublic == true || u.CreatedBy == UserContext.UserId).ProjectTo<FilterDto>().ToList();
+            return _domainService.FindAll().Where(u => u.IfPublic == true || u.CreatedBy == UserContext.UserId).ProjectTo<FilterDto>().ToList();
         }
 
         public FilterDto Find(int id)
@@ -65,33 +62,12 @@ namespace Social.Application.AppServices
         }
 
         public void Update(FilterUpdateDto updateDto)
-        {
-            // old filter = get old filer
-            // dto->old filter
-            // update filter
-
-            // delete old filter ' s condition
-            // add conditino
-
-            FilterService filterService = new FilterService();
-            
+        {   
             var updateFilter = _domainService.Find(updateDto.Id);
-            //List<int> ids = new List<int>();
-            //foreach (var conditon in updateFilter.Conditions)
-            //    ids.Add(conditon.Id);
-            //foreach(int id in ids)
-            //    _domainForConditonService.Delete(id);
-            filterService.DeleteConditons(updateFilter);
+
+            _domainService.DeleteConditons(updateFilter);
             Mapper.Map(updateDto, updateFilter);
-
-            if (updateFilter.Conditions.Count() != 0)
-            {
-                    _domainForConditonService.Insert(updateFilter.Conditions[0]);                
-            }
-            _domainService.Update(updateFilter);
-            //var filter = Mapper.Map<Filter>(updateDto);
-
+            _domainService.UpdateFilter(updateFilter, Mapper.Map<List<FilterConditionCreateDto>, List<FilterCondition>>(updateDto.Conditions.ToList()).ToArray());
         }
-
     }
 }
