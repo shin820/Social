@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
 
@@ -24,12 +25,13 @@ namespace Framework.WebApi.Filters
 
         public async Task<HttpResponseMessage> ExecuteActionFilterAsync(HttpActionContext actionContext, CancellationToken cancellationToken, Func<Task<HttpResponseMessage>> continuation)
         {
-            using (var uow = _uowManager.Begin(new UnitOfWorkOptions { IsTransactional = false }))
+            HttpResponseMessage result = null;
+            await _uowManager.Run(TransactionScopeOption.Required, 10000, async () =>
             {
-                var result = await continuation();
-                uow.Complete();
-                return result;
-            }
+                result = await continuation();
+            });
+
+            return result;
         }
     }
 }
