@@ -143,6 +143,7 @@
     <Compile Include="DomainServices\Facebook\WebHookStrategies\WebHookStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\WebHookStrategyFactory.cs" />
     <Compile Include="DomainServices\Filter\FilterService.cs" />
+    <Compile Include="DomainServices\SocialAccountService.cs" />
     <Compile Include="DomainServices\SocialUserInfoService.cs" />
     <Compile Include="DomainServices\Facebook\VisitorPostService.cs" />
     <Compile Include="DomainServices\TwitterService.cs" />

@@ -17,40 +17,37 @@ namespace Social.Job.Jobs.Facebook
     public class PullVisitorPostsFromFeedJob : JobBase, ITransient
     {
         private IFacebookAppService _service;
-        private IRepository<SocialAccount> _socialAccountRepo;
+        private ISocialAccountService _socialAccountService;
 
         public PullVisitorPostsFromFeedJob(
             IFacebookAppService service,
-            IRepository<SocialAccount> socialAccountRepo
+            ISocialAccountService socialAccountService
             )
         {
             _service = service;
-            _socialAccountRepo = socialAccountRepo;
+            _socialAccountService = socialAccountService;
         }
 
 
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
-            int siteId = context.JobDetail.GetCustomData<int>();
-            if (siteId == 0)
+            var siteSocicalAccount = context.JobDetail.GetCustomData<SiteSocialAccount>();
+            if (siteSocicalAccount == null)
             {
                 return;
             }
 
-            using (var uow = UnitOfWorkManager.Begin(new UnitOfWorkOptions { IsTransactional = false }))
+            int siteId = siteSocicalAccount.SiteId;
+            string facebookPageId = siteSocicalAccount.FacebookPageId;
+
+            await UnitOfWorkManager.RunWithoutTransaction(siteId, async () =>
             {
-                using (CurrentUnitOfWork.SetSiteId(siteId))
+                SocialAccount account = await _socialAccountService.GetAccountAsync(SocialUserType.Facebook, facebookPageId);
+                if (account != null)
                 {
-                    SocialAccount account = _socialAccountRepo.FindAll().Include(t => t.SocialUser).FirstOrDefault(t => t.SocialUser.Type == SocialUserType.Facebook && t.IfEnable);
-
-                    if (account != null)
-                    {
-                        await _service.PullVisitorPostsFromFeed(account);
-                    }
-
-                    uow.Complete();
+                    await _service.PullVisitorPostsFromFeed(account);
                 }
-            }
+            });
         }
     }
 }

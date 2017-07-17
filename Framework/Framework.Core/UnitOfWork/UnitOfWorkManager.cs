@@ -70,5 +70,53 @@ namespace Framework.Core.UnitOfWork
 
             return uow;
         }
+
+        public async Task Run(TransactionScopeOption scope, int? siteId, Func<Task> func)
+        {
+            using (var uow = Begin(scope))
+            {
+                using (Current.SetSiteId(siteId))
+                {
+                    await func();
+                    uow.Complete();
+                }
+            }
+        }
+
+        public async Task Run(UnitOfWorkOptions options, int? siteId, Func<Task> func)
+        {
+            using (var uow = Begin(options))
+            {
+                using (Current.SetSiteId(siteId))
+                {
+                    await func();
+                    uow.Complete();
+                }
+            }
+        }
+
+        public async Task RunWithoutTransaction(int? siteId, Func<Task> func)
+        {
+            using (var uow = Begin(new UnitOfWorkOptions { IsTransactional = false }))
+            {
+                using (Current.SetSiteId(siteId))
+                {
+                    await func();
+                    uow.Complete();
+                }
+            }
+        }
+
+        public async Task RunWithNewTransaction(int? siteId, Func<Task> func)
+        {
+            using (var uow = Begin(TransactionScopeOption.RequiresNew))
+            {
+                using (Current.SetSiteId(siteId))
+                {
+                    await func();
+                    uow.Complete();
+                }
+            }
+        }
     }
 }

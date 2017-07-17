@@ -28,26 +28,18 @@ namespace Social.Application.AppServices
 
         public async Task ProcessTweet(SocialAccount account, ITweet currentTweet)
         {
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            await UnitOfWorkManager.RunWithNewTransaction(account.SiteId, async () =>
             {
-                using (CurrentUnitOfWork.SetSiteId(account.SiteId))
-                {
-                    await _twitterService.ProcessTweet(account, currentTweet);
-                    uow.Complete();
-                }
-            }
+                await _twitterService.ProcessTweet(account, currentTweet);
+            });
         }
 
         public async Task ProcessDirectMessage(SocialAccount account, IMessage directMsg)
         {
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            await UnitOfWorkManager.RunWithNewTransaction(account.SiteId, async () =>
             {
-                using (CurrentUnitOfWork.SetSiteId(account.SiteId))
-                {
-                    await _twitterService.ProcessDirectMessage(account, directMsg);
-                    uow.Complete();
-                }
-            }
+                await _twitterService.ProcessDirectMessage(account, directMsg);
+            });
         }
     }
 }

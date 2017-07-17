@@ -7,123 +7,113 @@ using System.Threading.Tasks;
 using Quartz;
 using Quartz.Impl.Matchers;
 using Social.Job.Jobs.Facebook;
+using Social.Domain;
+using Social.Domain.Entities;
 
 namespace Social.Job.Jobs
 {
     public class SchedulerJob : JobBase, ITransient
     {
         private IScheduleJobManager _scheduleJobManager;
+        private IRepository<GeneralDataContext, SiteSocialAccount> _siteSocialAccountRepo;
 
-        public SchedulerJob(IScheduleJobManager schedulerJobManager)
+        public SchedulerJob(
+            IScheduleJobManager schedulerJobManager,
+            IRepository<GeneralDataContext, SiteSocialAccount> siteSocialAccountRepo
+            )
         {
             _scheduleJobManager = schedulerJobManager;
+            _siteSocialAccountRepo = siteSocialAccountRepo;
         }
 
-        protected override Task ExecuteJob(IJobExecutionContext context)
+        private async Task<List<SiteSocialAccount>> GetFacebookSiteAccounts()
+        {
+            List<SiteSocialAccount> accounts = new List<SiteSocialAccount>();
+
+            await UnitOfWorkManager.RunWithoutTransaction(null, () =>
+             {
+                 return Task.Run(() =>
+                      accounts = _siteSocialAccountRepo.FindAll().Where(t => t.FacebookPageId != null).ToList()
+                     );
+             });
+
+            return accounts;
+        }
+
+        private async Task<List<SiteSocialAccount>> GetTwitterSiteAccounts()
+        {
+
+            List<SiteSocialAccount> accounts = new List<SiteSocialAccount>();
+
+            await UnitOfWorkManager.RunWithoutTransaction(null, () =>
+                {
+                    return Task.Run(() =>
+                     accounts = _siteSocialAccountRepo.FindAll().Where(t => t.TwitterUserId != null).ToList()
+                    );
+                });
+
+            return accounts;
+        }
+
+        protected async override Task ExecuteJob(IJobExecutionContext context)
         {
             TaskCompletionSource<object> taskSrc = new TaskCompletionSource<object>();
 
-            int[] siteIds = new int[] { 10000 };
-            //ScheduleFacebookWebHookJob(siteIds, context);
-            //ScheduleFacebookPullTaggedVisitorPostsJob(siteIds, context);
-            ScheduleFacebookPullVisitorPostsFromFeedJob(siteIds, context);
-            taskSrc.SetResult(null);
-            return taskSrc.Task;
-        }
+            List<SiteSocialAccount> facebookAccounts = await GetFacebookSiteAccounts();
+            List<SiteSocialAccount> twitterAccounts = await GetTwitterSiteAccounts();
 
-        private void ScheduleFacebookWebHookJob(int[] siteIds, IJobExecutionContext context)
-        {
-            const string groupName = "FacebookWebHookJobGroup";
-
-            foreach (var siteId in siteIds)
+            foreach (var facebookAccount in facebookAccounts)
             {
-                var groupMatcher = GroupMatcher<JobKey>.GroupEquals(groupName);
-                var jobKeys = context.Scheduler.GetJobKeys(groupMatcher);
-                string jobKey = GetFacebookWebHookJobKey(siteId);
-                if (jobKeys.All(t => t.Name != jobKey))
-                {
-                    _scheduleJobManager.ScheduleAsync<FacebookWebHookJob, int>(
-                    job =>
-                    {
-                        job.WithIdentity(jobKey, groupName);
-                    },
-                    trigger =>
-                    {
-                        trigger.WithSimpleSchedule(x => x.WithIntervalInMinutes(5).RepeatForever().WithMisfireHandlingInstructionIgnoreMisfires())
-                        .Build();
-                    },
-                    siteId
-                    );
-                }
+                //ScheduleJob<FacebookWebHookJob>(facebookAccount, context);
+                //ScheduleJob<PullTaggedVisitorPostsJob>(facebookAccount, context);
+                //ScheduleJob<PullVisitorPostsFromFeedJob>(facebookAccount, context);
+            }
+
+            foreach (var twitterAccount in twitterAccounts)
+            {
+                ScheduleJob<TwitterStreamJob>(twitterAccount, context);
             }
         }
-        private string GetFacebookWebHookJobKey(int siteId)
-        {
-            return $"FacebookWebHookJobKey - {siteId}";
-        }
 
-        private void ScheduleFacebookPullTaggedVisitorPostsJob(int[] siteIds, IJobExecutionContext context)
-        {
-            const string groupName = "FacebookPullTaggedVisitorPostsJobGroup";
 
-            foreach (var siteId in siteIds)
+        private void ScheduleJob<TJob>(SiteSocialAccount account, IJobExecutionContext context) where TJob : JobBase
+        {
+            string socialAccountId = !string.IsNullOrWhiteSpace(account.FacebookPageId) ? account.FacebookPageId : account.TwitterUserId;
+            if (string.IsNullOrWhiteSpace(socialAccountId))
             {
-                var groupMatcher = GroupMatcher<JobKey>.GroupEquals(groupName);
-                var jobKeys = context.Scheduler.GetJobKeys(groupMatcher);
-                string jobKey = GetFacebookPullTaggedVisitorPostsJobKey(siteId);
-                if (jobKeys.All(t => t.Name != jobKey))
+                return;
+            }
+
+            string groupName = GetJobGroup<TJob>();
+            var groupMatcher = GroupMatcher<JobKey>.GroupEquals(groupName);
+            var jobKeys = context.Scheduler.GetJobKeys(groupMatcher);
+            string jobKey = GetJobKey<TJob>(account.SiteId, account.FacebookPageId);
+            if (jobKeys.All(t => t.Name != jobKey))
+            {
+                _scheduleJobManager.ScheduleAsync<TJob, SiteSocialAccount>(
+                job =>
                 {
-                    _scheduleJobManager.ScheduleAsync<PullTaggedVisitorPostsJob, int>(
-                    job =>
-                    {
-                        job.WithIdentity(jobKey, groupName);
-                    },
-                    trigger =>
-                    {
-                        trigger/*.WithSimpleSchedule(x => x.WithIntervalInMinutes(5).RepeatForever().WithMisfireHandlingInstructionIgnoreMisfires())*/
-                        .StartNow()
-                        .Build();
-                    },
-                    siteId
-                    );
-                }
+                    job.WithIdentity(jobKey, groupName);
+                },
+                trigger =>
+                {
+                    trigger/*.WithSimpleSchedule(x => x.WithIntervalInMinutes(5).RepeatForever().WithMisfireHandlingInstructionIgnoreMisfires())*/
+                    .StartNow()
+                    .Build();
+                },
+                account
+                );
             }
         }
-        private string GetFacebookPullTaggedVisitorPostsJobKey(int siteId)
+
+        private string GetJobGroup<TJob>() where TJob : JobBase
         {
-            return $"FacebookPullTaggedVisitorPostsJob - {siteId}";
+            return typeof(TJob).Name;
         }
 
-        private void ScheduleFacebookPullVisitorPostsFromFeedJob(int[] siteIds, IJobExecutionContext context)
+        private string GetJobKey<TJob>(int siteId, string fbPageId) where TJob : JobBase
         {
-            const string groupName = "FacebookPullVisitorPostsFromFeedJobGroup";
-
-            foreach (var siteId in siteIds)
-            {
-                var groupMatcher = GroupMatcher<JobKey>.GroupEquals(groupName);
-                var jobKeys = context.Scheduler.GetJobKeys(groupMatcher);
-                string jobKey = GetFacebookPullVisitorPostsFromFeedJobKey(siteId);
-                if (jobKeys.All(t => t.Name != jobKey))
-                {
-                    _scheduleJobManager.ScheduleAsync<PullVisitorPostsFromFeedJob, int>(
-                    job =>
-                    {
-                        job.WithIdentity(jobKey, groupName);
-                    },
-                    trigger =>
-                    {
-                        trigger/*.WithSimpleSchedule(x => x.WithIntervalInMinutes(5).RepeatForever().WithMisfireHandlingInstructionIgnoreMisfires())*/
-                        .StartNow()
-                        .Build();
-                    },
-                    siteId
-                    );
-                }
-            }
-        }
-        private string GetFacebookPullVisitorPostsFromFeedJobKey(int siteId)
-        {
-            return $"FacebookPullVisitorPostsFromFeedJob - {siteId}";
+            return $"{typeof(TJob).Name} - SiteId({siteId}) - SocialAccountId({fbPageId})";
         }
     }
 }

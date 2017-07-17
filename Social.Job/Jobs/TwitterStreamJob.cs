@@ -12,39 +12,44 @@ using Framework.Core.UnitOfWork;
 using Social.Domain.Entities;
 using System.Data.Entity;
 using Social.Infrastructure.Enum;
+using Social.Domain.DomainServices;
 
 namespace Social.Job.Jobs
 {
     public class TwitterStreamJob : JobBase, ITransient
     {
         private ITwitterAppService _twitterAppService;
-        private IRepository<SocialAccount> _socialAccountRepo;
+        private ISocialAccountService _socialAccountService;
 
         public TwitterStreamJob(
             ITwitterAppService twitterAppService,
-            IRepository<SocialAccount> socialAccountRepo
+            ISocialAccountService socialAccountService
             )
         {
             _twitterAppService = twitterAppService;
-            _socialAccountRepo = socialAccountRepo;
+            _socialAccountService = socialAccountService;
         }
 
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
-            int siteId = context.JobDetail.GetCustomData<int>();
-            if (siteId == 0)
+            var siteSocicalAccount = context.JobDetail.GetCustomData<SiteSocialAccount>();
+            if (siteSocicalAccount == null)
             {
                 return;
             }
 
+            int siteId = siteSocicalAccount.SiteId;
+            string twitterUserId = siteSocicalAccount.TwitterUserId;
+
             SocialAccount socialAccount = null;
-            using (var uow = UnitOfWorkManager.Begin(new UnitOfWorkOptions { IsTransactional = false }))
+            await UnitOfWorkManager.RunWithoutTransaction(socialAccount.SiteId, async () =>
             {
-                using (CurrentUnitOfWork.SetSiteId(siteId))
-                {
-                    socialAccount = _socialAccountRepo.FindAll().Include(t => t.SocialUser).FirstOrDefault(t => t.SocialUser.OriginalId == "855320911989194753" && t.SocialUser.Type == SocialUserType.Twitter && t.IfEnable);
-                    uow.Complete();
-                }
+                socialAccount = await _socialAccountService.GetAccountAsync(SocialUserType.Twitter, twitterUserId);
+            });
+
+            if (socialAccount == null)
+            {
+                return;
             }
 
             ITwitterCredentials creds =

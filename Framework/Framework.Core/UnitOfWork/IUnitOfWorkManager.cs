@@ -20,5 +20,10 @@ namespace Framework.Core.UnitOfWork
         IUnitOfWorkCompleteHandle Begin(UnitOfWorkOptions options);
 
         IUnitOfWork Current { get; }
+
+        Task Run(TransactionScopeOption scope, int? siteId, Func<Task> func);
+        Task Run(UnitOfWorkOptions options, int? siteId, Func<Task> func);
+        Task RunWithoutTransaction(int? siteId, Func<Task> func);
+        Task RunWithNewTransaction(int? siteId, Func<Task> func);
     }
 }
