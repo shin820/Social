@@ -8,6 +8,7 @@ using Social.Application.AppServices;
 using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
 using Social.Domain.DomainServices;
+using Social.Infrastructure;
 
 namespace Social.Job.Jobs
 {
@@ -26,8 +27,6 @@ namespace Social.Job.Jobs
             _twitterAppService = twitterAppService;
             _socialAccountService = socialAccountService;
         }
-
-
 
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
@@ -52,7 +51,7 @@ namespace Social.Job.Jobs
                 return;
             }
 
-            _creds = new TwitterCredentials("Mj6zNyYU0GGHcdAqAHv5q0oHi", "FBPUNsy5HYUdz4cRTFIST0FA0EBxi0bMPwCvae9KtIOxHenbn4",
+            _creds = new TwitterCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret,
                     socialAccount.Token, socialAccount.TokenSecret);
 
             var stream = Stream.CreateUserStream(_creds);
