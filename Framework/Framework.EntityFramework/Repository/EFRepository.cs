@@ -65,13 +65,13 @@ namespace Framework.EntityFramework
 
         public void Delete(TEntity entity)
         {
-            DataSet.Remove(entity);
+            SoftDelete(entity);
             _dbContext.SaveChanges();
         }
 
         public async Task DeleteAsync(TEntity entity)
         {
-            DataSet.Remove(entity);
+            SoftDelete(entity);
             await _dbContext.SaveChangesAsync();
         }
 
@@ -79,9 +79,23 @@ namespace Framework.EntityFramework
         {
             foreach (var entity in entities)
             {
-                DataSet.Remove(entity);
+                SoftDelete(entity);
             }
             _dbContext.SaveChanges();
+        }
+
+        private void SoftDelete(TEntity entity)
+        {
+            var softDeleteEntity = entity as ISoftDelete;
+            if (softDeleteEntity != null)
+            {
+                softDeleteEntity.IsDeleted = true;
+                _dbContext.Entry(entity).State = EntityState.Modified;
+            }
+            else
+            {
+                DataSet.Remove(entity);
+            }
         }
 
         public async Task DeleteManyAsync(TEntity[] entities)

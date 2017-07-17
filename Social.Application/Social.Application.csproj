@@ -53,11 +53,16 @@
   <ItemGroup>
     <Compile Include="ApplicationIocFacility.cs" />
     <Compile Include="AppServices\ConversationAppService.cs" />
+    <Compile Include="AppServices\ConversationFieldAppService.cs" />
+    <Compile Include="AppServices\Dto\ConversationField\ConversationFieldDto.cs" />
+    <Compile Include="AppServices\Dto\ConversationField\Options.cs" />
+    <Compile Include="AppServices\Dto\Conversation\ConversationUpdateDto.cs" />
     <Compile Include="AppServices\Dto\Filter\FilterConditionCreateDto.cs" />
     <Compile Include="AppServices\Dto\Filter\FilterConditionDto.cs" />
     <Compile Include="AppServices\Dto\Filter\FilterCreateDto.cs" />
     <Compile Include="AppServices\Dto\Filter\FilterDto.cs" />
     <Compile Include="AppServices\Dto\Filter\FilterUpdateDto.cs" />
+    <Compile Include="AppServices\FacebookWebHookAppService.cs" />
     <Compile Include="AppServices\FilterAppService.cs" />
     <Compile Include="AppServices\FilterConditonAppService.cs" />
     <Compile Include="DtoMappings.cs" />

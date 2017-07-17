@@ -50,5 +50,15 @@ namespace Social.WebApi.Controllers
             _appService.Delete(id);
             return StatusCode(HttpStatusCode.NoContent);
         }
+
+        [Route("{id}")]
+        [ResponseType(typeof(ConversationDto))]
+        public IHttpActionResult PutConversation(int id, ConversationUpdateDto createDto)
+        {
+            createDto = createDto ?? new ConversationUpdateDto();
+            _appService.Update(id,createDto);
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
     }
 }

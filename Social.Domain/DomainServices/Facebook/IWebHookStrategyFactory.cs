@@ -10,6 +10,6 @@ namespace Social.Domain.DomainServices.Facebook
 {
     public interface IConversationStrategyFactory : ITransient
     {
-        IConversationSrategy Create(FbHookChange change);
+        IWebHookSrategy Create(FbHookChange change);
     }
 }

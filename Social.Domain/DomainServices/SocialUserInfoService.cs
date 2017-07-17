@@ -21,7 +21,13 @@ namespace Social.Domain.DomainServices
             var user = Repository.FindAll().Where(t => t.SiteId == siteId && t.SocialId == fbUserId).FirstOrDefault();
             if (user == null)
             {
-                user = await FacebookService.GetUserInfo(token, fbUserId, fbUserEmail);
+                FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId, fbUserEmail);
+                user = new SocialUser
+                {
+                    SocialId = fbUser.Id,
+                    Name = fbUser.Name,
+                    Email = fbUser.Email
+                };
                 user.SiteId = siteId;
                 await Repository.InsertAsync(user);
             }
