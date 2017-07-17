@@ -12,6 +12,7 @@ namespace Social.Domain.DomainServices
     public interface IConversationService : IDomainService<Conversation>
     {
         Conversation GetTwitterDirectMessageConversation(SocialUser user);
+        Conversation GetTwitterTweetConversation(string messageId);
         void AddConversation(SocialAccount socialAccount, Conversation conversation);
     }
 
@@ -25,6 +26,16 @@ namespace Social.Domain.DomainServices
         public Conversation GetTwitterDirectMessageConversation(SocialUser user)
         {
             return Repository.FindAll().Where(t => t.Source == ConversationSource.TwitterDirectMessage && t.Status != ConversationStatus.Closed && t.Messages.Any(m => m.SenderId == user.Id || m.ReceiverId == user.Id)).FirstOrDefault();
+        }
+
+        public Conversation GetTwitterTweetConversation(string messageId)
+        {
+            if (string.IsNullOrEmpty(messageId))
+            {
+                return null;
+            }
+
+            return Repository.FindAll().Where(t => t.Source == ConversationSource.TwitterTweet && t.Messages.Any(m => m.OriginalId == messageId)).FirstOrDefault();
         }
 
         public void AddConversation(SocialAccount socialAccount, Conversation conversation)

@@ -109,7 +109,16 @@ namespace Social.Domain.DomainServices
             }
 
             List<ITweet> tweets = new List<ITweet>();
-            await RecursivelyFillTweet(tweets, currentTweet);
+
+            bool isConversationExist;
+            RecursivelyFillTweet(tweets, currentTweet, out isConversationExist);
+
+            bool ifAllTweetsCreateByAccount = !isConversationExist && tweets.All(t => t.CreatedBy.IdStr == account.SocialUser.OriginalId);
+            if (ifAllTweetsCreateByAccount)
+            {
+                return;
+            }
+
             await AddTweets(account, tweets);
         }
 
@@ -119,16 +128,13 @@ namespace Social.Domain.DomainServices
             {
                 return;
             }
-            //if (tweets.All(t => t.CreatedBy.Id.ToString() == account.SocialUser.OriginalId))
-            //{
-            //    return;
-            //}
 
             tweets = tweets.OrderBy(t => t.CreatedAt).ToList();
 
             foreach (var tweet in tweets)
             {
-                if (tweet.InReplyToStatusId == null)
+                var existingConversation = _conversationService.GetTwitterTweetConversation(tweet.InReplyToStatusIdStr);
+                if (existingConversation == null)
                 {
                     SocialUser sender = await _socialUserService.GetOrCreateTwitterUser(tweet.CreatedBy);
                     var message = ConvertToMessage(tweet);
@@ -156,24 +162,25 @@ namespace Social.Domain.DomainServices
                         var message = ConvertToMessage(tweet);
                         message.SenderId = inReplyToTweetSender.Id;
                         message.ParentId = inReplyToTweetMessage.Id;
-                        message.ConversationId = inReplyToTweetMessage.ConversationId;
-                        var conversation = inReplyToTweetMessage.Conversation;
-                        conversation.Messages.Add(message);
-                        conversation.IfRead = false;
-                        conversation.Status = ConversationStatus.PendingInternal;
-                        conversation.LastMessageSenderId = message.SenderId;
-                        conversation.LastMessageSentTime = message.SendTime;
-                        _conversationService.Update(conversation);
+
+                        existingConversation.Messages.Add(message);
+                        existingConversation.IfRead = false;
+                        existingConversation.Status = ConversationStatus.PendingInternal;
+                        existingConversation.LastMessageSenderId = message.SenderId;
+                        existingConversation.LastMessageSentTime = message.SendTime;
+                        _conversationService.Update(existingConversation);
                         await CurrentUnitOfWork.SaveChangesAsync();
                     }
                 }
             }
         }
 
-        private async Task RecursivelyFillTweet(IList<ITweet> tweets, ITweet tweet)
+        private void RecursivelyFillTweet(IList<ITweet> tweets, ITweet tweet, out bool isConversationExist)
         {
+            isConversationExist = false;
             if (_messageService.IsDupliatedTweet(tweet))
             {
+                isConversationExist = true;
                 return;
             }
 
@@ -188,7 +195,7 @@ namespace Social.Domain.DomainServices
             if (tweet.InReplyToStatusId != null)
             {
                 ITweet inReplyToTweet = Tweet.GetTweet(tweet.InReplyToStatusId.Value);
-                await RecursivelyFillTweet(tweets, inReplyToTweet);
+                RecursivelyFillTweet(tweets, inReplyToTweet, out isConversationExist);
             }
         }
 

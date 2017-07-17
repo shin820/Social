@@ -1,16 +1,11 @@
 ﻿using Framework.Core;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Quartz;
 using Tweetinvi.Models;
 using Tweetinvi;
 using Social.Application.AppServices;
-using Framework.Core.UnitOfWork;
 using Social.Domain.Entities;
-using System.Data.Entity;
 using Social.Infrastructure.Enum;
 using Social.Domain.DomainServices;
 
@@ -21,6 +16,8 @@ namespace Social.Job.Jobs
         private ITwitterAppService _twitterAppService;
         private ISocialAccountService _socialAccountService;
 
+        private ITwitterCredentials _creds;
+
         public TwitterStreamJob(
             ITwitterAppService twitterAppService,
             ISocialAccountService socialAccountService
@@ -30,8 +27,11 @@ namespace Social.Job.Jobs
             _socialAccountService = socialAccountService;
         }
 
+
+
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
+
             var siteSocicalAccount = context.JobDetail.GetCustomData<SiteSocialAccount>();
             if (siteSocicalAccount == null)
             {
@@ -52,11 +52,10 @@ namespace Social.Job.Jobs
                 return;
             }
 
-            ITwitterCredentials creds =
-                    new TwitterCredentials("Mj6zNyYU0GGHcdAqAHv5q0oHi", "FBPUNsy5HYUdz4cRTFIST0FA0EBxi0bMPwCvae9KtIOxHenbn4",
+            _creds = new TwitterCredentials("Mj6zNyYU0GGHcdAqAHv5q0oHi", "FBPUNsy5HYUdz4cRTFIST0FA0EBxi0bMPwCvae9KtIOxHenbn4",
                     socialAccount.Token, socialAccount.TokenSecret);
 
-            var stream = Stream.CreateUserStream(creds);
+            var stream = Stream.CreateUserStream(_creds);
 
             //stream.StreamIsReady += (sender, args) =>
             //{
@@ -65,16 +64,19 @@ namespace Social.Job.Jobs
 
             stream.MessageReceived += async (sender, args) =>
             {
+                Auth.SetCredentials(_creds);
                 await _twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
             };
 
             stream.MessageSent += async (sender, args) =>
             {
+                Auth.SetCredentials(_creds);
                 await _twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
             };
 
             stream.TweetCreatedByAnyone += async (sender, args) =>
             {
+                Auth.SetCredentials(_creds);
                 await _twitterAppService.ProcessTweet(socialAccount, args.Tweet);
             };
 
