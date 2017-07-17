@@ -59,14 +59,10 @@ namespace Social.Domain.DomainServices.Facebook
                     var strategory = _strategyFactory.Create(change);
                     if (strategory != null)
                     {
-                        using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
-                        {
-                            using (CurrentUnitOfWork.SetSiteId(socialAccount.SiteId))
-                            {
-                                await strategory.Process(socialAccount, change);
-                                uow.Complete();
-                            }
-                        }
+                        await UnitOfWorkManager.Run(TransactionScopeOption.RequiresNew, socialAccount.SiteId, async () =>
+                         {
+                             await strategory.Process(socialAccount, change);
+                         });
                     }
                 }
             }

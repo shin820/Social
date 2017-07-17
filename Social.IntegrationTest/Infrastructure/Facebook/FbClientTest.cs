@@ -26,17 +26,5 @@ namespace Social.IntegrationTest.Infrastructure.Facebook
             var comment = await FbClient.GetPostComment("153568051877788_153962908504969", TestFacebookAccount.Token);
             Assert.NotNull(comment);
         }
-
-        [Fact]
-        public async Task ShouldGetLatestMessageFromConversation()
-        {
-            FbMessage message = await FbClient.GetLastMessageFromConversationId
-                (TestFacebookAccount.Token, "t_mid.$cAAdZrm4k4UZh9X1vd1bxDgkg7Bo9");
-
-            Assert.NotNull(message);
-            Assert.NotEmpty(message.Id);
-            Assert.NotEmpty(message.SenderId);
-            Assert.NotEmpty(message.ReceiverId);
-        }
     }
 }
