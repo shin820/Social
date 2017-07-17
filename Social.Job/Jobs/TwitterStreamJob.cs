@@ -42,7 +42,7 @@ namespace Social.Job.Jobs
             string twitterUserId = siteSocicalAccount.TwitterUserId;
 
             SocialAccount socialAccount = null;
-            await UnitOfWorkManager.RunWithoutTransaction(socialAccount.SiteId, async () =>
+            await UnitOfWorkManager.RunWithoutTransaction(siteId, async () =>
             {
                 socialAccount = await _socialAccountService.GetAccountAsync(SocialUserType.Twitter, twitterUserId);
             });
@@ -55,6 +55,7 @@ namespace Social.Job.Jobs
             ITwitterCredentials creds =
                     new TwitterCredentials("Mj6zNyYU0GGHcdAqAHv5q0oHi", "FBPUNsy5HYUdz4cRTFIST0FA0EBxi0bMPwCvae9KtIOxHenbn4",
                     socialAccount.Token, socialAccount.TokenSecret);
+
             var stream = Stream.CreateUserStream(creds);
 
             stream.StreamIsReady += (sender, args) =>
