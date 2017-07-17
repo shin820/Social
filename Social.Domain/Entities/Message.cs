@@ -46,6 +46,9 @@ namespace Social.Domain.Entities
 
         public bool IsDeleted { get; set; }
 
+        [MaxLength(200)]
+        public string QuoteTweetId { get; set; }
+
         public virtual Conversation Conversation { get; set; }
 
         public virtual IList<MessageAttachment> Attachments { get; set; }

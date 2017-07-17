@@ -102,8 +102,8 @@ namespace Social.Domain.DomainServices
 
         public async Task ProcessTweet(SocialAccount account, ITweet currentTweet)
         {
-            bool isFristTweetSendByAccount = currentTweet.InReplyToStatusId == null && currentTweet.CreatedBy.IdStr == account.SocialUser.OriginalId;
-            if (isFristTweetSendByAccount)
+            bool isFirstTweetSendByAccount = currentTweet.InReplyToStatusId == null && currentTweet.CreatedBy.IdStr == account.SocialUser.OriginalId;
+            if (isFirstTweetSendByAccount)
             {
                 return;
             }
@@ -219,6 +219,10 @@ namespace Social.Domain.DomainServices
                 Content = string.IsNullOrWhiteSpace(tweet.Text) ? tweet.FullText : tweet.Text,
                 OriginalLink = tweet.Url
             };
+            if (tweet.QuotedStatusId != null)
+            {
+                message.QuoteTweetId = tweet.QuotedStatusIdStr;
+            }
 
             if (tweet.Media != null)
             {
