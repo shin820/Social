@@ -15,6 +15,7 @@ namespace Social.Domain.Entities
         public ConversationField()
         {
             Conditions = new List<FilterCondition>();
+            Options = new List<ConversationFieldOption>();
         }
 
         public bool IfSystem { get; set; }
@@ -22,6 +23,8 @@ namespace Social.Domain.Entities
         public string Name { get; set; }
 
         public virtual IList<FilterCondition> Conditions { get; set; }
+
+        public virtual IList<ConversationFieldOption> Options { get; set; }
 
     }
 }

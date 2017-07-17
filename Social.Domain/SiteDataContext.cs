@@ -18,6 +18,8 @@ namespace Social.Domain
         }
 
         public virtual DbSet<Conversation> Conversations { get; set; }
+        public virtual DbSet<ConversationField> ConversationFields { get; set; }
+        public virtual DbSet<ConversationFieldOption> ConversationFieldOptions { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
         public virtual DbSet<SocialAccount> SocialAccounts { get; set; }
         public virtual DbSet<SocialUser> SocialUsers { get; set; }
@@ -67,6 +69,11 @@ namespace Social.Domain
             modelBuilder.Entity<FilterCondition>()
                 .HasRequired(t => t.Field)
                 .WithMany(t => t.Conditions)
+                .HasForeignKey(t => t.FieldId).WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<ConversationField>()
+                .HasMany(t => t.Options)
+                .WithRequired(t => t.Field)
                 .HasForeignKey(t => t.FieldId).WillCascadeOnDelete(false);
 
             modelBuilder.Entity<SocialUser>()
