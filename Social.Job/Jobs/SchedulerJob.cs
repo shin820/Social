@@ -65,13 +65,13 @@ namespace Social.Job.Jobs
             foreach (var facebookAccount in facebookAccounts)
             {
                 //ScheduleJob<FacebookWebHookJob>(facebookAccount, context);
-                ScheduleJob<PullTaggedVisitorPostsJob>(facebookAccount, context);
+                //ScheduleJob<PullTaggedVisitorPostsJob>(facebookAccount, context);
                 //ScheduleJob<PullVisitorPostsFromFeedJob>(facebookAccount, context);
             }
 
             foreach (var twitterAccount in twitterAccounts)
             {
-                //ScheduleJob<TwitterStreamJob>(twitterAccount, context);
+                ScheduleJob<TwitterStreamJob>(twitterAccount, context);
             }
         }
 

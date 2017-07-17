@@ -131,6 +131,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DomainServices\ConversationService.cs" />
     <Compile Include="DomainServices\Facebook\FacebookConverter.cs" />
     <Compile Include="DomainServices\Facebook\WebHookService.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\IWebHookSrategy.cs" />
@@ -143,10 +144,11 @@
     <Compile Include="DomainServices\Facebook\WebHookStrategies\WebHookStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\WebHookStrategyFactory.cs" />
     <Compile Include="DomainServices\Filter\FilterService.cs" />
+    <Compile Include="DomainServices\MessageService.cs" />
     <Compile Include="DomainServices\SocialAccountService.cs" />
-    <Compile Include="DomainServices\SocialUserInfoService.cs" />
+    <Compile Include="DomainServices\SocialUserService.cs" />
     <Compile Include="DomainServices\Facebook\VisitorPostService.cs" />
-    <Compile Include="DomainServices\TwitterService.cs" />
+    <Compile Include="DomainServices\Twitter\TwitterService.cs" />
     <Compile Include="Entities\Conversation.cs" />
     <Compile Include="Entities\ConversationField.cs" />
     <Compile Include="Entities\ConversationFieldOption.cs" />

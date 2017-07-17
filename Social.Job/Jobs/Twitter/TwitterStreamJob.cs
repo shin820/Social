@@ -58,10 +58,10 @@ namespace Social.Job.Jobs
 
             var stream = Stream.CreateUserStream(creds);
 
-            stream.StreamIsReady += (sender, args) =>
-            {
-                Console.WriteLine($"Stream is ready...");
-            };
+            //stream.StreamIsReady += (sender, args) =>
+            //{
+            //    Console.WriteLine($"Stream is ready...");
+            //};
 
             stream.MessageReceived += async (sender, args) =>
             {
@@ -80,7 +80,7 @@ namespace Social.Job.Jobs
 
             stream.StreamStopped += (sender, args) =>
             {
-                Console.WriteLine($"Stream is stopped...");
+                Logger.Error($"Twitter User Stream stopped. JobKey={context.JobDetail.Key}.", args.Exception);
             };
 
             await stream.StartStreamAsync();
