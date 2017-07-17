@@ -1,10 +1,17 @@
 ﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace Framework.Core
 {
+    public interface IRepository<TDbContext, TEntity> : IRepository<TEntity>
+        where TDbContext : DbContext
+        where TEntity : Entity
+    {
+    }
+
     public interface IRepository<TEntity> where TEntity : Entity
     {
         void Delete(TEntity entity);

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Social.Domain.Entities
 {
     [Table("t_Social_Filter")]
-    public class Filter : EntityWithSite, IHaveModification, IHaveCreation
+    public class Filter : EntityWithSite, IHaveCreation
     {
         public Filter()
         {
@@ -21,14 +21,12 @@ namespace Social.Domain.Entities
         [Required]
         [MaxLength(200)]
         public string Name { get; set; }
-        public int Order { get; set; }
+        public int Index { get; set; }
         public bool IfPublic { get; set; }
         public ConditionRuleTriggerType ConditionRuleTriggerType { get; set; }
 
         public int CreatedBy { get; set; }
         public DateTime CreatedTime { get; set; }
-        public int? ModifiedBy { get; set; }
-        public DateTime? ModifiedTime { get; set; }
 
         public virtual IList<FilterCondition> Conditions { get; set; }
     }

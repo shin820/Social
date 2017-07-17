@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,6 +9,8 @@ namespace Framework.Core
 {
     public interface IDependencyResolver
     {
+        void RegisterAssemblyByConvention(Assembly assembly);
+
         T Resolve<T>();
 
         T Resolve<T>(Type type);

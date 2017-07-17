@@ -67,6 +67,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
     <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <HintPath>..\packages\xunit.abstractions.2.0.1\lib\net35\xunit.abstractions.dll</HintPath>
@@ -84,7 +85,6 @@
   <ItemGroup>
     <Compile Include="DomainServices\Facebook\FacebookWebHookServiceTest.cs" />
     <Compile Include="Infrastructure\Facebook\FbClientTest.cs" />
-    <Compile Include="IntegrationTestInstaller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="TestUserContext.cs" />
@@ -100,9 +100,9 @@
       <Project>{1D101296-5F63-46CF-AB35-4A72EA5A9C08}</Project>
       <Name>Framework.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Framework\Framework.EntityFramework\Framework.EntityFramework.csproj">
-      <Project>{D53C16D3-88F7-4567-BA34-CDBAAC9B4902}</Project>
-      <Name>Framework.EntityFramework</Name>
+    <ProjectReference Include="..\Social.Application\Social.Application.csproj">
+      <Project>{349CD324-CB06-46E7-97F1-33AF7EA446FF}</Project>
+      <Name>Social.Application</Name>
     </ProjectReference>
     <ProjectReference Include="..\Social.Domain\Social.Domain.csproj">
       <Project>{7f485985-ba40-4b9d-a0a9-63486c82f0af}</Project>

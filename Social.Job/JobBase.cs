@@ -37,7 +37,7 @@ namespace Social.Job
         {
 
             JobKey jobKey = context.JobDetail.Key;
-            Logger.InfoFormat("{0} start executing.", jobKey);
+            Logger.Info($"{jobKey} start executing.");
 
             try
             {
@@ -45,10 +45,10 @@ namespace Social.Job
             }
             catch (Exception ex)
             {
-                Logger.ErrorFormat("{0} executed failed.", ex, jobKey);
+                Logger.Error($"{jobKey} executed failed.", ex);
             }
 
-            Logger.InfoFormat("{0} executed complete.", jobKey);
+            Logger.Info($"{jobKey} executed complete.");
         }
 
         protected abstract Task ExecuteJob(IJobExecutionContext context);

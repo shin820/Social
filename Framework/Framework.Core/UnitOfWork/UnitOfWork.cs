@@ -57,7 +57,7 @@ namespace Framework.Core.UnitOfWork
 
         public virtual TDbContext GetOrCreateDbContext<TDbContext>() where TDbContext : DbContext
         {
-            var connectionString = _connectionStringResolver.GetNameOrConnectionStringForSiteDb(_siteId.GetValueOrDefault());
+            var connectionString =  _connectionStringResolver.GetNameOrConnectionString(_siteId);
             var dbContextKey = typeof(TDbContext).FullName + "#" + connectionString;
 
             DbContext dbContext;

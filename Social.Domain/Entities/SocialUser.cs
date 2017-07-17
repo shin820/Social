@@ -22,29 +22,28 @@ namespace Social.Domain.Entities
 
         [Required]
         [MaxLength(200)]
-        public string SocialId { get; set; }
+        public string OriginalId { get; set; }
+
+        [MaxLength(500)]
+        public string OriginalLink { get; set; }
 
         [Required]
         public SocialUserType Type { get; set; }
 
         [Required]
-        public string Name { get; set; }
-
-        public string Email { get; set; }
-
-        public string Avatar { get; set; }
-
         [MaxLength(200)]
-        public string SocialLink { get; set; }
-
-        public int? SocialAccountId { get; set; }
+        public string Name { get; set; }
+        [MaxLength(200)]
+        public string Email { get; set; }
+        [MaxLength(200)]
+        public string Avatar { get; set; }
 
         [NotMapped]
         public bool IsSocialAccount
         {
             get
             {
-                return SocialAccountId != null;
+                return SocialAccount != null;
             }
         }
 

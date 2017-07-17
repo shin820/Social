@@ -18,23 +18,25 @@ namespace Social.Domain.DomainServices.Facebook
 
         public async override Task Process(SocialAccount socialAccount, FbHookChange change)
         {
-            if (IsDuplicatedMessage(socialAccount.SiteId, change.Value.CommentId))
+            string token = socialAccount.Token;
+            if (IsDuplicatedMessage(change.Value.CommentId))
             {
                 return;
             }
 
-            FbMessage fbMessage = await FbClient.GetMessageFromCommentId(socialAccount.Token, change.Value.PostId, change.Value.CommentId);
-            SocialUser sender = await GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.SenderId, fbMessage.SenderEmail);
+            FbComment comment = await FbClient.GetComment(socialAccount.Token, change.Value.CommentId);
+            SocialUser sender = await GetOrCreateFacebookUser(socialAccount.Token, comment.from.id);
 
-            var conversation = GetConversation(socialAccount.SiteId, change.Value.PostId);
+            var conversation = GetConversation(change.Value.PostId);
             if (conversation == null)
             {
                 // todo : add log
                 return;
             }
 
-            Message message = Convert(fbMessage, sender, socialAccount);
-            FillParentId(change.Value.PostId, message, fbMessage, socialAccount);
+            Message message = FacebookConverter.ConvertToMessage(token, comment);
+            message.SenderId = sender.Id;
+            FillParentId(change.Value.PostId, message, comment, socialAccount);
 
             message.ConversationId = conversation.Id;
             conversation.IfRead = false;
@@ -44,7 +46,7 @@ namespace Social.Domain.DomainServices.Facebook
             conversation.LastMessageSentTime = message.SendTime;
 
             // if comment a Wall Post, the Wall Post conversation should be visible.
-            if (conversation.Source == ConversationSource.FacebookWallPost && message.SenderId != socialAccount.SocialUserId && conversation.IsHidden)
+            if (conversation.Source == ConversationSource.FacebookWallPost && message.SenderId != socialAccount.Id && conversation.IsHidden)
             {
                 conversation.IsHidden = false;
             }
@@ -52,48 +54,25 @@ namespace Social.Domain.DomainServices.Facebook
             await UpdateConversation(conversation);
         }
 
-        private void FillParentId(string postId, Message message, FbMessage fbMessage, SocialAccount socialAccount)
+        private void FillParentId(string postId, Message message, FbComment comment, SocialAccount socialAccount)
         {
-            if (fbMessage.ParentId == null)
+            Message parent;
+            if (comment.parent == null)
             {
-                return;
-            }
-
-            Message parent = GetMessage(socialAccount.SiteId, fbMessage.ParentId);
-            if (parent != null)
-            {
-                message.ParentId = parent.Id;
-            }
-        }
-
-        private Message Convert(FbMessage fbMessage, SocialUser Sender, SocialAccount account)
-        {
-            Message message = new Message
-            {
-                SenderId = Sender.Id,
-                Source = MessageSource.FacebookPostComment,
-                SocialId = fbMessage.Id,
-                SendTime = fbMessage.SendTime,
-                Content = fbMessage.Content,
-                SiteId = account.SiteId,
-                SocialLink = fbMessage.Link,
-            };
-
-            foreach (var attachment in fbMessage.Attachments)
-            {
-                message.Attachments.Add(new MessageAttachment
+                parent = GetMessage(postId);
+                if (parent != null)
                 {
-                    SocialId = attachment.Id,
-                    Name = attachment.Name,
-                    MimeType = attachment.MimeType,
-                    Size = attachment.Size,
-                    Url = attachment.Url,
-                    PreviewUrl = attachment.PreviewUrl,
-                    SiteId = account.SiteId
-                });
+                    message.ParentId = parent.Id;
+                }
             }
-
-            return message;
+            else
+            {
+                parent = GetMessage(comment.parent.id);
+                if (parent != null)
+                {
+                    message.ParentId = parent.Id;
+                }
+            }
         }
     }
 }

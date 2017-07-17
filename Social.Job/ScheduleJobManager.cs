@@ -33,6 +33,22 @@ namespace Social.Job
             return Task.FromResult(0);
         }
 
+        public Task ScheduleAsync<TJob, TData>(Action<JobBuilder> configureJob, Action<TriggerBuilder> configureTrigger, TData data) where TJob : IJob
+        {
+            var jobToBuild = JobBuilder.Create<TJob>();
+            configureJob(jobToBuild);
+            var job = jobToBuild.Build();
+
+            var triggerToBuild = TriggerBuilder.Create();
+            configureTrigger(triggerToBuild);
+            var trigger = triggerToBuild.Build();
+
+            job.AddCustomData(data);
+            _scheduler.ScheduleJob(job, trigger);
+
+            return Task.FromResult(0);
+        }
+
         public void Start()
         {
             _scheduler.Start();

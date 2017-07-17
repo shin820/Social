@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac, Version=4.6.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.6.0\lib\net45\Autofac.dll</HintPath>
+    </Reference>
     <Reference Include="Castle.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <HintPath>..\packages\Castle.Core.3.3.0\lib\net45\Castle.Core.dll</HintPath>
     </Reference>
@@ -46,11 +49,23 @@
     <Reference Include="Facebook, Version=6.0.10.0, Culture=neutral, PublicKeyToken=58cb4f2111d1e6de, processorArchitecture=MSIL">
       <HintPath>..\packages\Facebook.7.0.6\lib\net45\Facebook.dll</HintPath>
     </Reference>
-    <Reference Include="Fissoft.EntityFramework.Fts, Version=1.0.45.0, Culture=neutral, PublicKeyToken=00e20d155e1afabe, processorArchitecture=MSIL">
-      <HintPath>..\packages\Fissoft.EntityFramework.Fts.1.0.45\lib\net45\Fissoft.EntityFramework.Fts.dll</HintPath>
+    <Reference Include="Fissoft.EntityFramework.Fts, Version=1.0.63.0, Culture=neutral, PublicKeyToken=00e20d155e1afabe, processorArchitecture=MSIL">
+      <HintPath>..\packages\Fissoft.EntityFramework.Fts.1.0.63\lib\net45\Fissoft.EntityFramework.Fts.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Nito.AsyncEx.Context, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nito.AsyncEx.Context.1.1.0\lib\net46\Nito.AsyncEx.Context.dll</HintPath>
+    </Reference>
+    <Reference Include="Nito.AsyncEx.Tasks, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nito.AsyncEx.Tasks.1.1.0\lib\net46\Nito.AsyncEx.Tasks.dll</HintPath>
+    </Reference>
+    <Reference Include="Nito.Disposables, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Nito.Disposables.1.0.0\lib\portable45-net45+win8+wp8+wpa81\Nito.Disposables.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -59,43 +74,94 @@
     <Reference Include="System.Linq.Dynamic, Version=1.0.6132.35681, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Linq.Dynamic.1.0.7\lib\net40\System.Linq.Dynamic.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http, Version=4.1.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Net.Http.4.3.2\lib\net46\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection.TypeExtensions, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reflection.TypeExtensions.4.3.0\lib\net46\System.Reflection.TypeExtensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Runtime.Serialization.Primitives, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.Serialization.Primitives.4.3.0\lib\net46\System.Runtime.Serialization.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Algorithms, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net461\System.Security.Cryptography.Algorithms.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Encoding, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Encoding.4.3.0\lib\net46\System.Security.Cryptography.Encoding.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Primitives, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.Primitives.4.3.0\lib\net46\System.Security.Cryptography.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.X509Certificates, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Cryptography.X509Certificates.4.3.0\lib\net461\System.Security.Cryptography.X509Certificates.dll</HintPath>
+    </Reference>
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="Tweetinvi, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TweetinviAPI.2.0.0\lib\net46\Tweetinvi.dll</HintPath>
+    </Reference>
+    <Reference Include="Tweetinvi.Controllers, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TweetinviAPI.2.0.0\lib\net46\Tweetinvi.Controllers.dll</HintPath>
+    </Reference>
+    <Reference Include="Tweetinvi.Core, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TweetinviAPI.2.0.0\lib\net46\Tweetinvi.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Tweetinvi.Credentials, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TweetinviAPI.2.0.0\lib\net46\Tweetinvi.Credentials.dll</HintPath>
+    </Reference>
+    <Reference Include="Tweetinvi.Factories, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TweetinviAPI.2.0.0\lib\net46\Tweetinvi.Factories.dll</HintPath>
+    </Reference>
+    <Reference Include="Tweetinvi.Logic, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TweetinviAPI.2.0.0\lib\net46\Tweetinvi.Logic.dll</HintPath>
+    </Reference>
+    <Reference Include="Tweetinvi.Security, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TweetinviAPI.2.0.0\lib\net46\Tweetinvi.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Tweetinvi.Streams, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TweetinviAPI.2.0.0\lib\net46\Tweetinvi.Streams.dll</HintPath>
+    </Reference>
+    <Reference Include="Tweetinvi.WebLogic, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TweetinviAPI.2.0.0\lib\net46\Tweetinvi.WebLogic.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DbContextFactory.cs" />
-    <Compile Include="DomainServices\Facebook\FacebookWebHookService.cs" />
-    <Compile Include="DomainServices\Facebook\IWebHookSrategy.cs" />
-    <Compile Include="DomainServices\Facebook\IWebHookStrategyFactory.cs" />
+    <Compile Include="DomainServices\Facebook\FacebookConverter.cs" />
+    <Compile Include="DomainServices\Facebook\WebHookService.cs" />
+    <Compile Include="DomainServices\Facebook\WebHookStrategies\IWebHookSrategy.cs" />
+    <Compile Include="DomainServices\Facebook\WebHookStrategies\IWebHookStrategyFactory.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\NewMessageStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\NewPostCommentStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\NewPostStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\RemovePostCommentStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\RemoveVisitorPostStrategy.cs" />
-    <Compile Include="DomainServices\Facebook\WebHookStrategy.cs" />
-    <Compile Include="DomainServices\Facebook\WebHookStrategyFactory.cs" />
+    <Compile Include="DomainServices\Facebook\WebHookStrategies\WebHookStrategy.cs" />
+    <Compile Include="DomainServices\Facebook\WebHookStrategies\WebHookStrategyFactory.cs" />
     <Compile Include="DomainServices\Filter\FilterService.cs" />
     <Compile Include="DomainServices\SocialUserInfoService.cs" />
+    <Compile Include="DomainServices\Facebook\VisitorPostService.cs" />
+    <Compile Include="DomainServices\TwitterService.cs" />
     <Compile Include="Entities\Conversation.cs" />
     <Compile Include="Entities\ConversationField.cs" />
     <Compile Include="Entities\ConversationFieldOption.cs" />
     <Compile Include="Entities\Filter.cs" />
     <Compile Include="Entities\FilterCondition.cs" />
-    <Compile Include="Entities\LiveChat\Department.cs" />
-    <Compile Include="Entities\LiveChat\User.cs" />
+    <Compile Include="Entities\General\Department.cs" />
+    <Compile Include="Entities\General\SiteSocialAccount.cs" />
+    <Compile Include="Entities\General\User.cs" />
     <Compile Include="Entities\Message.cs" />
     <Compile Include="Entities\MessageAttachment.cs" />
     <Compile Include="Entities\ConversationLog.cs" />
     <Compile Include="Entities\SocialAccount.cs" />
     <Compile Include="Entities\SocialUser.cs" />
     <Compile Include="Entities\FacebookWebHookRawData.cs" />
+    <Compile Include="GeneralDataContext.cs" />
     <Compile Include="SiteDataContext.cs" />
-    <Compile Include="DomainIocInitializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SiteDataRepository.cs" />
   </ItemGroup>
@@ -107,10 +173,6 @@
     <ProjectReference Include="..\Framework\Framework.Core\Framework.Core.csproj">
       <Project>{1D101296-5F63-46CF-AB35-4A72EA5A9C08}</Project>
       <Name>Framework.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Framework\Framework.EntityFramework\Framework.EntityFramework.csproj">
-      <Project>{D53C16D3-88F7-4567-BA34-CDBAAC9B4902}</Project>
-      <Name>Framework.EntityFramework</Name>
     </ProjectReference>
     <ProjectReference Include="..\Social.Infrastructure\Social.Infrastructure.csproj">
       <Project>{fe79d2df-6b23-4278-9c84-fc1d6487c45b}</Project>

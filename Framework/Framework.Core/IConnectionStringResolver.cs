@@ -8,6 +8,6 @@ namespace Framework.Core
 {
     public interface IConnectionStringResolver
     {
-        string GetNameOrConnectionStringForSiteDb(int siteId);
+        string GetNameOrConnectionString(int? siteId);
     }
 }

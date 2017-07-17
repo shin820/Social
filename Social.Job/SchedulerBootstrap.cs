@@ -2,9 +2,12 @@
 using Framework.Core;
 using Quartz;
 using Quartz.Impl;
+using Social.Application;
+using Social.Domain;
 using Social.Job.Jobs;
 using System;
 using System.Net;
+using System.Reflection;
 
 namespace Social.Job
 {
@@ -15,23 +18,34 @@ namespace Social.Job
         public SchedulerBootstrap()
         {
             var dependencyResolver = new DependencyResolver();
-            dependencyResolver.Install(new JobInstaller());
+            dependencyResolver.RegisterAssemblyByConvention(Assembly.GetExecutingAssembly());
+            new ApplicationServicesRegistrar(dependencyResolver).RegisterServices();
 
             _scheduleJobManager = dependencyResolver.Resolve<IScheduleJobManager>();
 
-            _scheduleJobManager.ScheduleAsync<FacebookWebHookJob>(
+            //_scheduleJobManager.ScheduleAsync<SchedulerJob>(
+            //job =>
+            //{
+            //    job.WithIdentity("ScheduleJobKey");
+            //},
+            //trigger =>
+            //{
+            //    trigger/*.WithSimpleSchedule(x => x.WithIntervalInSeconds(10).RepeatForever().WithMisfireHandlingInstructionIgnoreMisfires())*/
+            //    .StartNow()
+            //    .Build();
+            //});
+
+            _scheduleJobManager.ScheduleAsync<TwitterStreamJob, int>(
             job =>
             {
-                job.WithDescription("FacebookWebHookJob").WithIdentity("FacebookWebHookJobKey");
+                job.WithIdentity("TwitterStreamJobKey");
             },
             trigger =>
             {
-                trigger.WithIdentity("FacebookWebHookJobTrigger")
-                .WithDescription("FacebookWebHookJobTriggerDescription")
-                //.WithCronSchedule("0 0/5 * * * ?", x => x.WithMisfireHandlingInstructionDoNothing())
+                trigger/*.WithSimpleSchedule(x => x.WithIntervalInSeconds(10).RepeatForever().WithMisfireHandlingInstructionIgnoreMisfires())*/
                 .StartNow()
                 .Build();
-            });
+            }, 10000);
         }
 
         public void Start()

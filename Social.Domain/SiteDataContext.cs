@@ -1,13 +1,13 @@
 namespace Social.Domain
 {
     using Framework.Core;
-    using Framework.EntityFramework;
+    using Framework.Core.EntityFramework;
     using log4net;
     using Social.Domain.Entities;
     using Social.Infrastructure.Enum;
     using System.Data.Entity;
 
-    public class SiteDataContext : DataContext
+    public class SiteDataContext : DataContext, ITransient
     {
         private static readonly ILog logger = LogManager.GetLogger(typeof(SiteDataContext));
 
@@ -18,6 +18,8 @@ namespace Social.Domain
         }
 
         public virtual DbSet<Conversation> Conversations { get; set; }
+        public virtual DbSet<ConversationField> ConversationFields { get; set; }
+        public virtual DbSet<ConversationFieldOption> ConversationFieldOptions { get; set; }
         public virtual DbSet<Message> Messages { get; set; }
         public virtual DbSet<SocialAccount> SocialAccounts { get; set; }
         public virtual DbSet<SocialUser> SocialUsers { get; set; }
@@ -67,6 +69,11 @@ namespace Social.Domain
             modelBuilder.Entity<FilterCondition>()
                 .HasRequired(t => t.Field)
                 .WithMany(t => t.Conditions)
+                .HasForeignKey(t => t.FieldId).WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<ConversationField>()
+                .HasMany(t => t.Options)
+                .WithRequired(t => t.Field)
                 .HasForeignKey(t => t.FieldId).WillCascadeOnDelete(false);
 
             modelBuilder.Entity<SocialUser>()

@@ -19,15 +19,15 @@ namespace Social.Domain.DomainServices.Facebook
         {
             FbMessage fbMessage = await FbClient.GetLastMessageFromConversationId(socialAccount.Token, change.Value.ThreadId);
 
-            if (IsDuplicatedMessage(socialAccount.SiteId, fbMessage.Id))
+            if (IsDuplicatedMessage(fbMessage.Id))
             {
                 return;
             }
 
-            SocialUser sender = await GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.SenderId, fbMessage.SenderEmail);
-            SocialUser receiver = await GetOrCreateSocialUser(socialAccount.SiteId, socialAccount.Token, fbMessage.ReceiverId, fbMessage.ReceiverEmail);
+            SocialUser sender = await GetOrCreateFacebookUser(socialAccount.Token, fbMessage.SenderId);
+            SocialUser receiver = await GetOrCreateFacebookUser(socialAccount.Token, fbMessage.ReceiverId);
 
-            var existingConversation = GetConversation(socialAccount.SiteId, change.Value.ThreadId, ConversationStatus.Closed);
+            var existingConversation = GetConversation(change.Value.ThreadId, ConversationStatus.Closed);
             if (existingConversation != null)
             {
                 Message message = Convert(fbMessage, sender, receiver, socialAccount);
@@ -44,11 +44,10 @@ namespace Social.Domain.DomainServices.Facebook
                 Message message = Convert(fbMessage, sender, receiver, socialAccount);
                 var conversation = new Conversation
                 {
-                    SocialId = change.Value.ThreadId,
+                    OriginalId = change.Value.ThreadId,
                     Source = ConversationSource.FacebookMessage,
                     Priority = ConversationPriority.Normal,
                     Status = ConversationStatus.New,
-                    SiteId = socialAccount.SiteId,
                     Subject = GetSubject(message.Content),
                     LastMessageSenderId = message.SenderId,
                     LastMessageSentTime = message.SendTime
@@ -65,23 +64,21 @@ namespace Social.Domain.DomainServices.Facebook
                 SenderId = Sender.Id,
                 ReceiverId = Receiver.Id,
                 Source = MessageSource.FacebookMessage,
-                SocialId = fbMessage.Id,
+                OriginalId = fbMessage.Id,
                 SendTime = fbMessage.SendTime,
-                Content = fbMessage.Content,
-                SiteId = account.SiteId
+                Content = fbMessage.Content
             };
 
             foreach (var attachment in fbMessage.Attachments)
             {
                 message.Attachments.Add(new MessageAttachment
                 {
-                    SocialId = attachment.Id,
+                    OriginalId = attachment.Id,
                     Name = attachment.Name,
                     MimeType = attachment.MimeType,
                     Size = attachment.Size,
                     Url = attachment.Url,
-                    PreviewUrl = attachment.PreviewUrl,
-                    SiteId = account.SiteId
+                    PreviewUrl = attachment.PreviewUrl
                 });
             }
 

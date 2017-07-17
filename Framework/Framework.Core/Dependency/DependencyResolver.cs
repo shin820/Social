@@ -1,15 +1,18 @@
 ﻿using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Framework.Core.UnitOfWork;
+using Framework.Core.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Framework.Core
 {
-    public class DependencyResolver: IDependencyResolver
+    public class DependencyResolver : IDependencyResolver
     {
         public IWindsorContainer IocContainer { get; private set; }
 
@@ -19,13 +22,45 @@ namespace Framework.Core
 
             //Register self!
             IocContainer.Register(
-                Component.For<DependencyResolver, IDependencyResolver>().UsingFactoryMethod(() => this).LifestyleSingleton()
+                Component.For<DependencyResolver, IDependencyResolver>().UsingFactoryMethod(() => this).LifestyleSingleton(),
+
+                Component.For(typeof(IDomainService<>)).ImplementedBy(typeof(DomainService<>)).LifestyleTransient(),
+                Component.For(typeof(IRepository<,>)).ImplementedBy(typeof(EfRepository<,>)).LifestyleTransient(),
+
+                Component.For<IUnitOfWorkManager>().ImplementedBy<UnitOfWorkManager>().LifestyleTransient(),
+                Component.For<IUnitOfWork>().ImplementedBy<UnitOfWork.UnitOfWork>().LifestyleTransient(),
+                Component.For<ITransactionStrategy>().ImplementedBy<TransactionStrategy>().LifestyleTransient(),
+                Component.For<IDbContextResolver>().ImplementedBy<DefaultDbContextResolver>().LifestyleTransient(),
+                Component.For<IConnectionStringResolver>().ImplementedBy<DefaultConnectionStringResolver>().LifestyleTransient(),
+                Component.For<ICurrentUnitOfWorkProvider>().ImplementedBy<CurrentUnitOfWorkProvider>().LifestyleTransient()
                 );
         }
 
         public void Install(params IWindsorInstaller[] installers)
         {
             IocContainer.Install(installers);
+        }
+
+        public void RegisterAssemblyByConvention(Assembly assembly)
+        {
+            IocContainer.Register(
+              Classes.FromAssembly(assembly)
+                  .IncludeNonPublicTypes()
+                  .BasedOn<ITransient>()
+                  .If(type => !type.GetTypeInfo().IsGenericTypeDefinition)
+                  .WithService.Self()
+                  .WithService.AllInterfaces()
+                  .LifestyleTransient(),
+
+               Classes.FromAssembly(assembly)
+                  .BasedOn(typeof(ServiceBase))
+                  .WithServiceAllInterfaces()
+                  .LifestyleTransient(),
+               Classes.FromAssembly(assembly)
+                  .BasedOn(typeof(EfRepository<,>))
+                  .WithServiceAllInterfaces()
+                  .LifestyleTransient()
+              );
         }
 
         public bool IsRegistered(Type type)
@@ -90,7 +125,7 @@ namespace Framework.Core
 
         public IDisposable BeginScope()
         {
-           return IocContainer.Kernel.BeginScope();
+            return IocContainer.Kernel.BeginScope();
         }
 
         public void Dispose()
