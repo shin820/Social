@@ -19,5 +19,10 @@ namespace Social.Infrastructure
         {
             return new ExceptionWithCode(40001, $"Invalid parameter '{key}'.");
         }
+
+        public static BadRequestException BadReqeust(string msg)
+        {
+            return new BadRequestException(msg);
+        }
     }
 }

@@ -12,7 +12,10 @@ namespace Framework.Core
         IQueryable<TEntity> FindAll();
         void Delete(int id);
         void Delete(TEntity entity);
+        Task DeleteAsync(int id);
+        Task DeleteAsync(TEntity entity);
         void Update(TEntity entity);
         TEntity Insert(TEntity entity);
+        Task<TEntity> InsertAsync(TEntity entity);
     }
 }

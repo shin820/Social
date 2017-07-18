@@ -109,7 +109,7 @@ namespace Social.Infrastructure.Facebook
         public async Task SubscribeApp(string pageId, string pageToken)
         {
             HttpClient client = new HttpClient();
-            HttpResponseMessage response = await client.PostAsync($"{BASE_GRAPH_API_URL}/{pageId}/subscribed_apps?access_token={pageToken}", null);
+            HttpResponseMessage response = await client.PostAsync($"https://graph.facebook.com/v2.9/{pageId}/subscribed_apps?access_token={pageToken}", null);
             response.EnsureSuccessStatusCode();
         }
 

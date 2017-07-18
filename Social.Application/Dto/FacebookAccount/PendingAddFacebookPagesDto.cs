@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Social.Application.Dto
 {
-    public class FacebookPagesToBeAddDto
+    public class PendingAddFacebookPagesDto
     {
         public FacebookSignInAsDto SignInAs { get; set; }
-        public List<FacebookPageToBeAddDto> Pages { get; set; }
+        public List<PendingAddFacebookPageDto> Pages { get; set; }
     }
 }

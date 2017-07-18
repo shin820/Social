@@ -123,8 +123,9 @@
   <ItemGroup>
     <Compile Include="ApplicationServicesRegistrar.cs" />
     <Compile Include="AppServices\ConversationAppService.cs" />
-    <Compile Include="AppServices\SocialAccountAppService.cs" />
+    <Compile Include="AppServices\FacebookAccountAppService.cs" />
     <Compile Include="AppServices\TwitterAppService.cs" />
+    <Compile Include="Dto\FacebookAccount\FacebookPageListDto.cs" />
     <Compile Include="Dto\Filter\FilterConditionCreateDto.cs" />
     <Compile Include="Dto\Filter\FilterConditionDto.cs" />
     <Compile Include="Dto\Filter\FilterCreateDto.cs" />
@@ -141,9 +142,10 @@
     <Compile Include="Dto\Conversation\ConversationCreateDto.cs" />
     <Compile Include="Dto\Conversation\ConversationDto.cs" />
     <Compile Include="Dto\Conversation\ConversationSearchDto.cs" />
-    <Compile Include="Dto\SocialAccount\FacebookPageToBeAddDto.cs" />
-    <Compile Include="Dto\SocialAccount\FacebookPagesToBeAddDto.cs" />
-    <Compile Include="Dto\SocialAccount\FacebookSignInAsDto.cs" />
+    <Compile Include="Dto\FacebookAccount\PendingAddFacebookPageDto.cs" />
+    <Compile Include="Dto\FacebookAccount\PendingAddFacebookPagesDto.cs" />
+    <Compile Include="Dto\FacebookAccount\FacebookSignInAsDto.cs" />
+    <Compile Include="Dto\FacebookAccount\AddFaceboookPageDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

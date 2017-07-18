@@ -263,7 +263,7 @@
     <Compile Include="Controllers\FacebookWebHookController.cs" />
     <Compile Include="Controllers\FilterController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\SocialAccountsController.cs" />
+    <Compile Include="Controllers\FacebookAccountsController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Core\ApiAuthorizeAttribute.cs" />
     <Compile Include="Core\ControllersInstaller.cs" />

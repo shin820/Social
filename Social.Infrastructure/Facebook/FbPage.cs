@@ -14,5 +14,6 @@ namespace Social.Infrastructure.Facebook
         public string AccessToken { get; set; }
         public string Category { get; set; }
         public string Avatar { get; set; }
+        public string Link { get; set; }
     }
 }

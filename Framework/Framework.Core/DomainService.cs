@@ -34,6 +34,20 @@ namespace Framework.Core
             Repository.Delete(entity);
         }
 
+        public async virtual Task DeleteAsync(TEntity entity)
+        {
+            await Repository.DeleteAsync(entity);
+        }
+
+        public async virtual Task DeleteAsync(int id)
+        {
+            TEntity entity = Repository.Find(id);
+            if (entity != null)
+            {
+                await DeleteAsync(entity);
+            }
+        }
+
         public virtual void Update(TEntity entity)
         {
             Repository.Update(entity);
@@ -42,6 +56,12 @@ namespace Framework.Core
         public virtual TEntity Insert(TEntity entity)
         {
             Repository.Insert(entity);
+            return entity;
+        }
+
+        public async virtual Task<TEntity> InsertAsync(TEntity entity)
+        {
+            await Repository.InsertAsync(entity);
             return entity;
         }
     }

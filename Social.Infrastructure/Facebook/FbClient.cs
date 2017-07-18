@@ -15,6 +15,22 @@ namespace Social.Infrastructure.Facebook
 {
     public static class FbClient
     {
+        public async static Task SubscribeApp(string pageId, string pageToken)
+        {
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.PostAsync($"https://graph.facebook.com/v2.9/{pageId}/subscribed_apps?access_token={pageToken}", null);
+            string result = await response.Content.ReadAsStringAsync();
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async static Task UnSubscribeApp(string pageId, string pageToken)
+        {
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.DeleteAsync($"https://graph.facebook.com/v2.9/{pageId}/subscribed_apps?access_token={pageToken}");
+            string result = await response.Content.ReadAsStringAsync();
+            response.EnsureSuccessStatusCode();
+        }
+
         public static string GetUserToken(string code, string redirectUri)
         {
             FacebookClient client = new FacebookClient();
@@ -44,7 +60,7 @@ namespace Social.Infrastructure.Facebook
         public static async Task<IList<FbPage>> GetPages(string userToken)
         {
             FacebookClient client = new FacebookClient(userToken);
-            string url = $"/me/accounts?fields=id,name,category,access_token,picture,emails";
+            string url = $"/me/accounts?fields=id,name,category,access_token,picture,emails,link";
             dynamic result = await client.GetTaskAsync(url);
 
             List<FbPage> pages = new List<FbPage>();
@@ -58,6 +74,7 @@ namespace Social.Infrastructure.Facebook
                         Name = item.Name,
                         Category = item.category,
                         AccessToken = item.access_token,
+                        Link = item.link
                     };
                     if (item.picture != null && item.picture.data != null)
                     {
