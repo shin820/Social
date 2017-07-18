@@ -34,5 +34,44 @@ namespace Social.Infrastructure
                 return value;
             }
         }
+
+        public static string FacebookClientId
+        {
+            get
+            {
+                string value = ConfigurationManager.AppSettings["FacebookClientId"];
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new ConfigurationErrorsException("Invalid configuration for 'FacebookClientId'.");
+                }
+                return value;
+            }
+        }
+
+        public static string FacebookClientSecret
+        {
+            get
+            {
+                string value = ConfigurationManager.AppSettings["FacebookClientSecret"];
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new ConfigurationErrorsException("Invalid configuration for 'FacebookClientSecret'.");
+                }
+                return value;
+            }
+        }
+
+        public static string FacebookRedirectUri
+        {
+            get
+            {
+                string value = ConfigurationManager.AppSettings["FacebookOAuthRedirectUri"];
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new ConfigurationErrorsException("Invalid configuration for 'FacebookOAuthRedirectUri'.");
+                }
+                return value;
+            }
+        }
     }
 }

@@ -17,6 +17,12 @@ namespace Framework.Core
             _errorCode = errorCode;
         }
 
+        public ExceptionWithCode(int errorCode, string message, Exception innertException) : base(message, innertException)
+        {
+            _messsage = message;
+            _errorCode = errorCode;
+        }
+
         public int ErrorCode
         {
             get { return _errorCode; }

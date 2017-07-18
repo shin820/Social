@@ -1,9 +1,13 @@
 ﻿using Facebook;
 using Framework.Core;
+using Newtonsoft.Json;
 using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,6 +15,89 @@ namespace Social.Infrastructure.Facebook
 {
     public static class FbClient
     {
+        public static string GetUserToken(string code, string redirectUri)
+        {
+            FacebookClient client = new FacebookClient();
+            try
+            {
+                dynamic result = client.Post("oauth/access_token", new
+                {
+                    client_id = AppSettings.FacebookClientId,
+                    client_secret = AppSettings.FacebookClientSecret,
+                    redirect_uri = redirectUri,
+                    code = code
+                });
+                return result.access_token;
+            }
+            catch (FacebookOAuthException ex)
+            {
+                throw ExceptionHelper.FacebookOauthException(ex);
+            }
+        }
+
+        public static string GetAuthUrl(string redirectUri)
+        {
+            return $"https://www.facebook.com/v2.9/dialog/oauth?client_id={AppSettings.FacebookClientId}&redirect_uri={redirectUri}&scope=manage_pages,publish_pages,pages_messaging,pages_messaging_phone_number,read_page_mailboxes,pages_show_list";
+        }
+
+
+        public static async Task<IList<FbPage>> GetPages(string userToken)
+        {
+            FacebookClient client = new FacebookClient(userToken);
+            string url = $"/me/accounts?fields=id,name,category,access_token,picture,emails";
+            dynamic result = await client.GetTaskAsync(url);
+
+            List<FbPage> pages = new List<FbPage>();
+            if (result.data != null)
+            {
+                foreach (var item in result.data)
+                {
+                    var page = new FbPage
+                    {
+                        Id = item.id,
+                        Name = item.Name,
+                        Category = item.category,
+                        AccessToken = item.access_token,
+                    };
+                    if (item.picture != null && item.picture.data != null)
+                    {
+                        if (item.picture.data.is_silhouette == true)
+                        {
+                            page.Avatar = item.picture.data.url;
+                        }
+                    }
+
+                    pages.Add(page);
+                }
+            }
+
+            return pages;
+        }
+
+        public static async Task<FbUser> GetMe(string token)
+        {
+            ServicePointManager.DnsRefreshTimeout = 0;
+            var a = ServicePointManager.SecurityProtocol;
+            FacebookClient client = new FacebookClient(token);
+            string url = "/me?fields=id,name,first_name,last_name,picture,gender,email,location";
+            dynamic result = await client.GetTaskAsync(url);
+
+            var me = new FbUser
+            {
+                id = result.id,
+                name = result.name
+            };
+            if (result.picture != null && result.picture.data != null)
+            {
+                if (result.picture.data.is_silhouette == true)
+                {
+                    me.pic = result.picture.data.url;
+                }
+            }
+
+            return me;
+        }
+
         public static async Task<FbUser> GetUserInfo(string token, string fbUserId)
         {
             FacebookClient client = new FacebookClient(token);

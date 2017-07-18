@@ -26,5 +26,12 @@ namespace Social.IntegrationTest.Infrastructure.Facebook
             var comment = await FbClient.GetPostComment("153568051877788_153962908504969", TestFacebookAccount.Token);
             Assert.NotNull(comment);
         }
+
+        [Fact]
+        public async Task ShoulGetMe()
+        {
+            var me = await FbClient.GetMe("EAACEdEose0cBAKjXdit7tZC26ZAUHlMTbj3RZCDtQLgJaTfJXxS7TWZCeDihcpWBp4sKZAtvhSzfca9x7pxxIeSRZBLZBZBxC32eUDr0nQSqnbTIIJnkPR20R2BOMf3ZAN8F4A7S0FTT5F3xAuGVNixC9k7ZCYQHNOvmAqn71SkFU8vrphWTuhH7lAZBhRl2jkLdQsZD");
+            Assert.NotNull(me);
+        }
     }
 }
