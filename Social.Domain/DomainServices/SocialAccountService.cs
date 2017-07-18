@@ -40,7 +40,7 @@ namespace Social.Domain.DomainServices
 
             ApplyDefaultValue(entity);
             base.Insert(entity);
-
+            await CurrentUnitOfWork.SaveChangesAsync();
             await InsertSocialAccountInGeneralDb(entity);
 
             return entity;

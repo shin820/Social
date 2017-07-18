@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using System.Web.Http.Description;
 
 namespace Social.WebApi.Controllers
 {
@@ -46,18 +47,32 @@ namespace Social.WebApi.Controllers
 
         [HttpGet]
         [Route("pages/{id}", Name = "GetFacebookPage")]
-        public async Task<IHttpActionResult> GetPage(int id)
+        [ResponseType(typeof(FacebookPageDto))]
+        public IHttpActionResult GetPage(int id)
         {
-            await _appService.DeletePageAsync(id);
-            return StatusCode(HttpStatusCode.NoContent);
+            var page = _appService.GetPage(id);
+            if (page == null)
+            {
+                return StatusCode(HttpStatusCode.NotFound);
+            }
+
+            return Ok(page);
         }
 
         [HttpPost]
         [Route("pages")]
         public async Task<IHttpActionResult> AddPage([Required] AddFaceboookPageDto dto)
         {
-            await _appService.AddPageAsync(dto);
-            return Ok();
+            var pageDto = await _appService.AddPageAsync(dto);
+            return CreatedAtRoute("GetFacebookPage", new { id = pageDto.Id }, pageDto);
+        }
+
+        [HttpPut]
+        [Route("pages/{id}")]
+        public FacebookPageDto UpdatePage(int id, [Required]UpdateFacebookPageDto dto)
+        {
+            var page = _appService.UpdatePage(id, dto);
+            return page;
         }
 
         [HttpDelete]

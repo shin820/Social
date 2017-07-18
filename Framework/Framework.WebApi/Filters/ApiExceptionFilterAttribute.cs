@@ -53,6 +53,17 @@ namespace Framework.WebApi.Filters
                 return;
             }
 
+            var notFoundException = context.Exception as NotFoundException;
+            if (notFoundException != null)
+            {
+                context.Response = context.Request.CreateResponse(
+                HttpStatusCode.NotFound,
+                new { Message = notFoundException.Message }
+                );
+
+                return;
+            }
+
             context.Response = context.Request.CreateResponse(
                 HttpStatusCode.InternalServerError,
                 new ErrorInfo(context.Exception.Message)

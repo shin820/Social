@@ -125,7 +125,9 @@
     <Compile Include="AppServices\ConversationAppService.cs" />
     <Compile Include="AppServices\FacebookAccountAppService.cs" />
     <Compile Include="AppServices\TwitterAppService.cs" />
+    <Compile Include="Dto\FacebookAccount\FacebookPageDto.cs" />
     <Compile Include="Dto\FacebookAccount\FacebookPageListDto.cs" />
+    <Compile Include="Dto\FacebookAccount\UpdateFacebookPageDto.cs" />
     <Compile Include="Dto\Filter\FilterConditionCreateDto.cs" />
     <Compile Include="Dto\Filter\FilterConditionDto.cs" />
     <Compile Include="Dto\Filter\FilterCreateDto.cs" />

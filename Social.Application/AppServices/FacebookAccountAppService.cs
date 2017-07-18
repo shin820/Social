@@ -17,10 +17,12 @@ namespace Social.Application.AppServices
 {
     public interface IFacebookAccountAppService
     {
+        FacebookPageDto GetPage(int id);
         Task<PendingAddFacebookPagesDto> GetPendingAddPagesAsync(string code, string redirectUri);
-        Task AddPageAsync(AddFaceboookPageDto dto);
+        Task<FacebookPageDto> AddPageAsync(AddFaceboookPageDto dto);
         Task DeletePageAsync(int id);
         IList<FacebookPageListDto> GetPages();
+        FacebookPageDto UpdatePage(int id, UpdateFacebookPageDto dto);
     }
 
     public class FacebookAccountAppService : AppService, IFacebookAccountAppService
@@ -69,14 +71,22 @@ namespace Social.Application.AppServices
             return result;
         }
 
-        public async Task AddPageAsync(AddFaceboookPageDto dto)
+        public FacebookPageDto GetPage(int id)
+        {
+            var entity = _socialAccountService.Find(id);
+            return Mapper.Map<FacebookPageDto>(entity);
+        }
+
+        public async Task<FacebookPageDto> AddPageAsync(AddFaceboookPageDto dto)
         {
             var socialAccount = Mapper.Map<SocialAccount>(dto);
             socialAccount.SocialUser = Mapper.Map<SocialUser>(dto);
 
             await _socialAccountService.InsertAsync(socialAccount);
-
             await FbClient.SubscribeApp(dto.FacebookId, dto.AccessToken);
+
+            socialAccount = _socialAccountService.Find(socialAccount.Id);
+            return Mapper.Map<FacebookPageDto>(socialAccount);
         }
 
         public async Task DeletePageAsync(int id)
@@ -87,6 +97,20 @@ namespace Social.Application.AppServices
                 await _socialAccountService.DeleteAsync(entity);
                 await FbClient.UnSubscribeApp(entity.SocialUser.OriginalId, entity.Token);
             }
+        }
+
+        public FacebookPageDto UpdatePage(int id, UpdateFacebookPageDto dto)
+        {
+            var socialAccount = _socialAccountService.Find(id);
+            if (socialAccount == null)
+            {
+                throw new NotFoundException($"'{id}' not exists.");
+            }
+
+            socialAccount = Mapper.Map(dto, socialAccount);
+            _socialAccountService.Update(socialAccount);
+
+            return Mapper.Map<FacebookPageDto>(socialAccount);
         }
     }
 }
