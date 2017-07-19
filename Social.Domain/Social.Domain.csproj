@@ -150,6 +150,8 @@
     <Compile Include="DomainServices\Facebook\WebHookStrategies\RemoveVisitorPostStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\WebHookStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\WebHookStrategyFactory.cs" />
+    <Compile Include="DomainServices\FilterExpressions\StringExpression.cs" />
+    <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\FromExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\PriorityExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\SourceExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\StatusExpression.cs" />

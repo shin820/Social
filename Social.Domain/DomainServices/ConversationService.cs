@@ -43,6 +43,8 @@ namespace Social.Domain.DomainServices
                     var expression = _filterExpressionFactory.Create(filter);
                     conversations = conversations.Where(expression);
                 }
+
+                conversations.Where(t => t.Messages.Any(m => m.Sender.Name == "xxx"));
             }
 
             return conversations;
