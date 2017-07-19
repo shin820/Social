@@ -50,6 +50,12 @@ namespace Social.Application
 
             CreateMap<UpdateFacebookPageDto, SocialAccount>();
 
+            CreateMap<SocialAccount, TwitterAccountListDto>()
+                .ForMember(dest => dest.Name, src => src.MapFrom(x => x.SocialUser.Name));
+            CreateMap<SocialAccount, TwitterAccountDto>()
+                .ForMember(dest => dest.Name, src => src.MapFrom(x => x.SocialUser.Name));
+            CreateMap<UpdateTwitterAccountDto, SocialAccount>();
+
         }
     }
 }

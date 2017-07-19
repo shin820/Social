@@ -124,6 +124,7 @@
     <Compile Include="ApplicationServicesRegistrar.cs" />
     <Compile Include="AppServices\ConversationAppService.cs" />
     <Compile Include="AppServices\FacebookAccountAppService.cs" />
+    <Compile Include="AppServices\TwitterAccountAppService.cs" />
     <Compile Include="AppServices\TwitterAppService.cs" />
     <Compile Include="Dto\FacebookAccount\FacebookPageDto.cs" />
     <Compile Include="Dto\FacebookAccount\FacebookPageListDto.cs" />
@@ -148,6 +149,9 @@
     <Compile Include="Dto\FacebookAccount\PendingAddFacebookPagesDto.cs" />
     <Compile Include="Dto\FacebookAccount\FacebookSignInAsDto.cs" />
     <Compile Include="Dto\FacebookAccount\AddFaceboookPageDto.cs" />
+    <Compile Include="Dto\TwitterAccount\TwitterAccountDto.cs" />
+    <Compile Include="Dto\TwitterAccount\TwitterAccountListDto.cs" />
+    <Compile Include="Dto\TwitterAccount\UpdateTwitterAccountDto.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
