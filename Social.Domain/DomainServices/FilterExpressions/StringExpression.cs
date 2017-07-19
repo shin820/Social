@@ -35,7 +35,7 @@ namespace Social.Domain.DomainServices.FilterExpressions
             }
             if (condition.MatchType == ConditionMatchType.Contain)
             {
-                return NotContain(condition);
+                return Contain(condition);
             }
             if (condition.MatchType == ConditionMatchType.NotContain)
             {
