@@ -73,6 +73,24 @@ namespace Framework.Core.EntityFramework
             }
         }
 
+        public void Delete(int id)
+        {
+            var entity = Find(id);
+            if (entity != null)
+            {
+                Delete(entity);
+            }
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var entity = Find(id);
+            if (entity != null)
+            {
+                await DeleteAsync(entity);
+            }
+        }
+
         public void Delete(TEntity entity)
         {
             SoftDelete(entity);

@@ -28,15 +28,10 @@ namespace Social.IntegrationTest.Infrastructure.Facebook
         }
 
         [Fact]
-        public async Task ShouldGetLatestMessageFromConversation()
+        public async Task ShoulGetMe()
         {
-            FbMessage message = await FbClient.GetLastMessageFromConversationId
-                (TestFacebookAccount.Token, "t_mid.$cAAdZrm4k4UZh9X1vd1bxDgkg7Bo9");
-
-            Assert.NotNull(message);
-            Assert.NotEmpty(message.Id);
-            Assert.NotEmpty(message.SenderId);
-            Assert.NotEmpty(message.ReceiverId);
+            var me = await FbClient.GetMe("EAACEdEose0cBAKjXdit7tZC26ZAUHlMTbj3RZCDtQLgJaTfJXxS7TWZCeDihcpWBp4sKZAtvhSzfca9x7pxxIeSRZBLZBZBxC32eUDr0nQSqnbTIIJnkPR20R2BOMf3ZAN8F4A7S0FTT5F3xAuGVNixC9k7ZCYQHNOvmAqn71SkFU8vrphWTuhH7lAZBhRl2jkLdQsZD");
+            Assert.NotNull(me);
         }
     }
 }

@@ -1,8 +1,13 @@
 ﻿using Facebook;
 using Framework.Core;
+using Newtonsoft.Json;
+using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,6 +15,106 @@ namespace Social.Infrastructure.Facebook
 {
     public static class FbClient
     {
+        public async static Task SubscribeApp(string pageId, string pageToken)
+        {
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.PostAsync($"https://graph.facebook.com/v2.9/{pageId}/subscribed_apps?access_token={pageToken}", null);
+            string result = await response.Content.ReadAsStringAsync();
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async static Task UnSubscribeApp(string pageId, string pageToken)
+        {
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.DeleteAsync($"https://graph.facebook.com/v2.9/{pageId}/subscribed_apps?access_token={pageToken}");
+            string result = await response.Content.ReadAsStringAsync();
+            response.EnsureSuccessStatusCode();
+        }
+
+        public static string GetUserToken(string code, string redirectUri)
+        {
+            FacebookClient client = new FacebookClient();
+            try
+            {
+                dynamic result = client.Post("oauth/access_token", new
+                {
+                    client_id = AppSettings.FacebookClientId,
+                    client_secret = AppSettings.FacebookClientSecret,
+                    redirect_uri = redirectUri,
+                    code = code
+                });
+                return result.access_token;
+            }
+            catch (FacebookOAuthException ex)
+            {
+                throw ExceptionHelper.FacebookOauthException(ex);
+            }
+        }
+
+        public static string GetAuthUrl(string redirectUri)
+        {
+            return $"https://www.facebook.com/v2.9/dialog/oauth?client_id={AppSettings.FacebookClientId}&redirect_uri={redirectUri}&scope=manage_pages,publish_pages,pages_messaging,pages_messaging_phone_number,read_page_mailboxes,pages_show_list";
+        }
+
+
+        public static async Task<IList<FbPage>> GetPages(string userToken)
+        {
+            FacebookClient client = new FacebookClient(userToken);
+            string url = $"/me/accounts?fields=id,name,category,access_token,picture,emails,link";
+            dynamic result = await client.GetTaskAsync(url);
+
+            List<FbPage> pages = new List<FbPage>();
+            if (result.data != null)
+            {
+                foreach (var item in result.data)
+                {
+                    var page = new FbPage
+                    {
+                        Id = item.id,
+                        Name = item.Name,
+                        Category = item.category,
+                        AccessToken = item.access_token,
+                        Link = item.link
+                    };
+                    if (item.picture != null && item.picture.data != null)
+                    {
+                        if (item.picture.data.is_silhouette == true)
+                        {
+                            page.Avatar = item.picture.data.url;
+                        }
+                    }
+
+                    pages.Add(page);
+                }
+            }
+
+            return pages;
+        }
+
+        public static async Task<FbUser> GetMe(string token)
+        {
+            ServicePointManager.DnsRefreshTimeout = 0;
+            var a = ServicePointManager.SecurityProtocol;
+            FacebookClient client = new FacebookClient(token);
+            string url = "/me?fields=id,name,first_name,last_name,picture,gender,email,location";
+            dynamic result = await client.GetTaskAsync(url);
+
+            var me = new FbUser
+            {
+                id = result.id,
+                name = result.name
+            };
+            if (result.picture != null && result.picture.data != null)
+            {
+                if (result.picture.data.is_silhouette == true)
+                {
+                    me.pic = result.picture.data.url;
+                }
+            }
+
+            return me;
+        }
+
         public static async Task<FbUser> GetUserInfo(string token, string fbUserId)
         {
             FacebookClient client = new FacebookClient(token);
@@ -23,72 +128,101 @@ namespace Social.Infrastructure.Facebook
             //}
         }
 
-        public async static Task<FbMessage> GetLastMessageFromConversationId(string token, string fbConversationId)
+        public async static Task<IList<FbMessage>> GetMessagesFromConversationId(string token, string fbConversationId)
         {
+            List<FbMessage> messages = new List<FbMessage>();
             Checker.NotNullOrWhiteSpace(token, nameof(token));
             Checker.NotNullOrWhiteSpace(fbConversationId, nameof(fbConversationId));
-
             FacebookClient client = new FacebookClient(token);
-            string url = "/" + fbConversationId + "?fields=messages.limit(1){from,to,message,id,created_time,attachments,shares{link,name,id}}";
-            dynamic conversation = await client.GetTaskAsync(url);
-            dynamic fbMessage = conversation.messages.data[0];
-            dynamic receiver = fbMessage.to.data[0];
-
-            var message = new FbMessage
+            string url = "/" + fbConversationId + "/messages?fields=from,to,message,id,created_time,attachments,shares{link,name,id}&limit=13";
+            dynamic fbMessages = await client.GetTaskAsync(url);
+            foreach (var fbMessage in fbMessages.data)
             {
-                Id = fbMessage.id,
-                SendTime = Convert.ToDateTime(fbMessage.created_time).ToUniversalTime(),
-                SenderId = fbMessage.from.id,
-                SenderEmail = fbMessage.from.email,
-                ReceiverId = receiver.id,
-                ReceiverEmail = receiver.email,
-                Content = fbMessage.message
-            };
-
-            if (fbMessage.attachments != null)
-            {
-                foreach (dynamic attachmnent in fbMessage.attachments.data)
+                dynamic receiver = fbMessage.to.data[0];
+                var message = new FbMessage
                 {
-                    var messageAttachment = new FbMessageAttachment
-                    {
-                        Id = attachmnent.id,
-                        MimeType = attachmnent.mime_type,
-                        Name = attachmnent.name,
-                        Size = attachmnent.size,
-                        Url = attachmnent.file_url
-                    };
-                    if (attachmnent.image_data != null)
-                    {
-                        messageAttachment.Url = attachmnent.image_data.url;
-                        messageAttachment.PreviewUrl = attachmnent.image_data.preview_url;
-                    }
+                    Id = fbMessage.id,
+                    SendTime = Convert.ToDateTime(fbMessage.created_time).ToUniversalTime(),
+                    SenderId = fbMessage.from.id,
+                    SenderEmail = fbMessage.from.email,
+                    ReceiverId = receiver.id,
+                    ReceiverEmail = receiver.email,
+                    Content = fbMessage.message
+                };
 
-                    message.Attachments.Add(messageAttachment);
+                if (fbMessage.attachments != null)
+                {
+                    foreach (dynamic attachmnent in fbMessage.attachments.data)
+                    {
+                        var messageAttachment = new FbMessageAttachment
+                        {
+                            Id = attachmnent.id,
+                            MimeType = attachmnent.mime_type,
+                            Name = attachmnent.name
+                        };
+
+                        if (attachmnent.size != null)
+                        {
+                            messageAttachment.Size = attachmnent.size;
+                        }
+
+                        if (attachmnent.file_url != null)
+                        {
+                            messageAttachment.Type = MessageAttachmentType.File;
+                            messageAttachment.Url = attachmnent.file_url;
+                        }
+
+                        if (attachmnent.image_data != null)
+                        {
+                            messageAttachment.Type = MessageAttachmentType.Image;
+                            messageAttachment.Url = attachmnent.image_data.url;
+                            messageAttachment.PreviewUrl = attachmnent.image_data.preview_url;
+                        }
+
+                        if (attachmnent.video_data != null)
+                        {
+                            messageAttachment.Type = MessageAttachmentType.Video;
+                            messageAttachment.Url = attachmnent.video_data.url;
+                            messageAttachment.PreviewUrl = attachmnent.video_data.preview_url;
+                        }
+
+                        message.Attachments.Add(messageAttachment);
+                    }
                 }
+
+                if (fbMessage.shares != null)
+                {
+                    foreach (dynamic share in fbMessage.shares.data)
+                    {
+                        var messageShare = new FbMessageAttachment
+                        {
+                            Name = share.name,
+                            Id = share.id,
+                            Url = share.link,
+                        };
+
+                        if (!string.IsNullOrWhiteSpace(messageShare.Url) && string.IsNullOrWhiteSpace(messageShare.MimeType))
+                        {
+                            Uri uri = new Uri(messageShare.Url);
+                            messageShare.MimeType = uri.GetMimeType();
+                        }
+
+                        if (string.IsNullOrWhiteSpace(messageShare.Url) && !string.IsNullOrWhiteSpace(messageShare.Name) && string.IsNullOrWhiteSpace(message.Content))
+                        {
+                            message.Content = messageShare.Name;
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(messageShare.Url))
+                        {
+                            message.Attachments.Add(messageShare);
+                        }
+                    }
+                }
+
+                messages.Add(message);
             }
 
-            if (fbMessage.shares != null)
-            {
-                foreach (dynamic share in fbMessage.shares.data)
-                {
-                    var messageShare = new FbMessageAttachment
-                    {
-                        Name = share.name,
-                        Id = share.id,
-                        Url = share.link,
-                    };
-
-                    if (!string.IsNullOrWhiteSpace(messageShare.Url) && string.IsNullOrWhiteSpace(messageShare.MimeType))
-                    {
-                        Uri uri = new Uri(messageShare.Url);
-                        messageShare.MimeType = uri.GetMimeType();
-                    }
-
-                    message.Attachments.Add(messageShare);
-                }
-            }
-
-            return message;
+            return messages;
         }
 
         public async static Task<FbPost> GetPost(string token, string fbPostId)
@@ -111,73 +245,6 @@ namespace Social.Infrastructure.Facebook
             string url = $"/{fbCommentId}?fields=id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden";
 
             return await client.GetTaskAsync<FbComment>(url);
-        }
-
-        public async static Task<FbMessage> GetMessageFromPostId(string token, string fbPostId)
-        {
-            Checker.NotNullOrWhiteSpace(token, nameof(token));
-            Checker.NotNullOrWhiteSpace(fbPostId, nameof(fbPostId));
-
-            FacebookClient client = new FacebookClient(token);
-            string url = "/" + fbPostId + "?fields=id,message,created_time,to{id,name,pic,username},from,permalink_url,story";
-
-            dynamic post = await client.GetTaskAsync(url);
-            var message = new FbMessage
-            {
-                Id = post.id,
-                SendTime = Convert.ToDateTime(post.created_time).ToUniversalTime(),
-                SenderId = post.from.id,
-                Content = post.message,
-                Link = post.permalink_url,
-                Story = post.story
-            };
-
-            if (post.to != null)
-            {
-                message.ReceiverId = post.to.data[0].id;
-            }
-
-            return message;
-        }
-
-        public async static Task<FbMessage> GetMessageFromCommentId(string token, string fbPostId, string fbCommentId)
-        {
-            Checker.NotNullOrWhiteSpace(token, nameof(token));
-            Checker.NotNullOrWhiteSpace(token, nameof(fbPostId));
-            Checker.NotNullOrWhiteSpace(fbCommentId, nameof(fbCommentId));
-
-            FacebookClient client = new FacebookClient(token);
-            string url = "/" + fbCommentId + "?fields=id,parent{id},from,created_time,message,permalink_url,attachment";
-
-            dynamic comment = await client.GetTaskAsync(url);
-            var message = new FbMessage
-            {
-                Id = comment.id,
-                SendTime = Convert.ToDateTime(comment.created_time).ToUniversalTime(),
-                SenderId = comment.from.id,
-                Content = comment.message,
-                Link = comment.permalink_url
-            };
-
-            if (comment.parent != null)
-            {
-                message.ParentId = comment.parent.id;
-            }
-            else
-            {
-                message.ParentId = fbPostId;
-            }
-
-            if (comment.attachment != null && comment.attachment.media != null && comment.attachment.media.image != null)
-            {
-                message.Attachments.Add(new FbMessageAttachment
-                {
-                    Url = comment.attachment.media.image.src,
-                    MimeType = new Uri(comment.attachment.media.image.src).GetMimeType()
-                });
-            }
-
-            return message;
         }
 
         public async static Task<FbPagingData<FbPost>> GetVisitorPosts(string pageId, string token)

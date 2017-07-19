@@ -2,6 +2,7 @@
 using Social.Infrastructure.Facebook;
 using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
+using System.Collections.Generic;
 
 namespace Social.Domain.DomainServices.Facebook
 {
@@ -17,13 +18,20 @@ namespace Social.Domain.DomainServices.Facebook
 
         public async override Task Process(SocialAccount socialAccount, FbHookChange change)
         {
-            FbMessage fbMessage = await FbClient.GetLastMessageFromConversationId(socialAccount.Token, change.Value.ThreadId);
-
-            if (IsDuplicatedMessage(fbMessage.Id))
+            IList<FbMessage> fbMessages = await FbClient.GetMessagesFromConversationId(socialAccount.Token, change.Value.ThreadId);
+            foreach (var fbMessage in fbMessages)
             {
-                return;
-            }
+                if (IsDuplicatedMessage(fbMessage.Id))
+                {
+                    return;
+                }
 
+                await Process(fbMessage, socialAccount, change);
+            }
+        }
+
+        private async Task Process(FbMessage fbMessage, SocialAccount socialAccount, FbHookChange change)
+        {
             SocialUser sender = await GetOrCreateFacebookUser(socialAccount.Token, fbMessage.SenderId);
             SocialUser receiver = await GetOrCreateFacebookUser(socialAccount.Token, fbMessage.ReceiverId);
 
@@ -33,11 +41,12 @@ namespace Social.Domain.DomainServices.Facebook
                 Message message = Convert(fbMessage, sender, receiver, socialAccount);
                 message.ConversationId = existingConversation.Id;
                 existingConversation.IfRead = false;
-                existingConversation.Status = ConversationStatus.PendingInternal;
+                existingConversation.Status = sender.Id != socialAccount.SocialUser.Id ? ConversationStatus.PendingInternal : ConversationStatus.PendingExternal;
                 existingConversation.LastMessageSenderId = message.SenderId;
                 existingConversation.LastMessageSentTime = message.SendTime;
                 existingConversation.Messages.Add(message);
                 await UpdateConversation(existingConversation);
+                await CurrentUnitOfWork.SaveChangesAsync();
             }
             else
             {
@@ -54,6 +63,7 @@ namespace Social.Domain.DomainServices.Facebook
                 };
                 conversation.Messages.Add(message);
                 await AddConversation(socialAccount, conversation);
+                await CurrentUnitOfWork.SaveChangesAsync();
             }
         }
 
@@ -76,6 +86,7 @@ namespace Social.Domain.DomainServices.Facebook
                     OriginalId = attachment.Id,
                     Name = attachment.Name,
                     MimeType = attachment.MimeType,
+                    Type = attachment.Type,
                     Size = attachment.Size,
                     Url = attachment.Url,
                     PreviewUrl = attachment.PreviewUrl

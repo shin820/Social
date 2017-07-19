@@ -9,5 +9,6 @@ namespace Social.Application.Dto
 {
     public class ConversationSearchDto : Pager
     {
+        public int? FilterId { get; set; }
     }
 }

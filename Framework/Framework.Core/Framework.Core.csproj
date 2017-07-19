@@ -79,6 +79,8 @@
     <Compile Include="EntityFramework\DataContext.cs" />
     <Compile Include="EntityFramework\EfRepository.cs" />
     <Compile Include="EntityFramework\ShardingTableInterceptor.cs" />
+    <Compile Include="Exception\BadRequestException.cs" />
+    <Compile Include="Exception\NotFoundException.cs" />
     <Compile Include="Extensions\ClaimsIdentityExtensions.cs" />
     <Compile Include="Dependency\DependencyResolver.cs" />
     <Compile Include="Dependency\IDependencyResolver.cs" />

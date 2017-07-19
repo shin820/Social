@@ -1,18 +1,14 @@
 ﻿using Framework.Core;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Quartz;
 using Tweetinvi.Models;
 using Tweetinvi;
 using Social.Application.AppServices;
-using Framework.Core.UnitOfWork;
 using Social.Domain.Entities;
-using System.Data.Entity;
 using Social.Infrastructure.Enum;
 using Social.Domain.DomainServices;
+using Social.Infrastructure;
 
 namespace Social.Job.Jobs
 {
@@ -20,6 +16,8 @@ namespace Social.Job.Jobs
     {
         private ITwitterAppService _twitterAppService;
         private ISocialAccountService _socialAccountService;
+
+        private ITwitterCredentials _creds;
 
         public TwitterStreamJob(
             ITwitterAppService twitterAppService,
@@ -32,6 +30,7 @@ namespace Social.Job.Jobs
 
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
+
             var siteSocicalAccount = context.JobDetail.GetCustomData<SiteSocialAccount>();
             if (siteSocicalAccount == null)
             {
@@ -42,7 +41,7 @@ namespace Social.Job.Jobs
             string twitterUserId = siteSocicalAccount.TwitterUserId;
 
             SocialAccount socialAccount = null;
-            await UnitOfWorkManager.RunWithoutTransaction(socialAccount.SiteId, async () =>
+            await UnitOfWorkManager.RunWithoutTransaction(siteId, async () =>
             {
                 socialAccount = await _socialAccountService.GetAccountAsync(SocialUserType.Twitter, twitterUserId);
             });
@@ -52,34 +51,37 @@ namespace Social.Job.Jobs
                 return;
             }
 
-            ITwitterCredentials creds =
-                    new TwitterCredentials("Mj6zNyYU0GGHcdAqAHv5q0oHi", "FBPUNsy5HYUdz4cRTFIST0FA0EBxi0bMPwCvae9KtIOxHenbn4",
+            _creds = new TwitterCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret,
                     socialAccount.Token, socialAccount.TokenSecret);
-            var stream = Stream.CreateUserStream(creds);
 
-            stream.StreamIsReady += (sender, args) =>
-            {
-                Console.WriteLine($"Stream is ready...");
-            };
+            var stream = Stream.CreateUserStream(_creds);
+
+            //stream.StreamIsReady += (sender, args) =>
+            //{
+            //    Console.WriteLine($"Stream is ready...");
+            //};
 
             stream.MessageReceived += async (sender, args) =>
             {
+                Auth.SetCredentials(_creds);
                 await _twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
             };
 
             stream.MessageSent += async (sender, args) =>
             {
+                Auth.SetCredentials(_creds);
                 await _twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
             };
 
             stream.TweetCreatedByAnyone += async (sender, args) =>
             {
+                Auth.SetCredentials(_creds);
                 await _twitterAppService.ProcessTweet(socialAccount, args.Tweet);
             };
 
             stream.StreamStopped += (sender, args) =>
             {
-                Console.WriteLine($"Stream is stopped...");
+                Logger.Error($"Twitter User Stream stopped. JobKey={context.JobDetail.Key}.", args.Exception);
             };
 
             await stream.StartStreamAsync();

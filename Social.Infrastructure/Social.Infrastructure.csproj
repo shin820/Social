@@ -60,6 +60,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -69,6 +70,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppSettings.cs" />
     <Compile Include="Enum\ConditionMatchType.cs" />
     <Compile Include="Enum\ConversationLogType.cs" />
     <Compile Include="Enum\ConversationPriority.cs" />
@@ -77,8 +79,9 @@
     <Compile Include="Enum\FieldDataType.cs" />
     <Compile Include="Enum\MessageAttachmentType.cs" />
     <Compile Include="Enum\MessageType.cs" />
-    <Compile Include="Enum\ConditionRuleTriggerType.cs" />
+    <Compile Include="Enum\FilterType.cs" />
     <Compile Include="Enum\SocialAccountType.cs" />
+    <Compile Include="ExceptionHelper.cs" />
     <Compile Include="Facebook\FacebookWebHookClient.cs" />
     <Compile Include="Facebook\FbAttachment.cs" />
     <Compile Include="Facebook\FbAttachmentImage.cs" />

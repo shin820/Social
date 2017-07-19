@@ -109,10 +109,12 @@ namespace Framework.Core.EntityFramework
                     case EntityState.Added:
                         SetSite(entry.Entity);
                         SetCreation(entry.Entity);
+                        SetCreatedTime(entry.Entity);
                         break;
                     case EntityState.Modified:
                         SetSite(entry.Entity);
                         SetModification(entry.Entity);
+                        SetModifiedTime(entry.Entity);
                         CheckSiteWhenModification(entry.Entity);
                         break;
                     case EntityState.Deleted:
@@ -155,10 +157,17 @@ namespace Framework.Core.EntityFramework
                 entity.CreatedTime = DateTime.UtcNow;
                 entity.CreatedBy = userId.Value;
             }
-            else
+        }
+
+        private void SetCreatedTime(object entityObj)
+        {
+            if (!(entityObj is IHaveCreatedTime))
             {
-                //throw new NotSupportedException("Can not get create user name.");
+                return;
             }
+
+            var entity = (IHaveCreatedTime)entityObj;
+            entity.CreatedTime = DateTime.UtcNow;
         }
 
         private void SetModification(object entityObj)
@@ -181,10 +190,17 @@ namespace Framework.Core.EntityFramework
                     entity.ModifiedBy = userId.Value;
                 }
             }
-            else
+        }
+
+        private void SetModifiedTime(object entityObj)
+        {
+            if (!(entityObj is IHaveModification))
             {
-                //throw new NotSupportedException("Can not get modify user name.");
+                return;
             }
+
+            var entity = (IHaveModification)entityObj;
+            entity.ModifiedTime = DateTime.UtcNow;
         }
 
         private void CheckSiteWhenModification(object entityObj)

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Http.Description;
 
-namespace Social.WebApi.App_Start
+namespace Social.WebApi.Core
 {
     public class SwaggerOperationFilter : IOperationFilter
     {

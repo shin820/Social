@@ -68,6 +68,7 @@
     <Compile Include="CastleDependencyResolver.cs" />
     <Compile Include="CastleDependencyScope.cs" />
     <Compile Include="Filters\ApiExceptionFilterAttribute.cs" />
+    <Compile Include="Filters\RequiresParametersFilter.cs" />
     <Compile Include="Filters\UnitOfWorkFilter.cs" />
     <Compile Include="Filters\ValidateModelAttribute.cs" />
     <Compile Include="HttpRequestMessageExtensions.cs" />

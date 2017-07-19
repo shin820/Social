@@ -12,6 +12,7 @@ using Social.Application.AppServices;
 using Social.Infrastructure.Enum;
 using System.Data.Entity;
 using Social.Domain.DomainServices;
+using System.Transactions;
 
 namespace Social.Job.Jobs
 {
@@ -45,7 +46,7 @@ namespace Social.Job.Jobs
             string facebookPageId = siteSocicalAccount.FacebookPageId;
             List<FacebookWebHookRawData> rawDataList = new List<FacebookWebHookRawData>();
 
-            await UnitOfWorkManager.RunWithoutTransaction(siteId, async () =>
+            await UnitOfWorkManager.Run(TransactionScopeOption.Required, siteId, async () =>
              {
                  SocialAccount account = await _socialAccountService.GetAccountAsync(SocialUserType.Facebook, facebookPageId);
                  if (account != null)

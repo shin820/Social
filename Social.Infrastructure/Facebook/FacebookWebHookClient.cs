@@ -35,17 +35,17 @@ namespace Social.Infrastructure.Facebook
             return JsonConvert.DeserializeObject<FbToken>(jsonRes);
         }
 
-        public async Task<IList<FbPage>> GetPages(string userToken)
-        {
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
-            HttpResponseMessage response = await client.GetAsync($"https://graph.facebook.com//me/accounts");
-            response.EnsureSuccessStatusCode();
+        //public async Task<IList<FbPage>> GetPages(string userToken)
+        //{
+        //    HttpClient client = new HttpClient();
+        //    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", userToken);
+        //    HttpResponseMessage response = await client.GetAsync($"https://graph.facebook.com//me/accounts");
+        //    response.EnsureSuccessStatusCode();
 
-            var jsonRes = await response.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<FBResult<List<FbPage>>>(jsonRes);
-            return result.Data;
-        }
+        //    var jsonRes = await response.Content.ReadAsStringAsync();
+        //    var result = JsonConvert.DeserializeObject<FBResult<List<FbPage>>>(jsonRes);
+        //    return result.Data;
+        //}
 
         public async Task<string> PublishPagePost(string pageId, string pageToken, string message, string link = null)
         {
@@ -109,7 +109,7 @@ namespace Social.Infrastructure.Facebook
         public async Task SubscribeApp(string pageId, string pageToken)
         {
             HttpClient client = new HttpClient();
-            HttpResponseMessage response = await client.PostAsync($"{BASE_GRAPH_API_URL}/{pageId}/subscribed_apps?access_token={pageToken}", null);
+            HttpResponseMessage response = await client.PostAsync($"https://graph.facebook.com/v2.9/{pageId}/subscribed_apps?access_token={pageToken}", null);
             response.EnsureSuccessStatusCode();
         }
 

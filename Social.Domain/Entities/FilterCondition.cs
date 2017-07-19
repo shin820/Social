@@ -18,6 +18,7 @@ namespace Social.Domain.Entities
         public ConditionMatchType MatchType { get; set; }
         [MaxLength(200)]
         public string Value { get; set; }
+        public int Index { get; set; }
 
         public virtual Filter Filter { get; set; }
         public virtual ConversationField Field { get; set; }

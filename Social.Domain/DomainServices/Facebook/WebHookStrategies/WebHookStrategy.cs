@@ -10,7 +10,7 @@ using Social.Infrastructure.Enum;
 
 namespace Social.Domain.DomainServices.Facebook
 {
-    public abstract class WebHookStrategy : IWebHookSrategy
+    public abstract class WebHookStrategy : ServiceBase, IWebHookSrategy
     {
         public IRepository<Conversation> ConversationRepository { get; set; }
         public IRepository<Message> MessageRepository { get; set; }

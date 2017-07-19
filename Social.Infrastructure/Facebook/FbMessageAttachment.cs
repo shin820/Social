@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Social.Infrastructure.Enum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,5 +15,6 @@ namespace Social.Infrastructure.Facebook
         public long Size { get; set; }
         public string Url { get; set; }
         public string PreviewUrl { get; set; }
+        public MessageAttachmentType Type { get; set; }
     }
 }

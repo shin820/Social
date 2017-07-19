@@ -42,6 +42,28 @@ namespace Framework.WebApi.Filters
                 return;
             }
 
+            var badRequestException = context.Exception as BadRequestException;
+            if (badRequestException != null)
+            {
+                context.Response = context.Request.CreateResponse(
+                HttpStatusCode.BadRequest,
+                new { Message = badRequestException.Message }
+                );
+
+                return;
+            }
+
+            var notFoundException = context.Exception as NotFoundException;
+            if (notFoundException != null)
+            {
+                context.Response = context.Request.CreateResponse(
+                HttpStatusCode.NotFound,
+                new { Message = notFoundException.Message }
+                );
+
+                return;
+            }
+
             context.Response = context.Request.CreateResponse(
                 HttpStatusCode.InternalServerError,
                 new ErrorInfo(context.Exception.Message)

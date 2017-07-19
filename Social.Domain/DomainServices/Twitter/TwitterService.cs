@@ -22,22 +22,33 @@ namespace Social.Domain.DomainServices
 
     public class TwitterService : ServiceBase, ITwitterService
     {
-        public IRepository<Conversation> ConversationRepository { get; set; }
-        public IRepository<Entities.Message> MessageRepository { get; set; }
-        public IRepository<SocialUser> SocialUserRepository { get; set; }
+        private IConversationService _conversationService;
+        private IMessageService _messageService;
+        private ISocialUserService _socialUserService;
+
+        public TwitterService(
+            IConversationService conversationService,
+            IMessageService messageService,
+            ISocialUserService socialUserService
+            )
+        {
+            _conversationService = conversationService;
+            _messageService = messageService;
+            _socialUserService = socialUserService;
+        }
 
         public async Task ProcessDirectMessage(SocialAccount account, IMessage directMsg)
         {
-            if (IsDuplicatedMessage(MessageSource.TwitterDirectMessage, directMsg.Id.ToString()))
+            if (_messageService.IsDuplicatedMessage(MessageSource.TwitterDirectMessage, directMsg.Id.ToString()))
             {
                 return;
             }
 
             bool isSendByAccount = directMsg.SenderId.ToString() == account.SocialUser.OriginalId;
-            SocialUser sender = await GetOrCreateTwitterUser(directMsg.Sender);
-            SocialUser recipient = await GetOrCreateTwitterUser(directMsg.Recipient);
+            SocialUser sender = await _socialUserService.GetOrCreateTwitterUser(directMsg.Sender);
+            SocialUser recipient = await _socialUserService.GetOrCreateTwitterUser(directMsg.Recipient);
             SocialUser user = sender.OriginalId != account.SocialUser.OriginalId ? sender : recipient;
-            var existingConversation = ConversationRepository.FindAll().Where(t => t.Source == ConversationSource.TwitterDirectMessage && t.Status != ConversationStatus.Closed && t.Messages.Any(m => m.SenderId == user.Id || m.ReceiverId == user.Id)).FirstOrDefault();
+            var existingConversation = _conversationService.GetTwitterDirectMessageConversation(user);
             if (existingConversation != null)
             {
                 var message = ConvertToMessage(directMsg);
@@ -49,7 +60,7 @@ namespace Social.Domain.DomainServices
                 existingConversation.LastMessageSenderId = message.SenderId;
                 existingConversation.LastMessageSentTime = message.SendTime;
                 existingConversation.Messages.Add(message);
-                await ConversationRepository.UpdateAsync(existingConversation);
+                _conversationService.Update(existingConversation);
             }
             else
             {
@@ -72,7 +83,7 @@ namespace Social.Domain.DomainServices
                     LastMessageSentTime = message.SendTime
                 };
                 conversation.Messages.Add(message);
-                await AddConversation(account, conversation);
+                _conversationService.AddConversation(account, conversation);
             }
         }
 
@@ -91,14 +102,23 @@ namespace Social.Domain.DomainServices
 
         public async Task ProcessTweet(SocialAccount account, ITweet currentTweet)
         {
-            bool isFristTweetSendByAccount = currentTweet.InReplyToStatusId == null && currentTweet.CreatedBy.IdStr == account.SocialUser.OriginalId;
-            if (isFristTweetSendByAccount)
+            bool isFirstTweetSendByAccount = currentTweet.InReplyToStatusId == null && currentTweet.CreatedBy.IdStr == account.SocialUser.OriginalId;
+            if (isFirstTweetSendByAccount)
             {
                 return;
             }
 
             List<ITweet> tweets = new List<ITweet>();
-            await RecursivelyFillTweet(tweets, currentTweet);
+
+            bool isConversationExist;
+            RecursivelyFillTweet(tweets, currentTweet, out isConversationExist);
+
+            bool ifAllTweetsCreateByAccount = !isConversationExist && tweets.All(t => t.CreatedBy.IdStr == account.SocialUser.OriginalId);
+            if (ifAllTweetsCreateByAccount)
+            {
+                return;
+            }
+
             await AddTweets(account, tweets);
         }
 
@@ -108,18 +128,15 @@ namespace Social.Domain.DomainServices
             {
                 return;
             }
-            //if (tweets.All(t => t.CreatedBy.Id.ToString() == account.SocialUser.OriginalId))
-            //{
-            //    return;
-            //}
 
             tweets = tweets.OrderBy(t => t.CreatedAt).ToList();
 
             foreach (var tweet in tweets)
             {
-                if (tweet.InReplyToStatusId == null)
+                var existingConversation = _conversationService.GetTwitterTweetConversation(tweet.InReplyToStatusIdStr);
+                if (existingConversation == null)
                 {
-                    SocialUser sender = await GetOrCreateTwitterUser(tweet.CreatedBy);
+                    SocialUser sender = await _socialUserService.GetOrCreateTwitterUser(tweet.CreatedBy);
                     var message = ConvertToMessage(tweet);
                     message.SenderId = sender.Id;
                     var conversation = new Conversation
@@ -133,36 +150,37 @@ namespace Social.Domain.DomainServices
                         LastMessageSentTime = message.SendTime
                     };
                     conversation.Messages.Add(message);
-                    await AddConversation(account, conversation);
+                    _conversationService.AddConversation(account, conversation);
                     await CurrentUnitOfWork.SaveChangesAsync();
                 }
                 else
                 {
-                    var inReplyToTweetMessage = MessageRepository.FindAll().Where(t => t.OriginalId == tweet.InReplyToStatusIdStr && (t.Source == MessageSource.TwitterTypicalTweet || t.Source == MessageSource.TwitterQuoteTweet)).FirstOrDefault();
+                    var inReplyToTweetMessage = _messageService.GetTwitterTweetMessage(tweet.InReplyToStatusIdStr);
                     if (inReplyToTweetMessage != null)
                     {
-                        SocialUser inReplyToTweetSender = await GetOrCreateTwitterUser(tweet.CreatedBy);
+                        SocialUser inReplyToTweetSender = await _socialUserService.GetOrCreateTwitterUser(tweet.CreatedBy);
                         var message = ConvertToMessage(tweet);
                         message.SenderId = inReplyToTweetSender.Id;
                         message.ParentId = inReplyToTweetMessage.Id;
-                        message.ConversationId = inReplyToTweetMessage.ConversationId;
-                        var conversation = inReplyToTweetMessage.Conversation;
-                        conversation.Messages.Add(message);
-                        conversation.IfRead = false;
-                        conversation.Status = ConversationStatus.PendingInternal;
-                        conversation.LastMessageSenderId = message.SenderId;
-                        conversation.LastMessageSentTime = message.SendTime;
-                        await ConversationRepository.UpdateAsync(conversation);
+
+                        existingConversation.Messages.Add(message);
+                        existingConversation.IfRead = false;
+                        existingConversation.Status = ConversationStatus.PendingInternal;
+                        existingConversation.LastMessageSenderId = message.SenderId;
+                        existingConversation.LastMessageSentTime = message.SendTime;
+                        _conversationService.Update(existingConversation);
                         await CurrentUnitOfWork.SaveChangesAsync();
                     }
                 }
             }
         }
 
-        private async Task RecursivelyFillTweet(IList<ITweet> tweets, ITweet tweet)
+        private void RecursivelyFillTweet(IList<ITweet> tweets, ITweet tweet, out bool isConversationExist)
         {
-            if (IsDupliatedTweet(tweet))
+            isConversationExist = false;
+            if (_messageService.IsDupliatedTweet(tweet))
             {
+                isConversationExist = true;
                 return;
             }
 
@@ -177,25 +195,8 @@ namespace Social.Domain.DomainServices
             if (tweet.InReplyToStatusId != null)
             {
                 ITweet inReplyToTweet = Tweet.GetTweet(tweet.InReplyToStatusId.Value);
-                await RecursivelyFillTweet(tweets, inReplyToTweet);
+                RecursivelyFillTweet(tweets, inReplyToTweet, out isConversationExist);
             }
-        }
-
-        protected async Task AddConversation(SocialAccount socialAccount, Conversation conversation)
-        {
-            if (socialAccount.ConversationDepartmentId.HasValue)
-            {
-                conversation.DepartmentId = socialAccount.ConversationDepartmentId.Value;
-                conversation.Priority = socialAccount.ConversationPriority ?? ConversationPriority.Normal;
-            }
-
-            if (socialAccount.ConversationAgentId.HasValue)
-            {
-                conversation.AgentId = socialAccount.ConversationAgentId.Value;
-                conversation.Priority = socialAccount.ConversationPriority ?? ConversationPriority.Normal;
-            }
-
-            await ConversationRepository.InsertAsync(conversation);
         }
 
         private string GetSubject(string message)
@@ -218,6 +219,10 @@ namespace Social.Domain.DomainServices
                 Content = string.IsNullOrWhiteSpace(tweet.Text) ? tweet.FullText : tweet.Text,
                 OriginalLink = tweet.Url
             };
+            if (tweet.QuotedStatusId != null)
+            {
+                message.QuoteTweetId = tweet.QuotedStatusIdStr;
+            }
 
             if (tweet.Media != null)
             {
@@ -254,41 +259,6 @@ namespace Social.Domain.DomainServices
                 OriginalId = media.IdStr,
                 OriginalLink = media.URL
             };
-        }
-
-        private bool IsDupliatedTweet(ITweet tweet)
-        {
-            bool isQuoteTweet = tweet.QuotedTweet != null;
-
-            if (isQuoteTweet)
-            {
-                return IsDuplicatedMessage(MessageSource.TwitterQuoteTweet, tweet.IdStr);
-            }
-            else
-            {
-                return IsDuplicatedMessage(MessageSource.TwitterTypicalTweet, tweet.IdStr);
-            }
-        }
-
-        private bool IsDuplicatedMessage(MessageSource messageSource, string originalId)
-        {
-            return MessageRepository.FindAll().Any(t => t.Source == messageSource && t.OriginalId == originalId);
-        }
-
-        private async Task<SocialUser> GetOrCreateTwitterUser(IUser twitterUser)
-        {
-            var user = SocialUserRepository.FindAll().Where(t => t.OriginalId == twitterUser.IdStr && t.Type == SocialUserType.Twitter).FirstOrDefault();
-            if (user == null)
-            {
-                user = new SocialUser
-                {
-                    OriginalId = twitterUser.IdStr,
-                    Name = twitterUser.ScreenName,
-                    Type = SocialUserType.Twitter
-                };
-                await SocialUserRepository.InsertAsync(user);
-            }
-            return user;
         }
     }
 }

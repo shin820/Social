@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 
 namespace Framework.Core
 {
-    public interface IHaveModification
+    public interface IHaveModification : IHaveModifiedTime
     {
         int? ModifiedBy { get; set; }
+    }
 
+    public interface IHaveModifiedTime
+    {
         DateTime? ModifiedTime { get; set; }
     }
 }

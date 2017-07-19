@@ -22,7 +22,7 @@ namespace Social.WebApi.Controllers
         }
 
         [Route()]
-        public PagedList<ConversationDto> GetConversations(ConversationSearchDto searchDto)
+        public PagedList<ConversationDto> GetConversations([FromUri(Name = "")]ConversationSearchDto searchDto)
         {
             searchDto = searchDto ?? new ConversationSearchDto();
             return _appService.Find(searchDto);
@@ -56,7 +56,7 @@ namespace Social.WebApi.Controllers
         public IHttpActionResult PutConversation(int id, ConversationUpdateDto createDto)
         {
             createDto = createDto ?? new ConversationUpdateDto();
-            _appService.Update(id,createDto);
+            _appService.Update(id, createDto);
 
             return StatusCode(HttpStatusCode.NoContent);
         }

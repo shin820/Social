@@ -1,20 +1,23 @@
 ﻿using Framework.Core;
 using Social.Domain.Entities;
+using Social.Infrastructure.Enum;
 using Social.Infrastructure.Facebook;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tweetinvi.Models;
 
 namespace Social.Domain.DomainServices
 {
-    public interface ISocialUserInfoService
+    public interface ISocialUserService
     {
         Task<SocialUser> GetOrCreateSocialUser(int siteId, string token, string fbUserId, string fbUserEmail);
+        Task<SocialUser> GetOrCreateTwitterUser(IUser twitterUser);
     }
 
-    public class SocialUserInfoService : DomainService<SocialUser>, ISocialUserInfoService
+    public class SocialUserService : DomainService<SocialUser>, ISocialUserService
     {
         public async Task<SocialUser> GetOrCreateSocialUser(int siteId, string token, string fbUserId, string fbUserEmail)
         {
@@ -43,6 +46,24 @@ namespace Social.Domain.DomainServices
             //    return socialUser;
             //}
 
+            return user;
+        }
+
+        public async Task<SocialUser> GetOrCreateTwitterUser(IUser twitterUser)
+        {
+            var user = Repository.FindAll()
+                .Where(t => t.OriginalId == twitterUser.IdStr && t.Type == SocialUserType.Twitter)
+                .FirstOrDefault();
+            if (user == null)
+            {
+                user = new SocialUser
+                {
+                    OriginalId = twitterUser.IdStr,
+                    Name = twitterUser.ScreenName,
+                    Type = SocialUserType.Twitter
+                };
+                await Repository.InsertAsync(user);
+            }
             return user;
         }
     }

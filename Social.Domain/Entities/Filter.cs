@@ -23,7 +23,7 @@ namespace Social.Domain.Entities
         public string Name { get; set; }
         public int Index { get; set; }
         public bool IfPublic { get; set; }
-        public ConditionRuleTriggerType ConditionRuleTriggerType { get; set; }
+        public FilterType Type { get; set; }
 
         public int CreatedBy { get; set; }
         public DateTime CreatedTime { get; set; }

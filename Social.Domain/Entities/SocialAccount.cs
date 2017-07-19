@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Social.Domain.Entities
 {
     [Table("t_Social_Account")]
-    public class SocialAccount : EntityWithSite, IHaveCreation
+    public class SocialAccount : EntityWithSite, IHaveCreation, ISoftDelete
     {
         public SocialAccount()
         {
@@ -44,6 +44,8 @@ namespace Social.Domain.Entities
         public int? ConversationDepartmentId { get; set; }
 
         public int? ConversationAgentId { get; set; }
+
+        public bool IsDeleted { get; set; }
 
         public ConversationPriority? ConversationPriority { get; set; }
 
