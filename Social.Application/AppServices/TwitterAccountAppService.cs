@@ -4,6 +4,7 @@ using Framework.Core;
 using Social.Application.Dto;
 using Social.Domain.DomainServices;
 using Social.Domain.Entities;
+using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
@@ -11,13 +12,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Tweetinvi;
+using Tweetinvi.Credentials.Models;
 using Tweetinvi.Models;
 
 namespace Social.Application.AppServices
 {
     public interface ITwitterAccountAppService
     {
-        Task AddAccountAsync(ITwitterCredentials credentials);
+        IAuthenticationContext InitAuthentication(string redirectUri);
+        Task AddAccountAsync(string authorizationId, string oauthVerifier);
         IList<TwitterAccountListDto> GetAccounts();
         TwitterAccountDto GetAccount(int id);
         Task DeleteAccountAsync(int id);
@@ -28,15 +31,26 @@ namespace Social.Application.AppServices
     public class TwitterAccountAppService : AppService, ITwitterAccountAppService
     {
         private ISocialAccountService _socialAccountService;
+        private ITwitterAuthService _twitterAuthService;
 
-        public TwitterAccountAppService(ISocialAccountService socialAccountService)
+        public TwitterAccountAppService(
+            ISocialAccountService socialAccountService,
+            ITwitterAuthService twitterAuthService
+            )
         {
             _socialAccountService = socialAccountService;
+            _twitterAuthService = twitterAuthService;
         }
 
-        public async Task AddAccountAsync(ITwitterCredentials credentials)
+
+        public IAuthenticationContext InitAuthentication(string redirectUri)
         {
-            var user = User.GetAuthenticatedUser(credentials);
+            return _twitterAuthService.InitAuthentication(redirectUri);
+        }
+
+        public async Task AddAccountAsync(string authorizationId, string oauthVerifier)
+        {
+            var user = await _twitterAuthService.ValidateAuthAsync(authorizationId, oauthVerifier);
             SocialAccount account = new SocialAccount
             {
                 Token = user.Credentials.AccessToken,

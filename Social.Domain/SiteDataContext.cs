@@ -24,6 +24,7 @@ namespace Social.Domain
         public virtual DbSet<SocialAccount> SocialAccounts { get; set; }
         public virtual DbSet<SocialUser> SocialUsers { get; set; }
         public virtual DbSet<FacebookWebHookRawData> FacebookWebHookRawData { get; set; }
+        public virtual DbSet<TwitterAuth> TwitterAuths { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

@@ -1,4 +1,5 @@
-﻿using Framework.Core.UnitOfWork;
+﻿using Framework.Core;
+using Framework.Core.UnitOfWork;
 using Social.Application.AppServices;
 using Social.Application.Dto;
 using Social.Infrastructure;
@@ -19,7 +20,6 @@ namespace Social.WebApi.Controllers
     [RoutePrefix("api/twitter-accounts")]
     public class TwitterAccountsController : ApiController
     {
-        private static IAuthenticationContext _authenticationContext;
         private IUnitOfWorkManager _uowManager;
         private ITwitterAccountAppService _appService;
 
@@ -37,15 +37,15 @@ namespace Social.WebApi.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("integration-request")]
-        public IHttpActionResult IntegrationRequest()
+        public IHttpActionResult IntegrationRequest([Required]string redirectUri)
         {
-            var appCreds = new ConsumerCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret);
-
             int siteId = _uowManager.Current.GetSiteId().Value;
-            // Specify the url you want the user to be redirected to
-            var redirectURL = $"http://localhost:20000/api/twitter-accounts/validate-twitter-auth?siteId={siteId}";
-            _authenticationContext = AuthFlow.InitAuthentication(appCreds, redirectURL);
-            return Redirect(_authenticationContext.AuthorizationURL);
+            // Specify the url you want the user to be redirected to\
+            string url = Request.RequestUri.Scheme + "://" + Request.RequestUri.Authority + Url.Route("ValidateAuth", new { siteId = siteId, redirectUri = redirectUri });
+
+            //var redirectURL = $"http://localhost:20000/api/twitter-accounts/validate-twitter-auth?siteId={siteId}";
+            IAuthenticationContext authenticationContext = _appService.InitAuthentication(url);
+            return Redirect(authenticationContext.AuthorizationURL);
         }
 
         /// <summary>
@@ -54,13 +54,11 @@ namespace Social.WebApi.Controllers
         /// <param name="oauth_verifier"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("validate-twitter-auth")]
-        public async Task<IHttpActionResult> ValidateTwitterAuth(string oauth_verifier)
+        [Route("validate-twitter-auth", Name = "ValidateAuth")]
+        public async Task<IHttpActionResult> ValidateTwitterAuth(string authorization_id, string oauth_verifier, string redirectUri)
         {
-            var queryString = HttpContext.Current.Request.QueryString;
-            var userCreds = AuthFlow.CreateCredentialsFromVerifierCode(oauth_verifier, _authenticationContext);
-            await _appService.AddAccountAsync(userCreds);
-            return Redirect("http://localhost:20000/Home");
+            await _appService.AddAccountAsync(authorization_id, oauth_verifier);
+            return Redirect(redirectUri);
         }
 
         [HttpGet]

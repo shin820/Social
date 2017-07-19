@@ -148,6 +148,7 @@
     <Compile Include="DomainServices\SocialAccountService.cs" />
     <Compile Include="DomainServices\SocialUserService.cs" />
     <Compile Include="DomainServices\Facebook\VisitorPostService.cs" />
+    <Compile Include="DomainServices\TwitterAuthService.cs" />
     <Compile Include="DomainServices\Twitter\TwitterService.cs" />
     <Compile Include="Entities\Conversation.cs" />
     <Compile Include="Entities\ConversationField.cs" />
@@ -163,6 +164,7 @@
     <Compile Include="Entities\SocialAccount.cs" />
     <Compile Include="Entities\SocialUser.cs" />
     <Compile Include="Entities\FacebookWebHookRawData.cs" />
+    <Compile Include="Entities\TwitterAuth.cs" />
     <Compile Include="GeneralDataContext.cs" />
     <Compile Include="SiteDataContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

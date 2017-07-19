@@ -14,6 +14,8 @@ namespace Framework.Core
 
     public interface IRepository<TEntity> where TEntity : Entity
     {
+        void Delete(int id);
+        Task DeleteAsync(int id);
         void Delete(TEntity entity);
         Task DeleteAsync(TEntity entity);
         void DeleteMany(TEntity[] entities);
