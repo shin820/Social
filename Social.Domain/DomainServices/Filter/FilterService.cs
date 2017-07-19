@@ -61,16 +61,16 @@ namespace Social.Domain
             List <object> options = new List<object>();
             List<string> fildName = new List<string>();
             List<ConditionMatchType> MatchType = new List<ConditionMatchType>();
-            List<ConditionRuleTriggerType> TriggerType = new List<ConditionRuleTriggerType>();
+            List<FilterType> TriggerType = new List<FilterType>();
             List<object> Useroptions = new List<object>();
             List<string> UserfildName = new List<string>();
             List<ConditionMatchType> UserMatchType = new List<ConditionMatchType>();
-            List<ConditionRuleTriggerType> UserTriggerType = new List<ConditionRuleTriggerType>();
+            List<FilterType> UserTriggerType = new List<FilterType>();
 
             foreach (var condition in filter.Conditions)
             {
                 MatchType.Add(condition.MatchType);
-                TriggerType.Add(filter.ConditionRuleTriggerType);
+                TriggerType.Add(filter.Type);
                 switch (condition.FieldId)
                 {
                     case 1:
@@ -93,7 +93,7 @@ namespace Social.Domain
                         }
                     case 12:
                         {
-                            Expression<Func<SocialUser, bool>> UserExpression = GetConditionExpression<SocialUser>(new object[]{ condition.Value }, new string[] { "Name" }, new ConditionMatchType[] { condition.MatchType },new ConditionRuleTriggerType[] { ConditionRuleTriggerType.All});
+                            Expression<Func<SocialUser, bool>> UserExpression = GetConditionExpression<SocialUser>(new object[]{ condition.Value }, new string[] { "Name" }, new ConditionMatchType[] { condition.MatchType },new FilterType[] { FilterType.All});
                             var userQuery = db.SocialUsers.Where(UserExpression);
                             MatchType.RemoveAt(MatchType.Count() - 1);
                             TriggerType.RemoveAt(TriggerType.Count() - 1);
@@ -102,7 +102,7 @@ namespace Social.Domain
                                 UserfildName.Add("LastMessageSenderId");
                                 Useroptions.Add(user.Id);                              
                                 UserMatchType.Add(ConditionMatchType.Is);
-                                UserTriggerType.Add(ConditionRuleTriggerType.Any);
+                                UserTriggerType.Add(FilterType.Any);
                             }
                             break;
                         }
@@ -128,14 +128,14 @@ namespace Social.Domain
             return query.Count();
         }
 
-        public static Expression<Func<T, bool>> GetConditionExpression<T>(object[] options, string[] fieldName, ConditionMatchType[] MatchType, ConditionRuleTriggerType[] triggerType)
+        public static Expression<Func<T, bool>> GetConditionExpression<T>(object[] options, string[] fieldName, ConditionMatchType[] MatchType, FilterType[] triggerType)
         {
             ParameterExpression left = Expression.Parameter(typeof(T), "c");
             Expression expression = Expression.Constant(false);
             
             for (int i = 0; i< options.Count();i++)
             {
-                if (triggerType[i] == ConditionRuleTriggerType.All)
+                if (triggerType[i] == FilterType.All)
                 {
                     expression = Expression.Constant(true);
                 }
@@ -180,11 +180,11 @@ namespace Social.Domain
                 }
 
 
-                if (triggerType[i] == ConditionRuleTriggerType.Any)
+                if (triggerType[i] == FilterType.Any)
                 {
                     expression = Expression.Or(filters, expression);
                 }
-                else if(triggerType[i] == ConditionRuleTriggerType.All)
+                else if(triggerType[i] == FilterType.All)
                 {
                     expression = Expression.And(filters, expression);
                 }
