@@ -12,5 +12,6 @@ namespace Social.Application.Dto
         public int FieldId { get; set; }
         public ConditionMatchType MatchType { get; set; }
         public string Value { get; set; }
+        public int Index { get; set; }
     }
 }

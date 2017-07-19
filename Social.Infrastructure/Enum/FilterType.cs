@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Social.Infrastructure.Enum
 {
-    public enum ConditionRuleTriggerType : short
+    public enum FilterType : short
     {
         Any = 0,
         All = 1,
