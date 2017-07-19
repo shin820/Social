@@ -3,6 +3,7 @@ using WebActivatorEx;
 using Social.WebApi;
 using Swashbuckle.Application;
 using Social.WebApi.App_Start;
+using Social.WebApi.Core;
 
 [assembly: PreApplicationStartMethod(typeof(SwaggerConfig), "Register")]
 
@@ -14,7 +15,7 @@ namespace Social.WebApi
         {
             var thisAssembly = typeof(SwaggerConfig).Assembly;
 
-            GlobalConfiguration.Configuration 
+            GlobalConfiguration.Configuration
                 .EnableSwagger(c =>
                     {
                         // By default, the service root url is inferred from the request used to access the docs.

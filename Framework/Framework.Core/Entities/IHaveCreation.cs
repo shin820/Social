@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 
 namespace Framework.Core
 {
-    public interface IHaveCreation
+    public interface IHaveCreation : IHaveCreatedTime
+    {
+        int CreatedBy { get; set; }
+    }
+
+    public interface IHaveCreatedTime
     {
         DateTime CreatedTime { get; set; }
-
-        int CreatedBy { get; set; }
     }
 }

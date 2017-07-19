@@ -1,4 +1,5 @@
 ﻿using Framework.Core;
+using LinqKit;
 using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
 using System;
@@ -11,6 +12,7 @@ namespace Social.Domain.DomainServices
 {
     public interface IConversationService : IDomainService<Conversation>
     {
+        IQueryable<Conversation> FindAll(string keyworkd, int? filterId);
         Conversation GetTwitterDirectMessageConversation(SocialUser user);
         Conversation GetTwitterTweetConversation(string messageId);
         void AddConversation(SocialAccount socialAccount, Conversation conversation);
@@ -18,6 +20,34 @@ namespace Social.Domain.DomainServices
 
     public class ConversationService : DomainService<Conversation>, IConversationService
     {
+        private IRepository<Filter> _filterRepo;
+        private IFilterExpressionFactory _filterExpressionFactory;
+
+        public ConversationService(
+            IRepository<Filter> filterRepo,
+            IFilterExpressionFactory filterExpressionFactory
+            )
+        {
+            _filterRepo = filterRepo;
+            _filterExpressionFactory = filterExpressionFactory;
+        }
+
+        public IQueryable<Conversation> FindAll(string keyworkd, int? filterId)
+        {
+            var conversations = Repository.FindAll().AsExpandable().Where(t => t.IsDeleted == false);
+            if (filterId != null)
+            {
+                var filter = _filterRepo.Find(filterId.Value);
+                if (filter != null && filter.Conditions.Any())
+                {
+                    var expression = _filterExpressionFactory.Create(filter);
+                    conversations = conversations.Where(expression);
+                }
+            }
+
+            return conversations;
+        }
+
         /// <summary>
         /// Get un-closed conversation whichi source is twitter direct message.
         /// </summary>

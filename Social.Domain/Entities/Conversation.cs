@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Social.Domain.Entities
 {
     [Table("t_Social_Conversation")]
-    public class Conversation : EntityWithSite, ISoftDelete
+    public class Conversation : EntityWithSite, ISoftDelete, IHaveCreatedTime, IHaveModifiedTime
     {
         public Conversation()
         {
@@ -50,6 +50,9 @@ namespace Social.Domain.Entities
         public bool IsDeleted { get; set; }
 
         public bool IsHidden { get; set; }
+
+        public DateTime CreatedTime { get; set; }
+        public DateTime? ModifiedTime { get; set; }
 
         public virtual IList<Message> Messages { get; set; }
 

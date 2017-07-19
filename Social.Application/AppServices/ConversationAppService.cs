@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Framework.Core;
 using Social.Application.Dto;
+using Social.Domain.DomainServices;
 using Social.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -16,21 +17,21 @@ namespace Social.Application.AppServices
         PagedList<ConversationDto> Find(ConversationSearchDto searchDto);
         ConversationDto Insert(ConversationCreateDto createDto);
         void Delete(int id);
-        void Update(int id,ConversationUpdateDto updateDto);
+        void Update(int id, ConversationUpdateDto updateDto);
     }
 
     public class ConversationAppService : AppService, IConversationAppService
     {
-        private IDomainService<Conversation> _domainService;
+        private IConversationService _domainService;
 
-        public ConversationAppService(IDomainService<Conversation> domainService)
+        public ConversationAppService(IConversationService domainService)
         {
             _domainService = domainService;
         }
 
         public PagedList<ConversationDto> Find(ConversationSearchDto searchDto)
         {
-            return _domainService.FindAll().Where(u => u.IsDeleted == false).PagingAndMapping<Conversation, ConversationDto>(searchDto);
+            return _domainService.FindAll("", searchDto.FilterId).PagingAndMapping<Conversation, ConversationDto>(searchDto);
         }
 
         public ConversationDto Find(int id)
@@ -59,7 +60,7 @@ namespace Social.Application.AppServices
             _domainService.Delete(id);
         }
 
-        public void Update(int id,ConversationUpdateDto updateDto)
+        public void Update(int id, ConversationUpdateDto updateDto)
         {
             var conversationDto = _domainService.Find(id);
             var conversation = Mapper.Map<Conversation>(conversationDto);

@@ -52,6 +52,9 @@
     <Reference Include="Fissoft.EntityFramework.Fts, Version=1.0.63.0, Culture=neutral, PublicKeyToken=00e20d155e1afabe, processorArchitecture=MSIL">
       <HintPath>..\packages\Fissoft.EntityFramework.Fts.1.0.63\lib\net45\Fissoft.EntityFramework.Fts.dll</HintPath>
     </Reference>
+    <Reference Include="LinqKit.EntityFramework, Version=1.1.9.0, Culture=neutral, PublicKeyToken=b6c8cfc71f7a6a80, processorArchitecture=MSIL">
+      <HintPath>..\packages\LinqKit.EntityFramework.1.1.9.0\lib\net45\LinqKit.EntityFramework.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
@@ -132,6 +135,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DomainServices\ConversationService.cs" />
+    <Compile Include="DomainServices\FilterExpressions\FilterExpressionFactory.cs" />
+    <Compile Include="DomainServices\FilterExpressions\IConditionExpression.cs" />
+    <Compile Include="DomainServices\FilterExpressions\IFilterExpressionFactory.cs" />
+    <Compile Include="DomainServices\FilterExpressions\OptionExpression.cs" />
     <Compile Include="DomainServices\Facebook\FacebookConverter.cs" />
     <Compile Include="DomainServices\Facebook\WebHookService.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\IWebHookSrategy.cs" />
@@ -143,6 +150,9 @@
     <Compile Include="DomainServices\Facebook\WebHookStrategies\RemoveVisitorPostStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\WebHookStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\WebHookStrategyFactory.cs" />
+    <Compile Include="DomainServices\FilterExpressions\PriorityExpression.cs" />
+    <Compile Include="DomainServices\FilterExpressions\SourceExpression.cs" />
+    <Compile Include="DomainServices\FilterExpressions\StatusExpression.cs" />
     <Compile Include="DomainServices\Filter\FilterService.cs" />
     <Compile Include="DomainServices\MessageService.cs" />
     <Compile Include="DomainServices\SocialAccountService.cs" />
