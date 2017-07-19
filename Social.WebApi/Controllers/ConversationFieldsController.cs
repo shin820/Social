@@ -19,9 +19,15 @@ namespace Social.WebApi.Controllers
         }
 
         [Route()]
-        public List<ConversationFieldDto> GetConversations()
+        public List<ConversationFieldDto> GetConversationFields()
         {          
             return _appService.FindAll();
+        }
+
+        [Route("{id}", Name = "GetConversationField")]
+        public ConversationFieldDto GetConversationField(int id)
+        {
+            return _appService.Find(id);
         }
     }
 }

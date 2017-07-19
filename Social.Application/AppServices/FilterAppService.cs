@@ -34,13 +34,24 @@ namespace Social.Application.AppServices
 
         public List<FilterDto> FindAll()
         {
-            return _domainService.FindAll().Where(u => u.IfPublic == true || u.CreatedBy == UserContext.UserId).ProjectTo<FilterDto>().ToList();
+            List<Filter> Filters = _domainService.FindAll().Where(u => u.IfPublic == true || u.CreatedBy == UserContext.UserId).ToList();
+            List<FilterDto> FilterDtos = new List<FilterDto>();
+            foreach (var Filter in Filters)
+            {
+                var FilterDto = Mapper.Map<FilterDto>(Filter);
+                FilterDto.ConversationNum = _domainService.GetConversationNum(Filter);
+                FilterDtos.Add(FilterDto);
+                
+            }
+            return FilterDtos;
         }
 
         public FilterDto Find(int id)
         {
             var filter = _domainService.Find(id);
-            return Mapper.Map<FilterDto>(filter);
+            var filterDto = Mapper.Map<FilterDto>(filter);
+            filterDto.ConversationNum = _domainService.GetConversationNum(filter);
+            return filterDto;
         }
 
         public FilterDto Insert(FilterCreateDto createDto)

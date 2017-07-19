@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Social.Application.Dto;
+using Social.Domain.DomainServices;
 using Social.Domain.Entities;
 
 namespace Social.Application
@@ -22,6 +23,8 @@ namespace Social.Application
             CreateMap<FilterCondition, FilterConditionDto>();
             CreateMap<ConversationUpdateDto, Conversation>();
             CreateMap<ConversationDto, Conversation>();
+            CreateMap<ConversationField, ConversationFieldDto>();
+            CreateMap<ConversationFieldOption, ConversationFieldOptionDto>();
         }
     }
 }
