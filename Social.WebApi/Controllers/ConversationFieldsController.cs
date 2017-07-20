@@ -8,7 +8,7 @@ using System.Web.Http;
 
 namespace Social.WebApi.Controllers
 {
-    [RoutePrefix("ConversationFields")]
+    [RoutePrefix("conversation-fields")]
     public class ConversationFieldsController : ApiController
     {
         private IConversationFieldService _appService;
@@ -20,7 +20,7 @@ namespace Social.WebApi.Controllers
 
         [Route()]
         public List<ConversationFieldDto> GetConversationFields()
-        {          
+        {
             return _appService.FindAll();
         }
 
