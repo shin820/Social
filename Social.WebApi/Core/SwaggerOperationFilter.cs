@@ -14,17 +14,17 @@ namespace Social.WebApi.Core
         {
             operation.parameters = operation.parameters ?? new List<Parameter>();
 
-            if (apiDescription.ActionDescriptor.ControllerDescriptor.ControllerType != typeof(AccountsController))
+            //if (apiDescription.ActionDescriptor.ControllerDescriptor.ControllerType != typeof(AccountsController))
+            //{
+            operation.parameters.Add(new Parameter
             {
-                operation.parameters.Add(new Parameter
-                {
-                    name = "siteId",
-                    required = true,
-                    type = "integer",
-                    @in = "query",
-                    @default = "10000"
-                });
-            }
+                name = "siteId",
+                required = true,
+                type = "integer",
+                @in = "query",
+                @default = "10000"
+            });
+            //}
         }
     }
 }
