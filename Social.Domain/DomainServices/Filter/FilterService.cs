@@ -76,13 +76,13 @@ namespace Social.Domain
                     case 1:
                         {
                             fildName.Add("Source");
-                            options.Add((ConversationSource)(int.Parse(condition.Value)));                           
+                            options.Add((ConversationSource)(int.Parse(condition.Value)));
                             break;
                         }
                     case 4:
                         {
                             fildName.Add("Status");
-                            options.Add((ConversationStatus)(int.Parse(condition.Value))); 
+                            options.Add((ConversationStatus)(int.Parse(condition.Value)));
                             break;
                         }
                     case 5:
@@ -100,7 +100,7 @@ namespace Social.Domain
                             foreach (var user in userQuery)
                             {
                                 UserfildName.Add("LastMessageSenderId");
-                                Useroptions.Add(user.Id);                              
+                                Useroptions.Add(user.Id);
                                 UserMatchType.Add(ConditionMatchType.Is);
                                 UserTriggerType.Add(FilterType.Any);
                             }
