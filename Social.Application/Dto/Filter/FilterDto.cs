@@ -12,6 +12,7 @@ namespace Social.Application.Dto
     public class FilterDto
     {
         public int Id { get; set; }
+        public int ConversationNum { get; set; }
         [Required]
         [MaxLength(200)]
         public string Name { get; set; }
@@ -23,8 +24,6 @@ namespace Social.Application.Dto
         public int CreatedBy { get; set; }
         public DateTime CreatedTime { get; set; }
 
-        // public int ConversationId { get; set; }
-        // public virtual Conversation Conversation { get; set; }
         public virtual IList<FilterConditionCreateDto> Conditions { get; set; }
     }
 }

@@ -140,7 +140,7 @@
     <Compile Include="AppServices\FacebookAppService.cs" />
     <Compile Include="AppServices\ConversationFieldAppService.cs" />
     <Compile Include="Dto\ConversationField\ConversationFieldDto.cs" />
-    <Compile Include="Dto\ConversationField\Options.cs" />
+    <Compile Include="Dto\ConversationField\ConversationFieldOptionDto.cs" />
     <Compile Include="Dto\Conversation\ConversationUpdateDto.cs" />
     <Compile Include="AppServices\FilterAppService.cs" />
     <Compile Include="AppServices\FilterConditonAppService.cs" />

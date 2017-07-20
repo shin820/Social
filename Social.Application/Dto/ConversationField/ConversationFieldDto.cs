@@ -1,4 +1,5 @@
-﻿using Social.Infrastructure.Enum;
+﻿using Social.Domain.Entities;
+using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace Social.Application.Dto
         public int Id { get; set; }
         public FieldDataType DataType { get; set; }
         public string Name { get; set; }
-        public List<String> Options { get; set; }
+
+        public virtual IList<ConversationFieldOptionDto> Options { get; set; }
     }
 }
