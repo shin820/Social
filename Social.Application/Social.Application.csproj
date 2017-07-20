@@ -129,6 +129,11 @@
     <Compile Include="AppServices\FacebookAccountAppService.cs" />
     <Compile Include="AppServices\TwitterAccountAppService.cs" />
     <Compile Include="AppServices\TwitterAppService.cs" />
+    <Compile Include="DtoMappings\ConversationMessageDtoMappings.cs" />
+    <Compile Include="Dto\ConversationMessage\FacebookMessageDto.cs" />
+    <Compile Include="Dto\ConversationMessage\FacebookPostCommentMessageDto.cs" />
+    <Compile Include="Dto\ConversationMessage\FacebookPostMessageDto.cs" />
+    <Compile Include="Dto\ConversationMessage\MessageAttachmentDto.cs" />
     <Compile Include="Dto\Conversation\ConversationLogDto.cs" />
     <Compile Include="Dto\FacebookAccount\FacebookPageDto.cs" />
     <Compile Include="Dto\FacebookAccount\FacebookPageListDto.cs" />
@@ -145,7 +150,7 @@
     <Compile Include="Dto\Conversation\ConversationUpdateDto.cs" />
     <Compile Include="AppServices\FilterAppService.cs" />
     <Compile Include="AppServices\FilterConditonAppService.cs" />
-    <Compile Include="DtoMappings.cs" />
+    <Compile Include="DtoMappings\DtoMappings.cs" />
     <Compile Include="Dto\Conversation\ConversationCreateDto.cs" />
     <Compile Include="Dto\Conversation\ConversationDto.cs" />
     <Compile Include="Dto\Conversation\ConversationSearchDto.cs" />

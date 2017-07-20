@@ -38,6 +38,8 @@ namespace Social.Domain.Entities
 
         public int? ReceiverId { get; set; }
 
+        public int? SendAgentId { get; set; }
+
         [MaxLength(10000)]
         public string Content { get; set; }
 

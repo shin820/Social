@@ -12,6 +12,8 @@ namespace Social.Domain.DomainServices
 {
     public interface IConversationService : IDomainService<Conversation>
     {
+        Conversation Find(int id, ConversationSource source);
+        Conversation Find(int id, ConversationSource[] sources);
         IQueryable<Conversation> FindAll(Filter filter);
         Conversation GetTwitterDirectMessageConversation(SocialUser user);
         Conversation GetTwitterTweetConversation(string messageId);
@@ -44,9 +46,19 @@ namespace Social.Domain.DomainServices
             _departmentService = departmentService;
         }
 
+        public Conversation Find(int id, ConversationSource[] sources)
+        {
+            return FindAll().Where(t => t.Id == id && !t.IsHidden && sources.Contains(t.Source)).FirstOrDefault();
+        }
+
+        public Conversation Find(int id, ConversationSource source)
+        {
+            return FindAll().Where(t => t.Id == id && !t.IsHidden && t.Source == source).FirstOrDefault();
+        }
+
         public override Conversation Find(int id)
         {
-            return Repository.FindAll().Where(t => t.IsDeleted == false).FirstOrDefault(t => t.Id == id);
+            return Repository.FindAll().Where(t => t.Id == id && t.IsDeleted == false).FirstOrDefault();
         }
 
         public override IQueryable<Conversation> FindAll()

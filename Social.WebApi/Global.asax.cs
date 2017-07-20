@@ -23,8 +23,6 @@ namespace Social.WebApi
         {
             log.Info("Application starting...");
 
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11;
-
             IocContainer.Setup();
 
             AreaRegistration.RegisterAllAreas();

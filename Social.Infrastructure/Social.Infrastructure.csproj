@@ -122,6 +122,7 @@
     <Compile Include="Facebook\FbToken.cs" />
     <Compile Include="Facebook\FbPaging.cs" />
     <Compile Include="Facebook\FbPagingData.cs" />
+    <Compile Include="IHaveSendAgent.cs" />
     <Compile Include="LogicalExpression\BuildResult.cs" />
     <Compile Include="LogicalExpression\LogicalExpressionBuilder.cs" />
     <Compile Include="LogicalExpression\LogicalExpressionParseException.cs" />
