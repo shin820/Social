@@ -2,6 +2,7 @@
 using LinqKit;
 using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
+using Social.Infrastructure.LogicalExpression;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,6 +46,18 @@ namespace Social.Domain.DomainServices.FilterExpressions
                 }
 
                 return predicate;
+            }
+
+            if (filter.Type == FilterType.LogicalExpression)
+            {
+                var predicate = PredicateBuilder.New<Conversation>();
+                var expressionDic = filter.Conditions.ToDictionary(t => t.Index, t => GetConditionExpression(t));
+
+                var buildResult = LogicalExpressionBuilder.Build(expressionDic, filter.LogicalExpression);
+                if (buildResult.IsSuccess)
+                {
+                    return predicate.And(buildResult.Expression);
+                }
             }
 
             return t => true;
