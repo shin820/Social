@@ -129,6 +129,7 @@
     <Compile Include="AppServices\FacebookAccountAppService.cs" />
     <Compile Include="AppServices\TwitterAccountAppService.cs" />
     <Compile Include="AppServices\TwitterAppService.cs" />
+    <Compile Include="Dto\Conversation\ConversationLogDto.cs" />
     <Compile Include="Dto\FacebookAccount\FacebookPageDto.cs" />
     <Compile Include="Dto\FacebookAccount\FacebookPageListDto.cs" />
     <Compile Include="Dto\FacebookAccount\UpdateFacebookPageDto.cs" />

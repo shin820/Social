@@ -60,5 +60,11 @@ namespace Social.WebApi.Controllers
 
             return StatusCode(HttpStatusCode.NoContent);
         }
+
+        [Route("{id}/logs")]
+        public IList<ConversationLogDto> GetLogs(int id)
+        {
+            return _appService.GetLogs(id);
+        }
     }
 }

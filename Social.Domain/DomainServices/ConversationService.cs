@@ -25,21 +25,34 @@ namespace Social.Domain.DomainServices
     {
         private IRepository<Filter> _filterRepo;
         private IFilterExpressionFactory _filterExpressionFactory;
+        private IRepository<ConversationLog> _logRepo;
+        private IAgentService _agentService;
+        private IDepartmentService _departmentService;
 
         public ConversationService(
+            IAgentService agentService,
+            IDepartmentService departmentService,
             IRepository<Filter> filterRepo,
-            IFilterExpressionFactory filterExpressionFactory
+            IFilterExpressionFactory filterExpressionFactory,
+            IRepository<ConversationLog> logRepo
             )
         {
             _filterRepo = filterRepo;
             _filterExpressionFactory = filterExpressionFactory;
+            _logRepo = logRepo;
+            _agentService = agentService;
+            _departmentService = departmentService;
+        }
+
+        public override Conversation Find(int id)
+        {
+            return Repository.FindAll().Where(t => t.IsDeleted == false).FirstOrDefault(t => t.Id == id);
         }
 
         public override IQueryable<Conversation> FindAll()
         {
             return Repository.FindAll().AsExpandable().Where(t => t.IsDeleted == false);
         }
-
 
         public IQueryable<Conversation> ApplyKeyword(IQueryable<Conversation> conversations, string keyword)
         {
@@ -121,6 +134,67 @@ namespace Social.Domain.DomainServices
             }
 
             Repository.Insert(conversation);
+        }
+
+        public override void Update(Conversation entity)
+        {
+            WriteConversationLog(entity);
+            base.Update(entity);
+        }
+
+        private void WriteConversationLog(Conversation conversation)
+        {
+            if (UserContext.UserId <= 0)
+            {
+                return;
+            }
+
+            var oldEntity = Repository.FindAsNoTracking().FirstOrDefault(t => t.Id == conversation.Id);
+            if (oldEntity == null)
+            {
+                return;
+            }
+
+            string agent = _agentService.GetDiaplyName(UserContext.UserId);
+
+            if (conversation.Priority != oldEntity.Priority)
+            {
+                WriteLog(conversation, ConversationLogType.ChangePriority, $"Agent {agent} changed Priority from {oldEntity.Priority.GetName()} to {conversation.Priority.GetName()}.");
+            }
+
+            if (conversation.Status != oldEntity.Status)
+            {
+                WriteLog(conversation, ConversationLogType.ChangeStatus, $"Agent {agent} changed Status from {oldEntity.Status.GetName()} to {conversation.Status.GetName()}.");
+            }
+
+            if (conversation.AgentId != oldEntity.AgentId)
+            {
+                WriteLog(conversation, ConversationLogType.ChangeAgentAssignee, $"Agent {agent} changed Agent Assignee from {_agentService.GetDiaplyName(oldEntity.AgentId)} to {_agentService.GetDiaplyName(conversation.AgentId)}.");
+            }
+
+            if (conversation.DepartmentId != oldEntity.DepartmentId)
+            {
+                WriteLog(conversation, ConversationLogType.ChangeDepartmentAssignee, $"Agent {agent} changed Department Assignee from {_departmentService.GetDisplayName(oldEntity.DepartmentId)} to {_departmentService.GetDisplayName(conversation.DepartmentId)}.");
+            }
+
+            if (conversation.Note != oldEntity.Note)
+            {
+                WriteLog(conversation, ConversationLogType.ChangeNote, $"Agent {agent} updated Note.");
+            }
+
+            if (conversation.Subject != oldEntity.Subject)
+            {
+                WriteLog(conversation, ConversationLogType.ChangeSubject, $"Agent {agent} updated Subject.");
+            }
+        }
+
+        private void WriteLog(Conversation conversation, ConversationLogType type, string message)
+        {
+            conversation.Logs.Add(new ConversationLog
+            {
+                Type = type,
+                Content = message,
+            });
         }
     }
 }

@@ -134,7 +134,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DomainServices\AgentService.cs" />
     <Compile Include="DomainServices\ConversationService.cs" />
+    <Compile Include="DomainServices\DepartmentService.cs" />
     <Compile Include="DomainServices\FilterExpressions\FilterExpressionFactory.cs" />
     <Compile Include="DomainServices\FilterExpressions\IConditionExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\IFilterExpressionFactory.cs" />

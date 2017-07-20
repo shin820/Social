@@ -21,6 +21,7 @@ namespace Framework.Core
         void DeleteMany(TEntity[] entities);
         Task DeleteManyAsync(TEntity[] entities);
         TEntity Find(int id);
+        IQueryable<TEntity> FindAsNoTracking();
         IQueryable<TEntity> FindAll();
         IQueryable<TEntity> FindAll(Expression<Func<TEntity, bool>> predicate);
         void Insert(TEntity entity);

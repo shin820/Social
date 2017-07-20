@@ -27,6 +27,8 @@ namespace Social.Application
             CreateMap<ConversationField, ConversationFieldDto>();
             CreateMap<ConversationFieldOption, ConversationFieldOptionDto>();
 
+            CreateMap<ConversationLog, ConversationLogDto>();
+
 
             CreateMap<AddFaceboookPageDto, SocialAccount>()
                 .ForMember(dest => dest.Token, src => src.MapFrom(x => x.AccessToken))

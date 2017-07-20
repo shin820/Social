@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Framework.Core;
 using Social.Application.Dto;
 using Social.Domain.DomainServices;
@@ -18,15 +19,21 @@ namespace Social.Application.AppServices
         ConversationDto Insert(ConversationCreateDto createDto);
         void Delete(int id);
         void Update(int id, ConversationUpdateDto updateDto);
+        IList<ConversationLogDto> GetLogs(int converationId);
     }
 
     public class ConversationAppService : AppService, IConversationAppService
     {
         private IConversationService _domainService;
+        private IDomainService<ConversationLog> _logService;
 
-        public ConversationAppService(IConversationService domainService)
+        public ConversationAppService(
+            IConversationService domainService,
+            IDomainService<ConversationLog> logService
+            )
         {
             _domainService = domainService;
+            _logService = logService;
         }
 
         public PagedList<ConversationDto> Find(ConversationSearchDto dto)
@@ -48,14 +55,7 @@ namespace Social.Application.AppServices
         public ConversationDto Find(int id)
         {
             var conversation = _domainService.Find(id);
-            if (conversation.IsDeleted == false)
-            {
-                return Mapper.Map<ConversationDto>(conversation);
-            }
-            else
-            {
-                return null;
-            }
+            return Mapper.Map<ConversationDto>(conversation);
         }
 
         public ConversationDto Insert(ConversationCreateDto createDto)
@@ -77,6 +77,15 @@ namespace Social.Application.AppServices
             var conversation = Mapper.Map<Conversation>(conversationDto);
             Mapper.Map(updateDto, conversation);
             _domainService.Update(conversation);
+        }
+
+        public IList<ConversationLogDto> GetLogs(int converationId)
+        {
+            return _logService.FindAll()
+                .Where(t => t.ConversationId == converationId)
+                .OrderByDescending(t => t.CreatedTime)
+                .ProjectTo<ConversationLogDto>()
+                .ToList();
         }
     }
 }

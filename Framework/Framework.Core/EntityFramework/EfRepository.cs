@@ -32,6 +32,11 @@ namespace Framework.Core.EntityFramework
         {
         }
 
+        public IQueryable<TEntity> FindAsNoTracking()
+        {
+            return DataSet.AsNoTracking();
+        }
+
         public IQueryable<TEntity> FindAll()
         {
             return DataSet;
