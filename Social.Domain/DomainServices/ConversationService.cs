@@ -13,6 +13,7 @@ namespace Social.Domain.DomainServices
     public interface IConversationService : IDomainService<Conversation>
     {
         IQueryable<Conversation> FindAll(string keyworkd, int? filterId);
+        IQueryable<Conversation> FindAll(Filter filter);
         Conversation GetTwitterDirectMessageConversation(SocialUser user);
         Conversation GetTwitterTweetConversation(string messageId);
         void AddConversation(SocialAccount socialAccount, Conversation conversation);
@@ -46,6 +47,15 @@ namespace Social.Domain.DomainServices
 
                 conversations.Where(t => t.Messages.Any(m => m.Sender.Name == "xxx"));
             }
+
+            return conversations;
+        }
+
+        public IQueryable<Conversation> FindAll(Filter filter)
+        {
+            var conversations = Repository.FindAll().AsExpandable().Where(t => t.IsDeleted == false);
+            var expression = _filterExpressionFactory.Create(filter);
+            conversations = conversations.Where(expression);
 
             return conversations;
         }

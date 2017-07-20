@@ -20,7 +20,7 @@ namespace Social.Domain.DomainServices.FilterExpressions
 
         public virtual bool IsMatch(FilterCondition condition)
         {
-            return condition.Field.DataType == FieldDataType.Option && condition.Field.Name == _propertyName;
+            return condition.Field.DataType == FieldDataType.String && condition.Field.Name == _propertyName;
         }
 
         public virtual Expression<Func<Conversation, bool>> Build(FilterCondition condition)

@@ -43,12 +43,12 @@ namespace Social.WebApi.Controllers
             return CreatedAtRoute("GetFilter", new { id = filter.Id }, filter);
         }
 
-        [Route()]
+        [Route("{id}", Name = "PutFilter")]
         [ResponseType(typeof(FilterUpdateDto))]
-        public IHttpActionResult PutFilter(FilterUpdateDto createDto)
+        public IHttpActionResult PutFilter(int id,FilterUpdateDto createDto)
         {
             createDto = createDto ?? new FilterUpdateDto();
-            _appService.Update(createDto);
+            _appService.Update(id,createDto);
 
             return StatusCode(HttpStatusCode.NoContent);
         }

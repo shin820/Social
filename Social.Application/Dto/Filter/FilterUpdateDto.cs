@@ -10,7 +10,6 @@ namespace Social.Application.Dto
 {
     public class FilterUpdateDto
     {
-        public int Id { get; set; }
         public FilterUpdateDto()
         {
             Conditions = new List<FilterConditionCreateDto>();
