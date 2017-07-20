@@ -29,9 +29,20 @@ namespace Social.Application.AppServices
             _domainService = domainService;
         }
 
-        public PagedList<ConversationDto> Find(ConversationSearchDto searchDto)
+        public PagedList<ConversationDto> Find(ConversationSearchDto dto)
         {
-            return _domainService.FindAll("", searchDto.FilterId).PagingAndMapping<Conversation, ConversationDto>(searchDto);
+            if (dto.Since == null && dto.Util == null)
+            {
+                dto.Util = DateTime.UtcNow;
+                dto.Since = DateTime.UtcNow.AddMonths(-3);
+            }
+            var conversations = _domainService.FindAll();
+            conversations = conversations.WhereIf(dto.Since != null, t => t.CreatedTime >= dto.Since);
+            conversations = conversations.WhereIf(dto.Util != null, t => t.CreatedTime <= dto.Util);
+            conversations = _domainService.ApplyFilter(conversations, dto.FilterId);
+            conversations = _domainService.ApplyKeyword(conversations, dto.Keyword);
+
+            return conversations.PagingAndMapping<Conversation, ConversationDto>(dto);
         }
 
         public ConversationDto Find(int id)

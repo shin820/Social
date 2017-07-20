@@ -12,11 +12,13 @@ namespace Social.Domain.DomainServices
 {
     public interface IConversationService : IDomainService<Conversation>
     {
-        IQueryable<Conversation> FindAll(string keyworkd, int? filterId);
         IQueryable<Conversation> FindAll(Filter filter);
         Conversation GetTwitterDirectMessageConversation(SocialUser user);
         Conversation GetTwitterTweetConversation(string messageId);
         void AddConversation(SocialAccount socialAccount, Conversation conversation);
+        IQueryable<Conversation> ApplyFilter(IQueryable<Conversation> conversations, int? filterId);
+        IQueryable<Conversation> ApplyFilter(IQueryable<Conversation> conversations, Filter filter);
+        IQueryable<Conversation> ApplyKeyword(IQueryable<Conversation> conversations, string keyword);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -33,19 +35,45 @@ namespace Social.Domain.DomainServices
             _filterExpressionFactory = filterExpressionFactory;
         }
 
-        public IQueryable<Conversation> FindAll(string keyworkd, int? filterId)
+        public override IQueryable<Conversation> FindAll()
         {
-            var conversations = Repository.FindAll().AsExpandable().Where(t => t.IsDeleted == false);
+            return Repository.FindAll().AsExpandable().Where(t => t.IsDeleted == false);
+        }
+
+
+        public IQueryable<Conversation> ApplyKeyword(IQueryable<Conversation> conversations, string keyword)
+        {
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                var predicate = PredicateBuilder.New<Conversation>();
+                predicate = predicate.Or(t => t.Subject.Contains(keyword));
+                predicate = predicate.Or(t => t.Note.Contains(keyword));
+                predicate = predicate.Or(t => t.Messages.Any(m => m.Content.Contains(keyword) || m.Sender.Name.Contains(keyword) || m.Receiver.Name.Contains(keyword)));
+
+                conversations = conversations.Where(predicate);
+            }
+
+            return conversations;
+        }
+
+        public IQueryable<Conversation> ApplyFilter(IQueryable<Conversation> conversations, int? filterId)
+        {
             if (filterId != null)
             {
                 var filter = _filterRepo.Find(filterId.Value);
-                if (filter != null && filter.Conditions.Any())
+                if (filter != null)
                 {
-                    var expression = _filterExpressionFactory.Create(filter);
-                    conversations = conversations.Where(expression);
+                    conversations = ApplyFilter(conversations, filter);
                 }
             }
 
+            return conversations;
+        }
+
+        public IQueryable<Conversation> ApplyFilter(IQueryable<Conversation> conversations, Filter filter)
+        {
+            var expression = _filterExpressionFactory.Create(filter);
+            conversations = conversations.Where(expression);
             return conversations;
         }
 
