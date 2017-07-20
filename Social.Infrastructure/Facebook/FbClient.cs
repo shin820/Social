@@ -128,6 +128,22 @@ namespace Social.Infrastructure.Facebook
             //}
         }
 
+        public static string PublishComment(string token, string parentId, string message)
+        {
+            FacebookClient client = new FacebookClient(token);
+            string url = $"/{parentId}/comments";
+            dynamic result = client.Post(url, new { message = message });
+            return result.id;
+        }
+
+        public static string PublishMessage(string token, string fbConversationId, string message)
+        {
+            FacebookClient client = new FacebookClient(token);
+            string url = $"/{fbConversationId}/messages";
+            dynamic result = client.Post(url, new { message = message });
+            return result.id;
+        }
+
         public async static Task<IList<FbMessage>> GetMessagesFromConversationId(string token, string fbConversationId)
         {
             List<FbMessage> messages = new List<FbMessage>();

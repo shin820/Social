@@ -21,6 +21,7 @@ namespace Social.Domain.DomainServices
         IQueryable<Conversation> ApplyFilter(IQueryable<Conversation> conversations, int? filterId);
         IQueryable<Conversation> ApplyFilter(IQueryable<Conversation> conversations, Filter filter);
         IQueryable<Conversation> ApplyKeyword(IQueryable<Conversation> conversations, string keyword);
+        Conversation CheckIfExists(int id);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -44,6 +45,17 @@ namespace Social.Domain.DomainServices
             _logRepo = logRepo;
             _agentService = agentService;
             _departmentService = departmentService;
+        }
+
+        public Conversation CheckIfExists(int id)
+        {
+            var conversation = Find(id);
+            if (conversation == null)
+            {
+                throw new BadRequestException($"Conversation '{id}' not exists.");
+            }
+
+            return conversation;
         }
 
         public Conversation Find(int id, ConversationSource[] sources)

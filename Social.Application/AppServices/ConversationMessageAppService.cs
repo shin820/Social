@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using Framework.Core;
 using Social.Application.Dto;
 using Social.Domain.DomainServices;
+using Social.Domain.Entities;
 using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
@@ -19,6 +20,10 @@ namespace Social.Application.AppServices
         FacebookPostMessageDto GetFacebookPostMessages(int conversationId);
         IList<TwitterDirectMessageDto> GetTwitterDirectMessages(int conversationId);
         IList<TwitterTweetMessageDto> GetTwitterTweetMessages(int conversationId);
+        void ReplyTweetMessage(int conversationId, int tweetAccountId, string message);
+        void ReplyTweetDirectMessage(int conversationId, int tweetAccountId, string message);
+        void ReplyFacebookMessage(int conversationId, string content);
+        void ReplyFacebookPostOrComment(int conversationId, int parentId, string content);
     }
 
     public class ConversationMessageAppService : AppService
@@ -145,6 +150,26 @@ namespace Social.Application.AppServices
             }
 
             return result;
+        }
+
+        public void ReplyTweetMessage(int conversationId, int tweetAccountId, string message)
+        {
+            _messageService.ReplyTweetMessage(conversationId, tweetAccountId, message);
+        }
+
+        public void ReplyTweetDirectMessage(int conversationId, int tweetAccountId, string message)
+        {
+            _messageService.ReplyTweetDirectMessage(conversationId, tweetAccountId, message);
+        }
+
+        public void ReplyFacebookMessage(int conversationId, string content)
+        {
+            _messageService.ReplyFacebookMessage(conversationId, content);
+        }
+
+        public void ReplyFacebookPostOrComment(int conversationId, int parentId, string content)
+        {
+            _messageService.ReplyFacebookPostOrComment(conversationId, parentId, content);
         }
     }
 }

@@ -3,6 +3,7 @@ using Social.Application.AppServices;
 using Social.Application.Dto;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -66,34 +67,62 @@ namespace Social.WebApi.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        [Route("{id}/logs")]
-        public IList<ConversationLogDto> GetLogs(int id)
+        [Route("{conversationId}/logs")]
+        public IList<ConversationLogDto> GetLogs(int conversationId)
         {
-            return _conversationAppService.GetLogs(id);
+            return _conversationAppService.GetLogs(conversationId);
         }
 
-        [Route("{id}/facebook-messages")]
-        public IList<FacebookMessageDto> GetFacebookMessages(int id)
+        [Route("{conversationId}/facebook-messages")]
+        public IList<FacebookMessageDto> GetFacebookMessages(int conversationId)
         {
-            return _messageAppService.GetFacebookDirectMessages(id);
+            return _messageAppService.GetFacebookDirectMessages(conversationId);
         }
 
-        [Route("{id}/facebook-post-messages")]
-        public FacebookPostMessageDto GetFacebookPostMessages(int id)
+        [Route("{conversationId}/facebook-messages")]
+        public IHttpActionResult PostFacebookMessages(int conversationId, [Required] string message)
         {
-            return _messageAppService.GetFacebookPostMessages(id);
+            _messageAppService.ReplyFacebookMessage(conversationId, message);
+            return Ok();
         }
 
-        [Route("{id}/twitter-direct-messages")]
-        public IList<TwitterDirectMessageDto> GetTwitterDirectMessages(int id)
+        [Route("{conversationId}/facebook-post-messages")]
+        public FacebookPostMessageDto GetFacebookPostMessages(int conversationId)
         {
-            return _messageAppService.GetTwitterDirectMessages(id);
+            return _messageAppService.GetFacebookPostMessages(conversationId);
         }
 
-        [Route("{id}/twitter-tweet-messages")]
-        public IList<TwitterTweetMessageDto> GetTwitterTweetMessages(int id)
+        [Route("{conversationId}/facebook-post-messages")]
+        public IHttpActionResult PostFacebookPostMessages(int conversationId, [Required] string message, [Required] int parenId)
         {
-            return _messageAppService.GetTwitterTweetMessages(id);
+            _messageAppService.ReplyFacebookPostOrComment(conversationId, parenId, message);
+            return Ok();
+        }
+
+        [Route("{conversationId}/twitter-direct-messages")]
+        public IList<TwitterDirectMessageDto> GetTwitterDirectMessages(int conversationId)
+        {
+            return _messageAppService.GetTwitterDirectMessages(conversationId);
+        }
+
+        [Route("{conversationId}/twitter-direct-messages")]
+        public IHttpActionResult PostTwitterDirectMessages(int conversationId, [Required]string message, [Required]int twitterAccountId)
+        {
+            _messageAppService.ReplyTweetDirectMessage(conversationId, twitterAccountId, message);
+            return Ok();
+        }
+
+        [Route("{conversationId}/twitter-tweet-messages")]
+        public IList<TwitterTweetMessageDto> GetTwitterTweetMessages(int conversationId)
+        {
+            return _messageAppService.GetTwitterTweetMessages(conversationId);
+        }
+
+        [Route("{conversationId}/twitter-tweet-messages")]
+        public IHttpActionResult PostTwitterTweetMessages(int conversationId, [Required]string message, [Required]int twitterAccountId)
+        {
+            _messageAppService.ReplyTweetMessage(conversationId, twitterAccountId, message);
+            return Ok();
         }
     }
 }
