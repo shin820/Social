@@ -1,5 +1,6 @@
 ﻿using Framework.Core;
 using Social.Domain.Entities;
+using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace Social.Domain.DomainServices
     {
         Task ProcessDirectMessage(SocialAccount account, IMessage directMsg);
         Task ProcessTweet(SocialAccount account, ITweet currentTweet);
+        IList<Entities.Message> GetTweetMessages(long[] tweetIds);
     }
 
     public class TwitterService : ServiceBase, ITwitterService
@@ -207,6 +209,14 @@ namespace Social.Domain.DomainServices
             }
 
             return message.Length <= 200 ? message : message.Substring(200);
+        }
+
+        public IList<Entities.Message> GetTweetMessages(long[] tweetIds)
+        {
+            Auth.SetCredentials(new TwitterCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret));
+            var tweets = Tweet.GetTweets(tweetIds);
+
+            return tweets.Select(t => ConvertToMessage(t)).ToList();
         }
 
         private Entities.Message ConvertToMessage(ITweet tweet)
