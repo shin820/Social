@@ -8,6 +8,11 @@ namespace Social.Infrastructure.Enum
 {
     public enum ConversationLogType : short
     {
-        NewConversation = 1
+        ChangeAgentAssignee = 1,
+        ChangeDepartmentAssignee = 2,
+        ChangeStatus = 3,
+        ChangePriority = 4,
+        ChangeNote = 5,
+        ChangeSubject = 6
     }
 }

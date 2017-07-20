@@ -25,6 +25,9 @@ namespace Social.Domain.Entities
         public bool IfPublic { get; set; }
         public FilterType Type { get; set; }
 
+        [MaxLength(200)]
+        public string LogicalExpression { get; set; }
+
         public int CreatedBy { get; set; }
         public DateTime CreatedTime { get; set; }
 
