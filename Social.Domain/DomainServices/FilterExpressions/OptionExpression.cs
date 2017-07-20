@@ -12,32 +12,59 @@ namespace Social.Domain.DomainServices
     public abstract class OptionExpression : IConditionExpression
     {
         private string _propertyName;
+        private string _FieldName;
 
-        public OptionExpression(string propertyName)
+        public OptionExpression(string FieldName ,string propertyName)
         {
+            _FieldName = FieldName;
             _propertyName = propertyName;
         }
 
         public virtual bool IsMatch(FilterCondition condition)
         {
-            return condition.Field.DataType == FieldDataType.Option && condition.Field.Name == _propertyName;
+            return condition.Field.DataType == FieldDataType.Option && condition.Field.Name == _FieldName;
         }
 
         public virtual Expression<Func<Conversation, bool>> Build(FilterCondition condition)
         {
-            if (condition.MatchType == ConditionMatchType.Is)
+            ParameterExpression Parameter = Expression.Parameter(typeof(Conversation), "c");
+            if (GetValue(condition.Value) != null)
             {
-                return Is(condition);
+                Expression left = Expression.Property(Parameter, typeof(Conversation).GetProperty(_propertyName));
+                Expression right = Expression.Constant(GetValue(condition.Value));
+
+                if (condition.MatchType == ConditionMatchType.Is)
+                {
+                    return Expression.Lambda<Func<Conversation, bool>>(Expression.Equal(left, right), new ParameterExpression[] { Parameter });
+                }
+                if (condition.MatchType == ConditionMatchType.IsNot)
+                {
+                    return Expression.Lambda<Func<Conversation, bool>>(Expression.NotEqual(left, right), new ParameterExpression[] { Parameter });
+                }
             }
-            if (condition.MatchType == ConditionMatchType.IsNot)
+            else
             {
-                return IsNot(condition);
+                if (condition.MatchType == ConditionMatchType.Is)
+                {
+                    return Is(condition);
+                }
+                if (condition.MatchType == ConditionMatchType.IsNot)
+                {
+                    return IsNot(condition);
+                }
+
             }
 
             return null;
         }
-
-        protected abstract Expression<Func<Conversation, bool>> Is(FilterCondition condition);
-        protected abstract Expression<Func<Conversation, bool>> IsNot(FilterCondition condition);
+        protected virtual Expression<Func<Conversation, bool>> Is(FilterCondition condition)
+        {
+            return null;
+        }
+        protected virtual Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
+        {
+            return null;
+        }
+        protected abstract object GetValue(string value);
     }
 }

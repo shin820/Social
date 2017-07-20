@@ -27,8 +27,8 @@ namespace Social.Domain
         private IConversationService _conversationService;
 
         public FilterService(
-            IRepository<FilterCondition> filterConditionRepo, 
-            IRepository<Filter> filterRepo, 
+            IRepository<FilterCondition> filterConditionRepo,
+            IRepository<Filter> filterRepo,
             IConversationService conversationService)
         {
             _filterConditionRepo = filterConditionRepo;
@@ -56,7 +56,7 @@ namespace Social.Domain
             _filterRepo.Update(filter);
 
         }
-     
+
         public int GetConversationNum(Filter filter)
         {
             return _conversationService.FindAll(filter).Count();
@@ -141,26 +141,26 @@ namespace Social.Domain
         {
             ParameterExpression left = Expression.Parameter(typeof(T), "c");
             Expression expression = Expression.Constant(false);
-            
-            for (int i = 0; i< options.Count();i++)
+
+            for (int i = 0; i < options.Count(); i++)
             {
                 if (triggerType[i] == FilterType.All)
                 {
                     expression = Expression.Constant(true);
                 }
                 Expression l = Expression.Property(left, typeof(T).GetProperty(fieldName[i]));
-                
+
                 Expression r = Expression.Constant(options[i]);
                 Expression filters;
                 if (MatchType[i] == ConditionMatchType.Is)
                 {
                     filters = Expression.Equal(l, r);
                 }
-                else if(MatchType[i] == ConditionMatchType.IsNot)
+                else if (MatchType[i] == ConditionMatchType.IsNot)
                 {
                     filters = Expression.NotEqual(l, r);
                 }
-                else if(MatchType[i] == ConditionMatchType.Before)
+                else if (MatchType[i] == ConditionMatchType.Before)
                 {
                     filters = Expression.LessThan(l, r);
                 }
@@ -168,7 +168,7 @@ namespace Social.Domain
                 {
                     filters = Expression.GreaterThan(l, r);
                 }
-                else if(MatchType[i] == ConditionMatchType.NotContain)
+                else if (MatchType[i] == ConditionMatchType.NotContain)
                 {
                     filters = Expression.Call
                        (
@@ -180,12 +180,12 @@ namespace Social.Domain
                 }
                 else
                 {
-                     filters = Expression.Call
-                        (
-                         Expression.Property(left, typeof(T).GetProperty(fieldName[i])), 
-                         typeof(string).GetMethod("Contains", new Type[] { typeof(string) }),
-                         Expression.Constant(options[i])              
-                         );
+                    filters = Expression.Call
+                       (
+                        Expression.Property(left, typeof(T).GetProperty(fieldName[i])),
+                        typeof(string).GetMethod("Contains", new Type[] { typeof(string) }),
+                        Expression.Constant(options[i])
+                        );
                 }
 
 
@@ -193,7 +193,7 @@ namespace Social.Domain
                 {
                     expression = Expression.Or(filters, expression);
                 }
-                else if(triggerType[i] == FilterType.All)
+                else if (triggerType[i] == FilterType.All)
                 {
                     expression = Expression.And(filters, expression);
                 }

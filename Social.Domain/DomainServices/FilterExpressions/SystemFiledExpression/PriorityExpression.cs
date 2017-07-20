@@ -11,34 +11,15 @@ namespace Social.Domain.DomainServices
 {
     public class PriorityExpression : OptionExpression
     {
-        public PriorityExpression() : base("Priority")
+        public PriorityExpression() : base("Priority", "Priority")
         {
         }
 
-        protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
+        protected override object GetValue(string rawValue)
         {
             ConversationPriority value;
-            if (Enum.TryParse(condition.Value, out value))
-            {
-                return t => t.Priority == value;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
-        {
-            ConversationPriority value;
-            if (Enum.TryParse(condition.Value, out value))
-            {
-                return t => t.Priority != value;
-            }
-            else
-            {
-                return null;
-            }
+            Enum.TryParse(rawValue, out value);
+            return value;
         }
     }
 }
