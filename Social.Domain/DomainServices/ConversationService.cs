@@ -138,19 +138,36 @@ namespace Social.Domain.DomainServices
 
         public override void Update(Conversation entity)
         {
-            WriteConversationLog(entity);
-            base.Update(entity);
-        }
-
-        private void WriteConversationLog(Conversation conversation)
-        {
-            if (UserContext.UserId <= 0)
+            var oldEntity = Repository.FindAsNoTracking().FirstOrDefault(t => t.Id == entity.Id);
+            if (oldEntity == null)
             {
                 return;
             }
 
-            var oldEntity = Repository.FindAsNoTracking().FirstOrDefault(t => t.Id == conversation.Id);
-            if (oldEntity == null)
+            CheckStatus(oldEntity, entity);
+            WriteConversationLog(oldEntity, entity);
+            base.Update(entity);
+        }
+
+        private void CheckStatus(Conversation oldEntity, Conversation conversation)
+        {
+            if (oldEntity.Status == ConversationStatus.Closed && conversation.Status != ConversationStatus.Closed)
+            {
+                List<int> senderIds = oldEntity.Messages.Where(t => t.Sender.SocialAccount == null).Select(t => t.SenderId).Distinct().ToList();
+                List<int> recipientIds = oldEntity.Messages.Where(t => t.Sender.SocialAccount == null && t.ReceiverId != null).Select(t => t.ReceiverId.Value).Distinct().ToList();
+                var userIds = senderIds.Union(recipientIds).Distinct();
+
+                bool isExistsOpenConversation = FindAll().Any(t => t.Id != conversation.Id && t.Status != ConversationStatus.Closed && t.Messages.Any(m => userIds.Contains(m.SenderId) || userIds.Contains(m.ReceiverId.Value)));
+                if (isExistsOpenConversation)
+                {
+                    throw new BadRequestException("Another open conversation which belongs to the same user has been found.");
+                }
+            }
+        }
+
+        private void WriteConversationLog(Conversation oldEntity, Conversation conversation)
+        {
+            if (UserContext.UserId <= 0)
             {
                 return;
             }
