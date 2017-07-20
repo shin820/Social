@@ -17,7 +17,7 @@ namespace Social.Application.AppServices
         List<ConversationFieldDto> FindAll();
         ConversationFieldDto Find(int id);
     }
-    public class ConversationFieldAppService: AppService,IConversationFieldService
+    public class ConversationFieldAppService : AppService, IConversationFieldService
     {
         private IDomainService<ConversationField> _domainService;
 

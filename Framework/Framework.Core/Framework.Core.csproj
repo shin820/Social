@@ -87,6 +87,7 @@
     <Compile Include="Dependency\ITransient.cs" />
     <Compile Include="DomainService.cs" />
     <Compile Include="Exception\ExceptionWithCode.cs" />
+    <Compile Include="Extensions\EnumExtension.cs" />
     <Compile Include="Extensions\IListExtensions.cs" />
     <Compile Include="Extensions\UriExtensions.cs" />
     <Compile Include="IConnectionStringResolver.cs" />

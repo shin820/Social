@@ -49,7 +49,6 @@ namespace Social.Domain.Entities
 
         public ConversationPriority? ConversationPriority { get; set; }
 
-        [Required]
         public virtual SocialUser SocialUser { get; set; }
     }
 }

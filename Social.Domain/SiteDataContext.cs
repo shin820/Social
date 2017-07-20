@@ -80,9 +80,6 @@ namespace Social.Domain
             modelBuilder.Entity<SocialUser>()
                 .HasOptional(t => t.SocialAccount)
                 .WithRequired(t => t.SocialUser);
-
-            modelBuilder.Entity<SocialAccount>().HasRequired(t => t.SocialUser).WithMany().HasForeignKey(t =>t.Id);
-
         }
     }
 }

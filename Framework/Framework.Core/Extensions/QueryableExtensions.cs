@@ -34,7 +34,7 @@ namespace Framework.Core
         {
             if (pager.PageSize <= 0)
             {
-                pager.PageSize = 20;
+                pager.PageSize = 50;
             }
 
             totalCount = query.Count();

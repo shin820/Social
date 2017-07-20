@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Framework.Core;
 using Social.Application.Dto;
 using Social.Domain.DomainServices;
@@ -18,33 +19,43 @@ namespace Social.Application.AppServices
         ConversationDto Insert(ConversationCreateDto createDto);
         void Delete(int id);
         void Update(int id, ConversationUpdateDto updateDto);
+        IList<ConversationLogDto> GetLogs(int converationId);
     }
 
     public class ConversationAppService : AppService, IConversationAppService
     {
         private IConversationService _domainService;
+        private IDomainService<ConversationLog> _logService;
 
-        public ConversationAppService(IConversationService domainService)
+        public ConversationAppService(
+            IConversationService domainService,
+            IDomainService<ConversationLog> logService
+            )
         {
             _domainService = domainService;
+            _logService = logService;
         }
 
-        public PagedList<ConversationDto> Find(ConversationSearchDto searchDto)
+        public PagedList<ConversationDto> Find(ConversationSearchDto dto)
         {
-            return _domainService.FindAll("", searchDto.FilterId).PagingAndMapping<Conversation, ConversationDto>(searchDto);
+            if (dto.Since == null && dto.Util == null)
+            {
+                dto.Util = DateTime.UtcNow;
+                dto.Since = DateTime.UtcNow.AddMonths(-3);
+            }
+            var conversations = _domainService.FindAll();
+            conversations = conversations.WhereIf(dto.Since != null, t => t.CreatedTime >= dto.Since);
+            conversations = conversations.WhereIf(dto.Util != null, t => t.CreatedTime <= dto.Util);
+            conversations = _domainService.ApplyFilter(conversations, dto.FilterId);
+            conversations = _domainService.ApplyKeyword(conversations, dto.Keyword);
+
+            return conversations.PagingAndMapping<Conversation, ConversationDto>(dto);
         }
 
         public ConversationDto Find(int id)
         {
             var conversation = _domainService.Find(id);
-            if (conversation.IsDeleted == false)
-            {
-                return Mapper.Map<ConversationDto>(conversation);
-            }
-            else
-            {
-                return null;
-            }
+            return Mapper.Map<ConversationDto>(conversation);
         }
 
         public ConversationDto Insert(ConversationCreateDto createDto)
@@ -66,6 +77,15 @@ namespace Social.Application.AppServices
             var conversation = Mapper.Map<Conversation>(conversationDto);
             Mapper.Map(updateDto, conversation);
             _domainService.Update(conversation);
+        }
+
+        public IList<ConversationLogDto> GetLogs(int converationId)
+        {
+            return _logService.FindAll()
+                .Where(t => t.ConversationId == converationId)
+                .OrderByDescending(t => t.CreatedTime)
+                .ProjectTo<ConversationLogDto>()
+                .ToList();
         }
     }
 }
