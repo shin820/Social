@@ -11,34 +11,15 @@ namespace Social.Domain.DomainServices
 {
     public class SourceExpression : OptionExpression
     {
-        public SourceExpression() : base("Source")
+        public SourceExpression() : base("Source", "Source")
         {
         }
 
-        protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
+        protected override object GetValue(string rawValue)
         {
             ConversationSource value;
-            if (Enum.TryParse(condition.Value, out value))
-            {
-                return t => t.Source == value;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
-        {
-            ConversationSource value;
-            if (Enum.TryParse(condition.Value, out value))
-            {
-                return t => t.Source != value;
-            }
-            else
-            {
-                return null;
-            }
+            Enum.TryParse(rawValue, out value);
+            return value;
         }
     }
 }
