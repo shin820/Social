@@ -1,4 +1,5 @@
 ﻿using Framework.Core;
+using Social.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace Social.Domain.DomainServices
     public interface IAgentService
     {
         string GetDiaplyName(int? id);
+        void FillAgentName(IEnumerable<IHaveSendAgent> list);
     }
 
     public class AgentService : ITransient, IAgentService
@@ -22,6 +24,19 @@ namespace Social.Domain.DomainServices
             }
 
             return "Test Agent";
+        }
+
+        public void FillAgentName(IEnumerable<IHaveSendAgent> list)
+        {
+            List<int> agentIds = list.Where(t => t.SendAgentId != null).Select(t => t.SendAgentId.Value).Distinct().ToList();
+            if (agentIds.Any())
+            {
+                //todo
+                foreach (var item in list)
+                {
+                    item.SendAgentName = "Test Agent";
+                }
+            }
         }
     }
 }

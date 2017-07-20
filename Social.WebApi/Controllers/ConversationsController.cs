@@ -66,5 +66,17 @@ namespace Social.WebApi.Controllers
         {
             return _appService.GetLogs(id);
         }
+
+        [Route("{id}/facebook-messages")]
+        public IList<FacebookMessageDto> GetFacebookMessages(int id)
+        {
+            return _appService.GetFacebookDirectMessages(id);
+        }
+
+        [Route("{id}/facebook-post-messages")]
+        public FacebookPostMessageDto GetFacebookPostMessages(int id)
+        {
+            return _appService.GetFacebookPostMessages(id);
+        }
     }
 }
