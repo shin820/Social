@@ -25,7 +25,10 @@ namespace Social.Domain.DomainServices.FilterExpressions
         public Expression<Func<Conversation, bool>> Create(Filter filter)
         {
             var expressions = filter.Conditions.Select(t => GetConditionExpression(t)).Where(t => t != null).ToList();
-
+            if(expressions.Count() == 0)
+            {
+                return t => true;
+            }
             if (filter.Type == FilterType.All)
             {
                 var predicate = PredicateBuilder.New<Conversation>();

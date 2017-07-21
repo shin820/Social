@@ -125,12 +125,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationServicesRegistrar.cs" />
+    <Compile Include="AppServices\AgentAppService.cs" />
     <Compile Include="AppServices\ConversationAppService.cs" />
+    <Compile Include="AppServices\DepartmentAppService.cs" />
     <Compile Include="AppServices\ConversationMessageAppService.cs" />
     <Compile Include="AppServices\FacebookAccountAppService.cs" />
     <Compile Include="AppServices\TwitterAccountAppService.cs" />
     <Compile Include="AppServices\TwitterAppService.cs" />
     <Compile Include="DtoMappings\ConversationMessageDtoMappings.cs" />
+    <Compile Include="Dto\Agent\AgentDto.cs" />
     <Compile Include="Dto\ConversationMessage\BeQuotedTweetDto.cs" />
     <Compile Include="Dto\ConversationMessage\FacebookMessageDto.cs" />
     <Compile Include="Dto\ConversationMessage\FacebookPostCommentMessageDto.cs" />
@@ -138,6 +141,7 @@
     <Compile Include="Dto\ConversationMessage\MessageAttachmentDto.cs" />
     <Compile Include="Dto\ConversationMessage\TwitterDirectMessageDto.cs" />
     <Compile Include="Dto\Conversation\ConversationLogDto.cs" />
+    <Compile Include="Dto\Department\DepartmentDto.cs" />
     <Compile Include="Dto\FacebookAccount\FacebookPageDto.cs" />
     <Compile Include="Dto\FacebookAccount\FacebookPageListDto.cs" />
     <Compile Include="Dto\FacebookAccount\UpdateFacebookPageDto.cs" />

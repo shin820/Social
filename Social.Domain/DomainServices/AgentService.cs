@@ -1,4 +1,5 @@
 ﻿using Framework.Core;
+using Social.Domain.Entities.General;
 using Social.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace Social.Domain.DomainServices
     {
         string GetDiaplyName(int? id);
         void FillAgentName(IEnumerable<IHaveSendAgent> list);
+        int[] IsMatchStatusAgents(int status);
     }
 
     public class AgentService : ITransient, IAgentService
@@ -37,6 +39,12 @@ namespace Social.Domain.DomainServices
                     item.SendAgentName = "Test Agent";
                 }
             }
+        }
+
+        public int[] IsMatchStatusAgents(int status)
+        {
+            return new int[] { };
+
         }
     }
 }

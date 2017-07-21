@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Social.Domain.Entities;
 using System.Linq.Expressions;
+using System.Data.Entity;
 
 namespace Social.Domain.DomainServices
 {
@@ -18,25 +19,26 @@ namespace Social.Domain.DomainServices
         protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
         {
             double value = double.Parse(condition.Value);
-            return t => (DateTime.Now - t.LastMessageSentTime).TotalMinutes == value;
+            return t => DbFunctions.DiffMinutes(t.LastMessageSentTime, DateTime.Now) == value;
         }
 
         protected override Expression<Func<Conversation, bool>> IsLessThan(FilterCondition condition)
         {
             double value = double.Parse(condition.Value);
-            return t => (DateTime.Now - t.LastMessageSentTime).TotalMinutes < value;
+            return t => DbFunctions.DiffMinutes(t.LastMessageSentTime, DateTime.Now) < value;
         }
 
         protected override Expression<Func<Conversation, bool>> IsMoreThan(FilterCondition condition)
         {
             double value = double.Parse(condition.Value);
-            return t => (DateTime.Now - t.LastMessageSentTime).TotalMinutes > value;
+            return t => DbFunctions.DiffMinutes(t.LastMessageSentTime, DateTime.Now) > value;
         }
 
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
         {
             double value = double.Parse(condition.Value);
-            return t => (DateTime.Now - t.LastMessageSentTime).TotalMinutes != value;
+            return t => DbFunctions.DiffMinutes(t.LastMessageSentTime, DateTime.Now) != value;
         }
+
     }
 }
