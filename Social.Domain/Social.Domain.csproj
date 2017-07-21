@@ -139,6 +139,7 @@
     <Compile Include="DomainServices\DepartmentService.cs" />
     <Compile Include="DomainServices\FilterExpressions\DateTimeExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\NumberExpression.cs" />
+    <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\AgentAssigneeStatusExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\CommentMessagesExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\ConversationIDExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\CreatedExpression.cs" />
@@ -160,6 +161,7 @@
     <Compile Include="DomainServices\Facebook\WebHookStrategies\WebHookStrategyFactory.cs" />
     <Compile Include="DomainServices\FilterExpressions\StringExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\AgentAssigneeExpression.cs" />
+    <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\DepartmentAssigneeStatusExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\LastMessageSentbyExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\LastMessageSentExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\LastModifiedExpression.cs" />
@@ -184,6 +186,7 @@
     <Compile Include="Entities\ConversationFieldOption.cs" />
     <Compile Include="Entities\Filter.cs" />
     <Compile Include="Entities\FilterCondition.cs" />
+    <Compile Include="Entities\General\Agent.cs" />
     <Compile Include="Entities\General\Department.cs" />
     <Compile Include="Entities\General\SiteSocialAccount.cs" />
     <Compile Include="Entities\General\User.cs" />

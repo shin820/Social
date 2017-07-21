@@ -11,7 +11,7 @@ namespace Social.Domain.DomainServices
 {
     public class TotalMessagesExpression : NumberExpression
     {
-        public TotalMessagesExpression() : base("Conversation ID")
+        public TotalMessagesExpression() : base("Total Messages")
         {
         }
 
