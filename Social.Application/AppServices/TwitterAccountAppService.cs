@@ -51,24 +51,27 @@ namespace Social.Application.AppServices
         public async Task AddAccountAsync(string authorizationId, string oauthVerifier)
         {
             var user = await _twitterAuthService.ValidateAuthAsync(authorizationId, oauthVerifier);
-            SocialAccount account = new SocialAccount
+            if (user != null)
             {
-                Token = user.Credentials.AccessToken,
-                TokenSecret = user.Credentials.AccessTokenSecret,
-                SocialUser = new SocialUser
+                SocialAccount account = new SocialAccount
                 {
-                    Name = user.Name,
-                    ScreenName = user.ScreenName,
-                    Email = user.Email,
-                    Source = SocialUserSource.Twitter,
-                    Type = SocialUserType.IntegrationAccount,
-                    Avatar = user.ProfileImageUrl,
-                    OriginalId = user.IdStr,
-                    OriginalLink = user.Url
-                }
-            };
+                    Token = user.Credentials.AccessToken,
+                    TokenSecret = user.Credentials.AccessTokenSecret,
+                    SocialUser = new SocialUser
+                    {
+                        Name = user.Name,
+                        ScreenName = user.ScreenName,
+                        Email = user.Email,
+                        Source = SocialUserSource.Twitter,
+                        Type = SocialUserType.IntegrationAccount,
+                        Avatar = user.ProfileImageUrl,
+                        OriginalId = user.IdStr,
+                        OriginalLink = user.Url
+                    }
+                };
 
-            await _socialAccountService.InsertAsync(account);
+                await _socialAccountService.InsertAsync(account);
+            }
         }
 
         public IList<TwitterAccountListDto> GetAccounts()

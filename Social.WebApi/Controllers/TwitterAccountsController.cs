@@ -54,7 +54,7 @@ namespace Social.WebApi.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("validate-twitter-auth", Name = "ValidateAuth")]
-        public async Task<IHttpActionResult> ValidateTwitterAuth(string authorization_id, string oauth_verifier, string redirectUri)
+        public async Task<IHttpActionResult> ValidateTwitterAuth(string authorization_id, string redirectUri, string oauth_verifier = null)
         {
             await _appService.AddAccountAsync(authorization_id, oauth_verifier);
             return Redirect(redirectUri);

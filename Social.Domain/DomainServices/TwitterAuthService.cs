@@ -54,6 +54,11 @@ namespace Social.Domain.DomainServices
         {
             var twitterAuth = await FindAndDeleteAsync(authorizationId);
 
+            if (string.IsNullOrEmpty(oauthVerifier))
+            {
+                return null;
+            }
+
             var appCreds = new ConsumerCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret);
             var token = new AuthenticationToken()
             {
