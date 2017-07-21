@@ -59,8 +59,11 @@ namespace Social.Domain.DomainServices
                 user = new SocialUser
                 {
                     OriginalId = twitterUser.IdStr,
-                    Name = twitterUser.ScreenName,
-                    Source = SocialUserSource.Twitter
+                    Name = twitterUser.Name,
+                    ScreenName = twitterUser.ScreenName,
+                    Avatar = twitterUser.ProfileImageUrl,
+                    Source = SocialUserSource.Twitter,
+                    OriginalLink = twitterUser.Url
                 };
                 await Repository.InsertAsync(user);
             }

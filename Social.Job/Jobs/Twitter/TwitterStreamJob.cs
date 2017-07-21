@@ -63,20 +63,29 @@ namespace Social.Job.Jobs
 
             stream.MessageReceived += async (sender, args) =>
             {
-                Auth.SetCredentials(_creds);
-                await _twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
+                if (socialAccount.IfConvertMessageToConversation)
+                {
+                    Auth.SetCredentials(_creds);
+                    await _twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
+                }
             };
 
             stream.MessageSent += async (sender, args) =>
             {
-                Auth.SetCredentials(_creds);
-                await _twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
+                if (socialAccount.IfConvertMessageToConversation)
+                {
+                    Auth.SetCredentials(_creds);
+                    await _twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
+                }
             };
 
             stream.TweetCreatedByAnyone += async (sender, args) =>
             {
-                Auth.SetCredentials(_creds);
-                await _twitterAppService.ProcessTweet(socialAccount, args.Tweet);
+                if (socialAccount.IfConvertTweetToConversation)
+                {
+                    Auth.SetCredentials(_creds);
+                    await _twitterAppService.ProcessTweet(socialAccount, args.Tweet);
+                }
             };
 
             stream.StreamStopped += (sender, args) =>

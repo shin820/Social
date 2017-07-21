@@ -187,6 +187,7 @@ namespace Social.Domain.DomainServices
                     SocialUser sender = await _socialUserService.GetOrCreateTwitterUser(tweet.CreatedBy);
                     var message = ConvertToMessage(tweet);
                     message.SenderId = sender.Id;
+                    message.ReceiverId = account.Id;
                     var conversation = new Conversation
                     {
                         OriginalId = tweet.IdStr,
@@ -206,9 +207,10 @@ namespace Social.Domain.DomainServices
                     var inReplyToTweetMessage = _messageService.GetTwitterTweetMessage(tweet.InReplyToStatusIdStr);
                     if (inReplyToTweetMessage != null)
                     {
-                        SocialUser inReplyToTweetSender = await _socialUserService.GetOrCreateTwitterUser(tweet.CreatedBy);
+                        SocialUser sender = await _socialUserService.GetOrCreateTwitterUser(tweet.CreatedBy);
                         var message = ConvertToMessage(tweet);
-                        message.SenderId = inReplyToTweetSender.Id;
+                        message.SenderId = sender.Id;
+                        message.ReceiverId = inReplyToTweetMessage.SenderId;
                         message.ParentId = inReplyToTweetMessage.Id;
 
                         existingConversation.Messages.Add(message);
