@@ -20,6 +20,11 @@ namespace Social.Infrastructure
             return new ExceptionWithCode(40001, $"Invalid parameter '{key}'.");
         }
 
+        public static ExceptionWithCode OriginalPostOrTweetHasBeenDeleted()
+        {
+            return new ExceptionWithCode(40002, $"The original Post or Tweet is deleted.");
+        }
+
         public static BadRequestException BadReqeust(string msg)
         {
             return new BadRequestException(msg);

@@ -72,6 +72,7 @@ namespace Social.Job.Jobs
 
             stream.MessageSent += async (sender, args) =>
             {
+                await Task.Delay(1000);
                 if (socialAccount.IfConvertMessageToConversation)
                 {
                     Auth.SetCredentials(_creds);
@@ -81,6 +82,7 @@ namespace Social.Job.Jobs
 
             stream.TweetCreatedByAnyone += async (sender, args) =>
             {
+                await Task.Delay(1000);
                 if (socialAccount.IfConvertTweetToConversation)
                 {
                     Auth.SetCredentials(_creds);

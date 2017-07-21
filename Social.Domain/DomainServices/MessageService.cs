@@ -1,5 +1,6 @@
 ﻿using Framework.Core;
 using Social.Domain.Entities;
+using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using Social.Infrastructure.Facebook;
 using System;
@@ -150,7 +151,7 @@ namespace Social.Domain.DomainServices
 
             if (comment == null)
             {
-                throw new BadRequestException("The original Post or Tweet is deleted.");
+                throw SocialExceptions.OriginalPostOrTweetHasBeenDeleted();
             }
 
             return comment;
@@ -241,6 +242,10 @@ namespace Social.Domain.DomainServices
                         content = "@" + previousTweet.CreatedBy.ScreenName + " " + content;
                     }
                     var replyTweet = twitterService.ReplyTweet(twitterAccount, previousTweet, content);
+                    if (replyTweet == null)
+                    {
+                        continue;
+                    }
 
                     // add message
                     replyMessage = twitterService.ConvertToMessage(replyTweet);
@@ -264,7 +269,7 @@ namespace Social.Domain.DomainServices
 
             if (replyMessage == null)
             {
-                throw new BadRequestException("The original Post or Tweet is deleted.");
+                throw SocialExceptions.OriginalPostOrTweetHasBeenDeleted();
             }
 
             return replyMessage;
