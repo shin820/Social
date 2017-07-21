@@ -97,7 +97,7 @@
     <Compile Include="Enum\FilterType.cs" />
     <Compile Include="Enum\SocialUserType.cs" />
     <Compile Include="Enum\SoicalUserSource.cs" />
-    <Compile Include="ExceptionHelper.cs" />
+    <Compile Include="SocialExceptions.cs" />
     <Compile Include="Facebook\FacebookWebHookClient.cs" />
     <Compile Include="Facebook\FbAttachment.cs" />
     <Compile Include="Facebook\FbAttachmentImage.cs" />

@@ -47,7 +47,7 @@ namespace Social.Infrastructure.Facebook
             }
             catch (FacebookOAuthException ex)
             {
-                throw ExceptionHelper.FacebookOauthException(ex);
+                throw SocialExceptions.FacebookOauthException(ex);
             }
         }
 

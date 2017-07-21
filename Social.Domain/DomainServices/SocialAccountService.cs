@@ -35,7 +35,7 @@ namespace Social.Domain.DomainServices
         {
             if (IsDupliated(entity))
             {
-                throw ExceptionHelper.BadReqeust($"'{entity.SocialUser.Name}' has already been added.");
+                throw SocialExceptions.BadReqeust($"'{entity.SocialUser.Name}' has already been added.");
             }
 
             ApplyDefaultValue(entity);

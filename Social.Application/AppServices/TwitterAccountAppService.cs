@@ -58,6 +58,8 @@ namespace Social.Application.AppServices
                 SocialUser = new SocialUser
                 {
                     Name = user.Name,
+                    ScreenName = user.ScreenName,
+                    Email = user.Email,
                     Source = SocialUserSource.Twitter,
                     Type = SocialUserType.IntegrationAccount,
                     Avatar = user.ProfileImageUrl,
@@ -77,16 +79,23 @@ namespace Social.Application.AppServices
         public TwitterAccountDto GetAccount(int id)
         {
             var entity = _socialAccountService.Find(id);
+            if (entity == null)
+            {
+                throw SocialExceptions.ConversationIdNotExists(id);
+            }
+
             return Mapper.Map<TwitterAccountDto>(entity);
         }
 
         public async Task DeleteAccountAsync(int id)
         {
             var entity = _socialAccountService.Find(id);
-            if (entity != null)
+            if (entity == null)
             {
-                await _socialAccountService.DeleteAsync(entity);
+                throw SocialExceptions.ConversationIdNotExists(id);
             }
+
+            await _socialAccountService.DeleteAsync(entity);
         }
 
         public TwitterAccountDto UpdateAccount(int id, UpdateTwitterAccountDto dto)
@@ -94,7 +103,7 @@ namespace Social.Application.AppServices
             var socialAccount = _socialAccountService.Find(id);
             if (socialAccount == null)
             {
-                throw new NotFoundException($"'{id}' not exists.");
+                throw SocialExceptions.ConversationIdNotExists(id);
             }
 
             socialAccount = Mapper.Map(dto, socialAccount);
