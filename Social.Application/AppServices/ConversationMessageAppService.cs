@@ -26,7 +26,7 @@ namespace Social.Application.AppServices
         void ReplyFacebookPostOrComment(int conversationId, int parentId, string content);
     }
 
-    public class ConversationMessageAppService : AppService
+    public class ConversationMessageAppService : AppService, IConversationMessageAppService
     {
         private IConversationService _conversationService;
         private IMessageService _messageService;

@@ -252,7 +252,7 @@ namespace Social.Infrastructure.Facebook
             return await client.GetTaskAsync<FbPost>(url);
         }
 
-        public async static Task<FbComment> GetComment(string token, string fbCommentId)
+        public static FbComment GetComment(string token, string fbCommentId)
         {
             Checker.NotNullOrWhiteSpace(token, nameof(token));
             Checker.NotNullOrWhiteSpace(fbCommentId, nameof(fbCommentId));
@@ -260,7 +260,7 @@ namespace Social.Infrastructure.Facebook
             FacebookClient client = new FacebookClient(token);
             string url = $"/{fbCommentId}?fields=id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden";
 
-            return await client.GetTaskAsync<FbComment>(url);
+            return client.Get<FbComment>(url);
         }
 
         public async static Task<FbPagingData<FbPost>> GetVisitorPosts(string pageId, string token)

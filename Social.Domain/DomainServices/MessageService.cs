@@ -29,16 +29,13 @@ namespace Social.Domain.DomainServices
     public class MessageService : DomainService<Message>, IMessageService
     {
         private ISocialAccountService _socialAccountService;
-        private ITwitterService _twitterService;
         private IConversationService _conversationService;
         public MessageService(
             ISocialAccountService socialAccountService,
-            ITwitterService twitterService,
             IConversationService conversationService
             )
         {
             _socialAccountService = socialAccountService;
-            _twitterService = twitterService;
             _conversationService = conversationService;
         }
 
@@ -83,7 +80,7 @@ namespace Social.Domain.DomainServices
 
             // upadte conversation
             conversation.Status = ConversationStatus.PendingExternal;
-            conversation.LastMessageSenderId = message.Id;
+            conversation.LastMessageSenderId = message.SenderId;
             conversation.LastMessageSentTime = message.SendTime;
             conversation.LastRepliedAgentId = UserContext.UserId;
             _conversationService.Update(conversation);
@@ -111,7 +108,8 @@ namespace Social.Domain.DomainServices
             }
 
             // add message
-            string fbMessageId = FbClient.PublishComment(socialAccount.Token, parentMessage.OriginalId, content);
+            string fbCommentId = FbClient.PublishComment(socialAccount.Token, parentMessage.OriginalId, content);
+            var fbComment = FbClient.GetComment(socialAccount.Token, fbCommentId);
             var message = new Message
             {
                 ConversationId = conversation.Id,
@@ -119,8 +117,9 @@ namespace Social.Domain.DomainServices
                 SenderId = socialAccount.Id,
                 ReceiverId = parentMessage.SenderId,
                 SendAgentId = UserContext.UserId,
-                SendTime = DateTime.UtcNow,
-                OriginalId = fbMessageId,
+                SendTime = fbComment.created_time,
+                OriginalId = fbCommentId,
+                OriginalLink = fbComment.permalink_url,
                 Source = MessageSource.FacebookPostComment
             };
             Repository.Insert(message);
@@ -128,7 +127,7 @@ namespace Social.Domain.DomainServices
 
             // upadte conversation
             conversation.Status = ConversationStatus.PendingExternal;
-            conversation.LastMessageSenderId = message.Id;
+            conversation.LastMessageSenderId = message.SenderId;
             conversation.LastMessageSentTime = message.SendTime;
             conversation.LastRepliedAgentId = UserContext.UserId;
             _conversationService.Update(conversation);
@@ -138,6 +137,8 @@ namespace Social.Domain.DomainServices
 
         public Message ReplyTweetDirectMessage(int conversationId, int twitterAccountId, string message)
         {
+            var twitterService = DependencyResolver.Resolve<ITwitterService>();
+
             Conversation conversation = _conversationService.CheckIfExists(conversationId);
 
             var previousMessages = FindAllByConversationId(conversationId)
@@ -155,12 +156,12 @@ namespace Social.Domain.DomainServices
             {
                 foreach (var previousMessage in previousMessages)
                 {
-                    IUser prviousUser = _twitterService.GetUser(twitterAccount, long.Parse(previousMessage.Sender.OriginalId));
+                    IUser prviousUser = twitterService.GetUser(twitterAccount, long.Parse(previousMessage.Sender.OriginalId));
                     if (prviousUser != null)
                     {
                         // add tweet message
-                        IMessage twitterDirectMessage = _twitterService.PublishMessage(twitterAccount, prviousUser, message);
-                        directMessage = _twitterService.ConvertToMessage(twitterDirectMessage);
+                        IMessage twitterDirectMessage = twitterService.PublishMessage(twitterAccount, prviousUser, message);
+                        directMessage = twitterService.ConvertToMessage(twitterDirectMessage);
                         directMessage.ConversationId = conversation.Id;
                         directMessage.SenderId = twitterAccount.Id;
                         directMessage.SendAgentId = UserContext.UserId;
@@ -174,6 +175,7 @@ namespace Social.Domain.DomainServices
                         conversation.LastMessageSentTime = directMessage.SendTime;
                         conversation.LastRepliedAgentId = UserContext.UserId;
                         _conversationService.Update(conversation);
+                        break;
                     }
                 }
             }
@@ -188,11 +190,13 @@ namespace Social.Domain.DomainServices
 
         public Message ReplyTweetMessage(int conversationId, int twitterAccountId, string message)
         {
+            var twitterService = DependencyResolver.Resolve<ITwitterService>();
             Conversation conversation = _conversationService.CheckIfExists(conversationId);
 
             var previousMessages = FindAllByConversationId(conversationId)
                 .Where(t => t.SenderId != twitterAccountId)
-                .OrderByDescending(t => t.SendTime);
+                .OrderByDescending(t => t.SendTime)
+                .ToList();
 
             SocialAccount twitterAccount = _socialAccountService.Find(twitterAccountId);
             if (twitterAccount == null)
@@ -205,12 +209,12 @@ namespace Social.Domain.DomainServices
             {
                 foreach (var previousMessage in previousMessages)
                 {
-                    ITweet previousTweet = _twitterService.GetTweet(twitterAccount, long.Parse(previousMessage.OriginalId));
+                    ITweet previousTweet = twitterService.GetTweet(twitterAccount, long.Parse(previousMessage.OriginalId));
                     if (previousTweet != null && !previousTweet.IsTweetDestroyed)
                     {
                         // add tweet message
-                        var replyTweet = _twitterService.ReplyTweet(twitterAccount, previousTweet, message);
-                        replyMessage = _twitterService.ConvertToMessage(replyTweet);
+                        var replyTweet = twitterService.ReplyTweet(twitterAccount, previousTweet, message);
+                        replyMessage = twitterService.ConvertToMessage(replyTweet);
                         replyMessage.ConversationId = conversation.Id;
                         replyMessage.SenderId = twitterAccount.Id;
                         replyMessage.SendAgentId = UserContext.UserId;
@@ -224,6 +228,7 @@ namespace Social.Domain.DomainServices
                         conversation.LastMessageSentTime = replyMessage.SendTime;
                         conversation.LastRepliedAgentId = UserContext.UserId;
                         _conversationService.Update(conversation);
+                        break;
                     }
                 }
             }

@@ -12,6 +12,7 @@ using Tweetinvi;
 using Tweetinvi.Events;
 using Tweetinvi.Models;
 using Tweetinvi.Models.Entities;
+using Tweetinvi.Parameters;
 
 namespace Social.Domain.DomainServices
 {
@@ -71,7 +72,10 @@ namespace Social.Domain.DomainServices
         {
             Auth.SetCredentials(new TwitterCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret, socialAccount.Token, socialAccount.TokenSecret));
 
-            return Tweet.PublishTweetInReplyTo(message, inReplyTo);
+            return Tweet.PublishTweet(message, new PublishTweetOptionalParameters
+            {
+                InReplyToTweet = inReplyTo
+            });
         }
 
         public IMessage PublishMessage(SocialAccount socialAccount, IUser user, string message)
