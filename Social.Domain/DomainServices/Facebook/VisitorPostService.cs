@@ -262,7 +262,8 @@ namespace Social.Domain.DomainServices.Facebook
                 {
                     OriginalId = fbSender.id,
                     Name = fbSender.name,
-                    Email = fbSender.email
+                    Email = fbSender.email,
+                    Source = SocialUserSource.Facebook,
                 };
 
                 await _socialUserRepo.InsertAsync(sender);

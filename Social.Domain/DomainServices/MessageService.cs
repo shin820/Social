@@ -3,12 +3,10 @@ using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
 using Social.Infrastructure.Facebook;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tweetinvi;
 using Tweetinvi.Models;
 using Message = Social.Domain.Entities.Message;
 
@@ -20,8 +18,8 @@ namespace Social.Domain.DomainServices
         Message GetTwitterTweetMessage(string originalId);
         bool IsDuplicatedMessage(MessageSource messageSource, string originalId);
         bool IsDupliatedTweet(ITweet tweet);
-        Message ReplyTweetMessage(int conversationId, int twitterAccountId, string message);
-        Message ReplyTweetDirectMessage(int conversationId, int twitterAccountId, string message);
+        Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, int parentId, string message);
+        Message ReplyTwitterDirectMessage(int conversationId, int twitterAccountId, string message);
         Message ReplyFacebookMessage(int conversationId, string content);
         Message ReplyFacebookPostOrComment(int conversationId, int parentId, string content);
     }
@@ -43,27 +41,34 @@ namespace Social.Domain.DomainServices
         {
             return Repository.FindAll()
                 .Include(t => t.Attachments)
-                .Include(t => t.Sender)
+                .Include(t => t.Sender.SocialAccount)
+                .Include(t => t.Receiver.SocialAccount)
                 .Where(t => t.ConversationId == conversationId && t.IsDeleted == false);
         }
 
         public Message ReplyFacebookMessage(int conversationId, string content)
         {
             var conversation = _conversationService.CheckIfExists(conversationId);
-            SocialAccount socialAccount = conversation.Messages.Where(t => t.Sender.SocialAccount != null).Select(t => t.Sender.SocialAccount).FirstOrDefault();
-            if (socialAccount == null)
+            if (conversation.Source != ConversationSource.FacebookMessage)
             {
-                socialAccount = conversation.Messages.Where(t => t.Receiver.SocialAccount != null).Select(t => t.Receiver.SocialAccount).FirstOrDefault();
-            }
-            if (socialAccount == null)
-            {
-                throw new BadRequestException("Facebook social account can't be found.");
+                throw new BadRequestException("Conversation source must be facebook message.");
             }
 
-            SocialUser recipient = conversation.Messages.Where(t => t.Sender.SocialAccount == null).OrderByDescending(t => t.SendTime).Select(t => t.Sender).FirstOrDefault();
+            var messages = FindAllByConversationId(conversation.Id).ToList();
+            SocialAccount socialAccount = GetSocialAccountsFromMessages(messages).FirstOrDefault();
+            if (socialAccount == null)
+            {
+                throw new BadRequestException("Facebook integration account can't be found from conversation.");
+            }
 
-            // add message
+            SocialUser recipient = messages.Where(t => t.Sender.Type == SocialUserType.Customer)
+                .OrderByDescending(t => t.SendTime)
+                .Select(t => t.Sender).FirstOrDefault();
+
+            // publish message to facebook
             string fbMessageId = FbClient.PublishMessage(socialAccount.Token, conversation.OriginalId, content);
+
+            // create message
             var message = new Message
             {
                 ConversationId = conversation.Id,
@@ -91,112 +96,124 @@ namespace Social.Domain.DomainServices
         public Message ReplyFacebookPostOrComment(int conversationId, int parentId, string content)
         {
             var conversation = _conversationService.CheckIfExists(conversationId);
-            SocialAccount socialAccount = conversation.Messages.Where(t => t.Sender.SocialAccount != null).Select(t => t.Sender.SocialAccount).FirstOrDefault();
-            if (socialAccount == null)
+            if (conversation.Source != ConversationSource.FacebookVisitorPost && conversation.Source != ConversationSource.FacebookWallPost)
             {
-                socialAccount = conversation.Messages.Where(t => t.Receiver.SocialAccount != null).Select(t => t.Receiver.SocialAccount).FirstOrDefault();
-            }
-            if (socialAccount == null)
-            {
-                throw new BadRequestException("Facebook social account can't be found.");
+                throw new BadRequestException("Conversation source must be facebook visitor/wall post.");
             }
 
-            var parentMessage = conversation.Messages.FirstOrDefault(t => t.Id == parentId);
-            if (parentMessage == null)
+            var messages = FindAllByConversationId(conversation.Id).ToList();
+            SocialAccount socialAccount = GetSocialAccountsFromMessages(messages).FirstOrDefault();
+            if (socialAccount == null)
             {
-                throw new BadRequestException("Invalid parent id.");
+                throw new BadRequestException("Facebook integration account can't be found from conversation.");
             }
 
-            // add message
-            string fbCommentId = FbClient.PublishComment(socialAccount.Token, parentMessage.OriginalId, content);
-            var fbComment = FbClient.GetComment(socialAccount.Token, fbCommentId);
-            var message = new Message
+            var previousMessages = GetPreviousMessages(messages, parentId);
+            Message comment = null;
+            foreach (var previousMessage in previousMessages)
             {
-                ConversationId = conversation.Id,
-                Content = content,
-                SenderId = socialAccount.Id,
-                ReceiverId = parentMessage.SenderId,
-                SendAgentId = UserContext.UserId,
-                SendTime = fbComment.created_time,
-                OriginalId = fbCommentId,
-                OriginalLink = fbComment.permalink_url,
-                Source = MessageSource.FacebookPostComment
-            };
-            Repository.Insert(message);
+                if (previousMessage.Sender.Type == SocialUserType.IntegrationAccount)
+                {
+                    continue;
+                }
+
+                // publish comment
+                string fbCommentId = FbClient.PublishComment(socialAccount.Token, previousMessage.OriginalId, content);
+                var fbComment = FbClient.GetComment(socialAccount.Token, fbCommentId);
+
+                // add message
+                comment = new Message
+                {
+                    ConversationId = conversation.Id,
+                    Content = content,
+                    SenderId = socialAccount.Id,
+                    ReceiverId = previousMessage.SenderId,
+                    SendAgentId = UserContext.UserId,
+                    SendTime = fbComment.created_time,
+                    OriginalId = fbCommentId,
+                    OriginalLink = fbComment.permalink_url,
+                    Source = MessageSource.FacebookPostComment
+                };
+                Repository.Insert(comment);
+                CurrentUnitOfWork.SaveChanges();
+
+                // upadte conversation
+                conversation.Status = ConversationStatus.PendingExternal;
+                conversation.LastMessageSenderId = comment.SenderId;
+                conversation.LastMessageSentTime = comment.SendTime;
+                conversation.LastRepliedAgentId = UserContext.UserId;
+                _conversationService.Update(conversation);
+
+                break;
+            }
+
+            if (comment == null)
+            {
+                throw new BadRequestException("The original Post or Tweet is deleted.");
+            }
+
+            return comment;
+        }
+
+        public Message ReplyTwitterDirectMessage(int conversationId, int twitterAccountId, string message)
+        {
+            var twitterService = DependencyResolver.Resolve<ITwitterService>();
+
+            Conversation conversation = _conversationService.CheckIfExists(conversationId);
+            if (conversation.Source != ConversationSource.TwitterDirectMessage)
+            {
+                throw new BadRequestException("Conversation source must be twitter direct message.");
+            }
+
+            SocialAccount twitterAccount = _socialAccountService.Find(twitterAccountId);
+            if (twitterAccount == null)
+            {
+                throw new BadRequestException("Invalid twitter account id.");
+            }
+
+            var messages = FindAllByConversationId(conversation.Id).ToList();
+            var lastMessageSender = messages.Where(t => t.SenderId != twitterAccountId).OrderByDescending(t => t.SendTime).Select(t => t.Sender).FirstOrDefault();
+            if (lastMessageSender == null)
+            {
+                throw new BadRequestException("Cant't find last message from conversation.");
+            }
+
+            IUser prviousTwitterUser = twitterService.GetUser(twitterAccount, long.Parse(lastMessageSender.OriginalId));
+            if (prviousTwitterUser == null)
+            {
+                throw new BadRequestException("Cant't find twitter user.");
+            }
+
+            // publish twitter direct message
+            IMessage twitterDirectMessage = twitterService.PublishMessage(twitterAccount, prviousTwitterUser, message);
+
+            // create message to db
+            Message directMessage = twitterService.ConvertToMessage(twitterDirectMessage);
+            directMessage.ConversationId = conversation.Id;
+            directMessage.SenderId = twitterAccount.Id;
+            directMessage.SendAgentId = UserContext.UserId;
+            directMessage.ReceiverId = lastMessageSender.Id;
+            Repository.Insert(directMessage);
             CurrentUnitOfWork.SaveChanges();
 
             // upadte conversation
             conversation.Status = ConversationStatus.PendingExternal;
-            conversation.LastMessageSenderId = message.SenderId;
-            conversation.LastMessageSentTime = message.SendTime;
+            conversation.LastMessageSenderId = twitterAccount.Id;
+            conversation.LastMessageSentTime = directMessage.SendTime;
             conversation.LastRepliedAgentId = UserContext.UserId;
             _conversationService.Update(conversation);
-
-            return message;
-        }
-
-        public Message ReplyTweetDirectMessage(int conversationId, int twitterAccountId, string message)
-        {
-            var twitterService = DependencyResolver.Resolve<ITwitterService>();
-
-            Conversation conversation = _conversationService.CheckIfExists(conversationId);
-
-            var previousMessages = FindAllByConversationId(conversationId)
-                .Where(t => t.SenderId != twitterAccountId)
-                .OrderByDescending(t => t.SendTime);
-
-            SocialAccount twitterAccount = _socialAccountService.Find(twitterAccountId);
-            if (twitterAccount == null)
-            {
-                throw new BadRequestException("Invalid twitter account id.");
-            }
-
-            Message directMessage = null;
-            if (previousMessages.Any())
-            {
-                foreach (var previousMessage in previousMessages)
-                {
-                    IUser prviousUser = twitterService.GetUser(twitterAccount, long.Parse(previousMessage.Sender.OriginalId));
-                    if (prviousUser != null)
-                    {
-                        // add tweet message
-                        IMessage twitterDirectMessage = twitterService.PublishMessage(twitterAccount, prviousUser, message);
-                        directMessage = twitterService.ConvertToMessage(twitterDirectMessage);
-                        directMessage.ConversationId = conversation.Id;
-                        directMessage.SenderId = twitterAccount.Id;
-                        directMessage.SendAgentId = UserContext.UserId;
-                        directMessage.ReceiverId = previousMessage.Sender.Id;
-                        Repository.Insert(directMessage);
-                        CurrentUnitOfWork.SaveChanges();
-
-                        // upadte conversation
-                        conversation.Status = ConversationStatus.PendingExternal;
-                        conversation.LastMessageSenderId = twitterAccount.Id;
-                        conversation.LastMessageSentTime = directMessage.SendTime;
-                        conversation.LastRepliedAgentId = UserContext.UserId;
-                        _conversationService.Update(conversation);
-                        break;
-                    }
-                }
-            }
-
-            if (directMessage == null)
-            {
-                throw new BadRequestException("There is no tweet message to reply.");
-            }
 
             return directMessage;
         }
 
-        public Message ReplyTweetMessage(int conversationId, int twitterAccountId, string message)
+        public Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, int parentId, string content)
         {
             var twitterService = DependencyResolver.Resolve<ITwitterService>();
             Conversation conversation = _conversationService.CheckIfExists(conversationId);
-
-            var previousMessages = FindAllByConversationId(conversationId)
-                .Where(t => t.SenderId != twitterAccountId)
-                .OrderByDescending(t => t.SendTime)
-                .ToList();
+            if (conversation.Source != ConversationSource.TwitterTweet)
+            {
+                throw new BadRequestException("Conversation source must be twitter tweet.");
+            }
 
             SocialAccount twitterAccount = _socialAccountService.Find(twitterAccountId);
             if (twitterAccount == null)
@@ -204,38 +221,48 @@ namespace Social.Domain.DomainServices
                 throw new BadRequestException("Invalid twitter account id.");
             }
 
+            var messages = FindAllByConversationId(conversation.Id).ToList();
+            var previousMessages = GetPreviousMessages(messages, parentId);
             Message replyMessage = null;
-            if (previousMessages.Any())
+            foreach (var previousMessage in previousMessages)
             {
-                foreach (var previousMessage in previousMessages)
+                if (previousMessage.Sender.Type == SocialUserType.IntegrationAccount)
                 {
-                    ITweet previousTweet = twitterService.GetTweet(twitterAccount, long.Parse(previousMessage.OriginalId));
-                    if (previousTweet != null && !previousTweet.IsTweetDestroyed)
-                    {
-                        // add tweet message
-                        var replyTweet = twitterService.ReplyTweet(twitterAccount, previousTweet, message);
-                        replyMessage = twitterService.ConvertToMessage(replyTweet);
-                        replyMessage.ConversationId = conversation.Id;
-                        replyMessage.SenderId = twitterAccount.Id;
-                        replyMessage.SendAgentId = UserContext.UserId;
-                        replyMessage.ReceiverId = previousMessage.Sender.Id;
-                        Repository.Insert(replyMessage);
-                        CurrentUnitOfWork.SaveChanges();
+                    continue;
+                }
 
-                        // upadte conversation
-                        conversation.Status = ConversationStatus.PendingExternal;
-                        conversation.LastMessageSenderId = twitterAccount.Id;
-                        conversation.LastMessageSentTime = replyMessage.SendTime;
-                        conversation.LastRepliedAgentId = UserContext.UserId;
-                        _conversationService.Update(conversation);
-                        break;
+                ITweet previousTweet = twitterService.GetTweet(twitterAccount, long.Parse(previousMessage.OriginalId));
+                if (previousTweet != null && !previousTweet.IsTweetDestroyed)
+                {
+                    // publish tweet
+                    if (!content.Contains("@" + previousTweet.CreatedBy.ScreenName))
+                    {
+                        content = "@" + previousTweet.CreatedBy.ScreenName + " " + content;
                     }
+                    var replyTweet = twitterService.ReplyTweet(twitterAccount, previousTweet, content);
+
+                    // add message
+                    replyMessage = twitterService.ConvertToMessage(replyTweet);
+                    replyMessage.ConversationId = conversation.Id;
+                    replyMessage.SenderId = twitterAccount.Id;
+                    replyMessage.SendAgentId = UserContext.UserId;
+                    replyMessage.ReceiverId = previousMessage.Sender.Id;
+                    Repository.Insert(replyMessage);
+                    CurrentUnitOfWork.SaveChanges();
+
+                    // upadte conversation
+                    conversation.Status = ConversationStatus.PendingExternal;
+                    conversation.LastMessageSenderId = twitterAccount.Id;
+                    conversation.LastMessageSentTime = replyMessage.SendTime;
+                    conversation.LastRepliedAgentId = UserContext.UserId;
+                    _conversationService.Update(conversation);
+                    break;
                 }
             }
 
             if (replyMessage == null)
             {
-                throw new BadRequestException("There is no tweet message to reply.");
+                throw new BadRequestException("The original Post or Tweet is deleted.");
             }
 
             return replyMessage;
@@ -265,6 +292,60 @@ namespace Social.Domain.DomainServices
             {
                 return this.IsDuplicatedMessage(MessageSource.TwitterTypicalTweet, tweet.IdStr);
             }
+        }
+
+        private IList<SocialAccount> GetSocialAccountsFromMessages(IList<Message> messages)
+        {
+            var accountsWhichSendMessage =
+                messages.Where(t => t.Sender.Type == SocialUserType.IntegrationAccount)
+                .Select(t => t.Sender.SocialAccount)
+                .Distinct()
+                .ToList();
+            var accountsWhichReceiveMessage =
+                messages.Where(t => t.Receiver != null && t.Receiver.Type == SocialUserType.IntegrationAccount)
+                .Select(t => t.Receiver.SocialAccount)
+                .Distinct()
+                .ToList();
+            List<SocialAccount> accounts = new List<SocialAccount>();
+            foreach (var accountWithSendMessage in accountsWhichSendMessage)
+            {
+                if (accounts.Any(t => t.Id == accountWithSendMessage.Id))
+                {
+                    continue;
+                }
+                accounts.Add(accountWithSendMessage);
+            }
+
+            foreach (var accountWhichReceiveMessage in accountsWhichReceiveMessage)
+            {
+                if (accounts.Any(t => t.Id == accountWhichReceiveMessage.Id))
+                {
+                    continue;
+                }
+                accounts.Add(accountWhichReceiveMessage);
+            }
+
+            return accounts;
+        }
+
+        private IList<Message> GetPreviousMessages(IList<Message> messages, int previousMessageId)
+        {
+            List<Message> previousMessages = new List<Message>();
+            var prviousMessage = messages.FirstOrDefault(t => t.Id == previousMessageId);
+            while (prviousMessage != null)
+            {
+                previousMessages.Add(prviousMessage);
+                if (prviousMessage.ParentId != null)
+                {
+                    prviousMessage = messages.FirstOrDefault(t => t.Id == prviousMessage.ParentId);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return previousMessages.OrderByDescending(t => t.SendTime).ToList();
         }
     }
 }

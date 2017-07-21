@@ -58,7 +58,8 @@ namespace Social.Application.AppServices
                 SocialUser = new SocialUser
                 {
                     Name = user.Name,
-                    Type = SocialUserType.Twitter,
+                    Source = SocialUserSource.Twitter,
+                    Type = SocialUserType.IntegrationAccount,
                     Avatar = user.ProfileImageUrl,
                     OriginalId = user.IdStr,
                     OriginalLink = user.Url
@@ -70,7 +71,7 @@ namespace Social.Application.AppServices
 
         public IList<TwitterAccountListDto> GetAccounts()
         {
-            return _socialAccountService.FindAll().Where(t => t.SocialUser.Type == SocialUserType.Twitter).ProjectTo<TwitterAccountListDto>().ToList();
+            return _socialAccountService.FindAll().Where(t => t.SocialUser.Source == SocialUserSource.Twitter).ProjectTo<TwitterAccountListDto>().ToList();
         }
 
         public TwitterAccountDto GetAccount(int id)

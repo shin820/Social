@@ -43,7 +43,7 @@ namespace Social.Job.Jobs
             SocialAccount socialAccount = null;
             await UnitOfWorkManager.RunWithoutTransaction(siteId, async () =>
             {
-                socialAccount = await _socialAccountService.GetAccountAsync(SocialUserType.Twitter, twitterUserId);
+                socialAccount = await _socialAccountService.GetAccountAsync(SocialUserSource.Twitter, twitterUserId);
             });
 
             if (socialAccount == null)

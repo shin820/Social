@@ -95,7 +95,8 @@
     <Compile Include="Enum\MessageAttachmentType.cs" />
     <Compile Include="Enum\MessageType.cs" />
     <Compile Include="Enum\FilterType.cs" />
-    <Compile Include="Enum\SocialAccountType.cs" />
+    <Compile Include="Enum\SocialUserType.cs" />
+    <Compile Include="Enum\SoicalUserSource.cs" />
     <Compile Include="ExceptionHelper.cs" />
     <Compile Include="Facebook\FacebookWebHookClient.cs" />
     <Compile Include="Facebook\FbAttachment.cs" />

@@ -14,7 +14,7 @@ namespace Social.Domain.DomainServices
 {
     public interface ISocialAccountService : IDomainService<SocialAccount>
     {
-        Task<SocialAccount> GetAccountAsync(SocialUserType type, string originalId);
+        Task<SocialAccount> GetAccountAsync(SocialUserSource source, string originalId);
     }
 
     public class SocialAccountService : DomainService<SocialAccount>, ISocialAccountService
@@ -26,9 +26,9 @@ namespace Social.Domain.DomainServices
             _siteSocialAccountRepo = siteSocialAccountRepo;
         }
 
-        public async Task<SocialAccount> GetAccountAsync(SocialUserType type, string originalId)
+        public async Task<SocialAccount> GetAccountAsync(SocialUserSource source, string originalId)
         {
-            return await Repository.FindAll().Include(t => t.SocialUser).Where(t => t.SocialUser.OriginalId == originalId && t.SocialUser.Type == type && t.IfEnable).FirstOrDefaultAsync();
+            return await Repository.FindAll().Include(t => t.SocialUser).Where(t => t.SocialUser.OriginalId == originalId && t.SocialUser.Source == source && t.IfEnable).FirstOrDefaultAsync();
         }
 
         public async override Task<SocialAccount> InsertAsync(SocialAccount entity)
@@ -55,7 +55,7 @@ namespace Social.Domain.DomainServices
             }
 
             int siteId = siteIdOrNull.Value;
-            if (entity.SocialUser.Type == SocialUserType.Facebook)
+            if (entity.SocialUser.Source == SocialUserSource.Facebook)
             {
                 await UnitOfWorkManager.Run(TransactionScopeOption.Required, null, async () =>
                 {
@@ -66,7 +66,7 @@ namespace Social.Domain.DomainServices
                 });
             }
 
-            if (entity.SocialUser.Type == SocialUserType.Twitter)
+            if (entity.SocialUser.Source == SocialUserSource.Twitter)
             {
                 await UnitOfWorkManager.Run(TransactionScopeOption.Required, null, async () =>
                 {
@@ -93,7 +93,7 @@ namespace Social.Domain.DomainServices
             }
 
             int siteId = siteIdOrNull.Value;
-            if (entity.SocialUser.Type == SocialUserType.Facebook)
+            if (entity.SocialUser.Source == SocialUserSource.Facebook)
             {
                 await UnitOfWorkManager.Run(TransactionScopeOption.Required, null, async () =>
                 {
@@ -105,7 +105,7 @@ namespace Social.Domain.DomainServices
                 });
             }
 
-            if (entity.SocialUser.Type == SocialUserType.Twitter)
+            if (entity.SocialUser.Source == SocialUserSource.Twitter)
             {
                 await UnitOfWorkManager.Run(TransactionScopeOption.Required, null, async () =>
                 {
@@ -131,13 +131,13 @@ namespace Social.Domain.DomainServices
         private void ApplyDefaultValue(SocialAccount entity)
         {
             entity.IfEnable = true;
-            if (entity.SocialUser.Type == SocialUserType.Facebook)
+            if (entity.SocialUser.Source == SocialUserSource.Facebook)
             {
                 entity.IfConvertMessageToConversation = true;
                 entity.IfConvertVisitorPostToConversation = true;
                 entity.IfConvertWallPostToConversation = true;
             }
-            if (entity.SocialUser.Type == SocialUserType.Twitter)
+            if (entity.SocialUser.Source == SocialUserSource.Twitter)
             {
                 entity.IfConvertMessageToConversation = true;
                 entity.IfConvertTweetToConversation = true;
@@ -146,14 +146,14 @@ namespace Social.Domain.DomainServices
 
         private bool IsDupliated(SocialAccount entity)
         {
-            if (entity.SocialUser.Type == SocialUserType.Facebook)
+            if (entity.SocialUser.Source == SocialUserSource.Facebook)
             {
-                return Repository.FindAll().Any(t => t.IsDeleted == false && t.SocialUser.OriginalId == entity.SocialUser.OriginalId && entity.SocialUser.Type == SocialUserType.Facebook);
+                return Repository.FindAll().Any(t => t.IsDeleted == false && t.SocialUser.OriginalId == entity.SocialUser.OriginalId && entity.SocialUser.Source == SocialUserSource.Facebook);
             }
 
-            if (entity.SocialUser.Type == SocialUserType.Twitter)
+            if (entity.SocialUser.Source == SocialUserSource.Twitter)
             {
-                return Repository.FindAll().Any(t => t.IsDeleted == false && t.SocialUser.OriginalId == entity.SocialUser.OriginalId && entity.SocialUser.Type == SocialUserType.Twitter);
+                return Repository.FindAll().Any(t => t.IsDeleted == false && t.SocialUser.OriginalId == entity.SocialUser.OriginalId && entity.SocialUser.Source == SocialUserSource.Twitter);
             }
 
             return false;

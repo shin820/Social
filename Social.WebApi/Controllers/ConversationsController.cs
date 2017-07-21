@@ -108,7 +108,7 @@ namespace Social.WebApi.Controllers
         [Route("{conversationId}/twitter-direct-messages")]
         public IHttpActionResult PostTwitterDirectMessages(int conversationId, [Required]string message, [Required]int twitterAccountId)
         {
-            _messageAppService.ReplyTweetDirectMessage(conversationId, twitterAccountId, message);
+            _messageAppService.ReplyTwitterDirectMessage(conversationId, twitterAccountId, message);
             return Ok();
         }
 
@@ -119,9 +119,9 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("{conversationId}/twitter-tweet-messages")]
-        public IHttpActionResult PostTwitterTweetMessages(int conversationId, [Required]string message, [Required]int twitterAccountId)
+        public IHttpActionResult PostTwitterTweetMessages(int conversationId, [Required]string message, [Required] int parentId, [Required]int twitterAccountId)
         {
-            _messageAppService.ReplyTweetMessage(conversationId, twitterAccountId, message);
+            _messageAppService.ReplyTwitterTweetMessage(conversationId, twitterAccountId, parentId, message);
             return Ok();
         }
     }
