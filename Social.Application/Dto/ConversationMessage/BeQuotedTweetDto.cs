@@ -11,7 +11,7 @@ namespace Social.Application.Dto
         public string OriginalLink { get; set; }
         public string UserAvatar { get; set; }
         public string UserName { get; set; }
-        public string ScreenName { get; set; }
+        public string UserScreenName { get; set; }
         public string Content { get; set; }
         public DateTime SendTime { get; set; }
 

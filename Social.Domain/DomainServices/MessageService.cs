@@ -128,6 +128,7 @@ namespace Social.Domain.DomainServices
                     Content = content,
                     SenderId = socialAccount.Id,
                     ReceiverId = previousMessage.SenderId,
+                    ParentId = previousMessage.Id,
                     SendAgentId = UserContext.UserId,
                     SendTime = fbComment.created_time,
                     OriginalId = fbCommentId,
@@ -247,6 +248,7 @@ namespace Social.Domain.DomainServices
                     replyMessage.SenderId = twitterAccount.Id;
                     replyMessage.SendAgentId = UserContext.UserId;
                     replyMessage.ReceiverId = previousMessage.Sender.Id;
+                    replyMessage.ParentId = previousMessage.Id;
                     Repository.Insert(replyMessage);
                     CurrentUnitOfWork.SaveChanges();
 
