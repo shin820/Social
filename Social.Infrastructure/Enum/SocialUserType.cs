@@ -8,7 +8,7 @@ namespace Social.Infrastructure.Enum
 {
     public enum SocialUserType : short
     {
-        Facebook = 0,
-        Twitter = 1
+        Customer = 0,
+        IntegrationAccount = 1
     }
 }

@@ -11,6 +11,8 @@ namespace Framework.Core
     {
         public IUserContext UserContext { get; set; }
 
+        public IDependencyResolver DependencyResolver { get; set; }
+
         private IUnitOfWorkManager _unitOfWorkManager;
         public IUnitOfWorkManager UnitOfWorkManager
         {

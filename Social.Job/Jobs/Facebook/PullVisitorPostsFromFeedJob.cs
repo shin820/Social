@@ -42,7 +42,7 @@ namespace Social.Job.Jobs.Facebook
 
             await UnitOfWorkManager.RunWithoutTransaction(siteId, async () =>
             {
-                SocialAccount account = await _socialAccountService.GetAccountAsync(SocialUserType.Facebook, facebookPageId);
+                SocialAccount account = await _socialAccountService.GetAccountAsync(SocialUserSource.Facebook, facebookPageId);
                 if (account != null)
                 {
                     await _service.PullVisitorPostsFromFeed(account);

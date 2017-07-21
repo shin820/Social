@@ -303,7 +303,6 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
-    <Compile Include="Controllers\AccountsController.cs" />
     <Compile Include="Controllers\ConversationFieldsController.cs" />
     <Compile Include="Controllers\ConversationsController.cs" />
     <Compile Include="Controllers\FacebookWebHookController.cs" />
@@ -311,7 +310,6 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\FacebookAccountsController.cs" />
     <Compile Include="Controllers\TwitterAccountsController.cs" />
-    <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Core\ApiAuthorizeAttribute.cs" />
     <Compile Include="Core\ControllersInstaller.cs" />
     <Compile Include="Core\IocContainer.cs" />

@@ -16,11 +16,12 @@ namespace Social.Domain.DomainServices
         Conversation Find(int id, ConversationSource[] sources);
         IQueryable<Conversation> FindAll(Filter filter);
         Conversation GetTwitterDirectMessageConversation(SocialUser user);
-        Conversation GetTwitterTweetConversation(string messageId);
+        Conversation GetTwitterTweetConversation(string orignalTweetId);
         void AddConversation(SocialAccount socialAccount, Conversation conversation);
         IQueryable<Conversation> ApplyFilter(IQueryable<Conversation> conversations, int? filterId);
         IQueryable<Conversation> ApplyFilter(IQueryable<Conversation> conversations, Filter filter);
         IQueryable<Conversation> ApplyKeyword(IQueryable<Conversation> conversations, string keyword);
+        Conversation CheckIfExists(int id);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -44,6 +45,17 @@ namespace Social.Domain.DomainServices
             _logRepo = logRepo;
             _agentService = agentService;
             _departmentService = departmentService;
+        }
+
+        public Conversation CheckIfExists(int id)
+        {
+            var conversation = Find(id);
+            if (conversation == null)
+            {
+                throw new BadRequestException($"Conversation '{id}' not exists.");
+            }
+
+            return conversation;
         }
 
         public Conversation Find(int id, ConversationSource[] sources)
@@ -121,14 +133,14 @@ namespace Social.Domain.DomainServices
             return Repository.FindAll().Where(t => t.Source == ConversationSource.TwitterDirectMessage && t.Status != ConversationStatus.Closed && t.Messages.Any(m => m.SenderId == user.Id || m.ReceiverId == user.Id)).FirstOrDefault();
         }
 
-        public Conversation GetTwitterTweetConversation(string messageId)
+        public Conversation GetTwitterTweetConversation(string orignalTweetId)
         {
-            if (string.IsNullOrEmpty(messageId))
+            if (string.IsNullOrEmpty(orignalTweetId))
             {
                 return null;
             }
 
-            return Repository.FindAll().Where(t => t.Source == ConversationSource.TwitterTweet && t.Messages.Any(m => m.OriginalId == messageId)).FirstOrDefault();
+            return Repository.FindAll().Where(t => t.Source == ConversationSource.TwitterTweet && t.Messages.Any(m => m.OriginalId == orignalTweetId)).FirstOrDefault();
         }
 
         public void AddConversation(SocialAccount socialAccount, Conversation conversation)

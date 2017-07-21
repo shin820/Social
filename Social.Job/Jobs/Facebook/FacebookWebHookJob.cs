@@ -48,7 +48,7 @@ namespace Social.Job.Jobs
 
             await UnitOfWorkManager.Run(TransactionScopeOption.Required, siteId, async () =>
              {
-                 SocialAccount account = await _socialAccountService.GetAccountAsync(SocialUserType.Facebook, facebookPageId);
+                 SocialAccount account = await _socialAccountService.GetAccountAsync(SocialUserSource.Facebook, facebookPageId);
                  if (account != null)
                  {
                      rawDataList = _hookRawDataRepo.FindAll().Where(t => t.IsDeleted == false).OrderBy(t => t.CreatedTime).Take(50).ToList();

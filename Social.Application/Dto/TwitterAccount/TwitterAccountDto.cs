@@ -11,6 +11,7 @@ namespace Social.Application.Dto
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string ScreenName { get; set; }
         public string Avatar { get; set; }
         public bool IfEnable { get; set; }
         public bool IfConvertMessageToConversation { get; set; }

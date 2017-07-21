@@ -3,6 +3,7 @@ using Social.Application.AppServices;
 using Social.Application.Dto;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -14,24 +15,29 @@ namespace Social.WebApi.Controllers
     [RoutePrefix("conversations")]
     public class ConversationsController : ApiController
     {
-        private IConversationAppService _appService;
+        private IConversationAppService _conversationAppService;
+        private IConversationMessageAppService _messageAppService;
 
-        public ConversationsController(IConversationAppService appService)
+        public ConversationsController(
+            IConversationAppService conversationAppService,
+            IConversationMessageAppService messageAppService
+            )
         {
-            _appService = appService;
+            _conversationAppService = conversationAppService;
+            _messageAppService = messageAppService;
         }
 
         [Route()]
         public PagedList<ConversationDto> GetConversations([FromUri(Name = "")]ConversationSearchDto searchDto)
         {
             searchDto = searchDto ?? new ConversationSearchDto();
-            return _appService.Find(searchDto);
+            return _conversationAppService.Find(searchDto);
         }
 
         [Route("{id}", Name = "GetConversation")]
         public ConversationDto GetConversation(int id)
         {
-            return _appService.Find(id);
+            return _conversationAppService.Find(id);
         }
 
         [Route()]
@@ -39,7 +45,7 @@ namespace Social.WebApi.Controllers
         public IHttpActionResult PostConversation(ConversationCreateDto createDto)
         {
             createDto = createDto ?? new ConversationCreateDto();
-            var conversation = _appService.Insert(createDto);
+            var conversation = _conversationAppService.Insert(createDto);
 
             return CreatedAtRoute("GetConversation", new { id = conversation.Id }, conversation);
         }
@@ -47,7 +53,7 @@ namespace Social.WebApi.Controllers
         [Route("{id}")]
         public IHttpActionResult DeleteConversation(int id)
         {
-            _appService.Delete(id);
+            _conversationAppService.Delete(id);
             return StatusCode(HttpStatusCode.NoContent);
         }
 
@@ -56,27 +62,67 @@ namespace Social.WebApi.Controllers
         public IHttpActionResult PutConversation(int id, ConversationUpdateDto createDto)
         {
             createDto = createDto ?? new ConversationUpdateDto();
-            _appService.Update(id, createDto);
+            _conversationAppService.Update(id, createDto);
 
             return StatusCode(HttpStatusCode.NoContent);
         }
 
-        [Route("{id}/logs")]
-        public IList<ConversationLogDto> GetLogs(int id)
+        [Route("{conversationId}/logs")]
+        public IList<ConversationLogDto> GetLogs(int conversationId)
         {
-            return _appService.GetLogs(id);
+            return _conversationAppService.GetLogs(conversationId);
         }
 
-        [Route("{id}/facebook-messages")]
-        public IList<FacebookMessageDto> GetFacebookMessages(int id)
+        [Route("{conversationId}/facebook-messages")]
+        public IList<FacebookMessageDto> GetFacebookMessages(int conversationId)
         {
-            return _appService.GetFacebookDirectMessages(id);
+            return _messageAppService.GetFacebookDirectMessages(conversationId);
         }
 
-        [Route("{id}/facebook-post-messages")]
-        public FacebookPostMessageDto GetFacebookPostMessages(int id)
+        [Route("{conversationId}/facebook-messages")]
+        public IHttpActionResult PostFacebookMessages(int conversationId, [Required] string message)
         {
-            return _appService.GetFacebookPostMessages(id);
+            _messageAppService.ReplyFacebookMessage(conversationId, message);
+            return Ok();
+        }
+
+        [Route("{conversationId}/facebook-post-messages")]
+        public FacebookPostMessageDto GetFacebookPostMessages(int conversationId)
+        {
+            return _messageAppService.GetFacebookPostMessages(conversationId);
+        }
+
+        [Route("{conversationId}/facebook-post-messages")]
+        public IHttpActionResult PostFacebookPostMessages(int conversationId, [Required] string message, [Required] int parenId)
+        {
+            _messageAppService.ReplyFacebookPostOrComment(conversationId, parenId, message);
+            return Ok();
+        }
+
+        [Route("{conversationId}/twitter-direct-messages")]
+        public IList<TwitterDirectMessageDto> GetTwitterDirectMessages(int conversationId)
+        {
+            return _messageAppService.GetTwitterDirectMessages(conversationId);
+        }
+
+        [Route("{conversationId}/twitter-direct-messages")]
+        public IHttpActionResult PostTwitterDirectMessages(int conversationId, [Required]string message, [Required]int twitterAccountId)
+        {
+            _messageAppService.ReplyTwitterDirectMessage(conversationId, twitterAccountId, message);
+            return Ok();
+        }
+
+        [Route("{conversationId}/twitter-tweet-messages")]
+        public IList<TwitterTweetMessageDto> GetTwitterTweetMessages(int conversationId)
+        {
+            return _messageAppService.GetTwitterTweetMessages(conversationId);
+        }
+
+        [Route("{conversationId}/twitter-tweet-messages")]
+        public IHttpActionResult PostTwitterTweetMessages(int conversationId, [Required]string message, [Required] int parentId, [Required]int twitterAccountId)
+        {
+            _messageAppService.ReplyTwitterTweetMessage(conversationId, twitterAccountId, parentId, message);
+            return Ok();
         }
     }
 }

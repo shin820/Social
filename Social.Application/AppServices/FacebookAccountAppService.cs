@@ -36,7 +36,7 @@ namespace Social.Application.AppServices
 
         public IList<FacebookPageListDto> GetPages()
         {
-            return _socialAccountService.FindAll().Where(t => t.SocialUser.Type == SocialUserType.Facebook).ProjectTo<FacebookPageListDto>().ToList();
+            return _socialAccountService.FindAll().Where(t => t.SocialUser.Source == SocialUserSource.Facebook).ProjectTo<FacebookPageListDto>().ToList();
         }
 
         public async Task<PendingAddFacebookPagesDto> GetPendingAddPagesAsync(string code, string redirectUri)
@@ -46,7 +46,7 @@ namespace Social.Application.AppServices
             IList<FbPage> pages = await FbClient.GetPages(userToken);
             List<string> pageIds = pages.Select(t => t.Id).ToList();
             var facebookAccounts = _socialAccountService.FindAll()
-                .Where(t => t.SocialUser.Type == SocialUserType.Facebook && pageIds.Contains(t.SocialUser.OriginalId))
+                .Where(t => t.SocialUser.Source == SocialUserSource.Facebook && pageIds.Contains(t.SocialUser.OriginalId))
                 .ToList();
 
             var result = new PendingAddFacebookPagesDto

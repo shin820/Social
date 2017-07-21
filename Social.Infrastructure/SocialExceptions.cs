@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Social.Infrastructure
 {
-    public static class ExceptionHelper
+    public static class SocialExceptions
     {
         public static ExceptionWithCode FacebookOauthException(FacebookOAuthException fbOauthException)
         {
@@ -23,6 +23,11 @@ namespace Social.Infrastructure
         public static BadRequestException BadReqeust(string msg)
         {
             return new BadRequestException(msg);
+        }
+
+        public static NotFoundException ConversationIdNotExists(int id)
+        {
+            return new NotFoundException($"Conversation id '{id}' not exists.");
         }
     }
 }

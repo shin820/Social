@@ -1,5 +1,6 @@
 ﻿using Framework.Core;
 using Social.Domain.Entities;
+using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using Tweetinvi;
 using Tweetinvi.Events;
 using Tweetinvi.Models;
 using Tweetinvi.Models.Entities;
+using Tweetinvi.Parameters;
 
 namespace Social.Domain.DomainServices
 {
@@ -18,6 +20,13 @@ namespace Social.Domain.DomainServices
     {
         Task ProcessDirectMessage(SocialAccount account, IMessage directMsg);
         Task ProcessTweet(SocialAccount account, ITweet currentTweet);
+        IList<Entities.Message> GetTweetMessages(long[] tweetIds);
+        ITweet GetTweet(SocialAccount socialAccount, long tweetId);
+        ITweet ReplyTweet(SocialAccount socialAccount, ITweet inReplyTo, string message);
+        Entities.Message ConvertToMessage(ITweet tweet);
+        Entities.Message ConvertToMessage(IMessage directMessage);
+        IUser GetUser(SocialAccount socialAccount, long userId);
+        IMessage PublishMessage(SocialAccount socialAccount, IUser user, string message);
     }
 
     public class TwitterService : ServiceBase, ITwitterService
@@ -35,6 +44,45 @@ namespace Social.Domain.DomainServices
             _conversationService = conversationService;
             _messageService = messageService;
             _socialUserService = socialUserService;
+        }
+
+
+        public IList<Entities.Message> GetTweetMessages(long[] tweetIds)
+        {
+            Auth.SetCredentials(new TwitterCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret));
+            var tweets = Tweet.GetTweets(tweetIds);
+
+            return tweets.Select(t => ConvertToMessage(t)).ToList();
+        }
+
+        public ITweet GetTweet(SocialAccount socialAccount, long tweetId)
+        {
+            Auth.SetCredentials(new TwitterCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret, socialAccount.Token, socialAccount.TokenSecret));
+
+            return Tweet.GetTweet(tweetId);
+        }
+
+        public IUser GetUser(SocialAccount socialAccount, long userId)
+        {
+            Auth.SetCredentials(new TwitterCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret, socialAccount.Token, socialAccount.TokenSecret));
+            return User.GetUserFromId(userId);
+        }
+
+        public ITweet ReplyTweet(SocialAccount socialAccount, ITweet inReplyTo, string message)
+        {
+            Auth.SetCredentials(new TwitterCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret, socialAccount.Token, socialAccount.TokenSecret));
+
+            return Tweet.PublishTweet(message, new PublishTweetOptionalParameters
+            {
+                InReplyToTweet = inReplyTo
+            });
+        }
+
+        public IMessage PublishMessage(SocialAccount socialAccount, IUser user, string message)
+        {
+            Auth.SetCredentials(new TwitterCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret, socialAccount.Token, socialAccount.TokenSecret));
+
+            return Tweetinvi.Message.PublishMessage(message, user);
         }
 
         public async Task ProcessDirectMessage(SocialAccount account, IMessage directMsg)
@@ -87,7 +135,7 @@ namespace Social.Domain.DomainServices
             }
         }
 
-        private Entities.Message ConvertToMessage(IMessage directMsg)
+        public Entities.Message ConvertToMessage(IMessage directMsg)
         {
             var message = new Entities.Message
             {
@@ -139,6 +187,7 @@ namespace Social.Domain.DomainServices
                     SocialUser sender = await _socialUserService.GetOrCreateTwitterUser(tweet.CreatedBy);
                     var message = ConvertToMessage(tweet);
                     message.SenderId = sender.Id;
+                    message.ReceiverId = account.Id;
                     var conversation = new Conversation
                     {
                         OriginalId = tweet.IdStr,
@@ -158,9 +207,10 @@ namespace Social.Domain.DomainServices
                     var inReplyToTweetMessage = _messageService.GetTwitterTweetMessage(tweet.InReplyToStatusIdStr);
                     if (inReplyToTweetMessage != null)
                     {
-                        SocialUser inReplyToTweetSender = await _socialUserService.GetOrCreateTwitterUser(tweet.CreatedBy);
+                        SocialUser sender = await _socialUserService.GetOrCreateTwitterUser(tweet.CreatedBy);
                         var message = ConvertToMessage(tweet);
-                        message.SenderId = inReplyToTweetSender.Id;
+                        message.SenderId = sender.Id;
+                        message.ReceiverId = inReplyToTweetMessage.SenderId;
                         message.ParentId = inReplyToTweetMessage.Id;
 
                         existingConversation.Messages.Add(message);
@@ -209,7 +259,7 @@ namespace Social.Domain.DomainServices
             return message.Length <= 200 ? message : message.Substring(200);
         }
 
-        private Entities.Message ConvertToMessage(ITweet tweet)
+        public Entities.Message ConvertToMessage(ITweet tweet)
         {
             var message = new Entities.Message
             {
@@ -260,5 +310,6 @@ namespace Social.Domain.DomainServices
                 OriginalLink = media.URL
             };
         }
+
     }
 }

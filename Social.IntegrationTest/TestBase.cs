@@ -57,7 +57,8 @@ namespace Social.IntegrationTest
                         {
                             Name = "Twitter Test User",
                             OriginalId = testUserId,
-                            Type = SocialUserType.Twitter,
+                            Source = SocialUserSource.Twitter,
+                            Type = SocialUserType.IntegrationAccount,
                             SocialAccount = new SocialAccount
                             {
                                 Token = "855320911989194753-25EU8AmKqJw8HhPJYdCUcje2mat9UxV",
@@ -110,7 +111,8 @@ namespace Social.IntegrationTest
                         {
                             Name = "Facebook Test Page",
                             OriginalId = testPageId,
-                            Type = SocialUserType.Facebook,
+                            Source = SocialUserSource.Facebook,
+                            Type = SocialUserType.IntegrationAccount,
                             SocialAccount = new SocialAccount
                             {
                                 Token = "EAAR8yzs1uVQBAEBWQbsXb8HBP7cEbkTZB7CuqvuQlU1lx0ZCmlZCoy25HsxahMcCGfi8PirSyv5ZA62rvnm21EdZC3PZBK4FXfSti6cc8zIPKMb06fdR15sJqteOW2cIzTV64ZBZBZAnDLBwkNvYszc497CafdqAZCNRaip8w5SjmZCBwZDZD",

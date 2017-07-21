@@ -51,41 +51,54 @@ namespace Social.Application.AppServices
         public async Task AddAccountAsync(string authorizationId, string oauthVerifier)
         {
             var user = await _twitterAuthService.ValidateAuthAsync(authorizationId, oauthVerifier);
-            SocialAccount account = new SocialAccount
+            if (user != null)
             {
-                Token = user.Credentials.AccessToken,
-                TokenSecret = user.Credentials.AccessTokenSecret,
-                SocialUser = new SocialUser
+                SocialAccount account = new SocialAccount
                 {
-                    Name = user.Name,
-                    Type = SocialUserType.Twitter,
-                    Avatar = user.ProfileImageUrl,
-                    OriginalId = user.IdStr,
-                    OriginalLink = user.Url
-                }
-            };
+                    Token = user.Credentials.AccessToken,
+                    TokenSecret = user.Credentials.AccessTokenSecret,
+                    SocialUser = new SocialUser
+                    {
+                        Name = user.Name,
+                        ScreenName = user.ScreenName,
+                        Email = user.Email,
+                        Source = SocialUserSource.Twitter,
+                        Type = SocialUserType.IntegrationAccount,
+                        Avatar = user.ProfileImageUrl,
+                        OriginalId = user.IdStr,
+                        OriginalLink = user.Url
+                    }
+                };
 
-            await _socialAccountService.InsertAsync(account);
+                await _socialAccountService.InsertAsync(account);
+            }
         }
 
         public IList<TwitterAccountListDto> GetAccounts()
         {
-            return _socialAccountService.FindAll().Where(t => t.SocialUser.Type == SocialUserType.Twitter).ProjectTo<TwitterAccountListDto>().ToList();
+            return _socialAccountService.FindAll().Where(t => t.SocialUser.Source == SocialUserSource.Twitter).ProjectTo<TwitterAccountListDto>().ToList();
         }
 
         public TwitterAccountDto GetAccount(int id)
         {
             var entity = _socialAccountService.Find(id);
+            if (entity == null)
+            {
+                throw SocialExceptions.ConversationIdNotExists(id);
+            }
+
             return Mapper.Map<TwitterAccountDto>(entity);
         }
 
         public async Task DeleteAccountAsync(int id)
         {
             var entity = _socialAccountService.Find(id);
-            if (entity != null)
+            if (entity == null)
             {
-                await _socialAccountService.DeleteAsync(entity);
+                throw SocialExceptions.ConversationIdNotExists(id);
             }
+
+            await _socialAccountService.DeleteAsync(entity);
         }
 
         public TwitterAccountDto UpdateAccount(int id, UpdateTwitterAccountDto dto)
@@ -93,7 +106,7 @@ namespace Social.Application.AppServices
             var socialAccount = _socialAccountService.Find(id);
             if (socialAccount == null)
             {
-                throw new NotFoundException($"'{id}' not exists.");
+                throw SocialExceptions.ConversationIdNotExists(id);
             }
 
             socialAccount = Mapper.Map(dto, socialAccount);

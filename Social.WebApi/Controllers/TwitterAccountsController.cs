@@ -43,7 +43,6 @@ namespace Social.WebApi.Controllers
             // Specify the url you want the user to be redirected to\
             string url = Request.RequestUri.Scheme + "://" + Request.RequestUri.Authority + Url.Route("ValidateAuth", new { siteId = siteId, redirectUri = redirectUri });
 
-            //var redirectURL = $"http://localhost:20000/api/twitter-accounts/validate-twitter-auth?siteId={siteId}";
             IAuthenticationContext authenticationContext = _appService.InitAuthentication(url);
             return Redirect(authenticationContext.AuthorizationURL);
         }
@@ -55,7 +54,7 @@ namespace Social.WebApi.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("validate-twitter-auth", Name = "ValidateAuth")]
-        public async Task<IHttpActionResult> ValidateTwitterAuth(string authorization_id, string oauth_verifier, string redirectUri)
+        public async Task<IHttpActionResult> ValidateTwitterAuth(string authorization_id, string redirectUri, string oauth_verifier = null)
         {
             await _appService.AddAccountAsync(authorization_id, oauth_verifier);
             return Redirect(redirectUri);

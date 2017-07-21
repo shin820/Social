@@ -23,28 +23,19 @@ namespace Social.Application.AppServices
         void Delete(int id);
         void Update(int id, ConversationUpdateDto updateDto);
         IList<ConversationLogDto> GetLogs(int converationId);
-
-        IList<FacebookMessageDto> GetFacebookDirectMessages(int conversationId);
-        FacebookPostMessageDto GetFacebookPostMessages(int conversationId);
     }
 
     public class ConversationAppService : AppService, IConversationAppService
     {
         private IConversationService _conversationService;
-        private IMessageService _messageService;
-        private IAgentService _agentService;
         private IDomainService<ConversationLog> _logService;
 
         public ConversationAppService(
             IConversationService conversationService,
-            IAgentService agentService,
-            IMessageService messageService,
             IDomainService<ConversationLog> logService
             )
         {
             _conversationService = conversationService;
-            _agentService = agentService;
-            _messageService = messageService;
             _logService = logService;
         }
 
@@ -98,54 +89,6 @@ namespace Social.Application.AppServices
                 .OrderByDescending(t => t.CreatedTime)
                 .ProjectTo<ConversationLogDto>()
                 .ToList();
-        }
-
-        public FacebookPostMessageDto GetFacebookPostMessages(int conversationId)
-        {
-            var converation = _conversationService.Find
-                (conversationId, new[] { ConversationSource.FacebookVisitorPost, ConversationSource.FacebookWallPost });
-            if (converation == null)
-            {
-                return null;
-            }
-
-            var messages = _messageService.FindAllByConversationId(conversationId).ToList();
-            var postMessage = messages.FirstOrDefault(t => t.Source == MessageSource.FacebookPost);
-            if (postMessage == null)
-            {
-                return null;
-            }
-            var postDto = Mapper.Map<FacebookPostMessageDto>(postMessage);
-
-            var allComments = messages.Where(t => t.Source == MessageSource.FacebookPostComment).Select(t => Mapper.Map<FacebookPostCommentMessageDto>(t)).ToList();
-            _agentService.FillAgentName(allComments.Cast<IHaveSendAgent>());
-
-            postDto.Comments = allComments.Where(t => t.ParentId == postDto.Id).ToList();
-            foreach (var comment in postDto.Comments)
-            {
-                comment.ReplyComments = allComments.Where(t => t.ParentId == comment.Id).ToList();
-            }
-
-            return postDto;
-        }
-
-        public IList<FacebookMessageDto> GetFacebookDirectMessages(int conversationId)
-        {
-            List<FacebookMessageDto> result = new List<FacebookMessageDto>();
-
-            var converation = _conversationService.Find(conversationId, ConversationSource.FacebookMessage);
-            if (converation == null)
-            {
-                return result;
-            }
-
-            result = _messageService.FindAllByConversationId(conversationId)
-                .OrderBy(t => t.SendTime)
-                .ProjectTo<FacebookMessageDto>().ToList();
-
-            _agentService.FillAgentName(result.Cast<IHaveSendAgent>());
-
-            return result;
         }
     }
 }

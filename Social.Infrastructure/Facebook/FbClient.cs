@@ -47,7 +47,7 @@ namespace Social.Infrastructure.Facebook
             }
             catch (FacebookOAuthException ex)
             {
-                throw ExceptionHelper.FacebookOauthException(ex);
+                throw SocialExceptions.FacebookOauthException(ex);
             }
         }
 
@@ -126,6 +126,22 @@ namespace Social.Infrastructure.Facebook
             //{
             //    user.Avatar = userInfo.picture.data.url;
             //}
+        }
+
+        public static string PublishComment(string token, string parentId, string message)
+        {
+            FacebookClient client = new FacebookClient(token);
+            string url = $"/{parentId}/comments";
+            dynamic result = client.Post(url, new { message = message });
+            return result.id;
+        }
+
+        public static string PublishMessage(string token, string fbConversationId, string message)
+        {
+            FacebookClient client = new FacebookClient(token);
+            string url = $"/{fbConversationId}/messages";
+            dynamic result = client.Post(url, new { message = message });
+            return result.id;
         }
 
         public async static Task<IList<FbMessage>> GetMessagesFromConversationId(string token, string fbConversationId)
@@ -236,7 +252,7 @@ namespace Social.Infrastructure.Facebook
             return await client.GetTaskAsync<FbPost>(url);
         }
 
-        public async static Task<FbComment> GetComment(string token, string fbCommentId)
+        public static FbComment GetComment(string token, string fbCommentId)
         {
             Checker.NotNullOrWhiteSpace(token, nameof(token));
             Checker.NotNullOrWhiteSpace(fbCommentId, nameof(fbCommentId));
@@ -244,7 +260,7 @@ namespace Social.Infrastructure.Facebook
             FacebookClient client = new FacebookClient(token);
             string url = $"/{fbCommentId}?fields=id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden";
 
-            return await client.GetTaskAsync<FbComment>(url);
+            return client.Get<FbComment>(url);
         }
 
         public async static Task<FbPagingData<FbPost>> GetVisitorPosts(string pageId, string token)

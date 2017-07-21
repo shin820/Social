@@ -7,21 +7,18 @@ using System.Threading.Tasks;
 
 namespace Social.Application.Dto
 {
-    public class FacebookPostCommentMessageDto : IHaveSendAgent
+    public class TwitterDirectMessageDto : IHaveSendAgent
     {
         public int Id { get; set; }
-        public int ParentId { get; set; }
         public string UserAvatar { get; set; }
         public string UserName { get; set; }
         public string UserScreenName { get; set; }
         public string UserEmail { get; set; }
         public string Content { get; set; }
-        public string OriginalLink { get; set; }
         public DateTime SendTime { get; set; }
         public int? SendAgentId { get; set; }
         public string SendAgentName { get; set; }
 
-        public List<FacebookPostCommentMessageDto> ReplyComments { get; set; }
         public List<MessageAttachmentDto> Attachments { get; set; }
     }
 }

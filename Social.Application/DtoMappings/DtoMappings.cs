@@ -37,7 +37,8 @@ namespace Social.Application
 
             CreateMap<AddFaceboookPageDto, SocialUser>()
                 .ForMember(dest => dest.OriginalId, src => src.MapFrom(x => x.FacebookId))
-                .ForMember(dest => dest.Type, src => src.UseValue(SocialUserType.Facebook))
+                .ForMember(dest => dest.Source, src => src.UseValue(SocialUserSource.Facebook))
+                .ForMember(dest => dest.Type, src => src.UseValue(SocialUserType.IntegrationAccount))
                 .ForMember(dest => dest.Avatar, src => src.MapFrom(x => x.Avatar))
                 .ForMember(dest => dest.OriginalLink, src => src.MapFrom(x => x.Link));
 
@@ -56,9 +57,13 @@ namespace Social.Application
             CreateMap<UpdateFacebookPageDto, SocialAccount>();
 
             CreateMap<SocialAccount, TwitterAccountListDto>()
-                .ForMember(dest => dest.Name, src => src.MapFrom(x => x.SocialUser.Name));
+                .ForMember(dest => dest.Name, src => src.MapFrom(x => x.SocialUser.Name))
+                .ForMember(dest => dest.ScreenName, src => src.MapFrom(x => x.SocialUser.ScreenName))
+                .ForMember(dest => dest.Avatar, src => src.MapFrom(x => x.SocialUser.Avatar));
             CreateMap<SocialAccount, TwitterAccountDto>()
-                .ForMember(dest => dest.Name, src => src.MapFrom(x => x.SocialUser.Name));
+                .ForMember(dest => dest.Name, src => src.MapFrom(x => x.SocialUser.Name))
+                .ForMember(dest => dest.ScreenName, src => src.MapFrom(x => x.SocialUser.ScreenName))
+                .ForMember(dest => dest.Avatar, src => src.MapFrom(x => x.SocialUser.Avatar));
             CreateMap<UpdateTwitterAccountDto, SocialAccount>();
 
         }
