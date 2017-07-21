@@ -149,6 +149,8 @@
     <Compile Include="Jobs\Facebook\FacebookWebHookJob.cs" />
     <Compile Include="Jobs\Facebook\PullVisitorPostsFromFeedJob.cs" />
     <Compile Include="Jobs\SchedulerJob.cs" />
+    <Compile Include="Jobs\Twitter\TwitterPullDirectMessagesJob.cs" />
+    <Compile Include="Jobs\Twitter\TwitterPullTweetsJob.cs" />
     <Compile Include="Jobs\Twitter\TwitterStreamJob.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

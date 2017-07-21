@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using Tweetinvi.Models;
+using Tweetinvi.Parameters;
 
 namespace Social.Application.AppServices
 {
@@ -15,15 +16,32 @@ namespace Social.Application.AppServices
     {
         Task ProcessTweet(SocialAccount account, ITweet currentTweet);
         Task ProcessDirectMessage(SocialAccount account, IMessage directMsg);
+        Task PullDirectMessages(SocialAccount account);
+        Task PullTweets(SocialAccount account);
     }
 
     public class TwitterAppService : AppService, ITwitterAppService
     {
         private ITwitterService _twitterService;
+        private ITwitterPullJobService _twitterPullJobService;
 
-        public TwitterAppService(ITwitterService twitterService)
+        public TwitterAppService(
+            ITwitterService twitterService,
+            ITwitterPullJobService twitterPullJobService
+            )
         {
             _twitterService = twitterService;
+            _twitterPullJobService = twitterPullJobService;
+        }
+
+        public async Task PullDirectMessages(SocialAccount account)
+        {
+            await _twitterPullJobService.PullDirectMessages(account);
+        }
+
+        public async Task PullTweets(SocialAccount account)
+        {
+            await _twitterPullJobService.PullTweets(account);
         }
 
         public async Task ProcessTweet(SocialAccount account, ITweet currentTweet)

@@ -6,6 +6,9 @@ using Common.Logging;
 using Quartz;
 using Framework.Core;
 using Framework.Core.UnitOfWork;
+using Social.Domain.Entities;
+using Social.Domain.DomainServices;
+using Social.Infrastructure.Enum;
 
 namespace Social.Job
 {
@@ -27,6 +30,8 @@ namespace Social.Job
             }
             set { _unitOfWorkManager = value; }
         }
+
+        public ISocialAccountService SocialAccountService { get; set; }
 
         protected IUnitOfWork CurrentUnitOfWork
         {
@@ -52,5 +57,45 @@ namespace Social.Job
         }
 
         protected abstract Task ExecuteJob(IJobExecutionContext context);
+
+        protected async Task<SocialAccount> GetTwitterSocialAccount(IJobExecutionContext context)
+        {
+            var siteSocicalAccount = context.JobDetail.GetCustomData<SiteSocialAccount>();
+            if (siteSocicalAccount == null)
+            {
+                return null;
+            }
+
+            int siteId = siteSocicalAccount.SiteId;
+            string twitterUserId = siteSocicalAccount.TwitterUserId;
+
+            SocialAccount socialAccount = null;
+            await UnitOfWorkManager.RunWithoutTransaction(siteId, async () =>
+            {
+                socialAccount = await SocialAccountService.GetAccountAsync(SocialUserSource.Twitter, twitterUserId);
+            });
+
+            return socialAccount;
+        }
+
+        protected async Task<SocialAccount> GetFacebookSocialAccount(IJobExecutionContext context)
+        {
+            var siteSocicalAccount = context.JobDetail.GetCustomData<SiteSocialAccount>();
+            if (siteSocicalAccount == null)
+            {
+                return null;
+            }
+
+            int siteId = siteSocicalAccount.SiteId;
+            string facebookPageId = siteSocicalAccount.FacebookPageId;
+
+            SocialAccount socialAccount = null;
+            await UnitOfWorkManager.RunWithoutTransaction(siteId, async () =>
+            {
+                socialAccount = await SocialAccountService.GetAccountAsync(SocialUserSource.Facebook, facebookPageId);
+            });
+
+            return socialAccount;
+        }
     }
 }

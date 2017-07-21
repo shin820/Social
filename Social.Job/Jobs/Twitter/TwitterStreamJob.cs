@@ -17,44 +17,25 @@ namespace Social.Job.Jobs
         private ITwitterAppService _twitterAppService;
         private ISocialAccountService _socialAccountService;
 
-        private ITwitterCredentials _creds;
-
         public TwitterStreamJob(
-            ITwitterAppService twitterAppService,
-            ISocialAccountService socialAccountService
+            ITwitterAppService twitterAppService
             )
         {
             _twitterAppService = twitterAppService;
-            _socialAccountService = socialAccountService;
         }
 
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
-
-            var siteSocicalAccount = context.JobDetail.GetCustomData<SiteSocialAccount>();
-            if (siteSocicalAccount == null)
-            {
-                return;
-            }
-
-            int siteId = siteSocicalAccount.SiteId;
-            string twitterUserId = siteSocicalAccount.TwitterUserId;
-
-            SocialAccount socialAccount = null;
-            await UnitOfWorkManager.RunWithoutTransaction(siteId, async () =>
-            {
-                socialAccount = await _socialAccountService.GetAccountAsync(SocialUserSource.Twitter, twitterUserId);
-            });
-
+            SocialAccount socialAccount = await GetTwitterSocialAccount(context);
             if (socialAccount == null)
             {
                 return;
             }
 
-            _creds = new TwitterCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret,
+            var creds = new TwitterCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret,
                     socialAccount.Token, socialAccount.TokenSecret);
 
-            var stream = Stream.CreateUserStream(_creds);
+            var stream = Stream.CreateUserStream(creds);
 
             //stream.StreamIsReady += (sender, args) =>
             //{
@@ -65,7 +46,7 @@ namespace Social.Job.Jobs
             {
                 if (socialAccount.IfConvertMessageToConversation)
                 {
-                    Auth.SetCredentials(_creds);
+                    Auth.SetCredentials(creds);
                     await _twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
                 }
             };
@@ -75,7 +56,7 @@ namespace Social.Job.Jobs
                 await Task.Delay(1000);
                 if (socialAccount.IfConvertMessageToConversation)
                 {
-                    Auth.SetCredentials(_creds);
+                    Auth.SetCredentials(creds);
                     await _twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
                 }
             };
@@ -85,7 +66,7 @@ namespace Social.Job.Jobs
                 await Task.Delay(1000);
                 if (socialAccount.IfConvertTweetToConversation)
                 {
-                    Auth.SetCredentials(_creds);
+                    Auth.SetCredentials(creds);
                     await _twitterAppService.ProcessTweet(socialAccount, args.Tweet);
                 }
             };
