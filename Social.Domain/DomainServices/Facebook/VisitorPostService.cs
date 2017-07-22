@@ -171,10 +171,7 @@ namespace Social.Domain.DomainServices.Facebook
                         conversation.Status = ConversationStatus.PendingInternal;
                         conversation.LastMessageSenderId = message.SenderId;
                         conversation.LastMessageSentTime = message.SendTime;
-                        if (conversation.Source == ConversationSource.FacebookWallPost && conversation.IsHidden)
-                        {
-                            conversation.IsHidden = false;
-                        }
+                        conversation.TryToMakeWallPostVisible(_account);
                     }
 
                     uow.Complete();
@@ -229,10 +226,7 @@ namespace Social.Domain.DomainServices.Facebook
                         conversation.Status = ConversationStatus.PendingInternal;
                         conversation.LastMessageSenderId = message.SenderId;
                         conversation.LastMessageSentTime = message.SendTime;
-                        if (conversation.Source == ConversationSource.FacebookWallPost && conversation.IsHidden)
-                        {
-                            conversation.IsHidden = false;
-                        }
+                        conversation.TryToMakeWallPostVisible(_account);
                     }
                     uow.Complete();
                 }

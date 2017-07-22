@@ -59,5 +59,15 @@ namespace Social.Domain.Entities
         public virtual IList<ConversationLog> Logs { get; set; }
 
         public virtual SocialUser LastMessageSender { get; set; }
+
+        public void TryToMakeWallPostVisible(SocialAccount account)
+        {
+            if (Source == ConversationSource.FacebookWallPost
+                && IsHidden && LastMessageSenderId != account.Id)
+            {
+                IsHidden = false;
+                Status = ConversationStatus.New;
+            }
+        }
     }
 }

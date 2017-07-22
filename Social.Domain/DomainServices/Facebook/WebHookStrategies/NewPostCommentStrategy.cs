@@ -44,12 +44,7 @@ namespace Social.Domain.DomainServices.Facebook
             conversation.Status = sender.Id != socialAccount.SocialUser.Id ? ConversationStatus.PendingInternal : ConversationStatus.PendingExternal;
             conversation.LastMessageSenderId = message.SenderId;
             conversation.LastMessageSentTime = message.SendTime;
-
-            // if comment a Wall Post, the Wall Post conversation should be visible.
-            if (conversation.Source == ConversationSource.FacebookWallPost && message.SenderId != socialAccount.Id && conversation.IsHidden)
-            {
-                conversation.IsHidden = false;
-            }
+            conversation.TryToMakeWallPostVisible(socialAccount);
 
             await UpdateConversation(conversation);
         }
