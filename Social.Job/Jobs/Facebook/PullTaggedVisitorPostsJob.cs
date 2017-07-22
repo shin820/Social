@@ -31,22 +31,15 @@ namespace Social.Job.Jobs.Facebook
 
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
-            var siteSocicalAccount = context.JobDetail.GetCustomData<SiteSocialAccount>();
-            if (siteSocicalAccount == null)
+            var socialAccount = await GetFacebookSocialAccount(context);
+            if (socialAccount == null)
             {
                 return;
             }
 
-            int siteId = siteSocicalAccount.SiteId;
-            string facebookPageId = siteSocicalAccount.FacebookPageId;
-
-            await UnitOfWorkManager.RunWithoutTransaction(siteId, async () =>
+            await UnitOfWorkManager.RunWithoutTransaction(socialAccount.SiteId, async () =>
             {
-                SocialAccount account = await _socialAccountService.GetAccountAsync(SocialUserSource.Facebook, facebookPageId);
-                if (account != null)
-                {
-                    await _service.PullTaggedVisitorPosts(account);
-                }
+                await _service.PullTaggedVisitorPosts(socialAccount);
             });
         }
     }

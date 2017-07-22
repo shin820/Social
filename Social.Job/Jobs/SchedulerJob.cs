@@ -67,7 +67,7 @@ namespace Social.Job.Jobs
             {
                 //ScheduleJob<FacebookWebHookJob>(facebookAccount, context);
                 //ScheduleJob<PullTaggedVisitorPostsJob>(facebookAccount, context);
-                //ScheduleJob<PullVisitorPostsFromFeedJob>(facebookAccount, context);
+                //ScheduleJob<PullVisitorPostsFromFeedJob>(facebookAccount, context, StartNowTrigger());
             }
 
             foreach (var twitterAccount in twitterAccounts)
