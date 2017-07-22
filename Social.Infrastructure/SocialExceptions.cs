@@ -25,7 +25,7 @@ namespace Social.Infrastructure
             return new ExceptionWithCode(40002, $"The original Post or Tweet is deleted.");
         }
 
-        public static BadRequestException BadReqeust(string msg)
+        public static BadRequestException BadRequest(string msg)
         {
             return new BadRequestException(msg);
         }

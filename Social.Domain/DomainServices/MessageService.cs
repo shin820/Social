@@ -52,14 +52,14 @@ namespace Social.Domain.DomainServices
             var conversation = _conversationService.CheckIfExists(conversationId);
             if (conversation.Source != ConversationSource.FacebookMessage)
             {
-                throw new BadRequestException("Conversation source must be facebook message.");
+                throw SocialExceptions.BadRequest("Conversation source must be facebook message.");
             }
 
             var messages = FindAllByConversationId(conversation.Id).ToList();
             SocialAccount socialAccount = GetSocialAccountsFromMessages(messages).FirstOrDefault();
             if (socialAccount == null)
             {
-                throw new BadRequestException("Facebook integration account can't be found from conversation.");
+                throw SocialExceptions.BadRequest("Facebook integration account can't be found from conversation.");
             }
 
             SocialUser recipient = messages.Where(t => t.Sender.Type == SocialUserType.Customer)
@@ -99,14 +99,14 @@ namespace Social.Domain.DomainServices
             var conversation = _conversationService.CheckIfExists(conversationId);
             if (conversation.Source != ConversationSource.FacebookVisitorPost && conversation.Source != ConversationSource.FacebookWallPost)
             {
-                throw new BadRequestException("Conversation source must be facebook visitor/wall post.");
+                throw SocialExceptions.BadRequest("Conversation source must be facebook visitor/wall post.");
             }
 
             var messages = FindAllByConversationId(conversation.Id).ToList();
             SocialAccount socialAccount = GetSocialAccountsFromMessages(messages).FirstOrDefault();
             if (socialAccount == null)
             {
-                throw new BadRequestException("Facebook integration account can't be found from conversation.");
+                throw SocialExceptions.BadRequest("Facebook integration account can't be found from conversation.");
             }
 
             var previousMessages = GetPreviousMessages(messages, parentId);
@@ -164,26 +164,26 @@ namespace Social.Domain.DomainServices
             Conversation conversation = _conversationService.CheckIfExists(conversationId);
             if (conversation.Source != ConversationSource.TwitterDirectMessage)
             {
-                throw new BadRequestException("Conversation source must be twitter direct message.");
+                throw SocialExceptions.BadRequest("Conversation source must be twitter direct message.");
             }
 
             SocialAccount twitterAccount = _socialAccountService.Find(twitterAccountId);
             if (twitterAccount == null)
             {
-                throw new BadRequestException("Invalid twitter account id.");
+                throw SocialExceptions.BadRequest("Invalid twitter account id.");
             }
 
             var messages = FindAllByConversationId(conversation.Id).ToList();
             var lastMessageSender = messages.Where(t => t.SenderId != twitterAccountId).OrderByDescending(t => t.SendTime).Select(t => t.Sender).FirstOrDefault();
             if (lastMessageSender == null)
             {
-                throw new BadRequestException("Cant't find last message from conversation.");
+                throw SocialExceptions.BadRequest("Cant't find last message from conversation.");
             }
 
             IUser prviousTwitterUser = twitterService.GetUser(twitterAccount, long.Parse(lastMessageSender.OriginalId));
             if (prviousTwitterUser == null)
             {
-                throw new BadRequestException("Cant't find twitter user.");
+                throw SocialExceptions.BadRequest("Cant't find twitter user.");
             }
 
             // publish twitter direct message
@@ -214,13 +214,13 @@ namespace Social.Domain.DomainServices
             Conversation conversation = _conversationService.CheckIfExists(conversationId);
             if (conversation.Source != ConversationSource.TwitterTweet)
             {
-                throw new BadRequestException("Conversation source must be twitter tweet.");
+                throw SocialExceptions.BadRequest("Conversation source must be twitter tweet.");
             }
 
             SocialAccount twitterAccount = _socialAccountService.Find(twitterAccountId);
             if (twitterAccount == null)
             {
-                throw new BadRequestException("Invalid twitter account id.");
+                throw SocialExceptions.BadRequest("Invalid twitter account id.");
             }
 
             var messages = FindAllByConversationId(conversation.Id).ToList();

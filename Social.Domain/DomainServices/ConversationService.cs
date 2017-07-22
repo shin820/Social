@@ -1,6 +1,7 @@
 ﻿using Framework.Core;
 using LinqKit;
 using Social.Domain.Entities;
+using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
@@ -52,7 +53,7 @@ namespace Social.Domain.DomainServices
             var conversation = Find(id);
             if (conversation == null)
             {
-                throw new BadRequestException($"Conversation '{id}' not exists.");
+                throw SocialExceptions.BadRequest($"Conversation '{id}' not exists.");
             }
 
             return conversation;
@@ -184,7 +185,7 @@ namespace Social.Domain.DomainServices
                 bool isExistsOpenConversation = FindAll().Any(t => t.Id != conversation.Id && t.Status != ConversationStatus.Closed && t.Messages.Any(m => userIds.Contains(m.SenderId) || userIds.Contains(m.ReceiverId.Value)));
                 if (isExistsOpenConversation)
                 {
-                    throw new BadRequestException("Another open conversation which belongs to the same user has been found.");
+                    throw SocialExceptions.BadRequest("Another open conversation which belongs to the same user has been found.");
                 }
             }
         }
