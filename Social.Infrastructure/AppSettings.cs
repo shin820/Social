@@ -67,7 +67,7 @@ namespace Social.Infrastructure
 
         private static string GetAppSetting(string key)
         {
-            string value = ConfigurationManager.AppSettings["key"];
+            string value = ConfigurationManager.AppSettings[key];
             if (string.IsNullOrWhiteSpace(value))
             {
                 throw new ConfigurationErrorsException($"Invalid configuration for '{key}'.");

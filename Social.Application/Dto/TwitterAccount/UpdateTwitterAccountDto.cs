@@ -16,11 +16,8 @@ namespace Social.Application.Dto
         public bool? IfConvertMessageToConversation { get; set; }
         [Required]
         public bool? IfConvertTweetToConversation { get; set; }
-        [Required]
         public int? ConversationDepartmentId { get; set; }
-        [Required]
         public int? ConversationAgentId { get; set; }
-        [Required]
         public ConversationPriority? ConversationPriority { get; set; }
     }
 }

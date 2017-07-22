@@ -4,6 +4,7 @@ using Framework.Core;
 using Social.Application.Dto;
 using Social.Domain.DomainServices;
 using Social.Domain.Entities;
+using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using Social.Infrastructure.Facebook;
 using System;
@@ -73,7 +74,11 @@ namespace Social.Application.AppServices
 
         public FacebookPageDto GetPage(int id)
         {
-            var entity = _socialAccountService.Find(id);
+            var entity = _socialAccountService.FindAccount(id, SocialUserSource.Facebook);
+            if (entity == null)
+            {
+                throw SocialExceptions.FacebookPageNotExists(id);
+            }
             return Mapper.Map<FacebookPageDto>(entity);
         }
 
@@ -91,20 +96,22 @@ namespace Social.Application.AppServices
 
         public async Task DeletePageAsync(int id)
         {
-            var entity = _socialAccountService.Find(id);
-            if (entity != null)
+            var entity = _socialAccountService.FindAccount(id, SocialUserSource.Facebook);
+            if (entity == null)
             {
-                await _socialAccountService.DeleteAsync(entity);
-                await FbClient.UnSubscribeApp(entity.SocialUser.OriginalId, entity.Token);
+                throw SocialExceptions.FacebookPageNotExists(id);
             }
+
+            await _socialAccountService.DeleteAsync(entity);
+            await FbClient.UnSubscribeApp(entity.SocialUser.OriginalId, entity.Token);
         }
 
         public FacebookPageDto UpdatePage(int id, UpdateFacebookPageDto dto)
         {
-            var socialAccount = _socialAccountService.Find(id);
+            var socialAccount = _socialAccountService.FindAccount(id, SocialUserSource.Facebook);
             if (socialAccount == null)
             {
-                throw new NotFoundException($"'{id}' not exists.");
+                throw SocialExceptions.FacebookPageNotExists(id);
             }
 
             socialAccount = Mapper.Map(dto, socialAccount);

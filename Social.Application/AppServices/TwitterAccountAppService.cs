@@ -81,10 +81,10 @@ namespace Social.Application.AppServices
 
         public TwitterAccountDto GetAccount(int id)
         {
-            var entity = _socialAccountService.Find(id);
+            var entity = _socialAccountService.FindAccount(id, SocialUserSource.Twitter);
             if (entity == null)
             {
-                throw SocialExceptions.ConversationIdNotExists(id);
+                throw SocialExceptions.TwitterAccountNotExists(id);
             }
 
             return Mapper.Map<TwitterAccountDto>(entity);
@@ -92,10 +92,10 @@ namespace Social.Application.AppServices
 
         public async Task DeleteAccountAsync(int id)
         {
-            var entity = _socialAccountService.Find(id);
+            var entity = _socialAccountService.FindAccount(id, SocialUserSource.Twitter);
             if (entity == null)
             {
-                throw SocialExceptions.ConversationIdNotExists(id);
+                throw SocialExceptions.TwitterAccountNotExists(id);
             }
 
             await _socialAccountService.DeleteAsync(entity);
@@ -103,10 +103,10 @@ namespace Social.Application.AppServices
 
         public TwitterAccountDto UpdateAccount(int id, UpdateTwitterAccountDto dto)
         {
-            var socialAccount = _socialAccountService.Find(id);
+            var socialAccount = _socialAccountService.FindAccount(id, SocialUserSource.Twitter);
             if (socialAccount == null)
             {
-                throw SocialExceptions.ConversationIdNotExists(id);
+                throw SocialExceptions.TwitterAccountNotExists(id);
             }
 
             socialAccount = Mapper.Map(dto, socialAccount);

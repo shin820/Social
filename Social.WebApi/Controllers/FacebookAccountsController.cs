@@ -1,4 +1,5 @@
-﻿using Social.Application.AppServices;
+﻿using Framework.Core.UnitOfWork;
+using Social.Application.AppServices;
 using Social.Application.Dto;
 using Social.Infrastructure;
 using Social.Infrastructure.Facebook;
@@ -17,25 +18,30 @@ namespace Social.WebApi.Controllers
     [RoutePrefix("api/facebook-accounts")]
     public class FacebookAccountsController : ApiController
     {
+        private IUnitOfWorkManager _uowManager;
         private IFacebookAccountAppService _appService;
 
-        public FacebookAccountsController(IFacebookAccountAppService appService)
+        public FacebookAccountsController(
+            IUnitOfWorkManager uowManager,
+            IFacebookAccountAppService appService
+            )
         {
+            _uowManager = uowManager;
             _appService = appService;
         }
 
         [HttpGet]
         [Route("integration-request")]
-        public IHttpActionResult IntegrationRequest()
+        public IHttpActionResult IntegrationRequest([Required]string redirectUri)
         {
-            return Redirect(FbClient.GetAuthUrl(AppSettings.FacebookRedirectUri));
+            return Redirect(FbClient.GetAuthUrl(redirectUri));
         }
 
         [HttpGet]
         [Route("pending-add-pages")]
-        public async Task<PendingAddFacebookPagesDto> GetPendingAddPages([Required]string code)
+        public async Task<PendingAddFacebookPagesDto> GetPendingAddPages([Required]string code, [Required]string redirectUri)
         {
-            return await _appService.GetPendingAddPagesAsync(code, AppSettings.FacebookRedirectUri);
+            return await _appService.GetPendingAddPagesAsync(code, redirectUri);
         }
 
         [HttpGet]

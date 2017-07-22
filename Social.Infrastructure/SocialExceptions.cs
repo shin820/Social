@@ -34,5 +34,15 @@ namespace Social.Infrastructure
         {
             return new NotFoundException($"Conversation id '{id}' not exists.");
         }
+
+        public static NotFoundException TwitterAccountNotExists(int id)
+        {
+            return new NotFoundException($"Twitter Account with id '{id}' not exists.");
+        }
+
+        public static NotFoundException FacebookPageNotExists(int id)
+        {
+            return new NotFoundException($"Facebook page with id '{id}' not exists.");
+        }
     }
 }

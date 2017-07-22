@@ -14,6 +14,7 @@ namespace Social.Domain.DomainServices
 {
     public interface ISocialAccountService : IDomainService<SocialAccount>
     {
+        SocialAccount FindAccount(int id, SocialUserSource source);
         Task<SocialAccount> GetAccountAsync(SocialUserSource source, string originalId);
     }
 
@@ -24,6 +25,11 @@ namespace Social.Domain.DomainServices
         public SocialAccountService(IRepository<GeneralDataContext, SiteSocialAccount> siteSocialAccountRepo)
         {
             _siteSocialAccountRepo = siteSocialAccountRepo;
+        }
+
+        public SocialAccount FindAccount(int id, SocialUserSource source)
+        {
+            return Repository.FindAll().Include(t => t.SocialUser).Where(t => t.Id == id && t.IsDeleted == false && t.SocialUser.Source == source).FirstOrDefault();
         }
 
         public async Task<SocialAccount> GetAccountAsync(SocialUserSource source, string originalId)

@@ -71,7 +71,7 @@ namespace Social.Infrastructure.Facebook
                     var page = new FbPage
                     {
                         Id = item.id,
-                        Name = item.Name,
+                        Name = item.name,
                         Category = item.category,
                         AccessToken = item.access_token,
                         Link = item.link
@@ -93,8 +93,6 @@ namespace Social.Infrastructure.Facebook
 
         public static async Task<FbUser> GetMe(string token)
         {
-            ServicePointManager.DnsRefreshTimeout = 0;
-            var a = ServicePointManager.SecurityProtocol;
             FacebookClient client = new FacebookClient(token);
             string url = "/me?fields=id,name,first_name,last_name,picture,gender,email,location";
             dynamic result = await client.GetTaskAsync(url);
@@ -102,7 +100,8 @@ namespace Social.Infrastructure.Facebook
             var me = new FbUser
             {
                 id = result.id,
-                name = result.name
+                name = result.name,
+                email = result.email
             };
             if (result.picture != null && result.picture.data != null)
             {
