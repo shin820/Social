@@ -17,15 +17,12 @@ namespace Social.Job.Jobs.Facebook
     public class PullTaggedVisitorPostsJob : JobBase, ITransient
     {
         private IFacebookAppService _service;
-        private ISocialAccountService _socialAccountService;
 
         public PullTaggedVisitorPostsJob(
-            IFacebookAppService service,
-            ISocialAccountService socialAccountService
+            IFacebookAppService service
             )
         {
             _service = service;
-            _socialAccountService = socialAccountService;
         }
 
 

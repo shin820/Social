@@ -18,7 +18,7 @@ namespace Social.Domain.DomainServices.Facebook
             {
                 Source = MessageSource.FacebookPost,
                 OriginalId = post.id,
-                SendTime = post.created_time,
+                SendTime = post.created_time.ToUniversalTime(),
                 Content = post.message,
                 OriginalLink = post.permalink_url,
                 Story = post.story
@@ -44,7 +44,7 @@ namespace Social.Domain.DomainServices.Facebook
             {
                 Source = MessageSource.FacebookPostComment,
                 OriginalId = comment.id,
-                SendTime = comment.created_time,
+                SendTime = comment.created_time.ToUniversalTime(),
                 Content = comment.message,
                 OriginalLink = comment.permalink_url,
             };
