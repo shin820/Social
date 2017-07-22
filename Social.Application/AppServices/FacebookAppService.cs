@@ -13,7 +13,7 @@ namespace Social.Application.AppServices
 {
     public interface IFacebookAppService
     {
-        Task ProcessWebHookData(SocialAccount socialAccount, FbHookData fbData);
+        Task ProcessWebHookData(FbHookData fbData);
         Task PullTaggedVisitorPosts(SocialAccount socialAccount);
         Task PullVisitorPostsFromFeed(SocialAccount socialAccount);
         void InsertWebHookData(string data);
@@ -35,9 +35,9 @@ namespace Social.Application.AppServices
             _hookDataRepo = hookDataRepo;
         }
 
-        public async Task ProcessWebHookData(SocialAccount socialAccount, FbHookData fbData)
+        public async Task ProcessWebHookData(FbHookData fbData)
         {
-            await _facebookWebHookService.ProcessWebHookData(socialAccount, fbData);
+            await _facebookWebHookService.ProcessWebHookData(fbData);
         }
 
         public async Task PullTaggedVisitorPosts(SocialAccount socialAccount)

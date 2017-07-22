@@ -15,7 +15,7 @@ namespace Social.IntegrationTest
 
             var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData);
             IWebHookService facebookService = DependencyResolver.Resolve<IWebHookService>();
-            await facebookService.ProcessWebHookData(TestFacebookAccount, data);
+            await facebookService.ProcessWebHookData(data);
         }
 
         [Fact]
@@ -25,7 +25,7 @@ namespace Social.IntegrationTest
 
             var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData);
             IWebHookService facebookService = DependencyResolver.Resolve<IWebHookService>();
-            await facebookService.ProcessWebHookData(TestFacebookAccount, data);
+            await facebookService.ProcessWebHookData(data);
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace Social.IntegrationTest
 
             var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData);
             IWebHookService facebookService = DependencyResolver.Resolve<IWebHookService>();
-            await facebookService.ProcessWebHookData(TestFacebookAccount, data);
+            await facebookService.ProcessWebHookData(data);
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace Social.IntegrationTest
 
             var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData);
             IWebHookService facebookService = DependencyResolver.Resolve<IWebHookService>();
-            await facebookService.ProcessWebHookData(TestFacebookAccount, data);
+            await facebookService.ProcessWebHookData(data);
         }
 
         [Fact]
@@ -55,7 +55,7 @@ namespace Social.IntegrationTest
 
             var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData);
             IWebHookService facebookService = DependencyResolver.Resolve<IWebHookService>();
-            await facebookService.ProcessWebHookData(TestFacebookAccount, data);
+            await facebookService.ProcessWebHookData(data);
         }
 
 
@@ -66,7 +66,7 @@ namespace Social.IntegrationTest
 
             var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData);
             IWebHookService facebookService = DependencyResolver.Resolve<IWebHookService>();
-            await facebookService.ProcessWebHookData(TestFacebookAccount, data);
+            await facebookService.ProcessWebHookData(data);
         }
 
         [Fact]
@@ -76,7 +76,7 @@ namespace Social.IntegrationTest
 
             var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData);
             IWebHookService facebookService = DependencyResolver.Resolve<IWebHookService>();
-            await facebookService.ProcessWebHookData(TestFacebookAccount, data);
+            await facebookService.ProcessWebHookData(data);
         }
     }
 }

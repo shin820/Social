@@ -65,6 +65,22 @@ namespace Social.Infrastructure
             }
         }
 
+        public static string FacebookPullTaggedVisitorPostsJobCronExpression
+        {
+            get
+            {
+                return GetAppSetting("FacebookPullTaggedVisitorPostsJob_CronExpression");
+            }
+        }
+
+        public static string FacebookPullVisitorPostsFromFeedJobCronExpression
+        {
+            get
+            {
+                return GetAppSetting("FacebookPullVisitorPostsFromFeedJob_CronExpression");
+            }
+        }
+
         private static string GetAppSetting(string key)
         {
             string value = ConfigurationManager.AppSettings[key];

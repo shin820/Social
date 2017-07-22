@@ -149,7 +149,7 @@ namespace Social.Infrastructure.Facebook
             Checker.NotNullOrWhiteSpace(token, nameof(token));
             Checker.NotNullOrWhiteSpace(fbConversationId, nameof(fbConversationId));
             FacebookClient client = new FacebookClient(token);
-            string url = "/" + fbConversationId + "/messages?fields=from,to,message,id,created_time,attachments,shares{link,name,id}&limit=13";
+            string url = "/" + fbConversationId + "/messages?fields=from,to,message,id,created_time,attachments,shares{link,name,id}&limit=10";
             dynamic fbMessages = await client.GetTaskAsync(url);
             foreach (var fbMessage in fbMessages.data)
             {

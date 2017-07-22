@@ -56,7 +56,7 @@ namespace Social.Job.Jobs
                      foreach (FacebookWebHookRawData rawData in rawDataList)
                      {
                          var data = Newtonsoft.Json.JsonConvert.DeserializeObject<FbHookData>(rawData.Data);
-                         await _fbWebHookAppService.ProcessWebHookData(account, data);
+                         await _fbWebHookAppService.ProcessWebHookData(/*account, */data);
                          _hookRawDataRepo.Delete(rawData);
                      }
                  }
