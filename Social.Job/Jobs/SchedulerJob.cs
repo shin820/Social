@@ -9,6 +9,7 @@ using Quartz.Impl.Matchers;
 using Social.Job.Jobs.Facebook;
 using Social.Domain;
 using Social.Domain.Entities;
+using Social.Infrastructure;
 
 namespace Social.Job.Jobs
 {
@@ -71,14 +72,13 @@ namespace Social.Job.Jobs
 
             foreach (var twitterAccount in twitterAccounts)
             {
-                //ScheduleJob<TwitterStreamJob>(twitterAccount, context);
-                ScheduleJob<TwitterPullDirectMessagesJob>(twitterAccount, context);
-                //ScheduleJob<TwitterPullTweetsJob>(twitterAccount, context);
+                ScheduleJob<TwitterUserStreamJob>(twitterAccount, context, StartNowTrigger());
+                ScheduleJob<TwitterPullDirectMessagesJob>(twitterAccount, context, CronTrigger(AppSettings.TwitterPullDirectMessagesJobCronExpression));
+                ScheduleJob<TwitterPullTweetsJob>(twitterAccount, context, CronTrigger(AppSettings.TwitterPullTweetsJobCronExpression));
             }
         }
 
-
-        private void ScheduleJob<TJob>(SiteSocialAccount account, IJobExecutionContext context) where TJob : JobBase
+        private void ScheduleJob<TJob>(SiteSocialAccount account, IJobExecutionContext context, Action<TriggerBuilder> configureTrigger) where TJob : JobBase
         {
             string socialAccountId = !string.IsNullOrWhiteSpace(account.FacebookPageId) ? account.FacebookPageId : account.TwitterUserId;
             if (string.IsNullOrWhiteSpace(socialAccountId))
@@ -97,15 +97,26 @@ namespace Social.Job.Jobs
                 {
                     job.WithIdentity(jobKey, groupName);
                 },
-                trigger =>
-                {
-                    trigger/*.WithSimpleSchedule(x => x.WithIntervalInMinutes(5).RepeatForever().WithMisfireHandlingInstructionIgnoreMisfires())*/
-                    .StartNow()
-                    .Build();
-                },
+                configureTrigger,
                 account
                 );
             }
+        }
+
+        private Action<TriggerBuilder> CronTrigger(string cronExpression)
+        {
+            return trigger =>
+            {
+                trigger.WithCronSchedule(cronExpression).Build();
+            };
+        }
+
+        private Action<TriggerBuilder> StartNowTrigger()
+        {
+            return trigger =>
+            {
+                trigger.StartNow().Build();
+            };
         }
 
         private string GetJobGroup<TJob>() where TJob : JobBase

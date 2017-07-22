@@ -13,12 +13,7 @@ namespace Social.Infrastructure
         {
             get
             {
-                string value = ConfigurationManager.AppSettings["TwitterConsumerKey"];
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    throw new ConfigurationErrorsException("Invalid configuration for 'TwitterConsumerKey'.");
-                }
-                return value;
+                return GetAppSetting("TwitterConsumerKey");
             }
         }
 
@@ -26,12 +21,7 @@ namespace Social.Infrastructure
         {
             get
             {
-                string value = ConfigurationManager.AppSettings["TwitterConsumerSecret"];
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    throw new ConfigurationErrorsException("Invalid configuration for 'TwitterConsumerSecret'.");
-                }
-                return value;
+                return GetAppSetting("TwitterConsumerSecret");
             }
         }
 
@@ -39,12 +29,7 @@ namespace Social.Infrastructure
         {
             get
             {
-                string value = ConfigurationManager.AppSettings["FacebookClientId"];
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    throw new ConfigurationErrorsException("Invalid configuration for 'FacebookClientId'.");
-                }
-                return value;
+                return GetAppSetting("FacebookClientId");
             }
         }
 
@@ -52,12 +37,7 @@ namespace Social.Infrastructure
         {
             get
             {
-                string value = ConfigurationManager.AppSettings["FacebookClientSecret"];
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    throw new ConfigurationErrorsException("Invalid configuration for 'FacebookClientSecret'.");
-                }
-                return value;
+                return GetAppSetting("FacebookClientSecret");
             }
         }
 
@@ -65,13 +45,34 @@ namespace Social.Infrastructure
         {
             get
             {
-                string value = ConfigurationManager.AppSettings["FacebookOAuthRedirectUri"];
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    throw new ConfigurationErrorsException("Invalid configuration for 'FacebookOAuthRedirectUri'.");
-                }
-                return value;
+                return GetAppSetting("FacebookOAuthRedirectUri");
             }
+        }
+
+        public static string TwitterPullDirectMessagesJobCronExpression
+        {
+            get
+            {
+                return GetAppSetting("TwitterPullDirectMessagesJob_CronExpression");
+            }
+        }
+
+        public static string TwitterPullTweetsJobCronExpression
+        {
+            get
+            {
+                return GetAppSetting("TwitterPullTweetsJob_CronExpression");
+            }
+        }
+
+        private static string GetAppSetting(string key)
+        {
+            string value = ConfigurationManager.AppSettings["key"];
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ConfigurationErrorsException($"Invalid configuration for '{key}'.");
+            }
+            return value;
         }
     }
 }

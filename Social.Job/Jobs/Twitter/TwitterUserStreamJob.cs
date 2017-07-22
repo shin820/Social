@@ -12,12 +12,11 @@ using Social.Infrastructure;
 
 namespace Social.Job.Jobs
 {
-    public class TwitterStreamJob : JobBase, ITransient
+    public class TwitterUserStreamJob : JobBase, ITransient
     {
         private ITwitterAppService _twitterAppService;
-        private ISocialAccountService _socialAccountService;
 
-        public TwitterStreamJob(
+        public TwitterUserStreamJob(
             ITwitterAppService twitterAppService
             )
         {
@@ -37,10 +36,10 @@ namespace Social.Job.Jobs
 
             var stream = Stream.CreateUserStream(creds);
 
-            //stream.StreamIsReady += (sender, args) =>
-            //{
-            //    Console.WriteLine($"Stream is ready...");
-            //};
+            stream.StreamIsReady += (sender, args) =>
+            {
+                Logger.Info($"Twitter User Stream is ready. JobKey={context.JobDetail.Key}.");
+            };
 
             stream.MessageReceived += async (sender, args) =>
             {
