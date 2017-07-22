@@ -32,18 +32,21 @@ namespace Social.Application.AppServices
         private IMessageService _messageService;
         private IAgentService _agentService;
         private ITwitterService _twitterService;
+        private ISocialAccountService _socialAccountService;
 
         public ConversationMessageAppService(
             IConversationService conversationService,
             IAgentService agentService,
             IMessageService messageService,
-            ITwitterService twitterService
+            ITwitterService twitterService,
+            ISocialAccountService socialAccountService
             )
         {
             _conversationService = conversationService;
             _agentService = agentService;
             _messageService = messageService;
             _twitterService = twitterService;
+            _socialAccountService = socialAccountService;
         }
 
 
@@ -129,24 +132,21 @@ namespace Social.Application.AppServices
                 .ToList();
             _agentService.FillAgentName(result.Cast<IHaveSendAgent>());
 
-            var quotedMessageDtoes = result.Where(t => !string.IsNullOrWhiteSpace(t.QuoteTweetId)).ToList();
-            if (!quotedMessageDtoes.Any())
-            {
-                return result;
-            }
-            var messages = _twitterService.GetTweetMessages(quotedMessageDtoes.Select(t => long.Parse(t.QuoteTweetId)).ToArray());
-            if (!messages.Any())
+            var quotedMessageDto = result.Where(t => !string.IsNullOrWhiteSpace(t.QuoteTweetId)).FirstOrDefault();
+            if (quotedMessageDto == null)
             {
                 return result;
             }
 
-            foreach (var quotedMessageDto in quotedMessageDtoes)
+            var socialAccount = _socialAccountService.Find(quotedMessageDto.UserId);
+            if (socialAccount == null)
             {
-                var quotedTweetMessage = messages.FirstOrDefault(t => t.OriginalId == quotedMessageDto.QuoteTweetId.ToString());
-                if (quotedTweetMessage != null)
-                {
-                    quotedMessageDto.QuoteTweet = Mapper.Map<BeQuotedTweetDto>(quotedTweetMessage);
-                }
+                return result;
+            }
+            var quoteTweetMessage = _twitterService.GetTweetMessage(socialAccount, long.Parse(quotedMessageDto.QuoteTweetId));
+            if (quoteTweetMessage != null)
+            {
+                quotedMessageDto.QuoteTweet = Mapper.Map<BeQuotedTweetDto>(quoteTweetMessage);
             }
 
             return result;

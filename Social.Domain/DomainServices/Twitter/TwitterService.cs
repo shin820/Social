@@ -20,7 +20,7 @@ namespace Social.Domain.DomainServices
     {
         Task ProcessDirectMessage(SocialAccount account, IMessage directMsg);
         Task ProcessTweet(SocialAccount account, ITweet currentTweet);
-        IList<Entities.Message> GetTweetMessages(long[] tweetIds);
+        Entities.Message GetTweetMessage(SocialAccount socialAccount, long tweetId);
         ITweet GetTweet(SocialAccount socialAccount, long tweetId);
         ITweet ReplyTweet(SocialAccount socialAccount, ITweet inReplyTo, string message);
         Entities.Message ConvertToMessage(ITweet tweet);
@@ -47,12 +47,16 @@ namespace Social.Domain.DomainServices
         }
 
 
-        public IList<Entities.Message> GetTweetMessages(long[] tweetIds)
+        public Entities.Message GetTweetMessage(SocialAccount account, long tweetId)
         {
-            Auth.SetCredentials(new TwitterCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret));
-            var tweets = Tweet.GetTweets(tweetIds);
+            Auth.SetCredentials(new TwitterCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret, account.Token, account.TokenSecret));
+            var tweet = Tweet.GetTweet(tweetId);
+            if (tweet == null)
+            {
+                return null;
+            }
 
-            return tweets.Select(t => ConvertToMessage(t)).ToList();
+            return ConvertToMessage(tweet);
         }
 
         public ITweet GetTweet(SocialAccount socialAccount, long tweetId)
