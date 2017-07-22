@@ -142,7 +142,7 @@ namespace Social.Domain.DomainServices
                 Source = MessageSource.TwitterDirectMessage,
                 Content = directMsg.Text,
                 OriginalId = directMsg.Id.ToString(),
-                SendTime = directMsg.CreatedAt
+                SendTime = directMsg.CreatedAt.ToUniversalTime()
             };
 
             return message;
@@ -245,6 +245,10 @@ namespace Social.Domain.DomainServices
             if (tweet.InReplyToStatusId != null)
             {
                 ITweet inReplyToTweet = Tweet.GetTweet(tweet.InReplyToStatusId.Value);
+                if (inReplyToTweet == null)
+                {
+                    return;
+                }
                 RecursivelyFillTweet(tweets, inReplyToTweet, out isConversationExist);
             }
         }
@@ -265,7 +269,7 @@ namespace Social.Domain.DomainServices
             {
                 Source = tweet.QuotedStatusId == null ? MessageSource.TwitterTypicalTweet : MessageSource.TwitterQuoteTweet,
                 OriginalId = tweet.IdStr,
-                SendTime = tweet.CreatedAt,
+                SendTime = tweet.CreatedAt.ToUniversalTime(),
                 Content = string.IsNullOrWhiteSpace(tweet.Text) ? tweet.FullText : tweet.Text,
                 OriginalLink = tweet.Url
             };

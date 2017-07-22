@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Tweetinvi;
+using Tweetinvi.Models;
 using Tweetinvi.Parameters;
 
 namespace Social.Domain.DomainServices
@@ -29,36 +30,44 @@ namespace Social.Domain.DomainServices
         #region PullDirectMessages
         public async Task PullDirectMessages(SocialAccount account)
         {
-            int maxNumberOfMessagesRetrieve = 100;
-            DateTime since = DateTime.UtcNow.AddDays(-1);
+            int maxNumberOfMessagesRetrieve = 50;
+            DateTime since = DateTime.UtcNow.AddMinutes(30);
             Auth.SetUserCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret, account.Token, account.TokenSecret);
-            await PullReceivedDirectMessages(account, maxNumberOfMessagesRetrieve, since);
-            await PullSentDirectMessages(account, maxNumberOfMessagesRetrieve, since);
+
+            var recivedMessages = PullReceivedDirectMessages(account, maxNumberOfMessagesRetrieve, since);
+            var sentMessages = PullSentDirectMessages(account, maxNumberOfMessagesRetrieve, since);
+
+            var messages = recivedMessages.Concat(sentMessages).OrderBy(t => t.CreatedAt);
+            foreach (var message in messages)
+            {
+                await UnitOfWorkManager.RunWithNewTransaction(account.SiteId, async () =>
+                {
+                    await _twitterService.ProcessDirectMessage(account, message);
+                });
+            }
         }
 
-        private async Task PullReceivedDirectMessages(SocialAccount account, int maxNumberOfMessagesRetrieve, DateTime since)
+        private IList<IMessage> PullReceivedDirectMessages(SocialAccount account, int maxNumberOfMessagesRetrieve, DateTime since)
         {
+            List<IMessage> messages = new List<IMessage>();
             var receivedDirectMessages = Tweetinvi.Message.GetLatestMessagesReceived(maxNumberOfMessagesRetrieve);
             while (receivedDirectMessages.Any())
             {
-                if (receivedDirectMessages.First().CreatedAt <= since)
+                if (receivedDirectMessages.First().CreatedAt.ToUniversalTime() <= since)
                 {
                     break;
                 }
 
                 foreach (var message in receivedDirectMessages)
                 {
-                    if (message.CreatedAt <= since)
+                    if (message.CreatedAt.ToUniversalTime() <= since)
                     {
                         break;
                     }
-                    await UnitOfWorkManager.RunWithNewTransaction(account.SiteId, async () =>
-                    {
-                        await _twitterService.ProcessDirectMessage(account, message);
-                    });
+                    messages.Add(message);
                 };
 
-                if (receivedDirectMessages.Any(t => t.CreatedAt <= since))
+                if (receivedDirectMessages.Any(t => t.CreatedAt.ToUniversalTime() <= since))
                 {
                     break;
                 }
@@ -67,31 +76,31 @@ namespace Social.Domain.DomainServices
                 var parameter = new MessagesReceivedParameters { MaxId = maxId, MaximumNumberOfMessagesToRetrieve = maxNumberOfMessagesRetrieve };
                 receivedDirectMessages = Tweetinvi.Message.GetLatestMessagesReceived(parameter);
             }
+
+            return messages;
         }
 
-        private async Task PullSentDirectMessages(SocialAccount account, int maxNumberOfMessagesRetrieve, DateTime since)
+        private IList<IMessage> PullSentDirectMessages(SocialAccount account, int maxNumberOfMessagesRetrieve, DateTime since)
         {
+            List<IMessage> messages = new List<IMessage>();
             var sentDirectMessages = Tweetinvi.Message.GetLatestMessagesSent(maxNumberOfMessagesRetrieve);
             while (sentDirectMessages.Any())
             {
-                if (sentDirectMessages.First().CreatedAt <= since)
+                if (sentDirectMessages.First().CreatedAt.ToUniversalTime() <= since)
                 {
                     break;
                 }
 
                 foreach (var message in sentDirectMessages)
                 {
-                    if (message.CreatedAt <= since)
+                    if (message.CreatedAt.ToUniversalTime() <= since)
                     {
                         break;
                     }
-                    await UnitOfWorkManager.RunWithNewTransaction(account.SiteId, async () =>
-                    {
-                        await _twitterService.ProcessDirectMessage(account, message);
-                    });
+                    messages.Add(message);
                 };
 
-                if (sentDirectMessages.Any(t => t.CreatedAt <= since))
+                if (sentDirectMessages.Any(t => t.CreatedAt.ToUniversalTime() <= since))
                 {
                     break;
                 }
@@ -100,20 +109,33 @@ namespace Social.Domain.DomainServices
                 var parameter = new MessagesSentParameters { MaxId = maxId, MaximumNumberOfMessagesToRetrieve = maxNumberOfMessagesRetrieve };
                 sentDirectMessages = Tweetinvi.Message.GetLatestMessagesSent(parameter);
             }
+            return messages;
         }
         #endregion
 
         #region PullTweets
         public async Task PullTweets(SocialAccount account)
         {
-            int maxNumberOfTweetsRetrieve = 40;
-            DateTime since = DateTime.UtcNow.AddDays(-1);
+            int maxNumberOfTweetsRetrieve = 10;
+            DateTime since = DateTime.UtcNow.AddMinutes(-30);
             Auth.SetUserCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret, account.Token, account.TokenSecret);
-            await PullUserTimeLineTweets(account, maxNumberOfTweetsRetrieve, since);
+
+            var receivedTweets = PullMentionTimeLineTweets(account, maxNumberOfTweetsRetrieve, since);
+            var sentTweets = PullUserTimeLineTweets(account, maxNumberOfTweetsRetrieve, since);
+
+            var tweets = receivedTweets.Concat(sentTweets).OrderBy(t => t.CreatedAt);
+            foreach (var tweet in tweets)
+            {
+                await UnitOfWorkManager.RunWithNewTransaction(account.SiteId, async () =>
+                {
+                    await _twitterService.ProcessTweet(account, tweet);
+                });
+            }
         }
 
-        private async Task PullUserTimeLineTweets(SocialAccount account, int maxNumberOfTweetsRetrieve, DateTime since)
+        private IList<ITweet> PullUserTimeLineTweets(SocialAccount account, int maxNumberOfTweetsRetrieve, DateTime since)
         {
+            var timeLineTweets = new List<ITweet>();
             var tweets = Timeline.GetUserTimeline(long.Parse(account.SocialUser.OriginalId), maxNumberOfTweetsRetrieve);
             while (tweets.Any())
             {
@@ -128,10 +150,7 @@ namespace Social.Domain.DomainServices
                     {
                         break;
                     }
-                    await UnitOfWorkManager.RunWithNewTransaction(account.SiteId, async () =>
-                    {
-                        await _twitterService.ProcessTweet(account, tweet);
-                    });
+                    timeLineTweets.Add(tweet);
                 };
 
                 if (tweets.Any(t => t.CreatedAt <= since))
@@ -143,30 +162,29 @@ namespace Social.Domain.DomainServices
                 var parameter = new UserTimelineParameters { MaxId = maxId, MaximumNumberOfTweetsToRetrieve = maxNumberOfTweetsRetrieve };
                 tweets = Timeline.GetUserTimeline(long.Parse(account.SocialUser.OriginalId), parameter);
             }
+            return timeLineTweets;
         }
-        private async Task PullMentionTimeLineTweets(SocialAccount account, int maxNumberOfTweetsRetrieve, DateTime since)
+        private IList<ITweet> PullMentionTimeLineTweets(SocialAccount account, int maxNumberOfTweetsRetrieve, DateTime since)
         {
+            var mentions = new List<ITweet>();
             var tweets = Timeline.GetMentionsTimeline(maxNumberOfTweetsRetrieve);
             while (tweets.Any())
             {
-                if (tweets.First().CreatedAt <= since)
+                if (tweets.First().CreatedAt.ToUniversalTime() <= since)
                 {
                     break;
                 }
 
                 foreach (var tweet in tweets)
                 {
-                    if (tweet.CreatedAt <= since)
+                    if (tweet.CreatedAt.ToUniversalTime() <= since)
                     {
                         break;
                     }
-                    await UnitOfWorkManager.RunWithNewTransaction(account.SiteId, async () =>
-                    {
-                        await _twitterService.ProcessTweet(account, tweet);
-                    });
+                    mentions.Add(tweet);
                 };
 
-                if (tweets.Any(t => t.CreatedAt <= since))
+                if (tweets.Any(t => t.CreatedAt.ToUniversalTime() <= since))
                 {
                     break;
                 }
@@ -175,6 +193,7 @@ namespace Social.Domain.DomainServices
                 var parameter = new MentionsTimelineParameters { MaxId = maxId, MaximumNumberOfTweetsToRetrieve = maxNumberOfTweetsRetrieve };
                 tweets = Timeline.GetMentionsTimeline(parameter);
             }
+            return mentions;
         }
         #endregion
 

@@ -72,7 +72,7 @@ namespace Social.Job.Jobs
             foreach (var twitterAccount in twitterAccounts)
             {
                 //ScheduleJob<TwitterStreamJob>(twitterAccount, context);
-                //ScheduleJob<TwitterPullDirectMessagesJob>(twitterAccount, context);
+                ScheduleJob<TwitterPullDirectMessagesJob>(twitterAccount, context);
                 //ScheduleJob<TwitterPullTweetsJob>(twitterAccount, context);
             }
         }

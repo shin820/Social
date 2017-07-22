@@ -1,3 +1,5 @@
+USE Social
+GO
 INSERT INTO  [Social].[dbo].[t_Social_ConversationField]
 (
 	   [IfSystem]
@@ -25,7 +27,7 @@ VALUES
 (1,2,'Time to Last Message',10000),
 (1,2,'Total Messages',10000),
 (1,2,'Conversation ID',10000)
-
+GO
 INSERT INTO [Social].[dbo].[t_Social_ConversationFieldOption]
   (
        [FieldId]
@@ -49,7 +51,7 @@ VALUES
   ( 5,'Normal','1',2,10000),
   ( 5,'High','2',3,10000),
   ( 5,'Urgent','3',4,10000)
-  
+GO
 INSERT INTO [Social].[dbo].[t_Social_Filter]
   (
        [Name]
@@ -67,8 +69,7 @@ INSERT INTO [Social].[dbo].[t_Social_Filter]
   ('All Open', 4, 1,1,1,getdate(),10000 ),
   ('Unassigned', 5, 1,1,1,getdate(),10000 ),
   ('All', 6, 1,1,1,getdate(),10000 )
-  
-  
+GO
 INSERT INTO [Social].[dbo].[t_Social_FilterCondition]
   (
        [FilterId]
@@ -89,3 +90,4 @@ INSERT INTO [Social].[dbo].[t_Social_FilterCondition]
   (4,4,2,'4',10000,8),
   (5,2,1,'Blank',10000,9),
   (5,3,1,'Blank',10000,10)
+  GO
