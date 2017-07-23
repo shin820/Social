@@ -80,8 +80,8 @@ namespace Social.Job.Jobs
 
         private void ScheduleJob<TJob>(SiteSocialAccount account, IJobExecutionContext context, Action<TriggerBuilder> configureTrigger) where TJob : JobBase
         {
-            string socialAccountId = !string.IsNullOrWhiteSpace(account.FacebookPageId) ? account.FacebookPageId : account.TwitterUserId;
-            if (string.IsNullOrWhiteSpace(socialAccountId))
+            string originalId = !string.IsNullOrWhiteSpace(account.FacebookPageId) ? account.FacebookPageId : account.TwitterUserId;
+            if (string.IsNullOrWhiteSpace(originalId))
             {
                 return;
             }
@@ -89,7 +89,7 @@ namespace Social.Job.Jobs
             string groupName = GetJobGroup<TJob>();
             var groupMatcher = GroupMatcher<JobKey>.GroupEquals(groupName);
             var jobKeys = context.Scheduler.GetJobKeys(groupMatcher);
-            string jobKey = GetJobKey<TJob>(account.SiteId, account.FacebookPageId);
+            string jobKey = GetJobKey<TJob>(account.SiteId, originalId);
             if (jobKeys.All(t => t.Name != jobKey))
             {
                 _scheduleJobManager.ScheduleAsync<TJob, SiteSocialAccount>(
@@ -124,9 +124,9 @@ namespace Social.Job.Jobs
             return typeof(TJob).Name;
         }
 
-        private string GetJobKey<TJob>(int siteId, string fbPageId) where TJob : JobBase
+        private string GetJobKey<TJob>(int siteId, string originalId) where TJob : JobBase
         {
-            return $"{typeof(TJob).Name} - SiteId({siteId}) - SocialAccountId({fbPageId})";
+            return $"{typeof(TJob).Name} - SiteId({siteId}) - OriginalId({originalId})";
         }
     }
 }

@@ -30,8 +30,7 @@ namespace Social.Job
             },
             trigger =>
             {
-                trigger/*.WithSimpleSchedule(x => x.WithIntervalInSeconds(10).RepeatForever().WithMisfireHandlingInstructionIgnoreMisfires())*/
-                .StartNow()
+                trigger.WithSimpleSchedule(x => x.WithIntervalInMinutes(1).RepeatForever().WithMisfireHandlingInstructionIgnoreMisfires())
                 .Build();
             });
         }

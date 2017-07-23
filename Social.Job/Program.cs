@@ -21,12 +21,17 @@ namespace Social.Job
                     s.WhenStopped(tc => tc.Stop());
 
                 });
-                x.RunAsLocalSystem();
+                x.RunAsNetworkService();
                 x.SetDescription(AppSettings.SocialJobWindowsServiceDescription);
                 x.SetDisplayName(AppSettings.SocialJobWindowsServiceDisplayName);
                 x.SetServiceName(AppSettings.SocialJobWindowsServiceName);
                 x.StartAutomaticallyDelayed();
                 x.EnableServiceRecovery(action => action.RestartService(1));
+                x.OnException(ex =>
+                {
+                    SchedulerLogger.GetLogger().Error(ex);
+                });
+                x.UseLog4Net();
             });
         }
     }
