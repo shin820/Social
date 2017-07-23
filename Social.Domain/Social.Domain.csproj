@@ -196,7 +196,6 @@
     <Compile Include="Entities\ConversationLog.cs" />
     <Compile Include="Entities\SocialAccount.cs" />
     <Compile Include="Entities\SocialUser.cs" />
-    <Compile Include="Entities\FacebookWebHookRawData.cs" />
     <Compile Include="Entities\TwitterAuth.cs" />
     <Compile Include="GeneralDataContext.cs" />
     <Compile Include="SiteDataContext.cs" />

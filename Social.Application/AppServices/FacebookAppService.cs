@@ -16,23 +16,20 @@ namespace Social.Application.AppServices
         Task ProcessWebHookData(FbHookData fbData);
         Task PullTaggedVisitorPosts(SocialAccount socialAccount);
         Task PullVisitorPostsFromFeed(SocialAccount socialAccount);
-        void InsertWebHookData(string data);
     }
 
     public class FacebookAppService : AppService, IFacebookAppService
     {
         private IWebHookService _facebookWebHookService;
-        private IRepository<FacebookWebHookRawData> _hookDataRepo;
         private IVisitorPostService _visitorPostService;
 
         public FacebookAppService(
             IWebHookService facebookWebHookService,
-            IVisitorPostService visitorPostService,
-            IRepository<FacebookWebHookRawData> hookDataRepo)
+            IVisitorPostService visitorPostService
+            )
         {
             _facebookWebHookService = facebookWebHookService;
             _visitorPostService = visitorPostService;
-            _hookDataRepo = hookDataRepo;
         }
 
         public async Task ProcessWebHookData(FbHookData fbData)
@@ -48,15 +45,6 @@ namespace Social.Application.AppServices
         public async Task PullVisitorPostsFromFeed(SocialAccount socialAccount)
         {
             await _visitorPostService.PullVisitorPostsFromFeed(socialAccount);
-        }
-
-        public void InsertWebHookData(string data)
-        {
-            _hookDataRepo.Insert(new FacebookWebHookRawData
-            {
-                Data = data,
-                CreatedTime = DateTime.UtcNow
-            });
         }
     }
 }
