@@ -89,6 +89,11 @@ namespace Social.Domain.DomainServices.Facebook
 
                         var firstMessage = FacebookConverter.ConvertToMessage(_account.Token, post);
                         firstMessage.SenderId = sender.Id;
+                        if (firstMessage.SenderId != _account.Id)
+                        {
+                            firstMessage.ReceiverId = _account.Id;
+                        }
+
                         var conversation = new Conversation
                         {
                             OriginalId = post.id,
@@ -167,6 +172,7 @@ namespace Social.Domain.DomainServices.Facebook
                         var message = FacebookConverter.ConvertToMessage(_account.Token, comment);
                         message.SenderId = sender.Id;
                         message.ParentId = parent.Id;
+                        message.ReceiverId = parent.SenderId;
                         conversation.Messages.Add(message);
                         conversation.Status = ConversationStatus.PendingInternal;
                         conversation.LastMessageSenderId = message.SenderId;
@@ -221,6 +227,7 @@ namespace Social.Domain.DomainServices.Facebook
 
                         var message = FacebookConverter.ConvertToMessage(_account.Token, replyComment);
                         message.SenderId = sender.Id;
+                        message.ReceiverId = parent.SenderId;
                         message.ParentId = parent.Id;
                         conversation.Messages.Add(message);
                         conversation.Status = ConversationStatus.PendingInternal;

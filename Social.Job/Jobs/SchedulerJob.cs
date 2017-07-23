@@ -10,11 +10,14 @@ using Social.Job.Jobs.Facebook;
 using Social.Domain;
 using Social.Domain.Entities;
 using Social.Infrastructure;
+using System.Collections.Concurrent;
 
 namespace Social.Job.Jobs
 {
     public class SchedulerJob : JobBase, ITransient
     {
+        private static ConcurrentBag<string> RegistedJobs = new ConcurrentBag<string>();
+
         private IScheduleJobManager _scheduleJobManager;
         private IRepository<GeneralDataContext, SiteSocialAccount> _siteSocialAccountRepo;
 
@@ -85,12 +88,11 @@ namespace Social.Job.Jobs
             {
                 return;
             }
-
             string groupName = GetJobGroup<TJob>();
-            var groupMatcher = GroupMatcher<JobKey>.GroupEquals(groupName);
-            var jobKeys = context.Scheduler.GetJobKeys(groupMatcher);
+            var currentExecutingJobs = context.Scheduler.GetCurrentlyExecutingJobs();
             string jobKey = GetJobKey<TJob>(account.SiteId, originalId);
-            if (jobKeys.All(t => t.Name != jobKey))
+            bool hasSameJobRunning = RegistedJobs.Contains(jobKey);
+            if (!hasSameJobRunning)
             {
                 _scheduleJobManager.ScheduleAsync<TJob, SiteSocialAccount>(
                 job =>
@@ -100,6 +102,7 @@ namespace Social.Job.Jobs
                 configureTrigger,
                 account
                 );
+                RegistedJobs.Add(jobKey);
             }
         }
 

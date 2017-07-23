@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Social.Domain.Entities;
 using Social.Infrastructure.Facebook;
+using Social.Infrastructure.Enum;
 
 namespace Social.Domain.DomainServices.Facebook
 {
@@ -17,7 +18,7 @@ namespace Social.Domain.DomainServices.Facebook
 
         public async override Task Process(SocialAccount socialAccount, FbHookChange change)
         {
-            var message = GetMessage(change.Value.CommentId);
+            var message = GetMessage(MessageSource.FacebookPostComment, change.Value.CommentId);
             if (message != null)
             {
                 await DeleteMessage(message);

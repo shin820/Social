@@ -49,18 +49,26 @@ namespace Social.Domain.DomainServices.Facebook
             {
                 Message message = FacebookConverter.ConvertToMessage(token, post);
                 message.SenderId = sender.Id;
+                if (message.SenderId != socialAccount.Id)
+                {
+                    message.ReceiverId = socialAccount.Id;
+                }
                 message.ConversationId = existingConversation.Id;
                 existingConversation.IfRead = false;
                 existingConversation.Messages.Add(message);
                 existingConversation.Status = ConversationStatus.PendingInternal;
                 existingConversation.LastMessageSenderId = message.SenderId;
                 existingConversation.LastMessageSentTime = message.SendTime;
-                await UpdateConversation(existingConversation);
+                UpdateConversation(existingConversation);
             }
             else
             {
                 Message message = FacebookConverter.ConvertToMessage(token, post);
                 message.SenderId = sender.Id;
+                if (message.SenderId != socialAccount.Id)
+                {
+                    message.ReceiverId = socialAccount.Id;
+                }
                 var conversation = new Conversation
                 {
                     OriginalId = change.Value.PostId,

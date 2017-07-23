@@ -45,7 +45,7 @@ namespace Social.Domain.DomainServices.Facebook
                 existingConversation.LastMessageSenderId = message.SenderId;
                 existingConversation.LastMessageSentTime = message.SendTime;
                 existingConversation.Messages.Add(message);
-                await UpdateConversation(existingConversation);
+                UpdateConversation(existingConversation);
                 await CurrentUnitOfWork.SaveChangesAsync();
             }
             else

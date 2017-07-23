@@ -15,6 +15,7 @@ namespace Social.Domain.DomainServices
 {
     public interface IMessageService : IDomainService<Message>
     {
+        Message FindByOriginalId(MessageSource source, string originalId);
         IQueryable<Message> FindAllByConversationId(int conversationId);
         Message GetTwitterTweetMessage(string originalId);
         bool IsDuplicatedMessage(MessageSource messageSource, string originalId);
@@ -36,6 +37,11 @@ namespace Social.Domain.DomainServices
         {
             _socialAccountService = socialAccountService;
             _conversationService = conversationService;
+        }
+
+        public Message FindByOriginalId(MessageSource source, string originalId)
+        {
+            return Repository.FindAll().Where(t => t.OriginalId == originalId && t.Source == source && t.IsDeleted == false).FirstOrDefault();
         }
 
         public IQueryable<Message> FindAllByConversationId(int conversationId)

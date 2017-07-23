@@ -36,7 +36,12 @@ namespace Social.Domain.DomainServices.Facebook
 
             Message message = FacebookConverter.ConvertToMessage(token, comment);
             message.SenderId = sender.Id;
-            FillParentId(change.Value.PostId, message, comment, socialAccount);
+            var parent = GetParent(change.Value.PostId, comment);
+            if (parent != null)
+            {
+                message.ParentId = parent.Id;
+                message.ReceiverId = parent.SenderId;
+            }
 
             message.ConversationId = conversation.Id;
             conversation.IfRead = false;
@@ -46,28 +51,22 @@ namespace Social.Domain.DomainServices.Facebook
             conversation.LastMessageSentTime = message.SendTime;
             conversation.TryToMakeWallPostVisible(socialAccount);
 
-            await UpdateConversation(conversation);
+            UpdateConversation(conversation);
         }
 
-        private void FillParentId(string postId, Message message, FbComment comment, SocialAccount socialAccount)
+        private Message GetParent(string postId, FbComment comment)
         {
             Message parent;
             if (comment.parent == null)
             {
-                parent = GetMessage(postId);
-                if (parent != null)
-                {
-                    message.ParentId = parent.Id;
-                }
+                parent = GetMessage(MessageSource.FacebookPost, postId);
             }
             else
             {
-                parent = GetMessage(comment.parent.id);
-                if (parent != null)
-                {
-                    message.ParentId = parent.Id;
-                }
+                parent = GetMessage(MessageSource.FacebookPostComment, comment.parent.id);
             }
+
+            return parent;
         }
     }
 }

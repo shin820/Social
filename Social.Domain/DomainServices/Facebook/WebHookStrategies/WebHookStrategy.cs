@@ -12,8 +12,8 @@ namespace Social.Domain.DomainServices.Facebook
 {
     public abstract class WebHookStrategy : ServiceBase, IWebHookSrategy
     {
-        public IRepository<Conversation> ConversationRepository { get; set; }
-        public IRepository<Message> MessageRepository { get; set; }
+        public ConversationService ConversationService { get; set; }
+        public IMessageService MessageService { get; set; }
         public IRepository<SocialUser> SocialUserRepository { get; set; }
 
         public abstract bool IsMatch(FbHookChange change);
@@ -30,32 +30,32 @@ namespace Social.Domain.DomainServices.Facebook
             return message.Length <= 200 ? message : message.Substring(200);
         }
 
-        protected bool IsDuplicatedMessage(string socialId)
+        protected bool IsDuplicatedMessage(string originalId)
         {
-            return MessageRepository.FindAll().Any(t => t.OriginalId == socialId);
+            return MessageService.FindAll().Any(t => t.OriginalId == originalId);
         }
 
-        protected Message GetMessage(string socialId)
+        protected Message GetMessage(MessageSource source, string originalId)
         {
-            return MessageRepository.FindAll().Where(t => t.OriginalId == socialId).FirstOrDefault();
+            return MessageService.FindByOriginalId(source, originalId);
         }
 
         protected async Task DeleteMessage(Message message)
         {
-            await MessageRepository.DeleteAsync(message);
+            await MessageService.DeleteAsync(message);
         }
 
-        protected Conversation GetConversation(string socialId, ConversationStatus? status = null)
+        protected Conversation GetConversation(string originalId, ConversationStatus? status = null)
         {
-            var conversations = ConversationRepository.FindAll().Where(t => t.OriginalId == socialId);
+            var conversations = ConversationService.FindAll().Where(t => t.OriginalId == originalId);
             conversations.WhereIf(status != null, t => t.Status == status.Value);
 
             return conversations.FirstOrDefault();
         }
 
-        protected async Task UpdateConversation(Conversation conversation)
+        protected void UpdateConversation(Conversation conversation)
         {
-            await ConversationRepository.UpdateAsync(conversation);
+            ConversationService.Update(conversation);
         }
 
         protected async Task AddConversation(SocialAccount socialAccount, Conversation conversation)
@@ -72,12 +72,12 @@ namespace Social.Domain.DomainServices.Facebook
                 conversation.Priority = socialAccount.ConversationPriority ?? ConversationPriority.Normal;
             }
 
-            await ConversationRepository.InsertAsync(conversation);
+            await ConversationService.InsertAsync(conversation);
         }
 
         protected async Task DeleteConversation(Conversation conversation)
         {
-            await ConversationRepository.DeleteAsync(conversation);
+            await ConversationService.DeleteAsync(conversation);
         }
 
         protected async Task<SocialUser> GetOrCreateFacebookUser(string token, string fbUserId)
