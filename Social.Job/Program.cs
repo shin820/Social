@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Social.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,9 +22,9 @@ namespace Social.Job
 
                 });
                 x.RunAsLocalSystem();
-                x.SetDescription("Comm100 Social Media Job.");
-                x.SetDisplayName("Comm100 Social Media Job.");
-                x.SetServiceName("Comm100.Social.Job");
+                x.SetDescription(AppSettings.SocialJobWindowsServiceDescription);
+                x.SetDisplayName(AppSettings.SocialJobWindowsServiceDisplayName);
+                x.SetServiceName(AppSettings.SocialJobWindowsServiceName);
                 x.StartAutomaticallyDelayed();
                 x.EnableServiceRecovery(action => action.RestartService(1));
             });

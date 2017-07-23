@@ -81,6 +81,30 @@ namespace Social.Infrastructure
             }
         }
 
+        public static string SocialJobWindowsServiceName
+        {
+            get
+            {
+                return GetAppSetting("SocialJobWindowsServiceName");
+            }
+        }
+
+        public static string SocialJobWindowsServiceDisplayName
+        {
+            get
+            {
+                return GetAppSetting("SocialJobWindowsServiceDisplayName");
+            }
+        }
+
+        public static string SocialJobWindowsServiceDescription
+        {
+            get
+            {
+                return GetAppSetting("SocialJobWindowsServiceDescription");
+            }
+        }
+
         private static string GetAppSetting(string key)
         {
             string value = ConfigurationManager.AppSettings[key];
