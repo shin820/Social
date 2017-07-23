@@ -54,6 +54,11 @@ namespace Social.Domain.DomainServices.Facebook
 
         public async Task PullTaggedVisitorPosts(SocialAccount account)
         {
+            if (!account.IfConvertVisitorPostToConversation)
+            {
+                return;
+            }
+
             _account = account;
             var data = await FbClient.GetTaggedVisitorPosts(_account.SocialUser.OriginalId, _account.Token);
             await Init(data);
@@ -122,6 +127,16 @@ namespace Social.Domain.DomainServices.Facebook
                         {
                             conversation.DepartmentId = _account.ConversationDepartmentId.Value;
                             conversation.Priority = _account.ConversationPriority.Value;
+                        }
+
+                        if (conversation.Source == ConversationSource.FacebookWallPost && !_account.IfConvertWallPostToConversation)
+                        {
+                            continue;
+                        }
+
+                        if (conversation.Source == ConversationSource.FacebookVisitorPost && !_account.IfConvertVisitorPostToConversation)
+                        {
+                            continue;
                         }
 
                         conversations.Add(conversation);

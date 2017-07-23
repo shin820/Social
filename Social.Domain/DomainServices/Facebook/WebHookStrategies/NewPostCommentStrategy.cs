@@ -30,7 +30,6 @@ namespace Social.Domain.DomainServices.Facebook
             var conversation = GetConversation(change.Value.PostId);
             if (conversation == null)
             {
-                // todo : add log
                 return;
             }
 

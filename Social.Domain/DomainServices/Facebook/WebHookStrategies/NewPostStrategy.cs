@@ -33,8 +33,28 @@ namespace Social.Domain.DomainServices.Facebook
             return isTextPost || isPhotOrVideoPost || isWallPost;
         }
 
+        private bool IsWallPost(FbHookChange change)
+        {
+            bool isWallPost = change.Field == "feed"
+                && change.Value.PostId != null
+                && change.Value.Item == "status"
+                && change.Value.Verb == "add"
+                && change.Value.IsPublished;
+
+            return isWallPost;
+        }
+
         public override async Task Process(SocialAccount socialAccount, FbHookChange change)
         {
+            if (IsWallPost(change) && !socialAccount.IfConvertWallPostToConversation)
+            {
+                return;
+            }
+            if (!IsWallPost(change) && !socialAccount.IfConvertVisitorPostToConversation)
+            {
+                return;
+            }
+
             string token = socialAccount.Token;
             if (IsDuplicatedMessage(MessageSource.FacebookPost, change.Value.PostId))
             {

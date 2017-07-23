@@ -18,6 +18,11 @@ namespace Social.Domain.DomainServices.Facebook
 
         public async override Task Process(SocialAccount socialAccount, FbHookChange change)
         {
+            if (!socialAccount.IfConvertMessageToConversation)
+            {
+                return;
+            }
+
             IList<FbMessage> fbMessages = await FbClient.GetMessagesFromConversationId(socialAccount.Token, change.Value.ThreadId);
             foreach (var fbMessage in fbMessages)
             {
