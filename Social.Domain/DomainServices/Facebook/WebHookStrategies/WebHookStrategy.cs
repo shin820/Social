@@ -12,7 +12,7 @@ namespace Social.Domain.DomainServices.Facebook
 {
     public abstract class WebHookStrategy : ServiceBase, IWebHookSrategy
     {
-        public ConversationService ConversationService { get; set; }
+        public IConversationService ConversationService { get; set; }
         public IMessageService MessageService { get; set; }
         public IRepository<SocialUser> SocialUserRepository { get; set; }
 

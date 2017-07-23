@@ -46,9 +46,7 @@ namespace Social.WebApi.Controllers
             {
                 var request = Request;
                 string rawData = await request.Content.ReadAsStringAsync();
-
-                //_facebookWebHookAppService.InsertWebHookData(rawData);
-
+                Hub.Clients.All.newRaw(rawData);
 
                 FbHookData data = await request.Content.ReadAsAsync<FbHookData>();
                 await _facebookWebHookAppService.ProcessWebHookData(data);
@@ -57,43 +55,10 @@ namespace Social.WebApi.Controllers
                 {
                     return Ok();
                 }
-
-                //var changes = data.Entry.First().Changes;
-                //if (changes != null && changes.Any())
-                //{
-                //    var change = changes.FirstOrDefault();
-                //    if (change != null)
-                //    {
-                //        if (change.Field == "feed" && change.Value.Item == "post" && change.Value.Verb == "add")
-                //        {
-                //            Hub.Clients.All.newFeed(change.Value.SenderName, change.Value.Message, change.Value.PostId);
-                //        }
-                //        if (change.Field == "feed" && change.Value.Item == "post" && change.Value.Verb == "remove")
-                //        {
-                //            Hub.Clients.All.removeFeed(change.Value.SenderName, change.Value.PostId);
-                //        }
-                //        if (change.Field == "feed" && change.Value.Item == "comment" && change.Value.Verb == "add")
-                //        {
-                //            Hub.Clients.All.newComment(change.Value.SenderName, change.Value.Message, change.Value.CommentId);
-                //        }
-                //        if (change.Field == "feed" && change.Value.Item == "comment" && change.Value.Verb == "remove")
-                //        {
-                //            Hub.Clients.All.removeComment(change.Value.SenderName, change.Value.CommentId);
-                //        }
-                //        //if (change.Field == "conversations" && change.Value.ThreadId != null)
-                //        //{
-                //        //    FacebookClient client = new FacebookClient();
-                //        //    var message = await client.GetLastMessageOfConversation(change.Value.ThreadId, "EAAR8yzs1uVQBAKGGunoQjgZAQgm7KuEkXDL1QGLE7BCUwK6VLsjakRqcK8pdhPvS6EzKQdRKU6i9BNK3LBYDFYB4J5C3hx2yFTlElpOZAins0rWHN8rBZBGO6K7kahUdbdwf2drYSpQEA4YHeF4CwcnqsJW3BqZAZAbNV9WbLbQZDZD");
-                //        //    Hub.Clients.All.newMessage(message.From.Name, message.Message);
-                //        //}
-                //    }
-                //}
-
-                Hub.Clients.All.newRaw(rawData);
             }
             catch (Exception ex)
             {
-                Hub.Clients.All.newRaw(ex.Message);
+                Hub.Clients.All.newRaw(ex.StackTrace);
                 return Ok();
             }
 

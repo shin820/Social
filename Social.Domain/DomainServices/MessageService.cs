@@ -53,6 +53,15 @@ namespace Social.Domain.DomainServices
                 .Where(t => t.ConversationId == conversationId && t.IsDeleted == false);
         }
 
+        private IQueryable<Message> FindAllInlcudeDeletedByConversationId(int conversationId)
+        {
+            return Repository.FindAll()
+                .Include(t => t.Attachments)
+                .Include(t => t.Sender.SocialAccount)
+                .Include(t => t.Receiver.SocialAccount)
+                .Where(t => t.ConversationId == conversationId);
+        }
+
         public Message ReplyFacebookMessage(int conversationId, string content)
         {
             var conversation = _conversationService.CheckIfExists(conversationId);
@@ -108,7 +117,7 @@ namespace Social.Domain.DomainServices
                 throw SocialExceptions.BadRequest("Conversation source must be facebook visitor/wall post.");
             }
 
-            var messages = FindAllByConversationId(conversation.Id).ToList();
+            var messages = FindAllInlcudeDeletedByConversationId(conversation.Id).ToList();
             SocialAccount socialAccount = GetSocialAccountsFromMessages(messages).FirstOrDefault();
             if (socialAccount == null)
             {
@@ -119,13 +128,18 @@ namespace Social.Domain.DomainServices
             Message comment = null;
             foreach (var previousMessage in previousMessages)
             {
-                if (previousMessage.Sender.Type == SocialUserType.IntegrationAccount)
+                if (previousMessage.IsDeleted)
                 {
                     continue;
                 }
 
                 // publish comment
                 string fbCommentId = FbClient.PublishComment(socialAccount.Token, previousMessage.OriginalId, content);
+                if (string.IsNullOrWhiteSpace(fbCommentId))
+                {
+                    continue;
+                }
+
                 var fbComment = FbClient.GetComment(socialAccount.Token, fbCommentId);
 
                 // add message
@@ -229,15 +243,19 @@ namespace Social.Domain.DomainServices
                 throw SocialExceptions.BadRequest("Invalid twitter account id.");
             }
 
-            var messages = FindAllByConversationId(conversation.Id).ToList();
+            var messages = FindAllInlcudeDeletedByConversationId(conversation.Id).ToList();
             var previousMessages = GetPreviousMessages(messages, parentId);
             Message replyMessage = null;
             foreach (var previousMessage in previousMessages)
             {
-                if (previousMessage.Sender.Type == SocialUserType.IntegrationAccount)
+                if (previousMessage.IsDeleted)
                 {
                     continue;
                 }
+                //if (previousMessage.Sender.Type == SocialUserType.IntegrationAccount)
+                //{
+                //    continue;
+                //}
 
                 ITweet previousTweet = twitterService.GetTweet(twitterAccount, long.Parse(previousMessage.OriginalId));
                 if (previousTweet != null && !previousTweet.IsTweetDestroyed)
