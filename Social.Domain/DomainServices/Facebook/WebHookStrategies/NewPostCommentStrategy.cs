@@ -46,7 +46,7 @@ namespace Social.Domain.DomainServices.Facebook
             message.ConversationId = conversation.Id;
             conversation.IfRead = false;
             conversation.Messages.Add(message);
-            conversation.Status = sender.Id != socialAccount.SocialUser.Id ? ConversationStatus.PendingInternal : ConversationStatus.PendingExternal;
+            conversation.Status = sender.Id != socialAccount.Id ? ConversationStatus.PendingInternal : ConversationStatus.PendingExternal;
             conversation.LastMessageSenderId = message.SenderId;
             conversation.LastMessageSentTime = message.SendTime;
             conversation.TryToMakeWallPostVisible(socialAccount);

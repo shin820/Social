@@ -35,6 +35,11 @@ namespace Social.Domain.DomainServices.Facebook
             return MessageService.FindAll().Any(t => t.OriginalId == originalId);
         }
 
+        protected bool IsDuplicatedMessage(MessageSource source, string originalId)
+        {
+            return MessageService.IsDuplicatedMessage(source, originalId);
+        }
+
         protected Message GetMessage(MessageSource source, string originalId)
         {
             return MessageService.FindByOriginalId(source, originalId);

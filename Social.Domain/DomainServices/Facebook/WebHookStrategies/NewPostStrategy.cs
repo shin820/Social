@@ -36,7 +36,7 @@ namespace Social.Domain.DomainServices.Facebook
         public override async Task Process(SocialAccount socialAccount, FbHookChange change)
         {
             string token = socialAccount.Token;
-            if (IsDuplicatedMessage(change.Value.PostId))
+            if (IsDuplicatedMessage(MessageSource.FacebookPost, change.Value.PostId))
             {
                 return;
             }
@@ -44,51 +44,51 @@ namespace Social.Domain.DomainServices.Facebook
             FbPost post = await FbClient.GetPost(socialAccount.Token, change.Value.PostId);
             SocialUser sender = await GetOrCreateFacebookUser(socialAccount.Token, post.from.id);
 
-            var existingConversation = GetConversation(change.Value.PostId);
-            if (existingConversation != null)
+            //var existingConversation = GetConversation(change.Value.PostId);
+            //if (existingConversation != null)
+            //{
+            //    Message message = FacebookConverter.ConvertToMessage(token, post);
+            //    message.SenderId = sender.Id;
+            //    if (message.SenderId != socialAccount.Id)
+            //    {
+            //        message.ReceiverId = socialAccount.Id;
+            //    }
+            //    message.ConversationId = existingConversation.Id;
+            //    existingConversation.IfRead = false;
+            //    existingConversation.Messages.Add(message);
+            //    existingConversation.Status = ConversationStatus.PendingInternal;
+            //    existingConversation.LastMessageSenderId = message.SenderId;
+            //    existingConversation.LastMessageSentTime = message.SendTime;
+            //    UpdateConversation(existingConversation);
+            //}
+            //else
+            //{
+            Message message = FacebookConverter.ConvertToMessage(token, post);
+            message.SenderId = sender.Id;
+            if (message.SenderId != socialAccount.Id)
             {
-                Message message = FacebookConverter.ConvertToMessage(token, post);
-                message.SenderId = sender.Id;
-                if (message.SenderId != socialAccount.Id)
-                {
-                    message.ReceiverId = socialAccount.Id;
-                }
-                message.ConversationId = existingConversation.Id;
-                existingConversation.IfRead = false;
-                existingConversation.Messages.Add(message);
-                existingConversation.Status = ConversationStatus.PendingInternal;
-                existingConversation.LastMessageSenderId = message.SenderId;
-                existingConversation.LastMessageSentTime = message.SendTime;
-                UpdateConversation(existingConversation);
+                message.ReceiverId = socialAccount.Id;
             }
-            else
+            var conversation = new Conversation
             {
-                Message message = FacebookConverter.ConvertToMessage(token, post);
-                message.SenderId = sender.Id;
-                if (message.SenderId != socialAccount.Id)
-                {
-                    message.ReceiverId = socialAccount.Id;
-                }
-                var conversation = new Conversation
-                {
-                    OriginalId = change.Value.PostId,
-                    Source = ConversationSource.FacebookVisitorPost,
-                    Priority = ConversationPriority.Normal,
-                    Status = ConversationStatus.New,
-                    Subject = GetSubject(message.Content),
-                    LastMessageSenderId = message.SenderId,
-                    LastMessageSentTime = message.SendTime
-                };
+                OriginalId = change.Value.PostId,
+                Source = ConversationSource.FacebookVisitorPost,
+                Priority = ConversationPriority.Normal,
+                Status = ConversationStatus.New,
+                Subject = GetSubject(message.Content),
+                LastMessageSenderId = message.SenderId,
+                LastMessageSentTime = message.SendTime
+            };
 
-                if (change.Value.Item == "status" && message.SenderId == socialAccount.Id)
-                {
-                    conversation.Source = ConversationSource.FacebookWallPost;
-                    conversation.IsHidden = true;
-                }
-
-                conversation.Messages.Add(message);
-                await AddConversation(socialAccount, conversation);
+            if (change.Value.Item == "status" && message.SenderId == socialAccount.Id)
+            {
+                conversation.Source = ConversationSource.FacebookWallPost;
+                conversation.IsHidden = true;
             }
+
+            conversation.Messages.Add(message);
+            await AddConversation(socialAccount, conversation);
+            //}
         }
     }
 }
