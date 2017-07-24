@@ -38,7 +38,9 @@ namespace Social.Domain.DomainServices
         protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
         {
             DateTime value = DateTime.Parse(condition.Value);
-            return t => t.CreatedTime == value;
+            return t => t.CreatedTime.Year == value.Year
+                       && t.CreatedTime.Month == value.Month
+                       && t.CreatedTime.Day == value.Day;
         }
     }
 }
