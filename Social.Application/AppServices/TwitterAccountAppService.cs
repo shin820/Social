@@ -31,14 +31,17 @@ namespace Social.Application.AppServices
     public class TwitterAccountAppService : AppService, ITwitterAccountAppService
     {
         private ISocialAccountService _socialAccountService;
+        private ISocialUserService _socialUserService;
         private ITwitterAuthService _twitterAuthService;
 
         public TwitterAccountAppService(
             ISocialAccountService socialAccountService,
+            ISocialUserService socialUserService,
             ITwitterAuthService twitterAuthService
             )
         {
             _socialAccountService = socialAccountService;
+            _socialUserService = socialUserService;
             _twitterAuthService = twitterAuthService;
         }
 
@@ -56,8 +59,20 @@ namespace Social.Application.AppServices
                 SocialAccount account = new SocialAccount
                 {
                     Token = user.Credentials.AccessToken,
-                    TokenSecret = user.Credentials.AccessTokenSecret,
-                    SocialUser = new SocialUser
+                    TokenSecret = user.Credentials.AccessTokenSecret
+                };
+
+                var socialUser = _socialUserService.Get(user.IdStr, SocialUserSource.Twitter, SocialUserType.Customer);
+                if (socialUser != null)
+                {
+                    //convert customer to integration account;
+                    socialUser.Type = SocialUserType.Customer;
+                    socialUser.SocialAccount = account;
+                    _socialUserService.Update(socialUser);
+                }
+                else
+                {
+                    account.SocialUser = new SocialUser
                     {
                         Name = user.Name,
                         ScreenName = user.ScreenName,
@@ -67,10 +82,10 @@ namespace Social.Application.AppServices
                         Avatar = user.ProfileImageUrl,
                         OriginalId = user.IdStr,
                         OriginalLink = user.Url
-                    }
-                };
+                    };
 
-                await _socialAccountService.InsertAsync(account);
+                    await _socialAccountService.InsertAsync(account);
+                }
             }
         }
 

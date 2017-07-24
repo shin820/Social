@@ -87,7 +87,7 @@ namespace Social.Domain.DomainServices.Facebook
 
         protected async Task<SocialUser> GetOrCreateFacebookUser(string token, string fbUserId)
         {
-            var user = SocialUserRepository.FindAll().Where(t => t.OriginalId == fbUserId && t.Source == SocialUserSource.Facebook).FirstOrDefault();
+            var user = SocialUserRepository.FindAll().Where(t => t.OriginalId == fbUserId && t.Source == SocialUserSource.Facebook && t.Type == SocialUserType.Customer).FirstOrDefault();
             if (user == null)
             {
                 FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId);

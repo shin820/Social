@@ -29,10 +29,15 @@ namespace Social.Application.AppServices
     public class FacebookAccountAppService : AppService, IFacebookAccountAppService
     {
         private ISocialAccountService _socialAccountService;
+        private ISocialUserService _socialUserService;
 
-        public FacebookAccountAppService(ISocialAccountService socialAccountService)
+        public FacebookAccountAppService(
+            ISocialAccountService socialAccountService,
+            ISocialUserService socialUserService
+            )
         {
             _socialAccountService = socialAccountService;
+            _socialUserService = socialUserService;
         }
 
         public IList<FacebookPageListDto> GetPages()
@@ -85,9 +90,21 @@ namespace Social.Application.AppServices
         public async Task<FacebookPageDto> AddPageAsync(AddFaceboookPageDto dto)
         {
             var socialAccount = Mapper.Map<SocialAccount>(dto);
-            socialAccount.SocialUser = Mapper.Map<SocialUser>(dto);
 
-            await _socialAccountService.InsertAsync(socialAccount);
+            var socialUser = _socialUserService.Get(dto.FacebookId, SocialUserSource.Facebook, SocialUserType.Customer);
+            if (socialUser == null)
+            {
+                socialAccount.SocialUser = Mapper.Map<SocialUser>(dto);
+                await _socialAccountService.InsertAsync(socialAccount);
+            }
+            else
+            {
+                // convert customer to integration account
+                socialUser.Type = SocialUserType.Customer;
+                socialUser.SocialAccount = socialAccount;
+                _socialUserService.Update(socialUser);
+            }
+
             await FbClient.SubscribeApp(dto.FacebookId, dto.AccessToken);
 
             socialAccount = _socialAccountService.Find(socialAccount.Id);

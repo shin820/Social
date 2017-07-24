@@ -11,10 +11,11 @@ using Tweetinvi.Models;
 
 namespace Social.Domain.DomainServices
 {
-    public interface ISocialUserService
+    public interface ISocialUserService : IDomainService<SocialUser>
     {
         //Task<SocialUser> GetOrCreateSocialUser(int siteId, string token, string fbUserId, string fbUserEmail);
         Task<SocialUser> GetOrCreateTwitterUser(IUser twitterUser);
+        SocialUser Get(string originalId, SocialUserSource souce, SocialUserType type);
     }
 
     public class SocialUserService : DomainService<SocialUser>, ISocialUserService
@@ -49,10 +50,15 @@ namespace Social.Domain.DomainServices
         //    return user;
         //}
 
+        public SocialUser Get(string originalId, SocialUserSource source, SocialUserType type)
+        {
+            return Repository.FindAll().Where(t => t.OriginalId == originalId && t.Source == source && t.Type == type).FirstOrDefault();
+        }
+
         public async Task<SocialUser> GetOrCreateTwitterUser(IUser twitterUser)
         {
             var user = Repository.FindAll()
-                .Where(t => t.OriginalId == twitterUser.IdStr && t.Source == SocialUserSource.Twitter)
+                .Where(t => t.OriginalId == twitterUser.IdStr && t.Source == SocialUserSource.Twitter && t.Type == SocialUserType.Customer)
                 .FirstOrDefault();
             if (user == null)
             {
@@ -63,6 +69,7 @@ namespace Social.Domain.DomainServices
                     ScreenName = twitterUser.ScreenName,
                     Avatar = twitterUser.ProfileImageUrl,
                     Source = SocialUserSource.Twitter,
+                    Type = SocialUserType.Customer,
                     OriginalLink = twitterUser.Url
                 };
                 await Repository.InsertAsync(user);
