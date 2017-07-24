@@ -96,8 +96,11 @@ namespace Social.Domain.DomainServices.Facebook
                     OriginalId = fbUser.id,
                     Name = fbUser.name,
                     Email = fbUser.email,
+                    OriginalLink = fbUser.link,
+                    Avatar = fbUser.pic,
                     Source = SocialUserSource.Facebook
                 };
+
                 await SocialUserRepository.InsertAsync(user);
             }
             return user;
