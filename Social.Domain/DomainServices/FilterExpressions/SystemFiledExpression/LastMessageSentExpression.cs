@@ -1,9 +1,5 @@
 ﻿using Social.Domain.DomainServices.FilterExpressions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Social.Domain.Entities;
 using System.Linq.Expressions;
 
@@ -38,7 +34,9 @@ namespace Social.Domain.DomainServices
         protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
         {
             DateTime value = DateTime.Parse(condition.Value);
-            return t => t.LastMessageSentTime == value;
+            return t => t.LastMessageSentTime.Year == value.Year
+                       && t.LastMessageSentTime.Month == value.Month
+                       && t.LastMessageSentTime.Day == value.Day;
         }
     }
 }

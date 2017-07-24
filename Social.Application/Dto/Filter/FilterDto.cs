@@ -19,11 +19,11 @@ namespace Social.Application.Dto
         public int Index { get; set; }
         public bool IfPublic { get; set; }
         public FilterType Type { get; set; }
-        public string LogicalExpression { get; set; }
+     //   public string LogicalExpression { get; set; }
 
-        public int CreatedBy { get; set; }
-        public DateTime CreatedTime { get; set; }
+     //   public int CreatedBy { get; set; }
+     //   public DateTime CreatedTime { get; set; }
 
-        public virtual IList<FilterConditionCreateDto> Conditions { get; set; }
+     //   public virtual IList<FilterConditionCreateDto> Conditions { get; set; }
     }
 }
