@@ -290,37 +290,37 @@
       <publishTime>06/27/2016 14:50:24</publishTime>
     </File>
     <File Include="bin/Social.Application.dll">
-      <publishTime>07/24/2017 14:54:20</publishTime>
+      <publishTime>07/24/2017 15:00:48</publishTime>
     </File>
     <File Include="bin/Social.Application.dll.config">
       <publishTime>07/24/2017 14:32:13</publishTime>
     </File>
     <File Include="bin/Social.Application.pdb">
-      <publishTime>07/24/2017 14:54:20</publishTime>
+      <publishTime>07/24/2017 15:00:48</publishTime>
     </File>
     <File Include="bin/Social.Domain.dll">
-      <publishTime>07/24/2017 14:54:19</publishTime>
+      <publishTime>07/24/2017 15:00:48</publishTime>
     </File>
     <File Include="bin/Social.Domain.dll.config">
       <publishTime>07/24/2017 14:32:14</publishTime>
     </File>
     <File Include="bin/Social.Domain.pdb">
-      <publishTime>07/24/2017 14:54:19</publishTime>
+      <publishTime>07/24/2017 15:00:48</publishTime>
     </File>
     <File Include="bin/Social.Infrastructure.dll">
-      <publishTime>07/24/2017 14:54:19</publishTime>
+      <publishTime>07/24/2017 15:00:48</publishTime>
     </File>
     <File Include="bin/Social.Infrastructure.dll.config">
       <publishTime>07/24/2017 14:32:11</publishTime>
     </File>
     <File Include="bin/Social.Infrastructure.pdb">
-      <publishTime>07/24/2017 14:54:19</publishTime>
+      <publishTime>07/24/2017 15:00:48</publishTime>
     </File>
     <File Include="bin/Social.WebApi.dll">
-      <publishTime>07/24/2017 14:54:24</publishTime>
+      <publishTime>07/24/2017 15:00:53</publishTime>
     </File>
     <File Include="bin/Social.WebApi.pdb">
-      <publishTime>07/24/2017 14:54:24</publishTime>
+      <publishTime>07/24/2017 15:00:53</publishTime>
     </File>
     <File Include="bin/Swashbuckle.Core.dll">
       <publishTime>11/01/2016 22:04:36</publishTime>
