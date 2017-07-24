@@ -121,7 +121,8 @@ namespace Social.Domain.DomainServices
             Auth.SetUserCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret, account.Token, account.TokenSecret);
 
             var receivedTweets = PullMentionTimeLineTweets(account, maxNumberOfTweetsRetrieve, since);
-            var sentTweets = PullUserTimeLineTweets(account, maxNumberOfTweetsRetrieve, since);
+            var sentTweets = new List<ITweet>();
+            //var sentTweets = PullUserTimeLineTweets(account, maxNumberOfTweetsRetrieve, since);
 
             var tweets = receivedTweets.Concat(sentTweets).OrderBy(t => t.CreatedAt);
             foreach (var tweet in tweets)
