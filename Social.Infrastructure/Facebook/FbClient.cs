@@ -119,7 +119,15 @@ namespace Social.Infrastructure.Facebook
             FacebookClient client = new FacebookClient(token);
             string url = "/" + fbUserId + "?fields=id,name,first_name,last_name,picture,gender,email,location";
 
-            return await client.GetTaskAsync<FbUser>(url);
+            try
+            {
+                return await client.GetTaskAsync<FbUser>(url);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Get user info from facebook failed.token={token},url={url}", ex);
+                throw ex;
+            }
 
             //if (userInfo.picture != null && userInfo.picture.data.url != null)
             //{

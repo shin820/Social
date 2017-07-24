@@ -269,7 +269,7 @@ namespace Social.Domain.DomainServices.Facebook
         {
             List<SocialUser> senders = new List<SocialUser>();
             var fbSenderIds = fbSenders.Select(t => t.id).ToList();
-            var existingUsers = _socialUserRepo.FindAll().Where(t => t.Source == SocialUserSource.Facebook && t.Type == SocialUserType.Customer && fbSenderIds.Contains(t.OriginalId)).ToList();
+            var existingUsers = _socialUserRepo.FindAll().Where(t => t.Source == SocialUserSource.Facebook && fbSenderIds.Contains(t.OriginalId)).ToList();
             senders.AddRange(existingUsers);
             fbSenders.RemoveAll(t => existingUsers.Any(e => e.OriginalId == t.id));
             foreach (var fbSender in fbSenders)
