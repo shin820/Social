@@ -117,7 +117,7 @@ namespace Social.Infrastructure.Facebook
         public static async Task<FbUser> GetUserInfo(string token, string fbUserId)
         {
             FacebookClient client = new FacebookClient(token);
-            string url = "/" + fbUserId + "?fields=id,name,first_name,last_name,picture,gender,email,location";
+            string url = "/" + fbUserId + "?fields=id,name,picture";
 
             try
             {
