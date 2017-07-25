@@ -129,9 +129,9 @@ namespace Social.Domain.DomainServices
         /// </summary>
         /// <param name="user">the social user who is not a integration account and invoiced in the conversation.</param>
         /// <returns></returns>
-        public Conversation GetTwitterDirectMessageConversation(SocialUser user)
+        public Conversation GetTwitterDirectMessageConversation(SocialUser sender, SocialUser recipient)
         {
-            return Repository.FindAll().Where(t => t.Source == ConversationSource.TwitterDirectMessage && t.Status != ConversationStatus.Closed && t.Messages.Any(m => m.SenderId == user.Id || m.ReceiverId == user.Id)).FirstOrDefault();
+            return Repository.FindAll().Where(t => t.Source == ConversationSource.TwitterDirectMessage && t.Status != ConversationStatus.Closed && t.Messages.Any(m => (m.SenderId == sender.Id && m.ReceiverId == recipient.Id) || (m.SenderId == recipient.Id && m.ReceiverId == sender.Id))).FirstOrDefault();
         }
 
         public Conversation GetTwitterTweetConversation(string orignalTweetId)
