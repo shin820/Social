@@ -50,11 +50,15 @@ namespace Social.Domain.DomainServices.Facebook
             await MessageService.DeleteAsync(message);
         }
 
-        protected Conversation GetConversation(string originalId, ConversationStatus? status = null)
+        protected Conversation GetConversation(string originalId)
         {
             var conversations = ConversationService.FindAll().Where(t => t.OriginalId == originalId);
-            conversations.WhereIf(status != null, t => t.Status == status.Value);
+            return conversations.FirstOrDefault();
+        }
 
+        protected Conversation GetUnClosedConversation(string originalId)
+        {
+            var conversations = ConversationService.FindAll().Where(t => t.OriginalId == originalId && t.Status != ConversationStatus.Closed);
             return conversations.FirstOrDefault();
         }
 
