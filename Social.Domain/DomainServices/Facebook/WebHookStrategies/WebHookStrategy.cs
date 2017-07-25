@@ -13,8 +13,8 @@ namespace Social.Domain.DomainServices.Facebook
     public abstract class WebHookStrategy : ServiceBase, IWebHookSrategy
     {
         public IConversationService ConversationService { get; set; }
+        public ISocialUserService SocialUserService { get; set; }
         public IMessageService MessageService { get; set; }
-        public IRepository<SocialUser> SocialUserRepository { get; set; }
 
         public abstract bool IsMatch(FbHookChange change);
 
@@ -91,7 +91,7 @@ namespace Social.Domain.DomainServices.Facebook
 
         protected async Task<SocialUser> GetOrCreateFacebookUser(string token, string fbUserId)
         {
-            var user = SocialUserRepository.FindAll().Where(t => t.OriginalId == fbUserId && t.Source == SocialUserSource.Facebook).FirstOrDefault();
+            var user = SocialUserService.FindAll().Where(t => t.OriginalId == fbUserId && t.Source == SocialUserSource.Facebook).FirstOrDefault();
             if (user == null)
             {
                 FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId);
@@ -105,7 +105,7 @@ namespace Social.Domain.DomainServices.Facebook
                     Source = SocialUserSource.Facebook
                 };
 
-                await SocialUserRepository.InsertAsync(user);
+                await SocialUserService.InsertAsync(user);
             }
             return user;
         }

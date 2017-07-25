@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Social.Domain.Entities
 {
     [Table("t_Social_User")]
-    public class SocialUser : EntityWithSite
+    public class SocialUser : EntityWithSite, ISoftDelete
     {
         public SocialUser()
         {
@@ -45,6 +45,8 @@ namespace Social.Domain.Entities
 
         [MaxLength(200)]
         public string Avatar { get; set; }
+
+        public bool IsDeleted { get; set; }
 
         public virtual SocialAccount SocialAccount { get; set; }
 

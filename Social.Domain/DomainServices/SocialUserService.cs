@@ -50,15 +50,25 @@ namespace Social.Domain.DomainServices
         //    return user;
         //}
 
+        public override IQueryable<SocialUser> FindAll()
+        {
+            return base.FindAll().Where(t => t.IsDeleted == false);
+        }
+
+        public override SocialUser Find(int id)
+        {
+            return base.FindAll().Where(t => t.IsDeleted == false).FirstOrDefault();
+        }
+
         public SocialUser Get(string originalId, SocialUserSource source, SocialUserType type)
         {
-            return Repository.FindAll().Where(t => t.OriginalId == originalId && t.Source == source && t.Type == type).FirstOrDefault();
+            return Repository.FindAll().Where(t => t.OriginalId == originalId && t.IsDeleted == false && t.Source == source && t.Type == type).FirstOrDefault();
         }
 
         public async Task<SocialUser> GetOrCreateTwitterUser(IUser twitterUser)
         {
             var user = Repository.FindAll()
-                .Where(t => t.OriginalId == twitterUser.IdStr && t.Source == SocialUserSource.Twitter && t.Type == SocialUserType.Customer)
+                .Where(t => t.OriginalId == twitterUser.IdStr && t.Source == SocialUserSource.Twitter && t.Type == SocialUserType.Customer && t.IsDeleted == false)
                 .FirstOrDefault();
             if (user == null)
             {
