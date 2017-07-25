@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Social.Domain.Entities;
+using System.Text.RegularExpressions;
 
 namespace Social.Domain.DomainServices.FilterExpressions.SystemFiledExpression
 {
@@ -32,6 +33,11 @@ namespace Social.Domain.DomainServices.FilterExpressions.SystemFiledExpression
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
         {
             return t => t.Messages.Any(m => m.Sender.Name != condition.Value && m.Sender.Email != condition.Value);
+        }
+
+        protected override Expression<Func<Conversation, bool>> LogicalExpression(FilterCondition condition)
+        {
+            return t => t.Messages.Any(m => Regex.IsMatch(m.Sender.Name, condition.Value) || Regex.IsMatch(m.Sender.Email, condition.Value));
         }
     }
 }
