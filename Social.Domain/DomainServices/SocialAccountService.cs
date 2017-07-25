@@ -34,7 +34,7 @@ namespace Social.Domain.DomainServices
 
         public async Task<SocialAccount> GetAccountAsync(SocialUserSource source, string originalId)
         {
-            return await Repository.FindAll().Include(t => t.SocialUser).Where(t => t.SocialUser.OriginalId == originalId && t.SocialUser.Source == source && t.IfEnable).FirstOrDefaultAsync();
+            return await Repository.FindAll().Include(t => t.SocialUser).Where(t => t.SocialUser.OriginalId == originalId && t.SocialUser.Source == source && t.IfEnable && t.IsDeleted == false).FirstOrDefaultAsync();
         }
 
         public async override Task<SocialAccount> InsertAsync(SocialAccount entity)
