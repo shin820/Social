@@ -46,5 +46,12 @@ namespace Social.Domain.DomainServices
             return new int[] { };
 
         }
+
+        public bool ChechAgentStatus(int id,int status)
+        {
+
+
+            return false;
+        }
     }
 }

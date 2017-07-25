@@ -41,7 +41,11 @@ namespace Social.Domain.DomainServices.FilterExpressions
             {
                 return NotContain(condition);
             }
-
+            if (condition.MatchType == ConditionMatchType.LogicalExpression)
+            {
+                return LogicalExpression(condition);
+            }
+            
             return null;
         }
 
@@ -49,5 +53,6 @@ namespace Social.Domain.DomainServices.FilterExpressions
         protected abstract Expression<Func<Conversation, bool>> IsNot(FilterCondition condition);
         protected abstract Expression<Func<Conversation, bool>> Contain(FilterCondition condition);
         protected abstract Expression<Func<Conversation, bool>> NotContain(FilterCondition condition);
+        protected abstract Expression<Func<Conversation, bool>> LogicalExpression(FilterCondition condition);
     }
 }

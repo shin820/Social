@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Social.Domain.Entities;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 
 namespace Social.Domain.DomainServices
 {
@@ -28,6 +29,11 @@ namespace Social.Domain.DomainServices
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
         {
             return t => t.LastMessageSender.Name != condition.Value;
+        }
+
+        protected override Expression<Func<Conversation, bool>> LogicalExpression(FilterCondition condition)
+        {
+            return t => Regex.IsMatch(t.LastMessageSender.Name, condition.Value);
         }
 
         protected override Expression<Func<Conversation, bool>> NotContain(FilterCondition condition)
