@@ -16,7 +16,7 @@ namespace Social.Domain.DomainServices
         Conversation Find(int id, ConversationSource source);
         Conversation Find(int id, ConversationSource[] sources);
         IQueryable<Conversation> FindAll(Filter filter);
-        Conversation GetTwitterDirectMessageConversation(SocialUser user);
+        Conversation GetTwitterDirectMessageConversation(SocialUser sender, SocialUser recipient);
         Conversation GetTwitterTweetConversation(string orignalTweetId);
         void AddConversation(SocialAccount socialAccount, Conversation conversation);
         IQueryable<Conversation> ApplyFilter(IQueryable<Conversation> conversations, int? filterId);
