@@ -68,7 +68,7 @@ namespace Social.Domain.DomainServices
         public async Task<SocialUser> GetOrCreateTwitterUser(IUser twitterUser)
         {
             var user = Repository.FindAll()
-                .Where(t => t.OriginalId == twitterUser.IdStr && t.Source == SocialUserSource.Twitter && t.Type == SocialUserType.Customer && t.IsDeleted == false)
+                .Where(t => t.OriginalId == twitterUser.IdStr && t.Source == SocialUserSource.Twitter && t.IsDeleted == false)
                 .FirstOrDefault();
             if (user == null)
             {
