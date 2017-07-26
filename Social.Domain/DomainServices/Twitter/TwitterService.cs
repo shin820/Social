@@ -107,7 +107,8 @@ namespace Social.Domain.DomainServices
                 message.ReceiverId = recipient.Id;
                 message.ConversationId = existingConversation.Id;
                 existingConversation.IfRead = false;
-                existingConversation.Status = ConversationStatus.PendingInternal;
+                bool isSendByIntegrationAccount = sender.Id == account.Id & recipient.Id != account.Id;
+                existingConversation.Status = isSendByIntegrationAccount ? ConversationStatus.PendingExternal : ConversationStatus.PendingInternal;
                 existingConversation.LastMessageSenderId = message.SenderId;
                 existingConversation.LastMessageSentTime = message.SendTime;
                 existingConversation.Messages.Add(message);
@@ -218,7 +219,8 @@ namespace Social.Domain.DomainServices
 
                         existingConversation.Messages.Add(message);
                         existingConversation.IfRead = false;
-                        existingConversation.Status = ConversationStatus.PendingInternal;
+                        bool isSendByIntegrationAccount = sender.Id == account.Id & inReplyToTweetMessage.SenderId != account.Id;
+                        existingConversation.Status = isSendByIntegrationAccount ? ConversationStatus.PendingExternal : ConversationStatus.PendingInternal;
                         existingConversation.LastMessageSenderId = message.SenderId;
                         existingConversation.LastMessageSentTime = message.SendTime;
                         _conversationService.Update(existingConversation);
