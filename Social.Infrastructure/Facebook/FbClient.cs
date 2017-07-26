@@ -283,13 +283,12 @@ namespace Social.Infrastructure.Facebook
             Checker.NotNullOrWhiteSpace(token, nameof(pageId));
             FacebookClient client = new FacebookClient(token);
 
-            long since = DateTimeOffset.UtcNow.AddMinutes(-30).ToUnixTimeSeconds();
+            long since = DateTimeOffset.UtcNow.AddDays(-1).AddMinutes(-30).ToUnixTimeSeconds();
 
             string toFields = $"to{{id,name,pic,username,profile_type,link}}";
             string innnerCommentsFields = $"comments.since({since}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden}}";
             string commentFieds = $"comments.since({since}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden,{innnerCommentsFields}}}";
             string url = $"/{pageId}/feed?fields=id,message,created_time,from,permalink_url,story,type,status_type,link,is_hidden,is_published,attachments,updated_time,tagged_time,{toFields},{commentFieds}&since={since}";
-
 
             return await client.GetTaskAsync<FbPagingData<FbPost>>(url);
         }
@@ -306,11 +305,157 @@ namespace Social.Infrastructure.Facebook
             string innnerCommentsFields = $"comments.since({since}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden}}";
             string commentFieds = $"comments.since({since}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden,{innnerCommentsFields}}}";
             string url = $"/{pageId}/tagged?fields=id,message,created_time,from,permalink_url,story,type,status_type,link,is_hidden,is_published,attachments,updated_time,tagged_time,{toFields},{commentFieds}&since={since}";
-
-
+            
             return await client.GetTaskAsync<FbPagingData<FbPost>>(url);
         }
 
+
+        public async static Task<FbPagingData<FbConversation>> GetConversationsPosts(string pageId, string token)
+        {
+            Checker.NotNullOrWhiteSpace(token, nameof(token));
+            Checker.NotNullOrWhiteSpace(token, nameof(pageId));
+            FacebookClient client = new FacebookClient(token);
+
+            long since = DateTimeOffset.UtcNow.AddDays(-1).AddMinutes(-30).ToUnixTimeSeconds();
+
+            string sharesFields = $"shares{{link,name,id}}";
+            string messagesFields = $"messages.since({since}){{from,to,message,id,created_time,attachments,{sharesFields}}}";
+            string url = $"/{pageId}/conversations?fields=id,updated_time,{messagesFields}";
+
+
+            List<FbConversation> Conversations = new List<FbConversation>();
+            dynamic fbConversations = await client.GetTaskAsync(url);
+
+            FbCursors FbCursors = new FbCursors
+            {
+                before = fbConversations.paging.cursors.before,
+                after = fbConversations.paging.cursors.after
+            };
+            FbPaging FbPaging = new FbPaging
+            {
+                cursors = FbCursors,
+                next = fbConversations.paging.next,
+                previous = fbConversations.paging.previous
+            };
+
+            FbPagingData<FbConversation> PagingConversation = new FbPagingData<FbConversation>();
+            PagingConversation.paging = FbPaging;
+            foreach (var conversation in fbConversations.data)
+            {
+                List<FbMessage> FbMessages = new List<FbMessage>();
+                foreach (var fbMessage in conversation.messages.data)
+                {
+                    dynamic receiver = fbMessage.to.data[0];
+                    var message = new FbMessage
+                    {
+                        Id = fbMessage.id,
+                        SendTime = Convert.ToDateTime(fbMessage.created_time).ToUniversalTime(),
+                        SenderId = fbMessage.from.id,
+                        SenderEmail = fbMessage.from.email,
+                        ReceiverId = receiver.id,
+                        ReceiverEmail = receiver.email,
+                        Content = fbMessage.message
+                    };
+
+                    if (fbMessage.attachments != null)
+                    {
+                        foreach (dynamic attachmnent in fbMessage.attachments.data)
+                        {
+                            var messageAttachment = new FbMessageAttachment
+                            {
+                                Id = attachmnent.id,
+                                MimeType = attachmnent.mime_type,
+                                Name = attachmnent.name
+                            };
+
+                            if (attachmnent.size != null)
+                            {
+                                messageAttachment.Size = attachmnent.size;
+                            }
+
+                            if (attachmnent.file_url != null)
+                            {
+                                messageAttachment.Type = MessageAttachmentType.File;
+                                messageAttachment.Url = attachmnent.file_url;
+                            }
+
+                            if (attachmnent.image_data != null)
+                            {
+                                messageAttachment.Type = MessageAttachmentType.Image;
+                                messageAttachment.Url = attachmnent.image_data.url;
+                                messageAttachment.PreviewUrl = attachmnent.image_data.preview_url;
+                            }
+
+                            if (attachmnent.video_data != null)
+                            {
+                                messageAttachment.Type = MessageAttachmentType.Video;
+                                messageAttachment.Url = attachmnent.video_data.url;
+                                messageAttachment.PreviewUrl = attachmnent.video_data.preview_url;
+                            }
+
+                            message.Attachments.Add(messageAttachment);
+                        }
+                    }
+
+                    if (fbMessage.shares != null)
+                    {
+                        foreach (dynamic share in fbMessage.shares.data)
+                        {
+                            var messageShare = new FbMessageAttachment
+                            {
+                                Name = share.name,
+                                Id = share.id,
+                                Url = share.link,
+                            };
+
+                            if (!string.IsNullOrWhiteSpace(messageShare.Url) && string.IsNullOrWhiteSpace(messageShare.MimeType))
+                            {
+                                Uri uri = new Uri(messageShare.Url);
+                                messageShare.MimeType = uri.GetMimeType();
+                            }
+
+                            if (string.IsNullOrWhiteSpace(messageShare.Url) && !string.IsNullOrWhiteSpace(messageShare.Name) && string.IsNullOrWhiteSpace(message.Content))
+                            {
+                                message.Content = messageShare.Name;
+                            }
+
+                            if (!string.IsNullOrWhiteSpace(messageShare.Url))
+                            {
+                                message.Attachments.Add(messageShare);
+                            }
+                        }
+                    }
+                    
+                    FbMessages.Add(message);
+                }
+                FbCursors messageFbCursors = new FbCursors
+                {
+                    before = conversation.messages.paging.cursors.before,
+                    after = conversation.messages.paging.cursors.after
+                };
+                FbPaging messageFbPaging = new FbPaging
+                {
+                    cursors = messageFbCursors,
+                    next = conversation.messages.paging.next,
+                    previous = conversation.messages.paging.previous
+                };
+                FbPagingData<FbMessage> PagingFbMessage = new FbPagingData<FbMessage>
+                {
+                    data = FbMessages,
+                    paging = messageFbPaging
+                };
+                FbConversation FbConversation = new FbConversation
+                {
+                    Id = conversation.id,
+                    UpdateTime = Convert.ToDateTime(conversation.updated_time).ToUniversalTime(),
+                    Messages = PagingFbMessage
+                };
+                Conversations.Add(FbConversation);
+            }
+            PagingConversation.data = Conversations;
+
+            return PagingConversation;
+        }
 
         public async static Task<FbComment> GetPostComment(string commentId, string token, int limit = 100)
         {
