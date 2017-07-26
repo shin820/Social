@@ -160,6 +160,13 @@ namespace Social.Domain.DomainServices
                 return;
             }
 
+            bool isCreatedByAnother = currentTweet.CreatedBy.IdStr != account.SocialUser.OriginalId;
+            bool isMentionMe = currentTweet.UserMentions.Any(t => t.IdStr == account.SocialUser.OriginalId);
+            if (isCreatedByAnother && !isMentionMe)
+            {
+                return;
+            }
+
             List<ITweet> tweets = new List<ITweet>();
 
             bool isConversationExist;
