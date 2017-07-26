@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FilterListItem } from '../types';
+import { FilterListItem } from '../../types';
 
 export interface Props {
     list: FilterListItem[],

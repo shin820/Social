@@ -1,3 +1,5 @@
+import { ConversationList } from './conversation'
+
 export class FilterListItem {
     name: string;
     unReadNum: number;
@@ -11,4 +13,5 @@ export class FilterListItem {
 
 export interface ApplicationState {
     FilterList: FilterListItem[]
+    ConversationList: ConversationList
 }
