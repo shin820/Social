@@ -13,8 +13,8 @@ namespace Social.Domain.DomainServices.Facebook
     public abstract class WebHookStrategy : ServiceBase, IWebHookSrategy
     {
         public IConversationService ConversationService { get; set; }
+        public ISocialUserService SocialUserService { get; set; }
         public IMessageService MessageService { get; set; }
-        public IRepository<SocialUser> SocialUserRepository { get; set; }
 
         public abstract bool IsMatch(FbHookChange change);
 
@@ -50,11 +50,15 @@ namespace Social.Domain.DomainServices.Facebook
             await MessageService.DeleteAsync(message);
         }
 
-        protected Conversation GetConversation(string originalId, ConversationStatus? status = null)
+        protected Conversation GetConversation(string originalId)
         {
             var conversations = ConversationService.FindAll().Where(t => t.OriginalId == originalId);
-            conversations.WhereIf(status != null, t => t.Status == status.Value);
+            return conversations.FirstOrDefault();
+        }
 
+        protected Conversation GetUnClosedConversation(string originalId)
+        {
+            var conversations = ConversationService.FindAll().Where(t => t.OriginalId == originalId && t.Status != ConversationStatus.Closed);
             return conversations.FirstOrDefault();
         }
 
@@ -87,7 +91,7 @@ namespace Social.Domain.DomainServices.Facebook
 
         protected async Task<SocialUser> GetOrCreateFacebookUser(string token, string fbUserId)
         {
-            var user = SocialUserRepository.FindAll().Where(t => t.OriginalId == fbUserId && t.Source == SocialUserSource.Facebook).FirstOrDefault();
+            var user = SocialUserService.FindAll().Where(t => t.OriginalId == fbUserId && t.Source == SocialUserSource.Facebook).FirstOrDefault();
             if (user == null)
             {
                 FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId);
@@ -96,9 +100,12 @@ namespace Social.Domain.DomainServices.Facebook
                     OriginalId = fbUser.id,
                     Name = fbUser.name,
                     Email = fbUser.email,
+                    OriginalLink = fbUser.link,
+                    Avatar = fbUser.pic,
                     Source = SocialUserSource.Facebook
                 };
-                await SocialUserRepository.InsertAsync(user);
+
+                await SocialUserService.InsertAsync(user);
             }
             return user;
         }

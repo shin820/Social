@@ -21,10 +21,15 @@ namespace Social.Domain.DomainServices
     public class SocialAccountService : DomainService<SocialAccount>, ISocialAccountService
     {
         IRepository<GeneralDataContext, SiteSocialAccount> _siteSocialAccountRepo;
+        IRepository<SocialUser> _socialUserRepo;
 
-        public SocialAccountService(IRepository<GeneralDataContext, SiteSocialAccount> siteSocialAccountRepo)
+        public SocialAccountService(
+            IRepository<GeneralDataContext, SiteSocialAccount> siteSocialAccountRepo,
+            IRepository<SocialUser> socialUserRepo
+            )
         {
             _siteSocialAccountRepo = siteSocialAccountRepo;
+            _socialUserRepo = socialUserRepo;
         }
 
         public SocialAccount FindAccount(int id, SocialUserSource source)
@@ -34,7 +39,7 @@ namespace Social.Domain.DomainServices
 
         public async Task<SocialAccount> GetAccountAsync(SocialUserSource source, string originalId)
         {
-            return await Repository.FindAll().Include(t => t.SocialUser).Where(t => t.SocialUser.OriginalId == originalId && t.SocialUser.Source == source && t.IfEnable).FirstOrDefaultAsync();
+            return await Repository.FindAll().Include(t => t.SocialUser).Where(t => t.SocialUser.OriginalId == originalId && t.SocialUser.Source == source && t.IfEnable && t.IsDeleted == false).FirstOrDefaultAsync();
         }
 
         public async override Task<SocialAccount> InsertAsync(SocialAccount entity)
@@ -87,6 +92,10 @@ namespace Social.Domain.DomainServices
         public async override Task DeleteAsync(SocialAccount entity)
         {
             await base.DeleteAsync(entity);
+
+            var user = _socialUserRepo.Find(entity.Id);
+            _socialUserRepo.Delete(user);
+
             await DeleteSocialAccountInGeneralDb(entity);
         }
 

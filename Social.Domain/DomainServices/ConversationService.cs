@@ -16,7 +16,7 @@ namespace Social.Domain.DomainServices
         Conversation Find(int id, ConversationSource source);
         Conversation Find(int id, ConversationSource[] sources);
         IQueryable<Conversation> FindAll(Filter filter);
-        Conversation GetTwitterDirectMessageConversation(SocialUser user);
+        Conversation GetTwitterDirectMessageConversation(SocialUser sender, SocialUser recipient);
         Conversation GetTwitterTweetConversation(string orignalTweetId);
         void AddConversation(SocialAccount socialAccount, Conversation conversation);
         IQueryable<Conversation> ApplyFilter(IQueryable<Conversation> conversations, int? filterId);
@@ -129,9 +129,9 @@ namespace Social.Domain.DomainServices
         /// </summary>
         /// <param name="user">the social user who is not a integration account and invoiced in the conversation.</param>
         /// <returns></returns>
-        public Conversation GetTwitterDirectMessageConversation(SocialUser user)
+        public Conversation GetTwitterDirectMessageConversation(SocialUser sender, SocialUser recipient)
         {
-            return Repository.FindAll().Where(t => t.Source == ConversationSource.TwitterDirectMessage && t.Status != ConversationStatus.Closed && t.Messages.Any(m => m.SenderId == user.Id || m.ReceiverId == user.Id)).FirstOrDefault();
+            return Repository.FindAll().Where(t => t.Source == ConversationSource.TwitterDirectMessage && t.Status != ConversationStatus.Closed && t.Messages.Any(m => (m.SenderId == sender.Id && m.ReceiverId == recipient.Id) || (m.SenderId == recipient.Id && m.ReceiverId == sender.Id))).FirstOrDefault();
         }
 
         public Conversation GetTwitterTweetConversation(string orignalTweetId)
@@ -178,15 +178,15 @@ namespace Social.Domain.DomainServices
         {
             if (oldEntity.Status == ConversationStatus.Closed && conversation.Status != ConversationStatus.Closed)
             {
-                List<int> senderIds = oldEntity.Messages.Where(t => t.Sender.SocialAccount == null).Select(t => t.SenderId).Distinct().ToList();
-                List<int> recipientIds = oldEntity.Messages.Where(t => t.Sender.SocialAccount == null && t.ReceiverId != null).Select(t => t.ReceiverId.Value).Distinct().ToList();
-                var userIds = senderIds.Union(recipientIds).Distinct();
+                //List<int> senderIds = oldEntity.Messages.Where(t => t.Sender.SocialAccount == null).Select(t => t.SenderId).Distinct().ToList();
+                //List<int> recipientIds = oldEntity.Messages.Where(t => t.Sender.SocialAccount == null && t.ReceiverId != null).Select(t => t.ReceiverId.Value).Distinct().ToList();
+                //var userIds = senderIds.Union(recipientIds).Distinct();
 
-                bool isExistsOpenConversation = FindAll().Any(t => t.Id != conversation.Id && t.Status != ConversationStatus.Closed && t.Messages.Any(m => userIds.Contains(m.SenderId) || userIds.Contains(m.ReceiverId.Value)));
-                if (isExistsOpenConversation)
-                {
-                    throw SocialExceptions.BadRequest("Another open conversation which belongs to the same user has been found.");
-                }
+                //bool isExistsOpenConversation = FindAll().Any(t => t.Id != conversation.Id && t.Status != ConversationStatus.Closed && t.Messages.Any(m => userIds.Contains(m.SenderId) || userIds.Contains(m.ReceiverId.Value)));
+                //if (isExistsOpenConversation)
+                //{
+                //    throw SocialExceptions.BadRequest("Another open conversation which belongs to the same user has been found.");
+                //}
             }
         }
 

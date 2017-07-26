@@ -99,8 +99,7 @@ namespace Social.Domain.DomainServices
             bool isSendByAccount = directMsg.SenderId.ToString() == account.SocialUser.OriginalId;
             SocialUser sender = await _socialUserService.GetOrCreateTwitterUser(directMsg.Sender);
             SocialUser recipient = await _socialUserService.GetOrCreateTwitterUser(directMsg.Recipient);
-            SocialUser user = sender.OriginalId != account.SocialUser.OriginalId ? sender : recipient;
-            var existingConversation = _conversationService.GetTwitterDirectMessageConversation(user);
+            var existingConversation = _conversationService.GetTwitterDirectMessageConversation(sender, recipient);
             if (existingConversation != null)
             {
                 var message = ConvertToMessage(directMsg);

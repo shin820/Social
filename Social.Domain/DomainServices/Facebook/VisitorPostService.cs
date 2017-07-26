@@ -30,17 +30,17 @@ namespace Social.Domain.DomainServices.Facebook
 
         private IRepository<Conversation> _conersationRepo;
         private IRepository<Message> _messageRepo;
-        private IRepository<SocialUser> _socialUserRepo;
+        private ISocialUserService _socialUserService;
 
         public VisitorPostService(
             IRepository<Conversation> conersationRepo,
             IRepository<Message> messageRepo,
-            IRepository<SocialUser> socialUserRepo
+            ISocialUserService socialUserService
             )
         {
             _conersationRepo = conersationRepo;
             _messageRepo = messageRepo;
-            _socialUserRepo = socialUserRepo;
+            _socialUserService = socialUserService;
         }
 
         public async Task PullVisitorPostsFromFeed(SocialAccount account)
@@ -399,7 +399,7 @@ namespace Social.Domain.DomainServices.Facebook
         {
             List<SocialUser> senders = new List<SocialUser>();
             var fbSenderIds = fbSenders.Select(t => t.id).ToList();
-            var existingUsers = _socialUserRepo.FindAll().Where(t => t.Source == SocialUserSource.Facebook && fbSenderIds.Contains(t.OriginalId)).ToList();
+            var existingUsers = _socialUserService.FindAll().Where(t => t.Source == SocialUserSource.Facebook && fbSenderIds.Contains(t.OriginalId)).ToList();
             senders.AddRange(existingUsers);
             fbSenders.RemoveAll(t => existingUsers.Any(e => e.OriginalId == t.id));
             foreach (var fbSender in fbSenders)
@@ -412,7 +412,7 @@ namespace Social.Domain.DomainServices.Facebook
                     Source = SocialUserSource.Facebook,
                 };
 
-                await _socialUserRepo.InsertAsync(sender);
+                await _socialUserService.InsertAsync(sender);
                 senders.Add(sender);
             }
             return senders;

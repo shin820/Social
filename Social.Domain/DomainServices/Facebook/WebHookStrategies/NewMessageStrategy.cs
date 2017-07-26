@@ -40,7 +40,7 @@ namespace Social.Domain.DomainServices.Facebook
             SocialUser sender = await GetOrCreateFacebookUser(socialAccount.Token, fbMessage.SenderId);
             SocialUser receiver = await GetOrCreateFacebookUser(socialAccount.Token, fbMessage.ReceiverId);
 
-            var existingConversation = GetConversation(change.Value.ThreadId, ConversationStatus.Closed);
+            var existingConversation = GetUnClosedConversation(change.Value.ThreadId);
             if (existingConversation != null)
             {
                 Message message = Convert(fbMessage, sender, receiver, socialAccount);

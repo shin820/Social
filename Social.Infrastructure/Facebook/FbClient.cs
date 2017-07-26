@@ -94,18 +94,18 @@ namespace Social.Infrastructure.Facebook
         public static async Task<FbUser> GetMe(string token)
         {
             FacebookClient client = new FacebookClient(token);
-            string url = "/me?fields=id,name,first_name,last_name,picture,gender,email,location";
+            string url = "/me?fields=id,name,link,picture";
             dynamic result = await client.GetTaskAsync(url);
 
             var me = new FbUser
             {
                 id = result.id,
                 name = result.name,
-                email = result.email
+                link = result.link
             };
             if (result.picture != null && result.picture.data != null)
             {
-                if (result.picture.data.is_silhouette == true)
+                if (result.picture.data.url != null)
                 {
                     me.pic = result.picture.data.url;
                 }
@@ -117,11 +117,27 @@ namespace Social.Infrastructure.Facebook
         public static async Task<FbUser> GetUserInfo(string token, string fbUserId)
         {
             FacebookClient client = new FacebookClient(token);
-            string url = "/" + fbUserId + "?fields=id,name,first_name,last_name,picture,gender,email,location";
+            string url = "/" + fbUserId + "?fields=id,name,link,picture";
 
             try
             {
-                return await client.GetTaskAsync<FbUser>(url);
+                dynamic result = await client.GetTaskAsync(url);
+
+                var me = new FbUser
+                {
+                    id = result.id,
+                    name = result.name,
+                    link = result.link
+                };
+                if (result.picture != null && result.picture.data != null)
+                {
+                    if (result.picture.data.url != null)
+                    {
+                        me.pic = result.picture.data.url;
+                    }
+                }
+
+                return me;
             }
             catch (Exception ex)
             {
