@@ -16,11 +16,14 @@ namespace Social.Domain.DomainServices.Facebook
     {
         Task PullTaggedVisitorPosts(SocialAccount account);
         Task PullVisitorPostsFromFeed(SocialAccount account);
+        Task PullMassagesJob(SocialAccount account);
     }
 
     public class VisitorPostService : ServiceBase, IVisitorPostService
     {
         private List<FbPost> PostsToBeCreated { get; set; } = new List<FbPost>();
+        private List<FbConversation> ConversationsToBeCreated { get; set; } = new List<FbConversation>();
+        private List<FbMessage> MessagesToBeCreated { get; set; } = new List<FbMessage>();
         private List<FbComment> CommentsToBeCreated { get; set; } = new List<FbComment>();
         private List<FbComment> ReplyCommentsToBeCretaed { get; set; } = new List<FbComment>();
         private SocialAccount _account;
@@ -66,6 +69,17 @@ namespace Social.Domain.DomainServices.Facebook
             await AddPosts(PostsToBeCreated);
             await AddComments(CommentsToBeCreated);
             await AddReplyComments(ReplyCommentsToBeCretaed);
+            Clear();
+        }
+
+        public async Task PullMassagesJob(SocialAccount account)
+        {
+            _account = account;
+            var data = await FbClient.GetConversationsPosts(_account.SocialUser.OriginalId, _account.Token);
+            await InitForConversation(data);
+            RemoveDuplicated();
+            await AddConversations(ConversationsToBeCreated);
+
             Clear();
         }
 
@@ -145,6 +159,122 @@ namespace Social.Domain.DomainServices.Facebook
                     uow.Complete();
                 }
             }
+        }
+
+        private async Task AddConversations(List<FbConversation> FbConversations)
+        {
+            if (!FbConversations.Any())
+            {
+                return;
+            }
+
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                using (CurrentUnitOfWork.SetSiteId(_account.SiteId))
+                {
+                    List<SocialUser> senders = new List<SocialUser>();
+                    List<SocialUser> receivers = new List<SocialUser>();
+                   
+                    foreach(var Fbconversation in FbConversations)
+                    {
+                        var existingConversation = GetConversation(Fbconversation.Id, ConversationStatus.Closed);
+                        if (existingConversation != null)
+                        {
+                            Fbconversation.Messages.data = Fbconversation.Messages.data.OrderBy(t => t.SendTime).ToList();
+                            foreach (var Fbmessage in Fbconversation.Messages.data)
+                            {
+                                var sender = await GetOrCreateFacebookUser(_account.Token, Fbmessage.SenderId);
+                                var receiver = await GetOrCreateFacebookUser(_account.Token, Fbmessage.ReceiverId);
+                                Message message = ConvertMessage(Fbmessage, sender, receiver, _account);
+                                message.ConversationId = existingConversation.Id;
+                                existingConversation.IfRead = false;
+                                existingConversation.Status = sender.Id != _account.SocialUser.Id ? ConversationStatus.PendingInternal : ConversationStatus.PendingExternal;
+                                existingConversation.Subject = GetSubject(message.Content);
+                                existingConversation.LastMessageSenderId = message.SenderId;
+                                existingConversation.LastMessageSentTime = message.SendTime;
+                                existingConversation.Messages.Add(message);
+                                _conersationRepo.Update(existingConversation);
+                                await CurrentUnitOfWork.SaveChangesAsync();
+                            }
+                        }
+                        else
+                        {
+                            Conversation conversation = new Conversation();
+                            conversation.OriginalId = Fbconversation.Id;
+                            conversation.Source = ConversationSource.FacebookMessage;
+                            conversation.Priority = ConversationPriority.Normal;
+                            conversation.Status = ConversationStatus.New;
+                            Fbconversation.Messages.data = Fbconversation.Messages.data.OrderBy(t => t.SendTime).ToList();
+                            foreach (var Fbmessage in Fbconversation.Messages.data)
+                            {
+                                var sender = await GetOrCreateFacebookUser(_account.Token, Fbmessage.SenderId);
+                                var receiver = await GetOrCreateFacebookUser(_account.Token, Fbmessage.ReceiverId);
+                                Message message = ConvertMessage(Fbmessage, sender, receiver, _account);
+                              
+                                conversation.Subject = GetSubject(message.Content);
+                                conversation.LastMessageSenderId = message.SenderId;
+                                conversation.LastMessageSentTime = message.SendTime;
+                            
+                                conversation.Messages.Add(message);
+
+                                if (_account.ConversationAgentId.HasValue && _account.ConversationPriority.HasValue)
+                                {
+                                    conversation.AgentId = _account.ConversationAgentId.Value;
+                                    conversation.Priority = _account.ConversationPriority.Value;
+                                }
+
+                                if (_account.ConversationDepartmentId.HasValue && _account.ConversationPriority.HasValue)
+                                {
+                                    conversation.DepartmentId = _account.ConversationDepartmentId.Value;
+                                    conversation.Priority = _account.ConversationPriority.Value;
+                                }
+                            }
+                             _conersationRepo.Insert(conversation);
+                            await CurrentUnitOfWork.SaveChangesAsync();
+                        }
+                    }
+                  uow.Complete();
+                }
+            }
+        }
+
+
+
+        private Conversation GetConversation(string originalId, ConversationStatus? status =  null)
+        {
+            var conversations = _conersationRepo.FindAll().Where(t => t.OriginalId == originalId);
+            conversations.WhereIf(status != null, t => t.Status == status.Value);
+
+            return conversations.FirstOrDefault();
+        }
+
+        private Message ConvertMessage(FbMessage fbMessage, SocialUser Sender, SocialUser Receiver, SocialAccount account)
+        {
+            Message message = new Message
+            {
+                SenderId = Sender.Id,
+                ReceiverId = Receiver.Id,
+                Source = MessageSource.FacebookMessage,
+                OriginalId = fbMessage.Id,
+                SendTime = fbMessage.SendTime,
+                Content = fbMessage.Content
+            };
+
+            foreach (var attachment in fbMessage.Attachments)
+            {
+                message.Attachments.Add(new MessageAttachment
+                {
+                    OriginalId = attachment.Id,
+                    Name = attachment.Name,
+                    MimeType = attachment.MimeType,
+                    Type = attachment.Type,
+                    Size = attachment.Size,
+                    Url = attachment.Url,
+                    PreviewUrl = attachment.PreviewUrl
+                });
+            }
+
+            return message;
         }
 
         private async Task AddComments(List<FbComment> comments)
@@ -288,6 +418,24 @@ namespace Social.Domain.DomainServices.Facebook
             return senders;
         }
 
+        private async Task<SocialUser> GetOrCreateFacebookUser(string token, string fbUserId)
+        {
+            var user = _socialUserRepo.FindAll().Where(t => t.OriginalId == fbUserId && t.Source == SocialUserSource.Facebook).FirstOrDefault();
+            if (user == null)
+            {
+                FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId);
+                user = new SocialUser
+                {
+                    OriginalId = fbUser.id,
+                    Name = fbUser.name,
+                    Email = fbUser.email,
+                    Source = SocialUserSource.Facebook
+                };
+                await _socialUserRepo.InsertAsync(user);
+            }
+            return user;
+        }
+
         private async Task Init(FbPagingData<FbPost> posts)
         {
             if (!posts.data.Any())
@@ -304,6 +452,44 @@ namespace Social.Domain.DomainServices.Facebook
                 FacebookClient client = new FacebookClient();
                 var nextPagePosts = await client.GetTaskAsync<FbPagingData<FbPost>>(posts.paging.next);
                 await Init(nextPagePosts);
+            }
+        }
+
+        private async Task InitForConversation(FbPagingData<FbConversation> Conversations)
+        {
+            if (!Conversations.data.Any())
+            {
+                return;
+            }
+
+            List<FbMessage> FbMessages = new List<FbMessage>();
+            foreach (var conversation in Conversations.data)
+            {
+                InitForMessages(conversation.Messages);
+                conversation.Messages.data = MessagesToBeCreated;
+            }
+            ConversationsToBeCreated.AddRange(Conversations.data);
+            if (Conversations.paging.next != null)
+            {
+                FacebookClient client = new FacebookClient();
+                var nextPagePosts = await client.GetTaskAsync<FbPagingData<FbConversation>>(Conversations.paging.next);
+                await InitForConversation(nextPagePosts);
+            }
+        }
+
+        private async Task InitForMessages(FbPagingData<FbMessage> messages)
+        {
+            MessagesToBeCreated = new List<FbMessage>();
+            if (!messages.data.Any())
+            {
+                return;
+            }
+            MessagesToBeCreated.AddRange(messages.data);
+            if (messages.paging.next != null)
+            {
+                FacebookClient client = new FacebookClient();
+                var nextPagePosts = await client.GetTaskAsync<FbPagingData<FbMessage>>(messages.paging.next);
+                await InitForMessages(nextPagePosts);
             }
         }
 
@@ -395,6 +581,21 @@ namespace Social.Domain.DomainServices.Facebook
                 var replyCommentIds = ReplyCommentsToBeCretaed.Select(t => t.id).ToList();
                 var existingReplyCommentIds = _messageRepo.FindAll().Where(t => replyCommentIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
                 ReplyCommentsToBeCretaed.RemoveAll(t => existingReplyCommentIds.Contains(t.id));
+            }
+            if(ConversationsToBeCreated.Any())
+            {
+                var ConversationIds = ConversationsToBeCreated.Select(t => t.Id).ToList();
+                List<string>  MessageIds =  new List<string>();
+                foreach (var conversation in ConversationsToBeCreated)
+                {
+                    MessageIds.AddRange(conversation.Messages.data.Select(m => m.Id).ToList());
+                }
+                var existingMessageIds = _messageRepo.FindAll().Where(t => MessageIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
+
+                foreach (var conversation in ConversationsToBeCreated)
+                {
+                    conversation.Messages.data.RemoveAll(t => existingMessageIds.Contains(t.Id));
+                }
             }
         }
     }
