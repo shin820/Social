@@ -17,8 +17,8 @@ namespace Social.Application.AppServices
     public interface IFilterAppService
     {
         List<FilterDto> FindAll();
-        FilterDto Find(int id);
-        FilterDto Insert(FilterCreateDto createDto);
+        FilterDetailsDto Find(int id);
+        FilterDetailsDto Insert(FilterCreateDto createDto);
         void Delete(int id);
         void Update(int id,FilterUpdateDto updateDto);
     }
@@ -47,15 +47,15 @@ namespace Social.Application.AppServices
             return FilterDtos;
         }
 
-        public FilterDto Find(int id)
+        public FilterDetailsDto Find(int id)
         {
             var filter = _domainService.Find(id);
-            var filterDto = Mapper.Map<FilterDto>(filter);
-            filterDto.ConversationNum = _domainService.GetConversationNum(filter);
+            var filterDto = Mapper.Map<FilterDetailsDto>(filter);
+
             return filterDto;
         }
 
-        public FilterDto Insert(FilterCreateDto createDto)
+        public FilterDetailsDto Insert(FilterCreateDto createDto)
         {
             var filter = Mapper.Map<Filter>(createDto);
 
@@ -64,8 +64,9 @@ namespace Social.Application.AppServices
 
             filter.Conditions = filterConditons;
             filter = _domainService.Insert(filter);
+            CurrentUnitOfWork.SaveChanges();
 
-            return Mapper.Map<FilterDto>(filter);
+            return Mapper.Map<FilterDetailsDto>(filter);
         }
 
         public void Delete(int id)

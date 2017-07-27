@@ -148,6 +148,7 @@
     <Compile Include="Dto\Filter\FilterConditionCreateDto.cs" />
     <Compile Include="Dto\Filter\FilterConditionDto.cs" />
     <Compile Include="Dto\Filter\FilterCreateDto.cs" />
+    <Compile Include="Dto\Filter\FilterDetailsDto.cs" />
     <Compile Include="Dto\Filter\FilterDto.cs" />
     <Compile Include="Dto\Filter\FilterUpdateDto.cs" />
     <Compile Include="AppServices\FacebookAppService.cs" />

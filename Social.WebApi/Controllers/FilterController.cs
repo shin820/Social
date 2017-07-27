@@ -28,17 +28,17 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("{id}", Name = "GetFilter")]
-        public FilterDto GetFilter(int id)
+        public FilterDetailsDto GetFilter(int id)
         {
             return _appService.Find(id);
         }
 
         [Route()]
-        [ResponseType(typeof(FilterDto))]
+        [ResponseType(typeof(FilterDetailsDto))]
         public IHttpActionResult PostFilter(FilterCreateDto createDto)
         {
             createDto = createDto ?? new FilterCreateDto();
-            var filter = _appService.Insert(createDto);
+            var filter =  _appService.Insert(createDto);
 
             return CreatedAtRoute("GetFilter", new { id = filter.Id }, filter);
         }
