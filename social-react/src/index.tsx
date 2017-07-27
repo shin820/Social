@@ -3,11 +3,18 @@ import * as ReactDOM from 'react-dom';
 import registerServiceWorker from './registerServiceWorker';
 import './index.css';
 import { Provider } from 'react-redux';
-import { createStore } from 'redux';
-import { reducers } from './store';
+import { createBrowserHistory } from 'history';
+import configureStore from './configureStore';
+import { ApplicationState } from './store';
 import FilterList from './components/FilterList'
 
-const store = createStore(reducers);
+// Create browser history to use in the Redux store
+const history = createBrowserHistory();
+
+// Get the application-wide store instance, prepopulating with state from the server where available.
+const initialState = (window as any).initialReduxState as ApplicationState;
+
+const store = configureStore(history, initialState);
 
 ReactDOM.render(
   <Provider store={store}>
