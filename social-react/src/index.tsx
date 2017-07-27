@@ -4,16 +4,18 @@ import registerServiceWorker from './registerServiceWorker';
 import './index.css';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
-import reducers from './reducers/reducers';
-import FilterList from './containers/FilterList';
-import ConversationList from './containers/ConversationList';
+import { reducers } from './store';
+import FilterList from './components/FilterList/FilterList'
 
-const store = createStore(reducers);
+// function buildRootReducer(allReducers: any) {
+//   return combineReducers<ApplicationState>(Object.assign({}, allReducers, {}));
+// }
+// const allReducers = buildRootReducer(reducers);
+const store = createStore(reducers.filterList);
 
 ReactDOM.render(
   <Provider store={store}>
     <FilterList />
-    <ConversationList />
   </Provider>,
   document.getElementById('root') as HTMLElement
 );
