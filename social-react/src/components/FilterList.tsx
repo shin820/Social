@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { connect, Dispatch } from 'react-redux';
-import { FilterListItem, actionCreators, KnownAction } from '../store/FilterList';
+import { connect } from 'react-redux';
+import { FilterListItem, actionCreators } from '../store/FilterList';
 import { ApplicationState } from '../store';
 
 // At runtime, Redux will merge together...
@@ -33,7 +33,7 @@ function mapStateToProps(state: ApplicationState) {
     }
 }
 
-function mapDispatchToProps(dispatch: Dispatch<KnownAction>) {
+function mapDispatchToProps(dispatch: any) {
     return {
         requestFilterList: () => dispatch(actionCreators.requestFilterList())
     }
