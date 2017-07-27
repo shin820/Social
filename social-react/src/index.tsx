@@ -4,11 +4,14 @@ import registerServiceWorker from './registerServiceWorker';
 import './index.css';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
-import { filter } from './reducers/index';
-import { ApplicationState } from './types/index';
-import FilterList from './containers/FilterList';
+import { reducers } from './store';
+import FilterList from './components/FilterList/FilterList'
 
-const store = createStore<ApplicationState>(filter, { FilterList: [] });
+// function buildRootReducer(allReducers: any) {
+//   return combineReducers<ApplicationState>(Object.assign({}, allReducers, {}));
+// }
+// const allReducers = buildRootReducer(reducers);
+const store = createStore(reducers.filterList);
 
 ReactDOM.render(
   <Provider store={store}>
