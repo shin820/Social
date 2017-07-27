@@ -5,7 +5,7 @@ import { ApplicationState } from '../store';
 
 // At runtime, Redux will merge together...
 type FilterListProps =
-    { items: FilterListItem[] }
+    { items: FilterListItem[], isLoading: boolean }
     & typeof actionCreators;
 
 class FilterList extends React.Component<FilterListProps, {}>

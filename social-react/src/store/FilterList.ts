@@ -16,11 +16,13 @@ export interface FilterListItem {
 
 export interface RequestFilterListAction {
     type: "REQUEST_FILTER_LIST";
+    isLoading: boolean;
 }
 
 export interface ReceiveFilterListAction {
     type: "RECEIVE_FILTER_LIST";
-    filters: FilterListItem[]
+    filters: FilterListItem[];
+    isLoading: boolean;
 }
 
 // Declare a 'discriminated union' type. This guarantees that all references to 'type' properties contain one of the
@@ -35,10 +37,10 @@ export const actionCreators = {
     requestFilterList: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
         filterService.getFilterList()
             .then(data => {
-                dispatch({ type: 'RECEIVE_FILTER_LIST', filters: data });
+                dispatch({ type: 'RECEIVE_FILTER_LIST', filters: data, isLoading: true });
             })
 
-        dispatch({ type: 'REQUEST_FILTER_LIST' });
+        dispatch({ type: 'REQUEST_FILTER_LIST', isLoading: false });
     }
 }
 
