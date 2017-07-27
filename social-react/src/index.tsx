@@ -7,11 +7,7 @@ import { createStore } from 'redux';
 import { reducers } from './store';
 import FilterList from './components/FilterList/FilterList'
 
-// function buildRootReducer(allReducers: any) {
-//   return combineReducers<ApplicationState>(Object.assign({}, allReducers, {}));
-// }
-// const allReducers = buildRootReducer(reducers);
-const store = createStore(reducers.filterList);
+const store = createStore(reducers);
 
 ReactDOM.render(
   <Provider store={store}>

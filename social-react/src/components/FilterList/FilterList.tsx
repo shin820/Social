@@ -1,15 +1,12 @@
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
 import { FilterListItem, actionCreators, KnownAction } from '../../store/FilterList';
+import { ApplicationState } from '../../store';
 
 // At runtime, Redux will merge together...
-// type FilterListProps =
-//     FilterListState.FilterListState
-//     & typeof FilterListState.actionCreators;
-export interface FilterListProps {
-    items: FilterListItem[]
-    requestFilterList: () => void;
-}
+type FilterListProps =
+    { items: FilterListItem[] }
+    & typeof actionCreators;
 
 function FilterList({ items, requestFilterList }: FilterListProps) {
     items = items || new Array<FilterListItem>();
@@ -17,26 +14,23 @@ function FilterList({ items, requestFilterList }: FilterListProps) {
         <div>Filters</div>
         <div>
             <ul>
-                {items.map((filter,index) => <li key={index}>{filter.name} - {filter.unReadNum}</li>)}
+                {items.map((filter, index) => <li key={index}>{filter.name} - {filter.unReadNum}</li>)}
             </ul>
             <button onClick={requestFilterList}>reload</button>
         </div>
     </div>
 }
 
-export function mapStateToProps(state: FilterListItem[]) {
+function mapStateToProps(state: ApplicationState) {
     return {
-        items: state
+        items: state.filterList
     }
 }
 
-export function mapDispatchToProps(dispatch: Dispatch<KnownAction>) {
+function mapDispatchToProps(dispatch: Dispatch<KnownAction>) {
     return {
         requestFilterList: () => dispatch(actionCreators.requestFilterList())
     }
 }
 
-export default connect(
-    mapStateToProps, // Selects which state properties are merged into the component's props
-    mapDispatchToProps               // Selects which action creators are merged into the component's props
-)(FilterList);
+export default connect(mapStateToProps, mapDispatchToProps)(FilterList);
