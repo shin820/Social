@@ -420,7 +420,7 @@ namespace Social.Domain.DomainServices.Facebook
 
         private async Task<SocialUser> GetOrCreateFacebookUser(string token, string fbUserId)
         {
-            var user = _socialUserRepo.FindAll().Where(t => t.OriginalId == fbUserId && t.Source == SocialUserSource.Facebook).FirstOrDefault();
+            var user = _socialUserService.FindAll().Where(t => t.OriginalId == fbUserId && t.Source == SocialUserSource.Facebook).FirstOrDefault();
             if (user == null)
             {
                 FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId);
@@ -431,7 +431,7 @@ namespace Social.Domain.DomainServices.Facebook
                     Email = fbUser.email,
                     Source = SocialUserSource.Facebook
                 };
-                await _socialUserRepo.InsertAsync(user);
+                await _socialUserService.InsertAsync(user);
             }
             return user;
         }

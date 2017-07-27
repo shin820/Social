@@ -65,7 +65,7 @@ namespace Social.Application.AppServices
         {
             var conversation = Mapper.Map<Conversation>(createDto);
             conversation = _conversationService.Insert(conversation);
-
+            CurrentUnitOfWork.SaveChanges();
             return Mapper.Map<ConversationDto>(conversation);
         }
 

@@ -16,9 +16,9 @@ namespace Social.Application.Dto
         [Required]
         [MaxLength(200)]
         public string Name { get; set; }
-        public int Index { get; set; }
-        public bool IfPublic { get; set; }
-        public FilterType Type { get; set; }
+     //   public int Index { get; set; }
+     //   public bool IfPublic { get; set; }
+     //   public FilterType Type { get; set; }
      //   public string LogicalExpression { get; set; }
 
      //   public int CreatedBy { get; set; }
