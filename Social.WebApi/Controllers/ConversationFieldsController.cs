@@ -8,7 +8,7 @@ using System.Web.Http;
 
 namespace Social.WebApi.Controllers
 {
-    [RoutePrefix("conversation-fields")]
+    [RoutePrefix("api/conversation-fields")]
     public class ConversationFieldsController : ApiController
     {
         private IConversationFieldService _appService;

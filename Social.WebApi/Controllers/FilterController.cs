@@ -11,7 +11,7 @@ using System.Web.Http.Description;
 
 namespace Social.WebApi.Controllers
 {
-    [RoutePrefix("filters")]
+    [RoutePrefix("api/filters")]
     public class FilterController:ApiController
     {
         private IFilterAppService _appService;

@@ -8,7 +8,7 @@ using System.Web.Http;
 
 namespace Social.WebApi.Controllers
 {
-    [RoutePrefix("Departments")]
+    [RoutePrefix("api/departments")]
     public class DepartmentController : ApiController
     {
         private IDepartmentAppService _DepartmentService;

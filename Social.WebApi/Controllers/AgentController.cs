@@ -8,7 +8,7 @@ using System.Web.Http;
 
 namespace Social.WebApi.Controllers
 {
-    [RoutePrefix("agents")]
+    [RoutePrefix("api/agents")]
     public class AgentController:ApiController
     {
         private IAgentAppService _agentService;
