@@ -6,7 +6,7 @@ import filterService from '../services/FilterService';
 // STATE - This defines the type of data maintained in the Redux store.
 export interface FilterListItem {
     name: string;
-    unReadNum: number;
+    conversationNum: number;
     id: number;
 }
 

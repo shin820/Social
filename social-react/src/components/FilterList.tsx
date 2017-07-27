@@ -19,7 +19,7 @@ class FilterList extends React.Component<FilterListProps, {}>
             <div>Filters</div>
             <div>
                 <ul>
-                    {this.props.items.map((filter, index) => <li key={index}>{filter.name} - {filter.unReadNum}</li>)}
+                    {this.props.items.map((filter, index) => <li key={filter.id}>{filter.name} - {filter.conversationNum}</li>)}
                 </ul>
                 <button onClick={this.props.requestFilterList}>reload</button>
             </div>
