@@ -5,7 +5,7 @@ import './index.css';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import { reducers } from './store';
-import FilterList from './components/FilterList/FilterList'
+import FilterList from './components/FilterList'
 
 const store = createStore(reducers);
 

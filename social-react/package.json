@@ -21,7 +21,11 @@
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/enzyme": "^2.8.4",
+    "enzyme": "^2.9.1",
+    "react-test-renderer": "^15.6.1"
+  },
   "scripts": {
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect, Dispatch } from 'react-redux';
-import { FilterListItem, actionCreators, KnownAction } from '../../store/FilterList';
-import { ApplicationState } from '../../store';
+import { FilterListItem, actionCreators, KnownAction } from '../store/FilterList';
+import { ApplicationState } from '../store';
 
 // At runtime, Redux will merge together...
 type FilterListProps =
