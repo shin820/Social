@@ -8,17 +8,23 @@ type FilterListProps =
     { items: FilterListItem[] }
     & typeof actionCreators;
 
-function FilterList({ items, requestFilterList }: FilterListProps) {
-    items = items || new Array<FilterListItem>();
-    return <div>
-        <div>Filters</div>
-        <div>
-            <ul>
-                {items.map((filter, index) => <li key={index}>{filter.name} - {filter.unReadNum}</li>)}
-            </ul>
-            <button onClick={requestFilterList}>reload</button>
+class FilterList extends React.Component<FilterListProps, {}>
+{
+    componentWillMount() {
+        this.props.requestFilterList();
+    }
+
+    render() {
+        return <div>
+            <div>Filters</div>
+            <div>
+                <ul>
+                    {this.props.items.map((filter, index) => <li key={index}>{filter.name} - {filter.unReadNum}</li>)}
+                </ul>
+                <button onClick={this.props.requestFilterList}>reload</button>
+            </div>
         </div>
-    </div>
+    }
 }
 
 function mapStateToProps(state: ApplicationState) {
