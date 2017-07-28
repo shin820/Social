@@ -299,7 +299,7 @@ namespace Social.Infrastructure.Facebook
             Checker.NotNullOrWhiteSpace(token, nameof(pageId));
             FacebookClient client = new FacebookClient(token);
 
-            long since = DateTimeOffset.UtcNow.AddDays(-1).AddMinutes(-30).ToUnixTimeSeconds();
+            long since = DateTimeOffset.UtcNow.AddMinutes(-30).ToUnixTimeSeconds();
 
             string toFields = $"to{{id,name,pic,username,profile_type,link}}";
             string innnerCommentsFields = $"comments.since({since}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden}}";
