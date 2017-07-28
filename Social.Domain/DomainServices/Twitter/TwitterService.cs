@@ -154,8 +154,8 @@ namespace Social.Domain.DomainServices
 
         public async Task ProcessTweet(SocialAccount account, ITweet currentTweet)
         {
-            bool isFirstTweetSendByAccount = currentTweet.InReplyToStatusId == null && currentTweet.CreatedBy.IdStr == account.SocialUser.OriginalId;
-            if (isFirstTweetSendByAccount)
+            bool isFirstTweetSendByIntegrationAccount = currentTweet.InReplyToStatusId == null && currentTweet.CreatedBy.IdStr == account.SocialUser.OriginalId;
+            if (isFirstTweetSendByIntegrationAccount)
             {
                 return;
             }
