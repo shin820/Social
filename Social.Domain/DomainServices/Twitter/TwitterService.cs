@@ -154,15 +154,7 @@ namespace Social.Domain.DomainServices
 
         public async Task ProcessTweet(SocialAccount account, ITweet currentTweet)
         {
-            bool isFirstTweetSendByIntegrationAccount = currentTweet.InReplyToStatusId == null && currentTweet.CreatedBy.IdStr == account.SocialUser.OriginalId;
-            if (isFirstTweetSendByIntegrationAccount)
-            {
-                return;
-            }
-
-            bool isCreatedByAnother = currentTweet.CreatedBy.IdStr != account.SocialUser.OriginalId;
-            bool isMentionMe = currentTweet.UserMentions.Any(t => t.IdStr == account.SocialUser.OriginalId);
-            if (isCreatedByAnother && !isMentionMe)
+            if (!ShouldProcess(account, currentTweet))
             {
                 return;
             }
@@ -179,6 +171,37 @@ namespace Social.Domain.DomainServices
             }
 
             await AddTweets(account, tweets);
+        }
+
+        private bool ShouldProcess(SocialAccount account, ITweet currentTweet)
+        {
+            // ignore if typical tweet is sent by integration account.
+            if (IsTypicalTweetCreateByIntegrationAccount(account, currentTweet))
+            {
+                return false;
+            }
+
+            // ignore if tweet is created by another but not mention me.
+            if (IsTweetCreatedByAnotherButDoNotMentionIntegrationAccount(account, currentTweet))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool IsTypicalTweetCreateByIntegrationAccount(SocialAccount account, ITweet currentTweet)
+        {
+            bool isFirstTweetSendByIntegrationAccount = currentTweet.InReplyToStatusId == null
+                 && currentTweet.CreatedBy.IdStr == account.SocialUser.OriginalId;
+            return isFirstTweetSendByIntegrationAccount;
+        }
+
+        private bool IsTweetCreatedByAnotherButDoNotMentionIntegrationAccount(SocialAccount account, ITweet currentTweet)
+        {
+            bool isCreatedByAnother = currentTweet.CreatedBy.IdStr != account.SocialUser.OriginalId;
+            bool isMentionMe = currentTweet.UserMentions.Any(t => t.IdStr == account.SocialUser.OriginalId);
+            return isCreatedByAnother && !isMentionMe;
         }
 
         private async Task AddTweets(SocialAccount account, List<ITweet> tweets)
