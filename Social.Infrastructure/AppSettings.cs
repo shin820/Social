@@ -81,6 +81,14 @@ namespace Social.Infrastructure
             }
         }
 
+        public static string FacebookPullMessagesJobCronExpression
+        {
+            get
+            {
+                return GetAppSetting("FacebookPullMessagesJob_CronExpression");
+            }
+        }
+
         public static string SocialJobWindowsServiceName
         {
             get

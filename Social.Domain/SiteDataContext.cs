@@ -41,7 +41,7 @@ namespace Social.Domain
                 .WillCascadeOnDelete(false);
             modelBuilder.Entity<Conversation>()
                 .HasRequired(t => t.LastMessageSender)
-                .WithMany(t => t.LastSendConversations)
+                .WithMany()
                 .HasForeignKey(t => t.LastMessageSenderId)
                 .WillCascadeOnDelete(false);
 
@@ -51,11 +51,11 @@ namespace Social.Domain
                 .HasForeignKey(t => t.MessageId).WillCascadeOnDelete(false);
             modelBuilder.Entity<Message>()
                 .HasRequired(t => t.Sender)
-                .WithMany(t => t.SendMessages)
+                .WithMany()
                 .HasForeignKey(t => t.SenderId).WillCascadeOnDelete(false);
             modelBuilder.Entity<Message>()
                 .HasOptional(t => t.Receiver)
-                .WithMany(t => t.ReceiveMessages)
+                .WithMany()
                 .HasForeignKey(t => t.ReceiverId).WillCascadeOnDelete(false);
             modelBuilder.Entity<Message>()
                 .HasOptional(t => t.Parent)

@@ -15,9 +15,6 @@ namespace Social.Domain.Entities
     {
         public SocialUser()
         {
-            SendMessages = new List<Message>();
-            ReceiveMessages = new List<Message>();
-            LastSendConversations = new List<Conversation>();
         }
 
         [Required]
@@ -49,9 +46,5 @@ namespace Social.Domain.Entities
         public bool IsDeleted { get; set; }
 
         public virtual SocialAccount SocialAccount { get; set; }
-
-        public virtual IList<Message> SendMessages { get; set; }
-        public virtual IList<Message> ReceiveMessages { get; set; }
-        public virtual IList<Conversation> LastSendConversations { get; set; }
     }
 }

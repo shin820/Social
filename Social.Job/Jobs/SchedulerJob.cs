@@ -71,7 +71,7 @@ namespace Social.Job.Jobs
                 //ScheduleJob<FacebookWebHookJob>(facebookAccount, context);
                 ScheduleJob<PullTaggedVisitorPostsJob>(facebookAccount, context, CronTrigger(AppSettings.FacebookPullTaggedVisitorPostsJobCronExpression));
                 ScheduleJob<PullVisitorPostsFromFeedJob>(facebookAccount, context, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
-                //ScheduleJob<PullMassagesJob>(facebookAccount, context, StartNowTrigger());           
+                ScheduleJob<PullMassagesJob>(facebookAccount, context, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
             }
 
             foreach (var twitterAccount in twitterAccounts)
