@@ -19,21 +19,38 @@ namespace Social.Domain.DomainServices.FilterExpressions
         }
         public Expression<Func<Conversation, bool>> Build(FilterCondition condition)
         {
+            string Date = condition.Value;
+            if (condition.Value == "@Today")
+            {
+                Date = DateTime.UtcNow.ToString("yyyy-MM-dd");
+            }
+            else if (condition.Value == "@Yesterday")
+            {
+                Date = DateTime.UtcNow.AddDays(-1).ToString("yyyy-MM-dd");
+            }
+            else if (condition.Value == "@7 Days Ago")
+            {
+                Date = DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd");
+            }
+            else if (condition.Value == "@30 Days Ago")
+            {
+                Date = DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
+            }
             if (condition.MatchType == ConditionMatchType.Is)
             {
-                return Is(condition);
+                return Is(Date);
             }
             if (condition.MatchType == ConditionMatchType.Before)
             {
-                return Before(condition);
+                return Before(Date);
             }
             if (condition.MatchType == ConditionMatchType.After)
             {
-                return After(condition);
+                return After(Date);
             }
             if (condition.MatchType == ConditionMatchType.Between)
             {
-                return Between(condition);
+                return Between(Date);
             }
 
             return null;
@@ -44,9 +61,9 @@ namespace Social.Domain.DomainServices.FilterExpressions
             return condition.Field.DataType == FieldDataType.DateTime && condition.Field.Name == _propertyName;
         }
 
-        protected abstract Expression<Func<Conversation, bool>> Is(FilterCondition condition);
-        protected abstract Expression<Func<Conversation, bool>> Before(FilterCondition condition);
-        protected abstract Expression<Func<Conversation, bool>> After(FilterCondition condition);
-        protected abstract Expression<Func<Conversation, bool>> Between(FilterCondition condition);
+        protected abstract Expression<Func<Conversation, bool>> Is(string Date);
+        protected abstract Expression<Func<Conversation, bool>> Before(string Date);
+        protected abstract Expression<Func<Conversation, bool>> After(string Date);
+        protected abstract Expression<Func<Conversation, bool>> Between(string Date);
     }
 }

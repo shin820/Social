@@ -17,6 +17,6 @@ namespace Social.Infrastructure.Enum
         Before = 7,
         After = 8,
         Between = 9,
-        LogicalExpression = 10
+        RegularExpression = 10
     }
 }
