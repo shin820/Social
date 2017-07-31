@@ -20,7 +20,7 @@ namespace Social.Application.AppServices
         FacebookPostMessageDto GetFacebookPostMessages(int conversationId);
         IList<TwitterDirectMessageDto> GetTwitterDirectMessages(int conversationId);
         IList<TwitterTweetMessageDto> GetTwitterTweetMessages(int conversationId);
-        void ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, int parentId, string message);
+        void ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, string message);
         void ReplyTwitterDirectMessage(int conversationId, int tweetAccountId, string message);
         void ReplyFacebookMessage(int conversationId, string content);
         void ReplyFacebookPostOrComment(int conversationId, int parentId, string content);
@@ -152,9 +152,9 @@ namespace Social.Application.AppServices
             return result;
         }
 
-        public void ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, int parentId, string message)
+        public void ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, string message)
         {
-            _messageService.ReplyTwitterTweetMessage(conversationId, tweetAccountId, parentId, message);
+            _messageService.ReplyTwitterTweetMessage(conversationId, tweetAccountId, message);
         }
 
         public void ReplyTwitterDirectMessage(int conversationId, int tweetAccountId, string message)

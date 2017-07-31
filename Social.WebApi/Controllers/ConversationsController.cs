@@ -119,9 +119,9 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("{conversationId}/twitter-tweet-messages")]
-        public IHttpActionResult PostTwitterTweetMessages(int conversationId, [Required]string message, [Required] int parentId, [Required]int twitterAccountId)
+        public IHttpActionResult PostTwitterTweetMessages(int conversationId, [Required]string message, [Required]int twitterAccountId)
         {
-            _messageAppService.ReplyTwitterTweetMessage(conversationId, twitterAccountId, parentId, message);
+            _messageAppService.ReplyTwitterTweetMessage(conversationId, twitterAccountId, message);
             return Ok();
         }
     }
