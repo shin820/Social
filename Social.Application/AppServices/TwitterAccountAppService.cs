@@ -61,7 +61,8 @@ namespace Social.Application.AppServices
                     Token = user.Credentials.AccessToken,
                     TokenSecret = user.Credentials.AccessTokenSecret,
                     IfConvertMessageToConversation = true,
-                    IfConvertTweetToConversation = true
+                    IfConvertTweetToConversation = true,
+                    IfEnable = true
                 };
 
                 var socialUser = _socialUserService.Get(user.IdStr, SocialUserSource.Twitter, SocialUserType.Customer);
