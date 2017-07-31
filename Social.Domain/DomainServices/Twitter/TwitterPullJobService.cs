@@ -31,7 +31,7 @@ namespace Social.Domain.DomainServices
         public async Task PullDirectMessages(SocialAccount account)
         {
             int maxNumberOfMessagesRetrieve = 50;
-            DateTime since = DateTime.UtcNow.AddMinutes(30);
+            DateTime since = DateTime.UtcNow.AddDays(-1);
             Auth.SetUserCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret, account.Token, account.TokenSecret);
 
             var recivedMessages = PullReceivedDirectMessages(account, maxNumberOfMessagesRetrieve, since);
@@ -117,7 +117,7 @@ namespace Social.Domain.DomainServices
         public async Task PullTweets(SocialAccount account)
         {
             int maxNumberOfTweetsRetrieve = 10;
-            DateTime since = DateTime.UtcNow.AddMinutes(-30);
+            DateTime since = DateTime.UtcNow.AddDays(-1);
             Auth.SetUserCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret, account.Token, account.TokenSecret);
 
             var receivedTweets = PullMentionTimeLineTweets(account, maxNumberOfTweetsRetrieve, since);
