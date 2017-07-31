@@ -46,7 +46,7 @@ namespace Social.Application.AppServices
 
         public async Task ProcessTweet(SocialAccount account, ITweet currentTweet)
         {
-            await UnitOfWorkManager.RunWithNewTransaction(account.SiteId, async () =>
+            await UnitOfWorkManager.RunWithoutTransaction(account.SiteId, async () =>
             {
                 await _twitterService.ProcessTweet(account, currentTweet);
             });

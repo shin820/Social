@@ -69,16 +69,16 @@ namespace Social.Job.Jobs
             foreach (var facebookAccount in facebookAccounts)
             {
                 //ScheduleJob<FacebookWebHookJob>(facebookAccount, context);
-                ScheduleJob<PullTaggedVisitorPostsJob>(facebookAccount, context, CronTrigger(AppSettings.FacebookPullTaggedVisitorPostsJobCronExpression));
-                ScheduleJob<PullVisitorPostsFromFeedJob>(facebookAccount, context, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
-                ScheduleJob<PullMassagesJob>(facebookAccount, context, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
+                //ScheduleJob<PullTaggedVisitorPostsJob>(facebookAccount, context, CronTrigger(AppSettings.FacebookPullTaggedVisitorPostsJobCronExpression));
+                //ScheduleJob<PullVisitorPostsFromFeedJob>(facebookAccount, context, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
+                //ScheduleJob<PullMassagesJob>(facebookAccount, context, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
             }
 
             foreach (var twitterAccount in twitterAccounts)
             {
-                ScheduleJob<TwitterUserStreamJob>(twitterAccount, context, StartNowTrigger());
-                ScheduleJob<TwitterPullDirectMessagesJob>(twitterAccount, context, CronTrigger(AppSettings.TwitterPullDirectMessagesJobCronExpression));
-                ScheduleJob<TwitterPullTweetsJob>(twitterAccount, context, CronTrigger(AppSettings.TwitterPullTweetsJobCronExpression));
+                //ScheduleJob<TwitterUserStreamJob>(twitterAccount, context, StartNowTrigger());
+                //ScheduleJob<TwitterPullDirectMessagesJob>(twitterAccount, context, CronTrigger(AppSettings.TwitterPullDirectMessagesJobCronExpression));
+                ScheduleJob<TwitterPullTweetsJob>(twitterAccount, context, StartNowTrigger());
             }
         }
 

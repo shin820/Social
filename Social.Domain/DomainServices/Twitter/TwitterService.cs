@@ -211,22 +211,36 @@ namespace Social.Domain.DomainServices
                 return;
             }
 
-            tweets = tweets.OrderBy(t => t.CreatedAt).ToList();
+            tweets = tweets.OrderByDescending(t => t.CreatedAt).ToList();
+            var socialAccounts = _socialUserService.FindAll()
+                .Where(t => t.Type == SocialUserType.IntegrationAccount && t.Source == SocialUserSource.Twitter)
+                .ToList();
+
             foreach (var tweet in tweets)
             {
-                await AddTweet(account, tweets, tweet);
-                CurrentUnitOfWork.SaveChanges();
+                await UnitOfWorkManager.RunWithNewTransaction(account.SiteId, async () =>
+                {
+                    await AddTweet(account, socialAccounts, tweets, tweet);
+                    CurrentUnitOfWork.SaveChanges();
+                });
             }
         }
 
-        private async Task AddTweet(SocialAccount account, List<ITweet> tweets, ITweet currentTweet)
+        private async Task AddTweet(SocialAccount account, List<SocialUser> socialAccounts, List<ITweet> tweets, ITweet currentTweet)
         {
             var tweetIds = tweets.Select(t => t.IdStr);
             var currentTweetSender = currentTweet.CreatedBy.IdStr;
             var currentTweetRecipient = currentTweet.InReplyToStatusId != null ? currentTweet.InReplyToUserIdStr : account.SocialUser.OriginalId;
 
+            // if a new customer replied customer and mentioned integration account , the recipient should be integration account.
+            if (!socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetSender) && !socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetRecipient))
+            {
+                currentTweetRecipient = account.SocialUser.OriginalId;
+            }
+
             // integration account sent to intergration account
-            if (currentTweetSender == currentTweetRecipient && currentTweetSender == account.SocialUser.OriginalId)
+            if (socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetSender)
+                && socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetRecipient))
             {
                 var conversations = _conversationService.FindAll().Include(t => t.Messages)
                     .Where(c =>
@@ -240,7 +254,8 @@ namespace Social.Domain.DomainServices
             }
 
             // integration account sent to customer
-            if (currentTweetSender != currentTweetRecipient && currentTweetSender == account.SocialUser.OriginalId)
+            if (socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetSender)
+                && !socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetRecipient))
             {
                 var inReplyToUser = tweets.FirstOrDefault(t => t.Id == currentTweet.InReplyToStatusId)?.CreatedBy;
                 if (inReplyToUser == null)
@@ -248,11 +263,12 @@ namespace Social.Domain.DomainServices
                     inReplyToUser = User.GetUserFromId(long.Parse(currentTweetRecipient));
                 }
 
+                var socialAccountIds = socialAccounts.Select(t => t.Id).ToList();
                 var recipient = await _socialUserService.GetOrCreateTwitterUser(inReplyToUser);
                 var conversations = _conversationService.FindAll().Include(t => t.Messages)
                     .Where(c => c.Messages.Any(m => tweetIds.Contains(m.OriginalId)
-                    && (m.SenderId == recipient.Id || m.ReceiverId == recipient.Id)
-                    )).ToList();
+                     && (m.SenderId == recipient.Id || m.ReceiverId == recipient.Id))
+                    ).ToList();
                 var message = ConvertToMessage(currentTweet);
                 message.SenderId = account.Id;
                 message.ReceiverId = recipient.Id;
@@ -260,30 +276,18 @@ namespace Social.Domain.DomainServices
             }
 
             // customer sent to integration account
-            if (currentTweetSender != currentTweetRecipient && currentTweetSender != account.SocialUser.OriginalId)
+            if (!socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetSender)
+                && socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetRecipient))
             {
+                var socialAccountIds = socialAccounts.Select(t => t.Id).ToList();
                 var sender = await _socialUserService.GetOrCreateTwitterUser(currentTweet.CreatedBy);
                 var conversations = _conversationService.FindAll().Include(t => t.Messages)
                     .Where(c => c.Messages.Any(m => tweetIds.Contains(m.OriginalId)
-                    && (m.SenderId == sender.Id || m.ReceiverId == sender.Id)
-                    )).ToList();
+                    && (m.SenderId == sender.Id || m.ReceiverId == sender.Id))
+                    ).ToList();
                 var message = ConvertToMessage(currentTweet);
                 message.SenderId = sender.Id;
                 message.ReceiverId = account.Id;
-                SaveConversations(account, conversations, message);
-            }
-
-            // customer sent to customer
-            if (currentTweetSender == currentTweetRecipient && currentTweetSender != account.SocialUser.OriginalId)
-            {
-                var user = await _socialUserService.GetOrCreateTwitterUser(currentTweet.CreatedBy);
-                var conversations = _conversationService.FindAll().Include(t => t.Messages)
-                    .Where(c => c.Messages.Any(m => tweetIds.Contains(m.OriginalId)
-                    && (m.SenderId == user.Id || m.ReceiverId == user.Id)
-                    )).ToList();
-                var message = ConvertToMessage(currentTweet);
-                message.SenderId = user.Id;
-                message.ReceiverId = user.Id;
                 SaveConversations(account, conversations, message);
             }
         }
@@ -299,10 +303,13 @@ namespace Social.Domain.DomainServices
                         continue;
                     }
                     conversation.Messages.Add(message);
-                    conversation.IfRead = false;
-                    conversation.Status = message.SenderId == account.Id ? ConversationStatus.PendingExternal : ConversationStatus.PendingInternal;
-                    conversation.LastMessageSenderId = message.SenderId;
-                    conversation.LastMessageSentTime = message.SendTime;
+                    if (message.SendTime > conversation.LastMessageSentTime)
+                    {
+                        conversation.IfRead = false;
+                        conversation.Status = message.SenderId == account.Id ? ConversationStatus.PendingExternal : ConversationStatus.PendingInternal;
+                        conversation.LastMessageSenderId = message.SenderId;
+                        conversation.LastMessageSentTime = message.SendTime;
+                    }
                     _conversationService.Update(conversation);
                 }
             }
