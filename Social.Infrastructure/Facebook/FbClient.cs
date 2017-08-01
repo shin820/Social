@@ -166,6 +166,21 @@ namespace Social.Infrastructure.Facebook
             }
         }
 
+        public static string PublishPost(string pageId, string token, string message)
+        {
+            FacebookClient client = new FacebookClient(token);
+            string url = $"/{pageId}/feed";
+            try
+            {
+                dynamic result = client.Post(url, new { message = message });
+                return result.id;
+            }
+            catch (FacebookOAuthException ex)
+            {
+                return string.Empty;
+            }
+        }
+
         public static string PublishMessage(string token, string fbConversationId, string message)
         {
             FacebookClient client = new FacebookClient(token);
