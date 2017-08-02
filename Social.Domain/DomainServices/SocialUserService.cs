@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tweetinvi;
 using Tweetinvi.Models;
 
 namespace Social.Domain.DomainServices
@@ -15,6 +16,7 @@ namespace Social.Domain.DomainServices
     {
         //Task<SocialUser> GetOrCreateSocialUser(int siteId, string token, string fbUserId, string fbUserEmail);
         Task<SocialUser> GetOrCreateTwitterUser(IUser twitterUser);
+        Task<SocialUser> GetOrCreateTwitterUser(string orignalUserId);
         SocialUser Get(string originalId, SocialUserSource souce, SocialUserType type);
     }
 
@@ -72,6 +74,30 @@ namespace Social.Domain.DomainServices
                 .FirstOrDefault();
             if (user == null)
             {
+                user = new SocialUser
+                {
+                    OriginalId = twitterUser.IdStr,
+                    Name = twitterUser.Name,
+                    ScreenName = twitterUser.ScreenName,
+                    Avatar = twitterUser.ProfileImageUrl,
+                    Source = SocialUserSource.Twitter,
+                    Type = SocialUserType.Customer,
+                    OriginalLink = twitterUser.Url
+                };
+                await Repository.InsertAsync(user);
+                CurrentUnitOfWork.SaveChanges();
+            }
+            return user;
+        }
+
+        public async Task<SocialUser> GetOrCreateTwitterUser(string orignalUserId)
+        {
+            var user = Repository.FindAll()
+                .Where(t => t.OriginalId == orignalUserId && t.Source == SocialUserSource.Twitter && t.IsDeleted == false)
+                .FirstOrDefault();
+            if (user == null)
+            {
+                IUser twitterUser = User.GetUserFromId(long.Parse(orignalUserId));
                 user = new SocialUser
                 {
                     OriginalId = twitterUser.IdStr,

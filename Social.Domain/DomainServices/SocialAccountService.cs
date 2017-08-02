@@ -16,6 +16,8 @@ namespace Social.Domain.DomainServices
     {
         SocialAccount FindAccount(int id, SocialUserSource source);
         Task<SocialAccount> GetAccountAsync(SocialUserSource source, string originalId);
+        IQueryable<SocialAccount> FindAllTwitterAccounts();
+        IQueryable<SocialAccount> FindAllFacebookAccounts();
     }
 
     public class SocialAccountService : DomainService<SocialAccount>, ISocialAccountService
@@ -30,6 +32,26 @@ namespace Social.Domain.DomainServices
         {
             _siteSocialAccountRepo = siteSocialAccountRepo;
             _socialUserRepo = socialUserRepo;
+        }
+
+        public override IQueryable<SocialAccount> FindAll()
+        {
+            return Repository.FindAll().Include(t => t.SocialUser).Where(t => t.IsDeleted == false);
+        }
+
+        public override SocialAccount Find(int id)
+        {
+            return Repository.FindAll().Include(t => t.SocialUser).Where(t => t.IsDeleted == false).FirstOrDefault(t => t.Id == id);
+        }
+
+        public IQueryable<SocialAccount> FindAllTwitterAccounts()
+        {
+            return FindAll().Where(t => t.SocialUser.Source == SocialUserSource.Twitter);
+        }
+
+        public IQueryable<SocialAccount> FindAllFacebookAccounts()
+        {
+            return FindAll().Where(t => t.SocialUser.Source == SocialUserSource.Facebook);
         }
 
         public SocialAccount FindAccount(int id, SocialUserSource source)
@@ -131,16 +153,6 @@ namespace Social.Domain.DomainServices
                     }
                 });
             }
-        }
-
-        public override IQueryable<SocialAccount> FindAll()
-        {
-            return Repository.FindAll().Include(t => t.SocialUser).Where(t => t.IsDeleted == false);
-        }
-
-        public override SocialAccount Find(int id)
-        {
-            return Repository.FindAll().Include(t => t.SocialUser).Where(t => t.IsDeleted == false).FirstOrDefault(t => t.Id == id);
         }
 
         private void ApplyDefaultValue(SocialAccount entity)

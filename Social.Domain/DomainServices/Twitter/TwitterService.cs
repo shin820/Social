@@ -1,4 +1,5 @@
 ﻿using Framework.Core;
+using Social.Domain.DomainServices.Twitter;
 using Social.Domain.Entities;
 using Social.Infrastructure;
 using Social.Infrastructure.Enum;
@@ -35,16 +36,21 @@ namespace Social.Domain.DomainServices
         private IConversationService _conversationService;
         private IMessageService _messageService;
         private ISocialUserService _socialUserService;
+        private ISocialAccountService _socialAccountService;
+        private TweetTreeWalker _twitterTreeWalker;
 
         public TwitterService(
             IConversationService conversationService,
             IMessageService messageService,
-            ISocialUserService socialUserService
+            ISocialUserService socialUserService,
+            ISocialAccountService socialAccountService
             )
         {
             _conversationService = conversationService;
             _messageService = messageService;
             _socialUserService = socialUserService;
+            _socialAccountService = socialAccountService;
+            _twitterTreeWalker = new TweetTreeWalker();
         }
 
 
@@ -153,36 +159,35 @@ namespace Social.Domain.DomainServices
             return message;
         }
 
-        public async Task ProcessTweet(SocialAccount account, ITweet currentTweet)
+        public async Task ProcessTweet(SocialAccount currentAccount, ITweet currentTweet)
         {
-            if (!ShouldProcess(account, currentTweet))
+            IList<SocialAccount> allAccounts = _socialAccountService.FindAllTwitterAccounts().ToList();
+
+            if (!ShouldProcess(currentAccount, allAccounts, currentTweet))
             {
                 return;
             }
 
-            List<ITweet> tweets = new List<ITweet>();
-
-            RecursivelyFillTweet(tweets, currentTweet);
-
-            bool ifAllTweetsCreateByAccount = tweets.All(t => t.CreatedBy.IdStr == account.SocialUser.OriginalId);
-            if (ifAllTweetsCreateByAccount)
-            {
-                return;
-            }
-
-            await AddTweets(account, tweets);
+            List<ITweet> tweets = _twitterTreeWalker.BuildTweetTree(currentTweet);
+            await AddTweets(currentAccount, allAccounts, tweets);
         }
 
-        private bool ShouldProcess(SocialAccount account, ITweet currentTweet)
+        private bool ShouldProcess(SocialAccount currentAccount, IList<SocialAccount> allAccounts, ITweet currentTweet)
         {
-            // ignore if typical tweet is sent by integration account.
-            if (IsTypicalTweetCreateByIntegrationAccount(account, currentTweet))
+            // ignore if first tweet is sent by integration account.
+            if (IsFirstTweetCreateByCurrentIntegrationAccount(currentAccount, currentTweet))
+            {
+                return false;
+            }
+
+            // ignore if first tweet is sent by other integration account.
+            if (IsFristTweetCreateByOtherIntegrationAccount(currentAccount, allAccounts, currentTweet))
             {
                 return false;
             }
 
             // ignore if tweet is created by another but not mention me.
-            if (IsTweetCreatedByAnotherButDoNotMentionIntegrationAccount(account, currentTweet))
+            if (IsTweetCreatedByAnotherButDoNotMentionIntegrationAccount(currentAccount, currentTweet))
             {
                 return false;
             }
@@ -190,21 +195,27 @@ namespace Social.Domain.DomainServices
             return true;
         }
 
-        private bool IsTypicalTweetCreateByIntegrationAccount(SocialAccount account, ITweet currentTweet)
+        private bool IsFirstTweetCreateByCurrentIntegrationAccount(SocialAccount currentAccount, ITweet currentTweet)
         {
-            bool isFirstTweetSendByIntegrationAccount = currentTweet.InReplyToStatusId == null
-                 && currentTweet.CreatedBy.IdStr == account.SocialUser.OriginalId;
-            return isFirstTweetSendByIntegrationAccount;
+            bool isFirstTweet = currentTweet.InReplyToStatusId == null;
+            return isFirstTweet && currentTweet.CreatedBy.IdStr == currentAccount.SocialUser.OriginalId;
         }
 
-        private bool IsTweetCreatedByAnotherButDoNotMentionIntegrationAccount(SocialAccount account, ITweet currentTweet)
+        private bool IsFristTweetCreateByOtherIntegrationAccount(SocialAccount currentAccount, IList<SocialAccount> allAccounts, ITweet currentTweet)
         {
-            bool isCreatedByAnother = currentTweet.CreatedBy.IdStr != account.SocialUser.OriginalId;
-            bool isMentionMe = currentTweet.UserMentions.Any(t => t.IdStr == account.SocialUser.OriginalId);
+            var otherAccountOrginalIds = allAccounts.Where(t => t.Id != currentAccount.Id).Select(t => t.SocialUser.OriginalId);
+            bool isFirstTweet = currentTweet.InReplyToStatusId == null;
+            return isFirstTweet && otherAccountOrginalIds.Contains(currentTweet.CreatedBy.IdStr);
+        }
+
+        private bool IsTweetCreatedByAnotherButDoNotMentionIntegrationAccount(SocialAccount currentAccount, ITweet currentTweet)
+        {
+            bool isCreatedByAnother = currentTweet.CreatedBy.IdStr != currentAccount.SocialUser.OriginalId;
+            bool isMentionMe = currentTweet.UserMentions.Any(t => t.IdStr == currentAccount.SocialUser.OriginalId);
             return isCreatedByAnother && !isMentionMe;
         }
 
-        private async Task AddTweets(SocialAccount account, List<ITweet> tweets)
+        private async Task AddTweets(SocialAccount currentAccount, IList<SocialAccount> allAccounts, List<ITweet> tweets)
         {
             if (!tweets.Any())
             {
@@ -212,84 +223,120 @@ namespace Social.Domain.DomainServices
             }
 
             tweets = tweets.OrderByDescending(t => t.CreatedAt).ToList();
-            var socialAccounts = _socialUserService.FindAll()
-                .Where(t => t.Type == SocialUserType.IntegrationAccount && t.Source == SocialUserSource.Twitter)
-                .ToList();
 
             foreach (var tweet in tweets)
             {
-                await UnitOfWorkManager.RunWithNewTransaction(account.SiteId, async () =>
+                // if no intergration account involved.
+                if (!IsIntergrationAccountInvolved(tweet, allAccounts))
                 {
-                    await AddTweet(account, socialAccounts, tweets, tweet);
+                    continue;
+                }
+
+                await UnitOfWorkManager.RunWithNewTransaction(currentAccount.SiteId, async () =>
+                {
+                    await AddTweet(currentAccount, allAccounts, tweets, tweet);
                     CurrentUnitOfWork.SaveChanges();
                 });
             }
         }
 
-        private async Task AddTweet(SocialAccount account, List<SocialUser> socialAccounts, List<ITweet> tweets, ITweet currentTweet)
+        private bool IsIntergrationAccountInvolved(ITweet tweet, IList<SocialAccount> allAccounts)
         {
-            var tweetIds = tweets.Select(t => t.IdStr);
-            var currentTweetSender = currentTweet.CreatedBy.IdStr;
-            var currentTweetRecipient = currentTweet.InReplyToStatusId != null ? currentTweet.InReplyToUserIdStr : account.SocialUser.OriginalId;
+            return IsIntegrationAccount(tweet.CreatedBy.IdStr, allAccounts) || tweet.UserMentions.Any(t => IsIntegrationAccount(t.IdStr, allAccounts));
+        }
 
-            // if a new customer replied customer and mentioned integration account , the recipient should be integration account.
-            if (!socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetSender) && !socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetRecipient))
+        private async Task AddTweet(SocialAccount account, IList<SocialAccount> socialAccounts, List<ITweet> tweets, ITweet currentTweet)
+        {
+            var senderOriginalId = currentTweet.CreatedBy.IdStr;
+            var receiverOrignalId = GetReceiverOriginalId(account, socialAccounts, currentTweet);
+            if (string.IsNullOrEmpty(receiverOrignalId))
             {
-                currentTweetRecipient = account.SocialUser.OriginalId;
+                return;
             }
-
             // integration account sent to intergration account
-            if (socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetSender)
-                && socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetRecipient))
+            if (IsIntegrationAccount(senderOriginalId, socialAccounts)
+                && IsIntegrationAccount(receiverOrignalId, socialAccounts))
             {
-                var conversations = _conversationService.FindAll().Include(t => t.Messages)
-                    .Where(c =>
-                    c.Messages.Any(m => tweetIds.Contains(m.OriginalId) &&
-                    (m.SenderId == account.Id || m.ReceiverId == account.Id))
-                    ).ToList();
-                var message = ConvertToMessage(currentTweet);
-                message.SenderId = account.Id;
-                message.ReceiverId = account.Id;
-                SaveConversations(account, conversations, message);
+                List<string> customerOriginalIds = _twitterTreeWalker.FindCustomerOriginalIdsInTweetTree(currentTweet, tweets, socialAccounts);
+                if (!customerOriginalIds.Any())
+                {
+                    return;
+                }
+
+                await SaveTweet(account, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
             }
 
             // integration account sent to customer
-            if (socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetSender)
-                && !socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetRecipient))
+            if (IsIntegrationAccount(senderOriginalId, socialAccounts)
+                && !IsIntegrationAccount(receiverOrignalId, socialAccounts))
             {
-                var inReplyToUser = tweets.FirstOrDefault(t => t.Id == currentTweet.InReplyToStatusId)?.CreatedBy;
-                if (inReplyToUser == null)
-                {
-                    inReplyToUser = User.GetUserFromId(long.Parse(currentTweetRecipient));
-                }
-
-                var socialAccountIds = socialAccounts.Select(t => t.Id).ToList();
-                var recipient = await _socialUserService.GetOrCreateTwitterUser(inReplyToUser);
-                var conversations = _conversationService.FindAll().Include(t => t.Messages)
-                    .Where(c => c.Messages.Any(m => tweetIds.Contains(m.OriginalId)
-                     && (m.SenderId == recipient.Id || m.ReceiverId == recipient.Id))
-                    ).ToList();
-                var message = ConvertToMessage(currentTweet);
-                message.SenderId = account.Id;
-                message.ReceiverId = recipient.Id;
-                SaveConversations(account, conversations, message);
+                var customerOriginalIds = new List<string> { receiverOrignalId };
+                await SaveTweet(account, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
             }
 
             // customer sent to integration account
-            if (!socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetSender)
-                && socialAccounts.Any(t => t.OriginalId.ToString() == currentTweetRecipient))
+            if (!IsIntegrationAccount(senderOriginalId, socialAccounts)
+                && IsIntegrationAccount(receiverOrignalId, socialAccounts))
             {
-                var socialAccountIds = socialAccounts.Select(t => t.Id).ToList();
-                var sender = await _socialUserService.GetOrCreateTwitterUser(currentTweet.CreatedBy);
-                var conversations = _conversationService.FindAll().Include(t => t.Messages)
-                    .Where(c => c.Messages.Any(m => tweetIds.Contains(m.OriginalId)
-                    && (m.SenderId == sender.Id || m.ReceiverId == sender.Id))
-                    ).ToList();
-                var message = ConvertToMessage(currentTweet);
-                message.SenderId = sender.Id;
-                message.ReceiverId = account.Id;
-                SaveConversations(account, conversations, message);
+                var customerOriginalIds = new List<string> { senderOriginalId };
+                await SaveTweet(account, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
             }
+        }
+
+        private async Task SaveTweet(SocialAccount account, ITweet currentTweet, List<ITweet> tweets, string senderOriginalId, string receiverOriginalId, List<string> customerOrginalIds)
+        {
+            var sender = await _socialUserService.GetOrCreateTwitterUser(senderOriginalId);
+            var receiver = await _socialUserService.GetOrCreateTwitterUser(receiverOriginalId);
+            var conversations = FindConversations(tweets, customerOrginalIds);
+            var message = ConvertToMessage(currentTweet);
+            message.SenderId = sender.Id;
+            message.ReceiverId = receiver.Id;
+            SaveConversations(account, conversations, message);
+        }
+
+        private IList<Conversation> FindConversations(IList<ITweet> tweets, List<string> customerOriginalIds)
+        {
+            List<string> tweetIds = tweets.Select(t => t.IdStr).ToList();
+            return _conversationService.FindAll().Include(t => t.Messages)
+                  .Where(c => c.Messages.Any(m => tweetIds.Contains(m.OriginalId)
+                  && (customerOriginalIds.Contains(m.Sender.OriginalId) || customerOriginalIds.Contains(m.Receiver.OriginalId)))
+                  ).ToList();
+        }
+
+        private string GetReceiverOriginalId(SocialAccount account, IList<SocialAccount> socialAccounts, ITweet currentTweet)
+        {
+            List<string> accountOrignalIds = socialAccounts.Select(t => t.SocialUser.OriginalId).ToList();
+
+            // if first tweet sent by integraton account and didn't mentioned any one, 
+            // the recipient should be the integraiton account himself.
+            if (!currentTweet.UserMentions.Any())
+            {
+                return account.SocialUser.OriginalId;
+            }
+
+            // if tweet sent by customer, the reciver should be the first integration account in the user mentions.
+            if (!IsIntegrationAccount(currentTweet.CreatedBy.IdStr, socialAccounts))
+            {
+                return currentTweet.UserMentions.Where(t => accountOrignalIds.Contains(t.IdStr))
+                    .Select(t => t.IdStr).FirstOrDefault();
+            }
+            // if tweet sent by integration account, the reciver should either be customer or the first integration account in the user mentions.
+            else
+            {
+                var receiverOriginalId = currentTweet.UserMentions.Where(t => !accountOrignalIds.Contains(t.IdStr))
+                    .Select(t => t.IdStr).FirstOrDefault();
+                if (!string.IsNullOrEmpty(receiverOriginalId))
+                {
+                    return receiverOriginalId;
+                }
+
+                return currentTweet.UserMentions.Select(t => t.IdStr).FirstOrDefault();
+            }
+        }
+
+        private bool IsIntegrationAccount(string originalId, IList<SocialAccount> socialAccounts)
+        {
+            return socialAccounts.Any(t => t.SocialUser.OriginalId == originalId);
         }
 
         private void SaveConversations(SocialAccount account, IList<Conversation> conversations, Entities.Message message)
@@ -327,27 +374,6 @@ namespace Social.Domain.DomainServices
                 };
                 conversation.Messages.Add(message);
                 _conversationService.AddConversation(account, conversation);
-            }
-        }
-
-        private void RecursivelyFillTweet(IList<ITweet> tweets, ITweet tweet)
-        {
-            tweets.Add(tweet);
-
-            // for performance reason, we just get 10 parent tweet in the tree.
-            if (tweets.Count >= 10)
-            {
-                return;
-            }
-
-            if (tweet.InReplyToStatusId != null)
-            {
-                ITweet inReplyToTweet = Tweet.GetTweet(tweet.InReplyToStatusId.Value);
-                if (inReplyToTweet == null)
-                {
-                    return;
-                }
-                RecursivelyFillTweet(tweets, inReplyToTweet);
             }
         }
 
