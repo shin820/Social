@@ -51,7 +51,7 @@ namespace Social.Domain.DomainServices
         {
             List<IMessage> messages = new List<IMessage>();
             var receivedDirectMessages = Tweetinvi.Message.GetLatestMessagesReceived(maxNumberOfMessagesRetrieve);
-            while (receivedDirectMessages.Any())
+            while (receivedDirectMessages != null && receivedDirectMessages.Any())
             {
                 if (receivedDirectMessages.First().CreatedAt.ToUniversalTime() <= since)
                 {
@@ -84,7 +84,7 @@ namespace Social.Domain.DomainServices
         {
             List<IMessage> messages = new List<IMessage>();
             var sentDirectMessages = Tweetinvi.Message.GetLatestMessagesSent(maxNumberOfMessagesRetrieve);
-            while (sentDirectMessages.Any())
+            while (sentDirectMessages != null && sentDirectMessages.Any())
             {
                 if (sentDirectMessages.First().CreatedAt.ToUniversalTime() <= since)
                 {
@@ -138,7 +138,7 @@ namespace Social.Domain.DomainServices
         {
             var timeLineTweets = new List<ITweet>();
             var tweets = Timeline.GetUserTimeline(long.Parse(account.SocialUser.OriginalId), maxNumberOfTweetsRetrieve);
-            while (tweets.Any())
+            while (tweets != null && tweets.Any())
             {
                 if (tweets.First().CreatedAt <= since)
                 {
@@ -169,7 +169,7 @@ namespace Social.Domain.DomainServices
         {
             var mentions = new List<ITweet>();
             var tweets = Timeline.GetMentionsTimeline(maxNumberOfTweetsRetrieve);
-            while (tweets.Any())
+            while (tweets != null && tweets.Any())
             {
                 if (tweets.First().CreatedAt.ToUniversalTime() <= since)
                 {

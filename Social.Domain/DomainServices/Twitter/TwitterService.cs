@@ -429,11 +429,27 @@ namespace Social.Domain.DomainServices
                 type = MessageAttachmentType.Video;
             }
 
+            if (media.VideoDetails != null && media.VideoDetails.Variants.Any())
+            {
+                var video = media.VideoDetails.Variants.FirstOrDefault();
+
+                return new MessageAttachment
+                {
+                    Type = type,
+                    Url = video.URL,
+                    PreviewUrl = media.MediaURL,
+                    MimeType = new Uri(video.URL).GetMimeType(),
+                    OriginalId = media.IdStr,
+                    OriginalLink = media.URL
+                };
+            }
+
             return new MessageAttachment
             {
                 Type = type,
-                Url = media.URL,
+                Url = media.MediaURL,
                 PreviewUrl = media.MediaURL,
+                MimeType = new Uri(media.MediaURL).GetMimeType(),
                 OriginalId = media.IdStr,
                 OriginalLink = media.URL
             };
