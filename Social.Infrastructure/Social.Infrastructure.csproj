@@ -101,6 +101,7 @@
     <Compile Include="Enum\SocialUserType.cs" />
     <Compile Include="Enum\SoicalUserSource.cs" />
     <Compile Include="Facebook\FbConversation.cs" />
+    <Compile Include="IHaveCreatedBy.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="SocialExceptions.cs" />
     <Compile Include="Facebook\FacebookWebHookClient.cs" />

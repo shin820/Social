@@ -22,7 +22,7 @@ namespace Social.WebApi.Controllers
         }
 
         [Route()]
-        public List<FilterDto> GetFilters()
+        public List<FilterListDto> GetFilters()
         {
             return _appService.FindAll();
         }

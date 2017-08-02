@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using Framework.Core;
 using Social.Application.Dto;
 using Social.Domain;
+using Social.Domain.DomainServices;
 using Social.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -16,35 +17,41 @@ namespace Social.Application.AppServices
 
     public interface IFilterAppService
     {
-        List<FilterDto> FindAll();
+        List<FilterListDto> FindAll();
         FilterDetailsDto Find(int id);
         FilterDetailsDto Insert(FilterCreateDto createDto);
         void Delete(int id);
-        void Update(int id,FilterUpdateDto updateDto);
+        void Update(int id, FilterUpdateDto updateDto);
     }
 
 
     public class FilterAppService : AppService, IFilterAppService
     {
         private IFilterService _domainService;
+        private IAgentService _agentService;
 
-        public FilterAppService(IFilterService domainService)
+        public FilterAppService(
+            IFilterService domainService,
+            IAgentService agentService
+            )
         {
             _domainService = domainService;
+            _agentService = agentService;
         }
 
-        public List<FilterDto> FindAll()
+        public List<FilterListDto> FindAll()
         {
-            List<Filter> Filters = _domainService.FindAll().Include(t => t.Conditions).Where(u => u.IfPublic == true || u.CreatedBy == UserContext.UserId).ToList();
-            List<FilterDto> FilterDtos = new List<FilterDto>();
-            foreach (var Filter in Filters)
+            List<Filter> filters = _domainService.FindAll().Include(t => t.Conditions).Where(u => u.IfPublic == true || u.CreatedBy == UserContext.UserId).ToList();
+            List<FilterListDto> filterDtoes = new List<FilterListDto>();
+            foreach (var filter in filters)
             {
-                var FilterDto = Mapper.Map<FilterDto>(Filter);
-                FilterDto.ConversationNum = _domainService.GetConversationNum(Filter);
-                FilterDtos.Add(FilterDto);
-
+                var FilterDto = Mapper.Map<FilterListDto>(filter);
+                FilterDto.ConversationNum = _domainService.GetConversationNum(filter);
+                filterDtoes.Add(FilterDto);
             }
-            return FilterDtos;
+            _agentService.FillCreatedByName(filterDtoes);
+
+            return filterDtoes;
         }
 
         public FilterDetailsDto Find(int id)
@@ -74,7 +81,7 @@ namespace Social.Application.AppServices
             _domainService.Delete(id);
         }
 
-        public void Update(int id,FilterUpdateDto updateDto)
+        public void Update(int id, FilterUpdateDto updateDto)
         {
             var updateFilter = _domainService.Find(id);
 

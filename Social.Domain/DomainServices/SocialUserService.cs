@@ -83,6 +83,7 @@ namespace Social.Domain.DomainServices
                     OriginalLink = twitterUser.Url
                 };
                 await Repository.InsertAsync(user);
+                CurrentUnitOfWork.SaveChanges();
             }
             return user;
         }
