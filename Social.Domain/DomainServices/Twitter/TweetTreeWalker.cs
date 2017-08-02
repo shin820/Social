@@ -46,6 +46,10 @@ namespace Social.Domain.DomainServices.Twitter
         private List<string> FindCustomerOriginalIdsFromAncestorsInTweetTree(ITweet currentTweet, List<ITweet> tweets, IList<SocialAccount> socialAccounts)
         {
             List<string> customerOriginalIds = new List<string>();
+            if (currentTweet == null)
+            {
+                return customerOriginalIds;
+            }
 
             if (!IsIntegrationAccount(currentTweet.CreatedBy.IdStr, socialAccounts))
             {

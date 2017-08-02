@@ -65,7 +65,7 @@ namespace Social.Application.AppServices
                     IfEnable = true
                 };
 
-                var socialUser = _socialUserService.Get(user.IdStr, SocialUserSource.Twitter, SocialUserType.Customer);
+                var socialUser = _socialUserService.FindByOriginalId(user.IdStr, SocialUserSource.Twitter, SocialUserType.Customer);
                 if (socialUser != null)
                 {
                     //convert customer to integration account;
