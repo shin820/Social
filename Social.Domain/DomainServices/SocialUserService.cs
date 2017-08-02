@@ -1,5 +1,6 @@
 ﻿using Framework.Core;
 using Social.Domain.Entities;
+using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using Social.Infrastructure.Facebook;
 using System;
@@ -87,7 +88,7 @@ namespace Social.Domain.DomainServices
                         Avatar = twitterUser.ProfileImageUrl,
                         Source = SocialUserSource.Twitter,
                         Type = SocialUserType.Customer,
-                        OriginalLink = twitterUser.Url
+                        OriginalLink = TwitterHelper.GetUserUrl(twitterUser.ScreenName)
                     };
                     await Repository.InsertAsync(user);
                     CurrentUnitOfWork.SaveChanges();
@@ -115,7 +116,7 @@ namespace Social.Domain.DomainServices
                             Avatar = twitterUser.ProfileImageUrl,
                             Source = SocialUserSource.Twitter,
                             Type = SocialUserType.Customer,
-                            OriginalLink = twitterUser.Url
+                            OriginalLink = TwitterHelper.GetUserUrl(twitterUser.ScreenName)
                         };
                         await Repository.InsertAsync(user);
                         CurrentUnitOfWork.SaveChanges();

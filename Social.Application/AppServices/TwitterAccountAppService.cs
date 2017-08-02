@@ -84,7 +84,7 @@ namespace Social.Application.AppServices
                         Type = SocialUserType.IntegrationAccount,
                         Avatar = user.ProfileImageUrl,
                         OriginalId = user.IdStr,
-                        OriginalLink = user.Url
+                        OriginalLink = TwitterHelper.GetUserUrl(user.ScreenName)
                     };
 
                     await _socialAccountService.InsertAsync(account);
