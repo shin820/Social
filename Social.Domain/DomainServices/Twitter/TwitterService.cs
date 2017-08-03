@@ -298,9 +298,9 @@ namespace Social.Domain.DomainServices
         {
             List<string> tweetIds = tweets.Select(t => t.IdStr).ToList();
             return _conversationService.FindAll().Include(t => t.Messages)
-                  .Where(c => c.Messages.Any(m => tweetIds.Contains(m.OriginalId)
-                  && (customerOriginalIds.Contains(m.Sender.OriginalId) || customerOriginalIds.Contains(m.Receiver.OriginalId)))
-                  ).ToList();
+                  .Where(c => c.Messages.Any(m => tweetIds.Contains(m.OriginalId)))
+                  .Where(c => c.Messages.Any(m => customerOriginalIds.Contains(m.Sender.OriginalId) || customerOriginalIds.Contains(m.Receiver.OriginalId)))
+                  .ToList();
         }
 
         private string GetReceiverOriginalId(SocialAccount account, IList<SocialAccount> socialAccounts, ITweet currentTweet)
