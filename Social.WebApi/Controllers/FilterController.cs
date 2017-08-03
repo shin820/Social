@@ -27,6 +27,12 @@ namespace Social.WebApi.Controllers
             return _appService.FindAll();
         }
 
+        [Route("GetManegeFilters")]
+        public List<FilterManageDto> GetManegeFilters()
+        {
+            return _appService.FindManageFilters();
+        }
+
         [Route("{id}", Name = "GetFilter")]
         public FilterDetailsDto GetFilter(int id)
         {
@@ -48,9 +54,10 @@ namespace Social.WebApi.Controllers
         public IHttpActionResult PutFilter(int id,FilterUpdateDto createDto)
         {
             createDto = createDto ?? new FilterUpdateDto();
-            _appService.Update(id,createDto);
+            var filter = _appService.Update(id,createDto);
 
-            return StatusCode(HttpStatusCode.NoContent);
+
+            return CreatedAtRoute("GetFilter", new { id = filter.Id }, filter);
         }
 
         [Route("{id}")]

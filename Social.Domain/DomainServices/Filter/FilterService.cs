@@ -18,24 +18,27 @@ namespace Social.Domain
         void UpdateFilter(Filter filter, FilterCondition[] contiditons);
         void DeleteConditons(Filter updateFilter);
         int GetConversationNum(Filter filter);
+        string GetCreatedByName(Filter filter);
     }
     public class FilterService : DomainService<Filter>, IFilterService
     {
         private IRepository<Filter> _filterRepo;
         private IRepository<FilterCondition> _filterConditionRepo;
         private IRepository<Conversation> _ConversationService;
+        private IRepository<SocialUser> _UserRepo;
         private IConversationService _Conversation;
 
         public FilterService(
             IRepository<FilterCondition> filterConditionRepo, 
             IRepository<Filter> filterRepo, 
             IRepository<Conversation> ConversationService,
-            IConversationService Conversation)
+            IRepository<SocialUser> UserRepo, IConversationService Conversation)
         {
             _filterConditionRepo = filterConditionRepo;
             _filterRepo = filterRepo;
             _ConversationService = ConversationService;
             _Conversation = Conversation;
+            _UserRepo = UserRepo;
         }
 
 
@@ -62,6 +65,11 @@ namespace Social.Domain
         public int GetConversationNum(Filter filter)
         {
             return _Conversation.FindAll(filter).Count();
+        }
+
+        public string GetCreatedByName(Filter filter)
+        {
+            return _UserRepo.Find(filter.CreatedBy).Name;
         }
     }
 }

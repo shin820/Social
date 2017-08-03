@@ -29,7 +29,7 @@ namespace Social.Domain.DomainServices
 
         protected override Expression<Func<Conversation, bool>> Between(string date)
         {
-            string[] value = date.Split(',');
+            string[] value = date.Split('|');
             DateTime DateTime1 = DateTime.Parse(value[0]);
             DateTime DateTime2 = DateTime.Parse(value[1]);
             return t => t.CreatedTime <= DateTime1 || t.CreatedTime >= DateTime2;
