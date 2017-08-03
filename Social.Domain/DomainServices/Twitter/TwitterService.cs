@@ -431,14 +431,18 @@ namespace Social.Domain.DomainServices
 
             if (media.VideoDetails != null && media.VideoDetails.Variants.Any())
             {
-                var video = media.VideoDetails.Variants.FirstOrDefault();
+                var video = media.VideoDetails.Variants.FirstOrDefault(t => t.Bitrate > 0);
+                if (video == null)
+                {
+                    video = media.VideoDetails.Variants.FirstOrDefault();
+                }
 
                 return new MessageAttachment
                 {
                     Type = type,
                     Url = video.URL,
                     PreviewUrl = media.MediaURL,
-                    MimeType = new Uri(video.URL).GetMimeType(),
+                    MimeType = video.ContentType,
                     OriginalId = media.IdStr,
                     OriginalLink = media.URL
                 };
