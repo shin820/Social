@@ -28,7 +28,10 @@ namespace Social.Domain
         private IRepository<SocialUser> _UserRepo;
         private IConversationService _Conversation;
 
-        public FilterService(IRepository<FilterCondition> filterConditionRepo, IRepository<Filter> filterRepo, IRepository<Conversation> ConversationService,
+        public FilterService(
+            IRepository<FilterCondition> filterConditionRepo, 
+            IRepository<Filter> filterRepo, 
+            IRepository<Conversation> ConversationService,
             IRepository<SocialUser> UserRepo, IConversationService Conversation)
         {
             _filterConditionRepo = filterConditionRepo;

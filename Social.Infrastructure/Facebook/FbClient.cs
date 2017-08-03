@@ -166,6 +166,21 @@ namespace Social.Infrastructure.Facebook
             }
         }
 
+        public static string PublishPost(string pageId, string token, string message)
+        {
+            FacebookClient client = new FacebookClient(token);
+            string url = $"/{pageId}/feed";
+            try
+            {
+                dynamic result = client.Post(url, new { message = message });
+                return result.id;
+            }
+            catch (FacebookOAuthException ex)
+            {
+                return string.Empty;
+            }
+        }
+
         public static string PublishMessage(string token, string fbConversationId, string message)
         {
             FacebookClient client = new FacebookClient(token);
@@ -299,7 +314,7 @@ namespace Social.Infrastructure.Facebook
             Checker.NotNullOrWhiteSpace(token, nameof(pageId));
             FacebookClient client = new FacebookClient(token);
 
-            long since = DateTimeOffset.UtcNow.AddMinutes(-30).ToUnixTimeSeconds();
+            long since = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
 
             string toFields = $"to{{id,name,pic,username,profile_type,link}}";
             string innnerCommentsFields = $"comments.since({since}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden}}";
@@ -315,13 +330,13 @@ namespace Social.Infrastructure.Facebook
             Checker.NotNullOrWhiteSpace(token, nameof(pageId));
             FacebookClient client = new FacebookClient(token);
 
-            long since = DateTimeOffset.UtcNow.AddMinutes(-30).ToUnixTimeSeconds();
+            long since = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
 
             string toFields = $"to{{id,name,pic,username,profile_type,link}}";
             string innnerCommentsFields = $"comments.since({since}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden}}";
             string commentFieds = $"comments.since({since}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden,{innnerCommentsFields}}}";
             string url = $"/{pageId}/tagged?fields=id,message,created_time,from,permalink_url,story,type,status_type,link,is_hidden,is_published,attachments,updated_time,tagged_time,{toFields},{commentFieds}&since={since}";
-            
+
             return await client.GetTaskAsync<FbPagingData<FbPost>>(url);
         }
 
@@ -332,7 +347,7 @@ namespace Social.Infrastructure.Facebook
             Checker.NotNullOrWhiteSpace(token, nameof(pageId));
             FacebookClient client = new FacebookClient(token);
 
-            long since = DateTimeOffset.UtcNow.AddDays(-1).AddMinutes(-30).ToUnixTimeSeconds();
+            long since = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
 
             string sharesFields = $"shares{{link,name,id}}";
             string messagesFields = $"messages.since({since}){{from,to,message,id,created_time,attachments,{sharesFields}}}";
@@ -441,7 +456,7 @@ namespace Social.Infrastructure.Facebook
                             }
                         }
                     }
-                    
+
                     FbMessages.Add(message);
                 }
                 FbCursors messageFbCursors = new FbCursors

@@ -20,7 +20,7 @@ namespace Social.Domain.DomainServices
         Message GetTwitterTweetMessage(string originalId);
         bool IsDuplicatedMessage(MessageSource messageSource, string originalId);
         bool IsDupliatedTweet(ITweet tweet);
-        Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, int parentId, string message);
+        Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, string message);
         Message ReplyTwitterDirectMessage(int conversationId, int twitterAccountId, string message);
         Message ReplyFacebookMessage(int conversationId, string content);
         Message ReplyFacebookPostOrComment(int conversationId, int parentId, string content);
@@ -124,7 +124,7 @@ namespace Social.Domain.DomainServices
                 throw SocialExceptions.BadRequest("Facebook integration account can't be found from conversation.");
             }
 
-            var previousMessages = GetPreviousMessages(messages, parentId);
+            var previousMessages = GetFacebookPreviousMessages(messages, parentId);
             Message comment = null;
             foreach (var previousMessage in previousMessages)
             {
@@ -228,7 +228,7 @@ namespace Social.Domain.DomainServices
             return directMessage;
         }
 
-        public Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, int parentId, string content)
+        public Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, string content)
         {
             var twitterService = DependencyResolver.Resolve<ITwitterService>();
             Conversation conversation = _conversationService.CheckIfExists(conversationId);
@@ -244,7 +244,7 @@ namespace Social.Domain.DomainServices
             }
 
             var messages = FindAllInlcudeDeletedByConversationId(conversation.Id).ToList();
-            var previousMessages = GetPreviousMessages(messages, parentId);
+            var previousMessages = messages.Where(t => t.SenderId != twitterAccountId).OrderByDescending(t => t.SendTime);
             Message replyMessage = null;
             foreach (var previousMessage in previousMessages)
             {
@@ -277,7 +277,6 @@ namespace Social.Domain.DomainServices
                     replyMessage.SenderId = twitterAccount.Id;
                     replyMessage.SendAgentId = UserContext.UserId;
                     replyMessage.ReceiverId = previousMessage.Sender.Id;
-                    replyMessage.ParentId = previousMessage.Id;
                     Repository.Insert(replyMessage);
                     CurrentUnitOfWork.SaveChanges();
 
@@ -359,7 +358,7 @@ namespace Social.Domain.DomainServices
             return accounts;
         }
 
-        private IList<Message> GetPreviousMessages(IList<Message> messages, int previousMessageId)
+        private IList<Message> GetFacebookPreviousMessages(IList<Message> messages, int previousMessageId)
         {
             List<Message> previousMessages = new List<Message>();
             var prviousMessage = messages.FirstOrDefault(t => t.Id == previousMessageId);

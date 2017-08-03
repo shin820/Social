@@ -26,6 +26,7 @@
                     @*<li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, null)</li>*@
                     <li>@Html.ActionLink("API", "", "Swagger", new { area = "" }, null)</li>
                     <li>@Html.ActionLink("Facebook", "Index", "Facebook", new { area = "" }, null)</li>
+                    <li><a id="shareBtn" href="javascript:void(0)">Facebook Share</a></li>
                 </ul>
             </div>
         </div>
@@ -42,4 +43,31 @@
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
 </body>
+<script>
+    window.fbAsyncInit = function () {
+        FB.init({
+            appId: '1263112220424532',
+            autoLogAppEvents: true,
+            xfbml: true,
+            version: 'v2.10'
+        });
+        FB.AppEvents.logPageView();
+    };
+
+    (function (d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) { return; }
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    document.getElementById('shareBtn').onclick = function () {
+        FB.ui({
+            method: 'share',
+            mobile_iframe: true,
+            href: 'https://developers.facebook.com/docs/',
+        }, function (response) { });
+    }
+</script>
 </html>

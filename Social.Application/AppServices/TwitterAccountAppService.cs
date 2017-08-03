@@ -59,14 +59,17 @@ namespace Social.Application.AppServices
                 SocialAccount account = new SocialAccount
                 {
                     Token = user.Credentials.AccessToken,
-                    TokenSecret = user.Credentials.AccessTokenSecret
+                    TokenSecret = user.Credentials.AccessTokenSecret,
+                    IfConvertMessageToConversation = true,
+                    IfConvertTweetToConversation = true,
+                    IfEnable = true
                 };
 
-                var socialUser = _socialUserService.Get(user.IdStr, SocialUserSource.Twitter, SocialUserType.Customer);
+                var socialUser = _socialUserService.FindByOriginalId(user.IdStr, SocialUserSource.Twitter, SocialUserType.Customer);
                 if (socialUser != null)
                 {
                     //convert customer to integration account;
-                    socialUser.Type = SocialUserType.Customer;
+                    socialUser.Type = SocialUserType.IntegrationAccount;
                     socialUser.SocialAccount = account;
                     _socialUserService.Update(socialUser);
                 }
@@ -81,7 +84,7 @@ namespace Social.Application.AppServices
                         Type = SocialUserType.IntegrationAccount,
                         Avatar = user.ProfileImageUrl,
                         OriginalId = user.IdStr,
-                        OriginalLink = user.Url
+                        OriginalLink = TwitterHelper.GetUserUrl(user.ScreenName)
                     };
 
                     await _socialAccountService.InsertAsync(account);

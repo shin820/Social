@@ -91,7 +91,7 @@ namespace Social.Application.AppServices
         {
             var socialAccount = Mapper.Map<SocialAccount>(dto);
 
-            var socialUser = _socialUserService.Get(dto.FacebookId, SocialUserSource.Facebook, SocialUserType.Customer);
+            var socialUser = _socialUserService.FindByOriginalId(dto.FacebookId, SocialUserSource.Facebook, SocialUserType.Customer);
             if (socialUser == null)
             {
                 socialAccount.SocialUser = Mapper.Map<SocialUser>(dto);

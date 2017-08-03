@@ -1,5 +1,6 @@
 ﻿using Framework.Core;
 using Social.Domain.Entities;
+using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using Social.Infrastructure.Facebook;
 using System;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tweetinvi;
 using Tweetinvi.Models;
 
 namespace Social.Domain.DomainServices
@@ -15,7 +17,8 @@ namespace Social.Domain.DomainServices
     {
         //Task<SocialUser> GetOrCreateSocialUser(int siteId, string token, string fbUserId, string fbUserEmail);
         Task<SocialUser> GetOrCreateTwitterUser(IUser twitterUser);
-        SocialUser Get(string originalId, SocialUserSource souce, SocialUserType type);
+        Task<SocialUser> GetOrCreateTwitterUser(string orignalUserId);
+        SocialUser FindByOriginalId(string originalId, SocialUserSource souce, SocialUserType type);
     }
 
     public class SocialUserService : DomainService<SocialUser>, ISocialUserService
@@ -60,29 +63,65 @@ namespace Social.Domain.DomainServices
             return base.FindAll().Where(t => t.IsDeleted == false).FirstOrDefault();
         }
 
-        public SocialUser Get(string originalId, SocialUserSource source, SocialUserType type)
+        public SocialUser FindByOriginalId(string originalId, SocialUserSource source, SocialUserType type)
         {
             return Repository.FindAll().Where(t => t.OriginalId == originalId && t.IsDeleted == false && t.Source == source && t.Type == type).FirstOrDefault();
         }
 
+        public SocialUser FindByOriginalId(string originalId, SocialUserSource source)
+        {
+            return Repository.FindAll().Where(t => t.OriginalId == originalId && t.IsDeleted == false && t.Source == source).FirstOrDefault();
+        }
+
         public async Task<SocialUser> GetOrCreateTwitterUser(IUser twitterUser)
         {
-            var user = Repository.FindAll()
-                .Where(t => t.OriginalId == twitterUser.IdStr && t.Source == SocialUserSource.Twitter && t.IsDeleted == false)
-                .FirstOrDefault();
+            var user = FindByOriginalId(twitterUser.IdStr, SocialUserSource.Twitter);
             if (user == null)
             {
-                user = new SocialUser
+                await UnitOfWorkManager.RunWithNewTransaction(CurrentUnitOfWork.GetSiteId(), async () =>
                 {
-                    OriginalId = twitterUser.IdStr,
-                    Name = twitterUser.Name,
-                    ScreenName = twitterUser.ScreenName,
-                    Avatar = twitterUser.ProfileImageUrl,
-                    Source = SocialUserSource.Twitter,
-                    Type = SocialUserType.Customer,
-                    OriginalLink = twitterUser.Url
-                };
-                await Repository.InsertAsync(user);
+                    user = new SocialUser
+                    {
+                        OriginalId = twitterUser.IdStr,
+                        Name = twitterUser.Name,
+                        ScreenName = twitterUser.ScreenName,
+                        Avatar = twitterUser.ProfileImageUrl,
+                        Source = SocialUserSource.Twitter,
+                        Type = SocialUserType.Customer,
+                        OriginalLink = TwitterHelper.GetUserUrl(twitterUser.ScreenName)
+                    };
+                    await Repository.InsertAsync(user);
+                    CurrentUnitOfWork.SaveChanges();
+                });
+            }
+            return user;
+        }
+
+        public async Task<SocialUser> GetOrCreateTwitterUser(string orignalUserId)
+        {
+            var user = FindByOriginalId(orignalUserId, SocialUserSource.Twitter);
+            if (user == null)
+            {
+                IUser twitterUser = User.GetUserFromId(long.Parse(orignalUserId));
+                user = FindByOriginalId(orignalUserId, SocialUserSource.Twitter);
+                if (user == null)
+                {
+                    await UnitOfWorkManager.RunWithNewTransaction(CurrentUnitOfWork.GetSiteId(), async () =>
+                    {
+                        user = new SocialUser
+                        {
+                            OriginalId = twitterUser.IdStr,
+                            Name = twitterUser.Name,
+                            ScreenName = twitterUser.ScreenName,
+                            Avatar = twitterUser.ProfileImageUrl,
+                            Source = SocialUserSource.Twitter,
+                            Type = SocialUserType.Customer,
+                            OriginalLink = TwitterHelper.GetUserUrl(twitterUser.ScreenName)
+                        };
+                        await Repository.InsertAsync(user);
+                        CurrentUnitOfWork.SaveChanges();
+                    });
+                }
             }
             return user;
         }

@@ -13,6 +13,7 @@ namespace Social.Domain.DomainServices
     {
         string GetDiaplyName(int? id);
         void FillAgentName(IEnumerable<IHaveSendAgent> list);
+        void FillCreatedByName(IEnumerable<IHaveCreatedBy> list);
         int[] IsMatchStatusAgents(int status);
     }
 
@@ -41,13 +42,26 @@ namespace Social.Domain.DomainServices
             }
         }
 
+        public void FillCreatedByName(IEnumerable<IHaveCreatedBy> list)
+        {
+            List<int> agentIds = list.Select(t => t.CreatedBy).Distinct().ToList();
+            if (agentIds.Any())
+            {
+                //todo
+                foreach (var item in list)
+                {
+                    item.CreatedByName = "Test Agent";
+                }
+            }
+        }
+
         public int[] IsMatchStatusAgents(int status)
         {
             return new int[] { };
 
         }
 
-        public bool ChechAgentStatus(int id,int status)
+        public bool ChechAgentStatus(int id, int status)
         {
 
 
