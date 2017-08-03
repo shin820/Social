@@ -62,9 +62,11 @@ namespace Social.Domain.DomainServices.Facebook
             return conversations.FirstOrDefault();
         }
 
-        protected void UpdateConversation(Conversation conversation)
+        protected async Task UpdateConversation(Conversation conversation)
         {
-            ConversationService.Update(conversation);
+         //   ConversationService.Update(conversation);
+
+            await ConversationService.UpdateAsync(conversation);
         }
 
         protected async Task AddConversation(SocialAccount socialAccount, Conversation conversation)

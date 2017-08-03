@@ -64,5 +64,11 @@ namespace Framework.Core
             await Repository.InsertAsync(entity);
             return entity;
         }
+
+        public async virtual Task<TEntity> UpdateAsync(TEntity entity)
+        {
+            await Repository.UpdateAsync(entity);
+            return entity;
+        }
     }
 }
