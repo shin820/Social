@@ -26,7 +26,7 @@ namespace Framework.WebApi.Filters
         public async Task<HttpResponseMessage> ExecuteActionFilterAsync(HttpActionContext actionContext, CancellationToken cancellationToken, Func<Task<HttpResponseMessage>> continuation)
         {
             HttpResponseMessage result = null;
-            await _uowManager.Run(TransactionScopeOption.Required, 10000, async () =>
+            await _uowManager.Run(TransactionScopeOption.Required, actionContext.Request.GetSiteId(), async () =>
             {
                 result = await continuation();
             });
