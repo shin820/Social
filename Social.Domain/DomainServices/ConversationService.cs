@@ -103,6 +103,10 @@ namespace Social.Domain.DomainServices
                 {
                     conversations = ApplyFilter(conversations, filter);
                 }
+                //else
+                //{
+                //    throw SocialExceptions.BadRequest($"filterId '{filterId}' not exists.");
+                //}
             }
 
             return conversations;

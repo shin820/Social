@@ -150,6 +150,7 @@
     <Compile Include="Dto\Filter\FilterCreateDto.cs" />
     <Compile Include="Dto\Filter\FilterDetailsDto.cs" />
     <Compile Include="Dto\Filter\FilterDto.cs" />
+    <Compile Include="Dto\Filter\FilterManageDto.cs" />
     <Compile Include="Dto\Filter\FilterUpdateDto.cs" />
     <Compile Include="AppServices\FacebookAppService.cs" />
     <Compile Include="AppServices\ConversationFieldAppService.cs" />

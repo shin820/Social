@@ -18,6 +18,7 @@ namespace Social.Application
             CreateMap<FilterCreateDto, Filter>();
             CreateMap<Filter, FilterDto>();
             CreateMap<Filter, FilterDetailsDto>();
+            CreateMap<Filter, FilterManageDto>();
             CreateMap<FilterConditionCreateDto, FilterCondition>();
             CreateMap<FilterCondition, FilterConditionCreateDto>();
             CreateMap<FilterUpdateDto, Filter>();

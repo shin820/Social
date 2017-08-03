@@ -41,7 +41,7 @@ namespace Social.Domain.DomainServices.FilterExpressions
             {
                 return NotContain(condition);
             }
-            if (condition.MatchType == ConditionMatchType.LogicalExpression)
+            if (condition.MatchType == ConditionMatchType.RegularExpression)
             {
                 return LogicalExpression(condition);
             }
