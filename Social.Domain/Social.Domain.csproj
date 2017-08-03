@@ -178,7 +178,7 @@
     <Compile Include="DomainServices\MessageService.cs" />
     <Compile Include="DomainServices\SocialAccountService.cs" />
     <Compile Include="DomainServices\SocialUserService.cs" />
-    <Compile Include="DomainServices\Facebook\VisitorPostService.cs" />
+    <Compile Include="DomainServices\Facebook\PullJobService.cs" />
     <Compile Include="DomainServices\TwitterAuthService.cs" />
     <Compile Include="DomainServices\Twitter\TwitterPullJobService.cs" />
     <Compile Include="DomainServices\Twitter\TwitterService.cs" />

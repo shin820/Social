@@ -58,8 +58,7 @@ namespace Social.Domain.DomainServices.Facebook
 
         protected Conversation GetUnClosedConversation(string originalId)
         {
-            var conversations = ConversationService.FindAll().Where(t => t.OriginalId == originalId && t.Status != ConversationStatus.Closed);
-            return conversations.FirstOrDefault();
+            return ConversationService.GetUnClosedConversation(originalId);
         }
 
         protected void UpdateConversation(Conversation conversation)

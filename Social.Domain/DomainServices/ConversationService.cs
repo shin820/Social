@@ -23,6 +23,7 @@ namespace Social.Domain.DomainServices
         IQueryable<Conversation> ApplyFilter(IQueryable<Conversation> conversations, Filter filter);
         IQueryable<Conversation> ApplyKeyword(IQueryable<Conversation> conversations, string keyword);
         Conversation CheckIfExists(int id);
+        Conversation GetUnClosedConversation(string originalId);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -77,6 +78,12 @@ namespace Social.Domain.DomainServices
         public override IQueryable<Conversation> FindAll()
         {
             return Repository.FindAll().AsExpandable().Where(t => t.IsDeleted == false);
+        }
+
+        public Conversation GetUnClosedConversation(string originalId)
+        {
+            var conversations = FindAll().Where(t => t.OriginalId == originalId && t.Status != ConversationStatus.Closed);
+            return conversations.FirstOrDefault();
         }
 
         public IQueryable<Conversation> ApplyKeyword(IQueryable<Conversation> conversations, string keyword)

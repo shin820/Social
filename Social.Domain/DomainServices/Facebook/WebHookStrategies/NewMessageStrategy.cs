@@ -55,6 +55,11 @@ namespace Social.Domain.DomainServices.Facebook
             }
             else
             {
+                if (sender.Id == socialAccount.Id)
+                {
+                    return;
+                }
+
                 Message message = Convert(fbMessage, sender, receiver, socialAccount);
                 var conversation = new Conversation
                 {

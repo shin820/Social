@@ -12,14 +12,14 @@ using System.Transactions;
 
 namespace Social.Domain.DomainServices.Facebook
 {
-    public interface IVisitorPostService : ITransient
+    public interface IPullJobService : ITransient
     {
         Task PullTaggedVisitorPosts(SocialAccount account);
         Task PullVisitorPostsFromFeed(SocialAccount account);
         Task PullMassagesJob(SocialAccount account);
     }
 
-    public class VisitorPostService : ServiceBase, IVisitorPostService
+    public class PullJobService : ServiceBase, IPullJobService
     {
         private List<FbPost> PostsToBeCreated { get; set; } = new List<FbPost>();
         private List<FbConversation> ConversationsToBeCreated { get; set; } = new List<FbConversation>();
@@ -28,18 +28,18 @@ namespace Social.Domain.DomainServices.Facebook
         private List<FbComment> ReplyCommentsToBeCretaed { get; set; } = new List<FbComment>();
         private SocialAccount _account;
 
-        private IRepository<Conversation> _conersationRepo;
-        private IRepository<Message> _messageRepo;
+        private IConversationService _conversationService;
+        private IMessageService _messageService;
         private ISocialUserService _socialUserService;
 
-        public VisitorPostService(
-            IRepository<Conversation> conersationRepo,
-            IRepository<Message> messageRepo,
+        public PullJobService(
+            IConversationService conversationService,
+            IMessageService messageService,
             ISocialUserService socialUserService
             )
         {
-            _conersationRepo = conersationRepo;
-            _messageRepo = messageRepo;
+            _conversationService = conversationService;
+            _messageService = messageService;
             _socialUserService = socialUserService;
         }
 
@@ -97,7 +97,6 @@ namespace Social.Domain.DomainServices.Facebook
                 using (CurrentUnitOfWork.SetSiteId(_account.SiteId))
                 {
                     List<SocialUser> senders = await GetOrCreateSocialUsers(_account.Token, posts.Select(t => t.from).ToList());
-                    List<Conversation> conversations = new List<Conversation>();
                     foreach (var post in posts)
                     {
                         var sender = senders.FirstOrDefault(t => t.OriginalId == post.from.id);
@@ -153,17 +152,16 @@ namespace Social.Domain.DomainServices.Facebook
                             continue;
                         }
 
-                        conversations.Add(conversation);
+                        await _conversationService.InsertAsync(conversation);
                     }
-                    await _conersationRepo.InsertManyAsync(conversations.ToArray());
                     uow.Complete();
                 }
             }
         }
 
-        private async Task AddConversations(List<FbConversation> FbConversations)
+        private async Task AddConversations(List<FbConversation> fbConversations)
         {
-            if (!FbConversations.Any())
+            if (!fbConversations.Any())
             {
                 return;
             }
@@ -174,18 +172,23 @@ namespace Social.Domain.DomainServices.Facebook
                 {
                     List<SocialUser> senders = new List<SocialUser>();
                     List<SocialUser> receivers = new List<SocialUser>();
-                   
-                    foreach(var Fbconversation in FbConversations)
+
+                    foreach (var fbconversation in fbConversations)
                     {
-                        var existingConversation = GetConversation(Fbconversation.Id, ConversationStatus.Closed);
+                        var existingConversation = _conversationService.GetUnClosedConversation(fbconversation.Id);
                         if (existingConversation != null)
                         {
-                            Fbconversation.Messages.data = Fbconversation.Messages.data.OrderBy(t => t.SendTime).ToList();
-                            foreach (var Fbmessage in Fbconversation.Messages.data)
+                            fbconversation.Messages.data = fbconversation.Messages.data.OrderBy(t => t.SendTime).ToList();
+                            foreach (var fbMessage in fbconversation.Messages.data)
                             {
-                                var sender = await GetOrCreateFacebookUser(_account.Token, Fbmessage.SenderId);
-                                var receiver = await GetOrCreateFacebookUser(_account.Token, Fbmessage.ReceiverId);
-                                Message message = ConvertMessage(Fbmessage, sender, receiver, _account);
+                                if (fbMessage.SendTime < existingConversation.LastMessageSentTime)
+                                {
+                                    continue;
+                                }
+
+                                var sender = await GetOrCreateFacebookUser(_account.Token, fbMessage.SenderId);
+                                var receiver = await GetOrCreateFacebookUser(_account.Token, fbMessage.ReceiverId);
+                                Message message = FacebookConverter.ConvertMessage(fbMessage, sender, receiver, _account);
                                 message.ConversationId = existingConversation.Id;
                                 existingConversation.IfRead = false;
                                 existingConversation.Status = sender.Id != _account.SocialUser.Id ? ConversationStatus.PendingInternal : ConversationStatus.PendingExternal;
@@ -193,28 +196,34 @@ namespace Social.Domain.DomainServices.Facebook
                                 existingConversation.LastMessageSenderId = message.SenderId;
                                 existingConversation.LastMessageSentTime = message.SendTime;
                                 existingConversation.Messages.Add(message);
-                                _conersationRepo.Update(existingConversation);
+                                _conversationService.Update(existingConversation);
                                 await CurrentUnitOfWork.SaveChangesAsync();
                             }
                         }
                         else
                         {
                             Conversation conversation = new Conversation();
-                            conversation.OriginalId = Fbconversation.Id;
+                            conversation.OriginalId = fbconversation.Id;
                             conversation.Source = ConversationSource.FacebookMessage;
                             conversation.Priority = ConversationPriority.Normal;
                             conversation.Status = ConversationStatus.New;
-                            Fbconversation.Messages.data = Fbconversation.Messages.data.OrderBy(t => t.SendTime).ToList();
-                            foreach (var Fbmessage in Fbconversation.Messages.data)
+                            fbconversation.Messages.data = fbconversation.Messages.data.OrderBy(t => t.SendTime).ToList();
+
+                            if (fbconversation.Messages.data.All(t => t.SenderId == _account.SocialUser.OriginalId))
                             {
-                                var sender = await GetOrCreateFacebookUser(_account.Token, Fbmessage.SenderId);
-                                var receiver = await GetOrCreateFacebookUser(_account.Token, Fbmessage.ReceiverId);
-                                Message message = ConvertMessage(Fbmessage, sender, receiver, _account);
-                              
+                                continue;
+                            }
+
+                            foreach (var fbMessage in fbconversation.Messages.data)
+                            {
+                                var sender = await GetOrCreateFacebookUser(_account.Token, fbMessage.SenderId);
+                                var receiver = await GetOrCreateFacebookUser(_account.Token, fbMessage.ReceiverId);
+                                Message message = FacebookConverter.ConvertMessage(fbMessage, sender, receiver, _account);
+
                                 conversation.Subject = GetSubject(message.Content);
                                 conversation.LastMessageSenderId = message.SenderId;
                                 conversation.LastMessageSentTime = message.SendTime;
-                            
+
                                 conversation.Messages.Add(message);
 
                                 if (_account.ConversationAgentId.HasValue && _account.ConversationPriority.HasValue)
@@ -229,53 +238,16 @@ namespace Social.Domain.DomainServices.Facebook
                                     conversation.Priority = _account.ConversationPriority.Value;
                                 }
                             }
-                             _conersationRepo.Insert(conversation);
+                            _conversationService.Insert(conversation);
                             await CurrentUnitOfWork.SaveChangesAsync();
                         }
                     }
-                  uow.Complete();
+                    uow.Complete();
                 }
             }
         }
 
 
-
-        private Conversation GetConversation(string originalId, ConversationStatus? status =  null)
-        {
-            var conversations = _conersationRepo.FindAll().Where(t => t.OriginalId == originalId);
-            conversations.WhereIf(status != null, t => t.Status == status.Value);
-
-            return conversations.FirstOrDefault();
-        }
-
-        private Message ConvertMessage(FbMessage fbMessage, SocialUser Sender, SocialUser Receiver, SocialAccount account)
-        {
-            Message message = new Message
-            {
-                SenderId = Sender.Id,
-                ReceiverId = Receiver.Id,
-                Source = MessageSource.FacebookMessage,
-                OriginalId = fbMessage.Id,
-                SendTime = fbMessage.SendTime,
-                Content = fbMessage.Content
-            };
-
-            foreach (var attachment in fbMessage.Attachments)
-            {
-                message.Attachments.Add(new MessageAttachment
-                {
-                    OriginalId = attachment.Id,
-                    Name = attachment.Name,
-                    MimeType = attachment.MimeType,
-                    Type = attachment.Type,
-                    Size = attachment.Size,
-                    Url = attachment.Url,
-                    PreviewUrl = attachment.PreviewUrl
-                });
-            }
-
-            return message;
-        }
 
         private async Task AddComments(List<FbComment> comments)
         {
@@ -291,8 +263,8 @@ namespace Social.Domain.DomainServices.Facebook
                 {
                     List<SocialUser> senders = await GetOrCreateSocialUsers(_account.Token, comments.Select(t => t.from).ToList());
                     var postIds = comments.Select(t => t.PostId).Distinct().ToList();
-                    var conversations = _conersationRepo.FindAll().Where(t => postIds.Contains(t.OriginalId)).ToList();
-                    var parents = _messageRepo.FindAll().Where(t => postIds.Contains(t.OriginalId)).ToList();
+                    var conversations = _conversationService.FindAll().Where(t => postIds.Contains(t.OriginalId)).ToList();
+                    var parents = _messageService.FindAll().Where(t => postIds.Contains(t.OriginalId)).ToList();
 
                     foreach (var comment in comments)
                     {
@@ -345,10 +317,10 @@ namespace Social.Domain.DomainServices.Facebook
                     List<SocialUser> senders = await GetOrCreateSocialUsers(_account.Token, replyComments.Select(t => t.from).ToList());
 
                     var postIds = replyComments.Select(t => t.PostId).Distinct().ToList();
-                    var conversations = _conersationRepo.FindAll().Where(t => postIds.Contains(t.OriginalId)).ToList();
+                    var conversations = _conversationService.FindAll().Where(t => postIds.Contains(t.OriginalId)).ToList();
 
                     var parentIds = replyComments.Select(t => t.parent.id).Distinct().ToList();
-                    var parents = _messageRepo.FindAll().Where(t => parentIds.Contains(t.OriginalId)).ToList();
+                    var parents = _messageService.FindAll().Where(t => parentIds.Contains(t.OriginalId)).ToList();
 
                     foreach (var replyComment in replyComments)
                     {
@@ -465,7 +437,7 @@ namespace Social.Domain.DomainServices.Facebook
             List<FbMessage> FbMessages = new List<FbMessage>();
             foreach (var conversation in Conversations.data)
             {
-                InitForMessages(conversation.Messages);
+                await InitForMessages(conversation.Messages);
                 conversation.Messages.data = MessagesToBeCreated;
             }
             ConversationsToBeCreated.AddRange(Conversations.data);
@@ -567,30 +539,31 @@ namespace Social.Domain.DomainServices.Facebook
             if (PostsToBeCreated.Any())
             {
                 var postIds = PostsToBeCreated.Select(t => t.id).ToList();
-                var existingPostIds = _conersationRepo.FindAll().Where(t => postIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
+                var existingPostIds = _conversationService.FindAll()
+                    .Where(t => (t.Source == ConversationSource.FacebookVisitorPost || t.Source == ConversationSource.FacebookWallPost) && postIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
                 PostsToBeCreated.RemoveAll(t => existingPostIds.Contains(t.id));
             }
             if (CommentsToBeCreated.Any())
             {
                 var commentIds = CommentsToBeCreated.Select(t => t.id).ToList();
-                var existingCommentIds = _messageRepo.FindAll().Where(t => commentIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
+                var existingCommentIds = _messageService.FindAll().Where(t => t.Source == MessageSource.FacebookPostComment && commentIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
                 CommentsToBeCreated.RemoveAll(t => existingCommentIds.Contains(t.id));
             }
             if (ReplyCommentsToBeCretaed.Any())
             {
                 var replyCommentIds = ReplyCommentsToBeCretaed.Select(t => t.id).ToList();
-                var existingReplyCommentIds = _messageRepo.FindAll().Where(t => replyCommentIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
+                var existingReplyCommentIds = _messageService.FindAll().Where(t => t.Source == MessageSource.FacebookPostComment && replyCommentIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
                 ReplyCommentsToBeCretaed.RemoveAll(t => existingReplyCommentIds.Contains(t.id));
             }
-            if(ConversationsToBeCreated.Any())
+            if (ConversationsToBeCreated.Any())
             {
                 var ConversationIds = ConversationsToBeCreated.Select(t => t.Id).ToList();
-                List<string>  MessageIds =  new List<string>();
+                List<string> MessageIds = new List<string>();
                 foreach (var conversation in ConversationsToBeCreated)
                 {
                     MessageIds.AddRange(conversation.Messages.data.Select(m => m.Id).ToList());
                 }
-                var existingMessageIds = _messageRepo.FindAll().Where(t => MessageIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
+                var existingMessageIds = _messageService.FindAll().Where(t => t.Source == MessageSource.FacebookMessage && MessageIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
 
                 foreach (var conversation in ConversationsToBeCreated)
                 {
