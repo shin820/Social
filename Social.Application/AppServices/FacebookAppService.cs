@@ -22,15 +22,15 @@ namespace Social.Application.AppServices
     public class FacebookAppService : AppService, IFacebookAppService
     {
         private IWebHookService _facebookWebHookService;
-        private IVisitorPostService _visitorPostService;
+        private IPullJobService _facebookPullJobService;
 
         public FacebookAppService(
             IWebHookService facebookWebHookService,
-            IVisitorPostService visitorPostService
+            IPullJobService facebookPullJobService
             )
         {
             _facebookWebHookService = facebookWebHookService;
-            _visitorPostService = visitorPostService;
+            _facebookPullJobService = facebookPullJobService;
         }
 
         public async Task ProcessWebHookData(FbHookData fbData)
@@ -40,17 +40,17 @@ namespace Social.Application.AppServices
 
         public async Task PullMassagesJob(SocialAccount socialAccount)
         {
-            await _visitorPostService.PullMassagesJob(socialAccount);
+            await _facebookPullJobService.PullMassagesJob(socialAccount);
         }
 
         public async Task PullTaggedVisitorPosts(SocialAccount socialAccount)
         {
-            await _visitorPostService.PullTaggedVisitorPosts(socialAccount);
+            await _facebookPullJobService.PullTaggedVisitorPosts(socialAccount);
         }
 
         public async Task PullVisitorPostsFromFeed(SocialAccount socialAccount)
         {
-            await _visitorPostService.PullVisitorPostsFromFeed(socialAccount);
+            await _facebookPullJobService.PullVisitorPostsFromFeed(socialAccount);
         }
     }
 }

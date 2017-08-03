@@ -17,9 +17,7 @@ namespace Social.Domain.DomainServices
     {
         Message FindByOriginalId(MessageSource source, string originalId);
         IQueryable<Message> FindAllByConversationId(int conversationId);
-        Message GetTwitterTweetMessage(string originalId);
         bool IsDuplicatedMessage(MessageSource messageSource, string originalId);
-        bool IsDupliatedTweet(ITweet tweet);
         Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, string message);
         Message ReplyTwitterDirectMessage(int conversationId, int twitterAccountId, string message);
         Message ReplyFacebookMessage(int conversationId, string content);
@@ -39,18 +37,28 @@ namespace Social.Domain.DomainServices
             _conversationService = conversationService;
         }
 
+        public override IQueryable<Message> FindAll()
+        {
+            return base.FindAll().Where(t => t.IsDeleted == false);
+        }
+
+        public override Message Find(int id)
+        {
+            return base.FindAll().Where(t => t.IsDeleted == false).FirstOrDefault();
+        }
+
         public Message FindByOriginalId(MessageSource source, string originalId)
         {
-            return Repository.FindAll().Where(t => t.OriginalId == originalId && t.Source == source && t.IsDeleted == false).FirstOrDefault();
+            return FindAll().Where(t => t.OriginalId == originalId && t.Source == source).FirstOrDefault();
         }
 
         public IQueryable<Message> FindAllByConversationId(int conversationId)
         {
-            return Repository.FindAll()
+            return FindAll()
                 .Include(t => t.Attachments)
                 .Include(t => t.Sender.SocialAccount)
                 .Include(t => t.Receiver.SocialAccount)
-                .Where(t => t.ConversationId == conversationId && t.IsDeleted == false);
+                .Where(t => t.ConversationId == conversationId);
         }
 
         private IQueryable<Message> FindAllInlcudeDeletedByConversationId(int conversationId)
@@ -298,30 +306,10 @@ namespace Social.Domain.DomainServices
             return replyMessage;
         }
 
-        public Message GetTwitterTweetMessage(string originalId)
-        {
-            return Repository.FindAll()
-                .Where(t => t.OriginalId == originalId && (t.Source == MessageSource.TwitterTypicalTweet || t.Source == MessageSource.TwitterQuoteTweet))
-                .FirstOrDefault();
-        }
 
         public bool IsDuplicatedMessage(MessageSource messageSource, string originalId)
         {
             return Repository.FindAll().Any(t => t.Source == messageSource && t.OriginalId == originalId);
-        }
-
-        public bool IsDupliatedTweet(ITweet tweet)
-        {
-            bool isQuoteTweet = tweet.QuotedTweet != null;
-
-            if (isQuoteTweet)
-            {
-                return this.IsDuplicatedMessage(MessageSource.TwitterQuoteTweet, tweet.IdStr);
-            }
-            else
-            {
-                return this.IsDuplicatedMessage(MessageSource.TwitterTypicalTweet, tweet.IdStr);
-            }
         }
 
         private IList<SocialAccount> GetSocialAccountsFromMessages(IList<Message> messages)

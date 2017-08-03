@@ -12,6 +12,35 @@ namespace Social.Domain.DomainServices.Facebook
 {
     public static class FacebookConverter
     {
+        public static Message ConvertMessage(FbMessage fbMessage, SocialUser Sender, SocialUser Receiver, SocialAccount account)
+        {
+            Message message = new Message
+            {
+                SenderId = Sender.Id,
+                ReceiverId = Receiver.Id,
+                Source = MessageSource.FacebookMessage,
+                OriginalId = fbMessage.Id,
+                SendTime = fbMessage.SendTime,
+                Content = fbMessage.Content
+            };
+
+            foreach (var attachment in fbMessage.Attachments)
+            {
+                message.Attachments.Add(new MessageAttachment
+                {
+                    OriginalId = attachment.Id,
+                    Name = attachment.Name,
+                    MimeType = attachment.MimeType,
+                    Type = attachment.Type,
+                    Size = attachment.Size,
+                    Url = attachment.Url,
+                    PreviewUrl = attachment.PreviewUrl
+                });
+            }
+
+            return message;
+        }
+
         public static Message ConvertToMessage(string token, FbPost post)
         {
             var message = new Message
