@@ -49,7 +49,7 @@ namespace Social.WebApi.Controllers
                 Hub.Clients.All.newRaw(rawData);
 
                 FbHookData data = await request.Content.ReadAsAsync<FbHookData>();
-                await _facebookWebHookAppService.ProcessWebHookData(data);
+                 await _facebookWebHookAppService.ProcessWebHookData(data);
 
                 if (data == null || !data.Entry.Any())
                 {

@@ -17,5 +17,6 @@ namespace Framework.Core
         void Update(TEntity entity);
         TEntity Insert(TEntity entity);
         Task<TEntity> InsertAsync(TEntity entity);
+        Task<TEntity> UpdateAsync(TEntity entity);
     }
 }

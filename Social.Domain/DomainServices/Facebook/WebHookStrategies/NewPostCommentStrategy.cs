@@ -50,7 +50,7 @@ namespace Social.Domain.DomainServices.Facebook
             conversation.LastMessageSentTime = message.SendTime;
             conversation.TryToMakeWallPostVisible(socialAccount);
 
-            UpdateConversation(conversation);
+            await UpdateConversation(conversation);
         }
 
         private Message GetParent(string postId, FbComment comment)
