@@ -37,21 +37,23 @@ INSERT INTO [Social].[dbo].[t_Social_ConversationFieldOption]
       ,[SiteId]
   )
 VALUES
-  ( 1,'Facebook Message','1',1,10000),
-  ( 1,'Facebook Visitor Post','2',2,10000),
-  ( 1,'Facebook Wall Post','3',3,10000),
-  ( 1,'Twitter Tweet','4',4,10000),
-  ( 1,'Twitter Direct Message','5',5,10000),
-  ( 4,'New','0',1,10000),
-  ( 4,'Pending Internal','1',2,10000),
-  ( 4,'Pending External','2',3,10000),
-  ( 4,'On Hold','3',4,10000),
-  ( 4,'Closed','4',5,10000),
-  ( 5,'Low','0',1,10000),
-  ( 5,'Normal','1',2,10000),
-  ( 5,'High','2',3,10000),
-  ( 5,'Urgent','3',4,10000)
+  ( (SELECT [Id] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Source' AND [DataType] = 4),'Facebook Message','1',1,(SELECT [SiteId] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Source' AND [DataType] = 4)),
+  ( (SELECT [Id] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Source' AND [DataType] = 4),'Facebook Visitor Post','2',2,(SELECT [SiteId] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Source' AND [DataType] = 4)),
+  ( (SELECT [Id] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Source' AND [DataType] = 4),'Facebook Wall Post','3',3,(SELECT [SiteId] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Source' AND [DataType] = 4)),
+  ( (SELECT [Id] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Source' AND [DataType] = 4),'Twitter Tweet','4',4,(SELECT [SiteId] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Source' AND [DataType] = 4)),
+  ( (SELECT [Id] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Source' AND [DataType] = 4),'Twitter Direct Message','5',5,(SELECT [SiteId] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Source' AND [DataType] = 4)),
+  ( (SELECT [Id] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Status' AND [DataType] = 4),'New','0',1,(SELECT [SiteId] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Status' AND [DataType] = 4)),
+  ( (SELECT [Id] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Status' AND [DataType] = 4),'Pending Internal','1',2,(SELECT [SiteId] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Status' AND [DataType] = 4)),
+  ( (SELECT [Id] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Status' AND [DataType] = 4),'Pending External','2',3,(SELECT [SiteId] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Status' AND [DataType] = 4)),
+  ( (SELECT [Id] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Status' AND [DataType] = 4),'On Hold','3',4,(SELECT [SiteId] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Status' AND [DataType] = 4)),
+  ( (SELECT [Id] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Status' AND [DataType] = 4),'Closed','4',5,(SELECT [SiteId] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Status' AND [DataType] = 4)),
+  ( (SELECT [Id] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Priority' AND [DataType] = 4),'Low','0',1,(SELECT [SiteId] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Priority' AND [DataType] = 4)),
+  ( (SELECT [Id] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Priority' AND [DataType] = 4),'Normal','1',2,(SELECT [SiteId] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Priority' AND [DataType] = 4)),
+  ( (SELECT [Id] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Priority' AND [DataType] = 4),'High','2',3,(SELECT [SiteId] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Priority' AND [DataType] = 4)),
+  ( (SELECT [Id] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Priority' AND [DataType] = 4),'Urgent','3',4,(SELECT [SiteId] FROM [Social].[dbo].[t_Social_ConversationField] WHERE [Name] = 'Priority' AND [DataType] = 4))
 GO
+
+if NOT exists(SELECT * FROM [Social].[dbo].[t_Social_Filter] WHERE [SiteId]=10000)
 INSERT INTO [Social].[dbo].[t_Social_Filter]
   (
        [Name]
@@ -80,14 +82,14 @@ INSERT INTO [Social].[dbo].[t_Social_FilterCondition]
       ,[Index]
   )
   VALUES
-  (1,4,2,'4',10000,1),
-  (1,2,1,'@Me',10000,2),
-  (2,4,2,'4',10000,3),
-  (2,3,1,'@My Department',10000,4),
-  (3,4,2,'4',10000,5),
-  (3,2,1,'@My Department Member',10000,6),
-  (3,3,1,'Blank',10000,7),
-  (4,4,2,'4',10000,8),
-  (5,2,1,'Blank',10000,9),
-  (5,3,1,'Blank',10000,10)
+  ((SELECT [Id] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'My Open' AND [IfPublic] = 1),4,2,'4',(SELECT [SiteId] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'My Open' AND [IfPublic] = 1),1),
+  ((SELECT [Id] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'My Open' AND [IfPublic] = 1),2,1,'@Me',(SELECT [SiteId] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'My Open' AND [IfPublic] = 1),2),
+  ((SELECT [Id] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'My Department''s Open' AND [IfPublic] = 1),4,2,'4',(SELECT [SiteId] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'My Department''s Open' AND [IfPublic] = 1),3),
+  ((SELECT [Id] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'My Department''s Open' AND [IfPublic] = 1),3,1,'@My Department',(SELECT [SiteId] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'My Department''s Open' AND [IfPublic] = 1),4),
+  ((SELECT [Id] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'My Offline Colleagues'' Open' AND [IfPublic] = 1),4,2,'4',(SELECT [SiteId] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'My Offline Colleagues'' Open' AND [IfPublic] = 1),5),
+  ((SELECT [Id] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'My Offline Colleagues'' Open' AND [IfPublic] = 1),2,1,'@My Department Member',(SELECT [SiteId] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'My Offline Colleagues'' Open' AND [IfPublic] = 1),6),
+  ((SELECT [Id] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'My Offline Colleagues'' Open' AND [IfPublic] = 1),3,1,'Blank',(SELECT [SiteId] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'My Offline Colleagues'' Open' AND [IfPublic] = 1),7),
+  ((SELECT [Id] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'All Open' AND [IfPublic] = 1),4,2,'4',(SELECT [SiteId] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'All Open' AND [IfPublic] = 1),8),
+  ((SELECT [Id] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'Unassigned' AND [IfPublic] = 1),2,1,'Blank',(SELECT [SiteId] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'Unassigned' AND [IfPublic] = 1),9),
+  ((SELECT [Id] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'Unassigned' AND [IfPublic] = 1),3,1,'Blank',(SELECT [SiteId] FROM [Social].[dbo].[t_Social_Filter] WHERE [Name] = 'Unassigned' AND [IfPublic] = 1),10)
   GO
