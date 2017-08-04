@@ -13,14 +13,19 @@ namespace Social.Domain.DomainServices.Twitter
     {
         public List<ITweet> BuildTweetTree(ITweet currentTweet)
         {
-            List<ITweet> tweets = new List<ITweet>();
+            var tweets = new List<ITweet>();
+            BuildTweetTree(currentTweet, tweets);
+            return tweets;
+        }
 
+        private void BuildTweetTree(ITweet currentTweet, List<ITweet> tweets)
+        {
             tweets.Add(currentTweet);
 
             // for performance reason, we just get 10 parent tweet in the tree.
             if (tweets.Count >= 10)
             {
-                return tweets;
+                return;
             }
 
             if (currentTweet.InReplyToStatusId != null)
@@ -28,12 +33,10 @@ namespace Social.Domain.DomainServices.Twitter
                 ITweet inReplyToTweet = Tweet.GetTweet(currentTweet.InReplyToStatusId.Value);
                 if (inReplyToTweet == null)
                 {
-                    return tweets;
+                    return;
                 }
-                tweets.AddRange(BuildTweetTree(inReplyToTweet));
+                BuildTweetTree(inReplyToTweet, tweets);
             }
-
-            return tweets;
         }
 
         public List<string> FindCustomerOriginalIdsInTweetTree(ITweet currentTweet, List<ITweet> tweets, IList<SocialAccount> socialAccounts)

@@ -42,7 +42,7 @@ namespace Social.Job
         {
 
             JobKey jobKey = context.JobDetail.Key;
-            Logger.Info($"{jobKey} start executing.");
+            Logger.Info($"-->{Thread.CurrentThread.Name}-{jobKey} start executing.");
 
             try
             {
@@ -50,10 +50,10 @@ namespace Social.Job
             }
             catch (Exception ex)
             {
-                Logger.Error($"{jobKey} executed failed.", ex);
+                Logger.Error($"-->{Thread.CurrentThread.Name}-{jobKey} executed failed.", ex);
             }
 
-            Logger.Info($"{jobKey} executed complete.");
+            Logger.Info($"-->{Thread.CurrentThread.Name}-{jobKey} executed complete.");
         }
 
         protected abstract Task ExecuteJob(IJobExecutionContext context);

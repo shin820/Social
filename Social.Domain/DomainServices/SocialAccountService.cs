@@ -18,6 +18,7 @@ namespace Social.Domain.DomainServices
         Task<SocialAccount> GetAccountAsync(SocialUserSource source, string originalId);
         IQueryable<SocialAccount> FindAllTwitterAccounts();
         IQueryable<SocialAccount> FindAllFacebookAccounts();
+        Task InsertSocialAccountInGeneralDb(SocialAccount entity);
     }
 
     public class SocialAccountService : DomainService<SocialAccount>, ISocialAccountService
@@ -79,7 +80,7 @@ namespace Social.Domain.DomainServices
             return entity;
         }
 
-        private async Task InsertSocialAccountInGeneralDb(SocialAccount entity)
+        public async Task InsertSocialAccountInGeneralDb(SocialAccount entity)
         {
             int? siteIdOrNull = CurrentUnitOfWork.GetSiteId();
             if (siteIdOrNull == null)
