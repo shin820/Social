@@ -9,6 +9,7 @@ using System.Linq;
 using System.Web;
 using System.Web.SessionState;
 using Microsoft.Owin.Extensions;
+using Microsoft.AspNet.SignalR;
 
 [assembly: OwinStartup(typeof(Startup))]
 
@@ -29,7 +30,10 @@ namespace Social.WebApi.App_Start
 
             //app.UseOAuthAuthorizationServer(oAuthServerOptions);
             //app.UseOAuthBearerAuthentication(AccountsController.OAuthBearerOptions);
-            app.MapSignalR();
+
+            var hubConfiguration = new HubConfiguration();
+            hubConfiguration.EnableDetailedErrors = true;
+            app.MapSignalR(hubConfiguration);
             app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
 
             app.Use((context, next) =>

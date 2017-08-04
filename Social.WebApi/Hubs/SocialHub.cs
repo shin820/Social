@@ -12,16 +12,26 @@ namespace Social.WebApi.Hubs
 {
     public class SocialHub : Hub
     {
-        public void NewConversation(Conversation conversation)
+        //public void ConversationCreated(Conversation conversation)
+        //{
+        //    ConversationDto dto = Mapper.Map<ConversationDto>(conversation);
+        //    Clients.Group(conversation.SiteId.ToString()).conversationCreated(dto);
+        //}
+
+        //public void ConversationUpdated(Conversation conversation)
+        //{
+        //    ConversationDto dto = Mapper.Map<ConversationDto>(conversation);
+        //    Clients.Group(conversation.SiteId.ToString()).conversationUpdated(dto);
+        //}
+
+        public Task JoinConversation(int conversationId)
         {
-            ConversationDto dto = Mapper.Map<ConversationDto>(conversation);
-            Clients.Groups(Clients.Caller.siteId).conversationCreated(dto);
+            return Groups.Add(Context.ConnectionId, conversationId.ToString());
         }
 
-        public void NewMessage(Conversation conversation)
+        public Task LeaseConversation(int conversationId)
         {
-            ConversationDto dto = Mapper.Map<ConversationDto>(conversation);
-            Clients.Groups(Clients.Caller.siteId).conversationUpdated(dto);
+            return Groups.Remove(Context.ConnectionId, conversationId.ToString());
         }
 
         public override Task OnConnected()
