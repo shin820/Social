@@ -103,6 +103,9 @@ namespace Social.Application.AppServices
                 socialUser.Type = SocialUserType.Customer;
                 socialUser.SocialAccount = socialAccount;
                 _socialUserService.Update(socialUser);
+
+                socialAccount.SocialUser = socialUser;
+                await _socialAccountService.InsertSocialAccountInGeneralDb(socialAccount);
             }
 
             await FbClient.SubscribeApp(dto.FacebookId, dto.AccessToken);

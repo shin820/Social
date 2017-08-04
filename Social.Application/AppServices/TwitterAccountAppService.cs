@@ -72,6 +72,8 @@ namespace Social.Application.AppServices
                     socialUser.Type = SocialUserType.IntegrationAccount;
                     socialUser.SocialAccount = account;
                     _socialUserService.Update(socialUser);
+                    account.SocialUser = socialUser;
+                    await _socialAccountService.InsertSocialAccountInGeneralDb(account);
                 }
                 else
                 {

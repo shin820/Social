@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Threading.Tasks;
+using Social.Application.Dto;
+using AutoMapper;
 
 namespace Social.WebApi.Hubs
 {
@@ -12,12 +14,14 @@ namespace Social.WebApi.Hubs
     {
         public void NewConversation(Conversation conversation)
         {
-
+            ConversationDto dto = Mapper.Map<ConversationDto>(conversation);
+            Clients.Groups(Clients.Caller.siteId).conversationCreated(dto);
         }
 
-        public void NewMessage(Message message)
+        public void NewMessage(Conversation conversation)
         {
-
+            ConversationDto dto = Mapper.Map<ConversationDto>(conversation);
+            Clients.Groups(Clients.Caller.siteId).conversationUpdated(dto);
         }
 
         public override Task OnConnected()
