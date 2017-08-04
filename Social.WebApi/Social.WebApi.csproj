@@ -320,6 +320,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\FacebookHub.cs" />
+    <Compile Include="Hubs\SocialHub.cs" />
     <Compile Include="Models\Account\AuthenticationModel.cs" />
     <Compile Include="Models\Account\Me.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -388,6 +389,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Models\Notification\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
@@ -416,6 +418,10 @@
     <ProjectReference Include="..\Social.Application\Social.Application.csproj">
       <Project>{349cd324-cb06-46e7-97f1-33af7ea446ff}</Project>
       <Name>Social.Application</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Social.Domain\Social.Domain.csproj">
+      <Project>{7F485985-BA40-4B9D-A0A9-63486C82F0AF}</Project>
+      <Name>Social.Domain</Name>
     </ProjectReference>
     <ProjectReference Include="..\Social.Infrastructure\Social.Infrastructure.csproj">
       <Project>{fe79d2df-6b23-4278-9c84-fc1d6487c45b}</Project>
