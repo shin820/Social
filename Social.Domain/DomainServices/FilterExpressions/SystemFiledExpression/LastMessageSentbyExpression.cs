@@ -31,11 +31,6 @@ namespace Social.Domain.DomainServices
             return t => t.LastMessageSender.Name != condition.Value;
         }
 
-        protected override Expression<Func<Conversation, bool>> LogicalExpression(FilterCondition condition)
-        {
-            return t => Regex.IsMatch(t.LastMessageSender.Name, condition.Value);
-        }
-
         protected override Expression<Func<Conversation, bool>> NotContain(FilterCondition condition)
         {
             return t => !t.LastMessageSender.Name.Contains(condition.Value);
