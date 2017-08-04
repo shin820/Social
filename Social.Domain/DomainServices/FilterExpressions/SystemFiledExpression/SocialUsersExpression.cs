@@ -35,9 +35,5 @@ namespace Social.Domain.DomainServices.FilterExpressions.SystemFiledExpression
             return t => t.Messages.Any(m => m.Sender.Name != condition.Value && m.Sender.Email != condition.Value);
         }
 
-        protected override Expression<Func<Conversation, bool>> LogicalExpression(FilterCondition condition)
-        {
-            return t => t.Messages.Any(m => Regex.IsMatch(m.Sender.Name, condition.Value) || Regex.IsMatch(m.Sender.Email, condition.Value));
-        }
     }
 }

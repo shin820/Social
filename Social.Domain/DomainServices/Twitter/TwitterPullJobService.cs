@@ -75,6 +75,14 @@ namespace Social.Domain.DomainServices
                 var maxId = receivedDirectMessages.Last().Id;
                 var parameter = new MessagesReceivedParameters { MaxId = maxId, MaximumNumberOfMessagesToRetrieve = maxNumberOfMessagesRetrieve };
                 receivedDirectMessages = Tweetinvi.Message.GetLatestMessagesReceived(parameter);
+
+                if (receivedDirectMessages.Count() == 1)
+                {
+                    if (receivedDirectMessages.First().Id == maxId)
+                    {
+                        break;
+                    }
+                }
             }
 
             return messages;
@@ -108,6 +116,14 @@ namespace Social.Domain.DomainServices
                 var maxId = sentDirectMessages.Last().Id;
                 var parameter = new MessagesSentParameters { MaxId = maxId, MaximumNumberOfMessagesToRetrieve = maxNumberOfMessagesRetrieve };
                 sentDirectMessages = Tweetinvi.Message.GetLatestMessagesSent(parameter);
+
+                if (sentDirectMessages.Count() == 1)
+                {
+                    if (sentDirectMessages.First().Id == maxId)
+                    {
+                        break;
+                    }
+                }
             }
             return messages;
         }
@@ -193,6 +209,14 @@ namespace Social.Domain.DomainServices
                 var maxId = tweets.Last().Id;
                 var parameter = new MentionsTimelineParameters { MaxId = maxId, MaximumNumberOfTweetsToRetrieve = maxNumberOfTweetsRetrieve };
                 tweets = Timeline.GetMentionsTimeline(parameter);
+
+                if (tweets.Count() == 1)
+                {
+                    if (tweets.First().Id == maxId)
+                    {
+                        break;
+                    }
+                }
             }
             return mentions;
         }
