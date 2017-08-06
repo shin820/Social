@@ -10,7 +10,7 @@ using AutoMapper;
 
 namespace Social.WebApi.Hubs
 {
-    public class SocialHub : Hub
+    public class NotificationHub : Hub
     {
         //public void ConversationCreated(Conversation conversation)
         //{
@@ -29,27 +29,32 @@ namespace Social.WebApi.Hubs
             return Groups.Add(Context.ConnectionId, conversationId.ToString());
         }
 
-        public Task LeaseConversation(int conversationId)
+        public Task LeaveConversation(int conversationId)
         {
             return Groups.Remove(Context.ConnectionId, conversationId.ToString());
         }
 
         public override Task OnConnected()
         {
-            Groups.Add(Context.ConnectionId, Clients.Caller.siteId);
+            Groups.Add(Context.ConnectionId, GetSiteId());
             return base.OnConnected();
         }
 
         public override Task OnDisconnected(bool stopCalled)
         {
-            Groups.Remove(Context.ConnectionId, Clients.Caller.siteId);
+            Groups.Remove(Context.ConnectionId, GetSiteId());
             return base.OnDisconnected(stopCalled);
         }
 
         public override Task OnReconnected()
         {
-            Groups.Add(Context.ConnectionId, Clients.Caller.siteId);
+            Groups.Add(Context.ConnectionId, GetSiteId());
             return base.OnReconnected();
+        }
+
+        private string GetSiteId()
+        {
+            return Context.QueryString["siteId"];
         }
     }
 }

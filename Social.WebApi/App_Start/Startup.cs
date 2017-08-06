@@ -10,6 +10,8 @@ using System.Web;
 using System.Web.SessionState;
 using Microsoft.Owin.Extensions;
 using Microsoft.AspNet.SignalR;
+using Newtonsoft.Json;
+using Social.WebApi.Core;
 
 [assembly: OwinStartup(typeof(Startup))]
 
@@ -31,9 +33,14 @@ namespace Social.WebApi.App_Start
             //app.UseOAuthAuthorizationServer(oAuthServerOptions);
             //app.UseOAuthBearerAuthentication(AccountsController.OAuthBearerOptions);
 
+            var settings = new JsonSerializerSettings();
+            settings.ContractResolver = new SignalRContractResolver();
+            var serializer = JsonSerializer.Create(settings);
+            GlobalHost.DependencyResolver.Register(typeof(JsonSerializer), () => serializer);
             var hubConfiguration = new HubConfiguration();
             hubConfiguration.EnableDetailedErrors = true;
             app.MapSignalR(hubConfiguration);
+
             app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
 
             app.Use((context, next) =>

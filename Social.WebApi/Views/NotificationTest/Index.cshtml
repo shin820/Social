@@ -1,0 +1,52 @@
+﻿
+@{
+    ViewBag.Title = "Notification";
+}
+
+
+<div class="container">
+    <div class="row">
+        <h2>Real Time Notifications</h2>
+    </div>
+    <div class="row">
+        <div class="col-md-1">
+        </div>
+        <div class="col-md-11">
+            <div id="discussion"></div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts {
+    <script src="~/Scripts/jquery.signalR-2.2.2.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script>
+        $(function () {
+
+            var hub = $.connection.notificationHub;
+            hub.state.agentId = 1;
+            hub.state.siteId = 10000;
+            $.connection.logging = true;
+            $.connection.hub.qs = { "siteId": "10000" };
+
+            hub.client.conversationCreated = function (conversation) {
+                console.log(conversation);
+                $('#discussion').append("<p>" + htmlEncode("Create " + conversation.id) + "</p > ");
+            }
+            hub.client.conversationModified = function (conversation) {
+                console.log(conversation);
+                $('#discussion').append("<p>" + htmlEncode("Update " + conversation.id) + "</p > ");
+            }
+
+            $.connection.hub.start().done(function () {
+            });
+
+        });
+
+        function htmlEncode(value) {
+            var encodedValue = $('<div />').text(value).html();
+            return encodedValue;
+        }
+    </script>
+}

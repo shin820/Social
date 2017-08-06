@@ -25,6 +25,8 @@
         $(function () {
 
             var chat = $.connection.facebookHub;
+            $.connection.logging = true;
+
             chat.client.newRaw = function (raw) {
                 $('#discussion').append("<p>" + htmlEncode(raw) + "</p>");
             };
@@ -43,7 +45,7 @@
                 $('#discussion').append("<p class='text-primary'><b>" + sender + " created a comment '" + commentId + "'</b> : " + htmlEncode(message) + "</p>");
             };
 
-            chat.client.removeComment = function (sender,commentId) {
+            chat.client.removeComment = function (sender, commentId) {
                 $('#discussion').append("<p class='text-primary'><b>" + sender + " removed a comment '" + commentId + "'.</b></p>");
             };
 
