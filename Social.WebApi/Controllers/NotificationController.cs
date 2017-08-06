@@ -1,6 +1,8 @@
 ﻿using Framework.WebApi;
 using Microsoft.AspNet.SignalR;
 using Social.Application.AppServices;
+using Social.Application.Dto;
+using Social.Infrastructure.Enum;
 using Social.WebApi.Hubs;
 using System;
 using System.Collections.Generic;
@@ -27,21 +29,51 @@ namespace Social.WebApi.Controllers
             _conversationAppService = conversationAppService;
         }
 
-        [Route("conversation/{conversationId}/creation")]
-        [HttpGet]
-        public IHttpActionResult ConversationCreation(int conversationId)
+        [Route("conversation-created")]
+        [HttpPost]
+        public IHttpActionResult ConversationCreated(ConversationDto conversationDto)
         {
-            var conversationDto = _conversationAppService.Find(conversationId);
             _hub.Clients.Group(Request.GetSiteId().ToString()).conversationCreated(conversationDto);
             return Ok();
         }
 
-        [Route("conversation/{conversationId}/modification")]
-        [HttpGet]
-        public IHttpActionResult ConversationModification(int conversationId)
+        [Route("conversation-updated")]
+        [HttpPost]
+        public IHttpActionResult ConversationUpdated(ConversationDto conversationDto)
         {
-            var conversationDto = _conversationAppService.Find(conversationId);
-            _hub.Clients.Group(Request.GetSiteId().ToString()).conversationModified(conversationDto);
+            _hub.Clients.Group(Request.GetSiteId().ToString()).conversationUpdated(conversationDto);
+            return Ok();
+        }
+
+        [Route("facebook-comment-created")]
+        [HttpPost]
+        public IHttpActionResult FacebookCommentMessageCreated(FacebookPostCommentMessageDto messageDto)
+        {
+            _hub.Clients.Group(Request.GetSiteId().ToString()).facebookCommentCreated(messageDto);
+            return Ok();
+        }
+
+        [Route("facebook-message-created")]
+        [HttpPost]
+        public IHttpActionResult FacebookMessageCreated(FacebookMessageDto messageDto)
+        {
+            _hub.Clients.Group(Request.GetSiteId().ToString()).facebookMessageCreated(messageDto);
+            return Ok();
+        }
+
+        [Route("twitter-tweet-created")]
+        [HttpPost]
+        public IHttpActionResult TwitterTweetCreated(TwitterTweetMessageDto messageDto)
+        {
+            _hub.Clients.Group(Request.GetSiteId().ToString()).twitterTweetCreated(messageDto);
+            return Ok();
+        }
+
+        [Route("twitter-direct-message-created")]
+        [HttpPost]
+        public IHttpActionResult TwitterDirectMessageCreated(TwitterDirectMessageDto messageDto)
+        {
+            _hub.Clients.Group(Request.GetSiteId().ToString()).twitterDirectMessageCreated(messageDto);
             return Ok();
         }
     }

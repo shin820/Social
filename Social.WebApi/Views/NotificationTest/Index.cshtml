@@ -34,7 +34,7 @@
                 console.log(conversation);
                 $('#discussion').append("<p>" + htmlEncode("Create " + conversation.id) + "</p > ");
             }
-            hub.client.conversationModified = function (conversation) {
+            hub.client.conversationUpdated = function (conversation) {
                 console.log(conversation);
                 $('#discussion').append("<p>" + htmlEncode("Update " + conversation.id) + "</p > ");
             }
