@@ -1,14 +1,8 @@
 ﻿using Framework.WebApi;
 using Microsoft.AspNet.SignalR;
 using Social.Application.AppServices;
-using Social.Application.Dto;
-using Social.Infrastructure.Enum;
 using Social.WebApi.Hubs;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
 using System.Web.Http;
 
 namespace Social.WebApi.Controllers
@@ -24,56 +18,85 @@ namespace Social.WebApi.Controllers
         }
 
         private IConversationAppService _conversationAppService;
-        public NotificationController(IConversationAppService conversationAppService)
+        private IConversationMessageAppService _messageAppService;
+        public NotificationController(
+            IConversationAppService conversationAppService,
+            IConversationMessageAppService messageAppService
+            )
         {
             _conversationAppService = conversationAppService;
+            _messageAppService = messageAppService;
         }
 
         [Route("conversation-created")]
         [HttpPost]
-        public IHttpActionResult ConversationCreated(ConversationDto conversationDto)
+        public IHttpActionResult ConversationCreated(int conversationId)
         {
-            _hub.Clients.Group(Request.GetSiteId().ToString()).conversationCreated(conversationDto);
+            var dto = _conversationAppService.Find(conversationId);
+            if (dto != null)
+            {
+                _hub.Clients.Group(Request.GetSiteId().ToString()).conversationCreated(dto);
+            }
             return Ok();
         }
 
         [Route("conversation-updated")]
         [HttpPost]
-        public IHttpActionResult ConversationUpdated(ConversationDto conversationDto)
+        public IHttpActionResult ConversationUpdated(int conversationId)
         {
-            _hub.Clients.Group(Request.GetSiteId().ToString()).conversationUpdated(conversationDto);
+            var dto = _conversationAppService.Find(conversationId);
+            if (dto != null)
+            {
+                _hub.Clients.Group(Request.GetSiteId().ToString()).conversationUpdated(dto);
+            }
             return Ok();
         }
 
         [Route("facebook-comment-created")]
         [HttpPost]
-        public IHttpActionResult FacebookCommentMessageCreated(FacebookPostCommentMessageDto messageDto)
+        public IHttpActionResult FacebookCommentMessageCreated(int messageId)
         {
-            _hub.Clients.Group(messageDto.ConversationId.ToString()).facebookCommentCreated(messageDto);
+            var dto = _messageAppService.GetFacebookPostCommentMessage(messageId);
+            if (dto != null)
+            {
+                _hub.Clients.Group(dto.ConversationId.ToString()).facebookCommentCreated(dto);
+            }
             return Ok();
         }
 
         [Route("facebook-message-created")]
         [HttpPost]
-        public IHttpActionResult FacebookMessageCreated(FacebookMessageDto messageDto)
+        public IHttpActionResult FacebookMessageCreated(int messageId)
         {
-            _hub.Clients.Group(messageDto.ConversationId.ToString()).facebookMessageCreated(messageDto);
+            var dto = _messageAppService.GetFacebookDirectMessage(messageId);
+            if (dto != null)
+            {
+                _hub.Clients.Group(dto.ConversationId.ToString()).facebookMessageCreated(dto);
+            }
             return Ok();
         }
 
         [Route("twitter-tweet-created")]
         [HttpPost]
-        public IHttpActionResult TwitterTweetCreated(TwitterTweetMessageDto messageDto)
+        public IHttpActionResult TwitterTweetCreated(int messageId)
         {
-            _hub.Clients.Group(messageDto.ConversationId.ToString()).twitterTweetCreated(messageDto);
+            var dto = _messageAppService.GetTwitterTweetMessage(messageId);
+            if (dto != null)
+            {
+                _hub.Clients.Group(dto.ConversationId.ToString()).twitterTweetCreated(dto);
+            }
             return Ok();
         }
 
         [Route("twitter-direct-message-created")]
         [HttpPost]
-        public IHttpActionResult TwitterDirectMessageCreated(TwitterDirectMessageDto messageDto)
+        public IHttpActionResult TwitterDirectMessageCreated(int messageId)
         {
-            _hub.Clients.Group(messageDto.ConversationId.ToString()).twitterDirectMessageCreated(messageDto);
+            var dto = _messageAppService.GetTwitterDirectMessage(messageId);
+            if (dto != null)
+            {
+                _hub.Clients.Group(dto.ConversationId.ToString()).twitterDirectMessageCreated(dto);
+            }
             return Ok();
         }
     }
