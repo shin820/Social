@@ -141,6 +141,7 @@
     <Compile Include="DomainServices\AgentService.cs" />
     <Compile Include="DomainServices\ConversationService.cs" />
     <Compile Include="DomainServices\DepartmentService.cs" />
+    <Compile Include="DomainServices\Facebook\FacebookProcessResult.cs" />
     <Compile Include="DomainServices\FilterExpressions\DateTimeExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\NumberExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\AgentAssigneeStatusExpression.cs" />

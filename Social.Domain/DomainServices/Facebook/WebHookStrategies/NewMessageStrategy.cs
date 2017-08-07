@@ -16,11 +16,12 @@ namespace Social.Domain.DomainServices.Facebook
             return change.Field == "conversations" && change.Value.ThreadId != null;
         }
 
-        public async override Task Process(SocialAccount socialAccount, FbHookChange change)
+        public async override Task<FacebookProcessResult> Process(SocialAccount socialAccount, FbHookChange change)
         {
+            var result = new FacebookProcessResult(NotificationManager);
             if (!socialAccount.IfConvertMessageToConversation)
             {
-                return;
+                return result;
             }
 
             IList<FbMessage> fbMessages = await FbClient.GetMessagesFromConversationId(socialAccount.Token, change.Value.ThreadId);
@@ -28,14 +29,16 @@ namespace Social.Domain.DomainServices.Facebook
             {
                 if (IsDuplicatedMessage(fbMessage.Id))
                 {
-                    return;
+                    return result;
                 }
 
-                await Process(fbMessage, socialAccount, change);
+                await Process(result, fbMessage, socialAccount, change);
             }
+
+            return result;
         }
 
-        private async Task Process(FbMessage fbMessage, SocialAccount socialAccount, FbHookChange change)
+        private async Task Process(FacebookProcessResult result, FbMessage fbMessage, SocialAccount socialAccount, FbHookChange change)
         {
             SocialUser sender = await GetOrCreateFacebookUser(socialAccount.Token, fbMessage.SenderId);
             SocialUser receiver = await GetOrCreateFacebookUser(socialAccount.Token, fbMessage.ReceiverId);
@@ -50,8 +53,11 @@ namespace Social.Domain.DomainServices.Facebook
                 existingConversation.LastMessageSenderId = message.SenderId;
                 existingConversation.LastMessageSentTime = message.SendTime;
                 existingConversation.Messages.Add(message);
-                UpdateConversation(existingConversation);
+                await UpdateConversation(existingConversation);
                 await CurrentUnitOfWork.SaveChangesAsync();
+
+                result.WithUpdatedConversation(existingConversation);
+                result.WithNewMessage(message);
             }
             else
             {
@@ -74,6 +80,8 @@ namespace Social.Domain.DomainServices.Facebook
                 conversation.Messages.Add(message);
                 await AddConversation(socialAccount, conversation);
                 await CurrentUnitOfWork.SaveChangesAsync();
+
+                result.WithNewConversation(conversation);
             }
         }
 

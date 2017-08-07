@@ -14,13 +14,15 @@ namespace Social.Domain.DomainServices.Facebook
                 && change.Value.Verb == "remove";
         }
 
-        public async override Task Process(SocialAccount socialAccount, FbHookChange data)
+        public async override Task<FacebookProcessResult> Process(SocialAccount socialAccount, FbHookChange data)
         {
             var conversation = GetConversation(data.Value.PostId);
             if (conversation != null)
             {
                 await DeleteConversation(conversation);
             }
+
+            return new FacebookProcessResult(NotificationManager);
         }
     }
 }

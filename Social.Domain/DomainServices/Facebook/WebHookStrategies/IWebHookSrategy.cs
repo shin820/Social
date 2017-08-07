@@ -11,7 +11,7 @@ namespace Social.Domain.DomainServices.Facebook
 {
     public interface IWebHookSrategy : ITransient
     {
-        Task Process(SocialAccount socialAccount, FbHookChange change);
+        Task<FacebookProcessResult> Process(SocialAccount socialAccount, FbHookChange change);
         bool IsMatch(FbHookChange change);
     }
 }

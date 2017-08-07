@@ -69,10 +69,16 @@ namespace Social.Domain.DomainServices.Facebook
                     var strategory = _strategyFactory.Create(change);
                     if (strategory != null)
                     {
+                        FacebookProcessResult result = null;
                         await UnitOfWorkManager.Run(TransactionScopeOption.RequiresNew, socialAccount.SiteId, async () =>
                          {
-                             await strategory.Process(socialAccount, change);
+                             result = await strategory.Process(socialAccount, change);
                          });
+
+                        if (result != null)
+                        {
+                            await result.Notify();
+                        }
                     }
                 }
             }

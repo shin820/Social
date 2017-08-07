@@ -44,45 +44,27 @@ namespace Social.Domain.DomainServices.Facebook
             return isWallPost;
         }
 
-        public override async Task Process(SocialAccount socialAccount, FbHookChange change)
+        public override async Task<FacebookProcessResult> Process(SocialAccount socialAccount, FbHookChange change)
         {
+            var result = new FacebookProcessResult(NotificationManager);
             if (IsWallPost(change) && !socialAccount.IfConvertWallPostToConversation)
             {
-                return;
+                return result;
             }
             if (!IsWallPost(change) && !socialAccount.IfConvertVisitorPostToConversation)
             {
-                return;
+                return result;
             }
 
             string token = socialAccount.Token;
             if (IsDuplicatedMessage(MessageSource.FacebookPost, change.Value.PostId))
             {
-                return;
+                return result;
             }
 
             FbPost post = await FbClient.GetPost(socialAccount.Token, change.Value.PostId);
             SocialUser sender = await GetOrCreateFacebookUser(socialAccount.Token, post.from.id);
 
-            //var existingConversation = GetConversation(change.Value.PostId);
-            //if (existingConversation != null)
-            //{
-            //    Message message = FacebookConverter.ConvertToMessage(token, post);
-            //    message.SenderId = sender.Id;
-            //    if (message.SenderId != socialAccount.Id)
-            //    {
-            //        message.ReceiverId = socialAccount.Id;
-            //    }
-            //    message.ConversationId = existingConversation.Id;
-            //    existingConversation.IfRead = false;
-            //    existingConversation.Messages.Add(message);
-            //    existingConversation.Status = ConversationStatus.PendingInternal;
-            //    existingConversation.LastMessageSenderId = message.SenderId;
-            //    existingConversation.LastMessageSentTime = message.SendTime;
-            //    UpdateConversation(existingConversation);
-            //}
-            //else
-            //{
             Message message = FacebookConverter.ConvertToMessage(token, post);
             message.SenderId = sender.Id;
             if (message.SenderId != socialAccount.Id)
@@ -108,7 +90,9 @@ namespace Social.Domain.DomainServices.Facebook
 
             conversation.Messages.Add(message);
             await AddConversation(socialAccount, conversation);
-            //}
+            await CurrentUnitOfWork.SaveChangesAsync();
+            result.WithNewConversation(conversation);
+            return result;
         }
     }
 }

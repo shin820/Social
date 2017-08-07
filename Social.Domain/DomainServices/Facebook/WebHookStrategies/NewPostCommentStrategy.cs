@@ -16,12 +16,13 @@ namespace Social.Domain.DomainServices.Facebook
                 && change.Value.Verb == "add";
         }
 
-        public async override Task Process(SocialAccount socialAccount, FbHookChange change)
+        public async override Task<FacebookProcessResult> Process(SocialAccount socialAccount, FbHookChange change)
         {
+            var result = new FacebookProcessResult(NotificationManager);
             string token = socialAccount.Token;
             if (IsDuplicatedMessage(change.Value.CommentId))
             {
-                return;
+                return result;
             }
 
             FbComment comment = FbClient.GetComment(socialAccount.Token, change.Value.CommentId);
@@ -30,7 +31,7 @@ namespace Social.Domain.DomainServices.Facebook
             var conversation = GetConversation(change.Value.PostId);
             if (conversation == null)
             {
-                return;
+                return result;
             }
 
             Message message = FacebookConverter.ConvertToMessage(token, comment);
@@ -51,6 +52,12 @@ namespace Social.Domain.DomainServices.Facebook
             conversation.TryToMakeWallPostVisible(socialAccount);
 
             await UpdateConversation(conversation);
+            await CurrentUnitOfWork.SaveChangesAsync();
+
+            result.WithUpdatedConversation(conversation);
+            result.WithNewMessage(message);
+
+            return result;
         }
 
         private Message GetParent(string postId, FbComment comment)
