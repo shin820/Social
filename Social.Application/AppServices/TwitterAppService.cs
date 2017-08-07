@@ -1,5 +1,6 @@
 ﻿using Framework.Core;
 using Social.Domain.DomainServices;
+using Social.Domain.DomainServices.Twitter;
 using Social.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -46,18 +47,30 @@ namespace Social.Application.AppServices
 
         public async Task ProcessTweet(SocialAccount account, ITweet currentTweet)
         {
+            TwitterProcessResult result = null;
             await UnitOfWorkManager.RunWithoutTransaction(account.SiteId, async () =>
             {
-                await _twitterService.ProcessTweet(account, currentTweet);
+                result = await _twitterService.ProcessTweet(account, currentTweet);
             });
+
+            if (result != null)
+            {
+                await result.Notify();
+            }
         }
 
         public async Task ProcessDirectMessage(SocialAccount account, IMessage directMsg)
         {
+            TwitterProcessResult result = null;
             await UnitOfWorkManager.RunWithNewTransaction(account.SiteId, async () =>
             {
-                await _twitterService.ProcessDirectMessage(account, directMsg);
+                result = await _twitterService.ProcessDirectMessage(account, directMsg);
             });
+
+            if (result != null)
+            {
+                await result.Notify();
+            }
         }
     }
 }

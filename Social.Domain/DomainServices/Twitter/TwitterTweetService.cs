@@ -2,21 +2,17 @@
 using Social.Domain.Entities;
 using Social.Infrastructure;
 using Social.Infrastructure.Enum;
-using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Tweetinvi;
 using Tweetinvi.Models;
-using Tweetinvi.Parameters;
 
 namespace Social.Domain.DomainServices.Twitter
 {
     public interface ITwitterTweetService
     {
-        Task ProcessTweet(SocialAccount currentAccount, ITweet currentTweet);
+        Task<TwitterProcessResult> ProcessTweet(SocialAccount currentAccount, ITweet currentTweet);
     }
 
     public class TwitterTweetService : ServiceBase, ITwitterTweetService
@@ -26,12 +22,14 @@ namespace Social.Domain.DomainServices.Twitter
         private ISocialUserService _socialUserService;
         private ISocialAccountService _socialAccountService;
         private TweetTreeWalker _twitterTreeWalker;
+        private TwitterProcessResult _result;
 
         public TwitterTweetService(
             IConversationService conversationService,
             IMessageService messageService,
             ISocialUserService socialUserService,
-            ISocialAccountService socialAccountService
+            ISocialAccountService socialAccountService,
+            INotificationManager notificationManager
             )
         {
             _conversationService = conversationService;
@@ -39,19 +37,20 @@ namespace Social.Domain.DomainServices.Twitter
             _socialUserService = socialUserService;
             _socialAccountService = socialAccountService;
             _twitterTreeWalker = new TweetTreeWalker();
+            _result = new TwitterProcessResult(notificationManager);
         }
 
-        public async Task ProcessTweet(SocialAccount currentAccount, ITweet currentTweet)
+        public async Task<TwitterProcessResult> ProcessTweet(SocialAccount currentAccount, ITweet currentTweet)
         {
             IList<SocialAccount> allAccounts = _socialAccountService.FindAllTwitterAccounts().ToList();
 
-            if (!ShouldProcess(currentAccount, allAccounts, currentTweet))
+            if (ShouldProcess(currentAccount, allAccounts, currentTweet))
             {
-                return;
+                List<ITweet> tweets = _twitterTreeWalker.BuildTweetTree(currentTweet);
+                await AddTweets(currentAccount, allAccounts, tweets);
             }
 
-            List<ITweet> tweets = _twitterTreeWalker.BuildTweetTree(currentTweet);
-            await AddTweets(currentAccount, allAccounts, tweets);
+            return _result;
         }
 
         private bool ShouldProcess(SocialAccount currentAccount, IList<SocialAccount> allAccounts, ITweet currentTweet)
@@ -221,7 +220,7 @@ namespace Social.Domain.DomainServices.Twitter
             return socialAccounts.Any(t => t.SocialUser.OriginalId == originalId);
         }
 
-        private void SaveConversations(SocialAccount account, IList<Conversation> conversations, Entities.Message message)
+        private void SaveConversations(SocialAccount account, IList<Conversation> conversations, Message message)
         {
             if (conversations.Any())
             {
@@ -231,6 +230,7 @@ namespace Social.Domain.DomainServices.Twitter
                     {
                         continue;
                     }
+                    message.ConversationId = conversation.Id;
                     conversation.Messages.Add(message);
                     if (message.SendTime > conversation.LastMessageSentTime)
                     {
@@ -240,6 +240,9 @@ namespace Social.Domain.DomainServices.Twitter
                         conversation.LastMessageSentTime = message.SendTime;
                     }
                     _conversationService.Update(conversation);
+                    CurrentUnitOfWork.SaveChangesAsync();
+                    _result.WithUpdatedConversation(conversation);
+                    _result.WithNewMessage(message);
                 }
             }
             else
@@ -256,6 +259,8 @@ namespace Social.Domain.DomainServices.Twitter
                 };
                 conversation.Messages.Add(message);
                 _conversationService.AddConversation(account, conversation);
+                CurrentUnitOfWork.SaveChanges();
+                _result.WithNewConversation(conversation);
             }
         }
     }

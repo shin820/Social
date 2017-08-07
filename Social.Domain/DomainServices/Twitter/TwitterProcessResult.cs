@@ -1,4 +1,7 @@
-﻿using Social.Domain.Entities;
+﻿using AutoMapper;
+using Social.Domain.Entities;
+using Social.Infrastructure;
+using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,31 +12,98 @@ namespace Social.Domain.DomainServices.Twitter
 {
     public class TwitterProcessResult
     {
-        public Conversation ConversationCreated { get; set; }
-        public Conversation ConversationUpdated { get; set; }
-        public IList<Message> MessagesCreated { get; set; }
+        private IList<Conversation> _newConversations;
+        private IList<Conversation> _updatedConversations { get; set; }
+        private IList<Message> _newMessages { get; set; }
 
-        public TwitterProcessResult()
+        private INotificationManager _notificationManager { get; set; }
+
+        public TwitterProcessResult(
+            INotificationManager notificationManager
+            )
         {
-            MessagesCreated = new List<Message>();
+            _newConversations = new List<Conversation>();
+            _updatedConversations = new List<Conversation>();
+            _newMessages = new List<Message>();
+            _notificationManager = notificationManager;
         }
 
-        public void CreateConversation(Conversation conversation)
+        public void WithNewConversation(Conversation conversation)
         {
-            if (ConversationCreated == null)
+            if (_newConversations.Any(t => t.Id == conversation.Id))
             {
-                ConversationCreated = conversation;
+                return;
+            }
+
+            _newConversations.Add(conversation);
+        }
+
+        public void WithUpdatedConversation(Conversation conversation)
+        {
+            if (_newConversations.Any(t => t.Id == conversation.Id))
+            {
+                return;
+            }
+
+            if (_updatedConversations.Any(t => t.Id == conversation.Id))
+            {
+                return;
+            }
+
+            _updatedConversations.Add(conversation);
+        }
+
+        public void WithNewMessage(Message message)
+        {
+            if (_newConversations.Any(t => t.Id == message.ConversationId))
+            {
+                return;
+            }
+
+            if (_newMessages.Any(t => t.Id == message.Id))
+            {
+                return;
+            }
+
+            _newMessages.Add(message);
+        }
+
+        public async Task Notify()
+        {
+            await NotifyNewConversations();
+            await NotifyUpdateConversations();
+            await NotifyNewMessages();
+        }
+
+        private async Task NotifyNewConversations()
+        {
+            foreach (var newConversation in _newConversations)
+            {
+                await _notificationManager.NotifyNewConversation(newConversation.SiteId, newConversation.Id);
             }
         }
 
-        public void UpdateConversation(Conversation conversation)
+        private async Task NotifyUpdateConversations()
         {
-            ConversationUpdated = conversation;
+            foreach (var updatedConversation in _updatedConversations)
+            {
+                await _notificationManager.NotifyUpdateConversation(updatedConversation.SiteId, updatedConversation.Id);
+            }
         }
 
-        public void CreateMessage(Message message)
+        private async Task NotifyNewMessages()
         {
-            MessagesCreated.Add(message);
+            foreach (var newMessage in _newMessages)
+            {
+                if (newMessage.Source == MessageSource.TwitterDirectMessage)
+                {
+                    await _notificationManager.NotifyNewTwitterDirectMessage(newMessage.SiteId, newMessage.Id);
+                }
+                if (newMessage.Source == MessageSource.TwitterQuoteTweet || newMessage.Source == MessageSource.TwitterTypicalTweet)
+                {
+                    await _notificationManager.NotifyNewTwitterTweet(newMessage.SiteId, newMessage.Id);
+                }
+            }
         }
     }
 }

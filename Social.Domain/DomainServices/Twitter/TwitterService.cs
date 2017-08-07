@@ -20,8 +20,8 @@ namespace Social.Domain.DomainServices
 {
     public interface ITwitterService
     {
-        Task ProcessDirectMessage(SocialAccount account, IMessage directMsg);
-        Task ProcessTweet(SocialAccount account, ITweet currentTweet);
+        Task<TwitterProcessResult> ProcessDirectMessage(SocialAccount account, IMessage directMsg);
+        Task<TwitterProcessResult> ProcessTweet(SocialAccount account, ITweet currentTweet);
         Entities.Message GetTweetMessage(SocialAccount socialAccount, long tweetId);
         ITweet GetTweet(SocialAccount socialAccount, long tweetId);
         ITweet ReplyTweet(SocialAccount socialAccount, ITweet inReplyTo, string message);
@@ -92,14 +92,14 @@ namespace Social.Domain.DomainServices
             return Tweetinvi.Message.PublishMessage(message, user);
         }
 
-        public async Task ProcessDirectMessage(SocialAccount account, IMessage directMsg)
+        public async Task<TwitterProcessResult> ProcessDirectMessage(SocialAccount account, IMessage directMsg)
         {
-            await _directMessageService.ProcessDirectMessage(account, directMsg);
+            return await _directMessageService.ProcessDirectMessage(account, directMsg);
         }
 
-        public async Task ProcessTweet(SocialAccount currentAccount, ITweet currentTweet)
+        public async Task<TwitterProcessResult> ProcessTweet(SocialAccount currentAccount, ITweet currentTweet)
         {
-            await _tweetServcie.ProcessTweet(currentAccount, currentTweet);
+            return await _tweetServcie.ProcessTweet(currentAccount, currentTweet);
         }
     }
 }

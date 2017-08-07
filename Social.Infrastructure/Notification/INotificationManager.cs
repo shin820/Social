@@ -5,11 +5,11 @@ namespace Social.Infrastructure
 {
     public interface INotificationManager : ITransient
     {
-        Task NotifyNewConversation<T>(int siteId, T data);
-        Task NotifyNewFacebookComment<T>(int siteId, T data);
-        Task NotifyNewFacebookMessage<T>(int siteId, T data);
-        Task NotifyNewTwitterDirectMessage<T>(int siteId, T data);
-        Task NotifyNewTwitterTweet<T>(int siteId, T data);
-        Task NotifyUpdateConversation<T>(int siteId, T data);
+        Task NotifyNewConversation(int siteId, int conversationId);
+        Task NotifyNewFacebookComment(int siteId, int messageId);
+        Task NotifyNewFacebookMessage(int siteId, int messageId);
+        Task NotifyNewTwitterDirectMessage(int siteId, int messageId);
+        Task NotifyNewTwitterTweet(int siteId, int messageId);
+        Task NotifyUpdateConversation(int siteId, int conversationId);
     }
 }
