@@ -11,8 +11,8 @@ namespace Social.Domain.DomainServices.Facebook
 {
     public class FacebookProcessResult
     {
-        private Conversation _newConversation;
-        private Conversation _updatedConversation { get; set; }
+        private IList<Conversation> _newConversations;
+        private IList<Conversation> _updatedConversations { get; set; }
         private IList<Message> _newMessages { get; set; }
 
         private INotificationManager _notificationManager { get; set; }
@@ -21,38 +21,40 @@ namespace Social.Domain.DomainServices.Facebook
             INotificationManager notificationManager
             )
         {
+            _newConversations = new List<Conversation>();
+            _updatedConversations = new List<Conversation>();
             _newMessages = new List<Message>();
             _notificationManager = notificationManager;
         }
 
         public void WithNewConversation(Conversation conversation)
         {
-            if (_newConversation != null)
+            if (_newConversations.Any(t => t.Id == conversation.Id))
             {
                 return;
             }
 
-            _newConversation = conversation;
+            _newConversations.Add(conversation);
         }
 
         public void WithUpdatedConversation(Conversation conversation)
         {
-            if (_newConversation != null)
+            if (_newConversations.Any(t => t.Id == conversation.Id))
             {
                 return;
             }
 
-            if (_updatedConversation != null)
+            if (_updatedConversations.Any(t => t.Id == conversation.Id))
             {
                 return;
             }
 
-            _updatedConversation = conversation;
+            _updatedConversations.Add(conversation);
         }
 
         public void WithNewMessage(Message message)
         {
-            if (_newConversation != null)
+            if (_newConversations.Any(t => t.Id == message.ConversationId))
             {
                 return;
             }
@@ -67,22 +69,35 @@ namespace Social.Domain.DomainServices.Facebook
 
         public async Task Notify()
         {
-            if (_newConversation != null)
-            {
-                await _notificationManager.NotifyNewConversation(_newConversation.SiteId, _newConversation.Id);
-            }
-            if (_updatedConversation != null)
-            {
-                await _notificationManager.NotifyUpdateConversation(_updatedConversation.SiteId, _updatedConversation.Id);
-            }
+            await NotifyNewConversations();
+            await NotifyUpdateConversations();
+            await NotifyNewMessages();
+        }
 
-            foreach (var newMessage in _newMessages)
+        private async Task NotifyNewConversations()
+        {
+            foreach (var newConversation in _newConversations)
+            {
+                await _notificationManager.NotifyNewConversation(newConversation.SiteId, newConversation.Id);
+            }
+        }
+
+        private async Task NotifyUpdateConversations()
+        {
+            foreach (var updatedConversation in _updatedConversations)
+            {
+                await _notificationManager.NotifyUpdateConversation(updatedConversation.SiteId, updatedConversation.Id);
+            }
+        }
+
+        private async Task NotifyNewMessages()
+        {
+            foreach (var newMessage in _newMessages.OrderBy(t => t.Id))
             {
                 if (newMessage.Source == MessageSource.FacebookMessage)
                 {
                     await _notificationManager.NotifyNewFacebookMessage(newMessage.SiteId, newMessage.Id);
                 }
-
                 if (newMessage.Source == MessageSource.FacebookPostComment)
                 {
                     await _notificationManager.NotifyNewFacebookComment(newMessage.SiteId, newMessage.Id);

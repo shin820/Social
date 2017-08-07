@@ -93,7 +93,7 @@ namespace Social.Domain.DomainServices.Twitter
 
         private async Task NotifyNewMessages()
         {
-            foreach (var newMessage in _newMessages)
+            foreach (var newMessage in _newMessages.OrderBy(t => t.Id))
             {
                 if (newMessage.Source == MessageSource.TwitterDirectMessage)
                 {

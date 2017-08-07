@@ -1,6 +1,7 @@
 ﻿using Facebook;
 using Framework.Core;
 using Social.Domain.Entities;
+using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using Social.Infrastructure.Facebook;
 using System;
@@ -31,16 +32,19 @@ namespace Social.Domain.DomainServices.Facebook
         private IConversationService _conversationService;
         private IMessageService _messageService;
         private ISocialUserService _socialUserService;
+        private INotificationManager _notificationManager;
 
         public PullJobService(
             IConversationService conversationService,
             IMessageService messageService,
-            ISocialUserService socialUserService
+            ISocialUserService socialUserService,
+            INotificationManager notificationManager
             )
         {
             _conversationService = conversationService;
             _messageService = messageService;
             _socialUserService = socialUserService;
+            _notificationManager = notificationManager;
         }
 
         public async Task PullVisitorPostsFromFeed(SocialAccount account)
@@ -49,9 +53,10 @@ namespace Social.Domain.DomainServices.Facebook
             var data = await FbClient.GetVisitorPosts(_account.SocialUser.OriginalId, _account.Token);
             await Init(data);
             RemoveDuplicated();
-            await AddPosts(PostsToBeCreated);
-            await AddComments(CommentsToBeCreated);
-            await AddReplyComments(ReplyCommentsToBeCretaed);
+            var result = new FacebookProcessResult(_notificationManager);
+            await AddPosts(result, PostsToBeCreated);
+            await AddComments(result, CommentsToBeCreated);
+            await AddReplyComments(result, ReplyCommentsToBeCretaed);
             Clear();
         }
 
@@ -66,10 +71,12 @@ namespace Social.Domain.DomainServices.Facebook
             var data = await FbClient.GetTaggedVisitorPosts(_account.SocialUser.OriginalId, _account.Token);
             await Init(data);
             RemoveDuplicated();
-            await AddPosts(PostsToBeCreated);
-            await AddComments(CommentsToBeCreated);
-            await AddReplyComments(ReplyCommentsToBeCretaed);
+            var result = new FacebookProcessResult(_notificationManager);
+            await AddPosts(result, PostsToBeCreated);
+            await AddComments(result, CommentsToBeCreated);
+            await AddReplyComments(result, ReplyCommentsToBeCretaed);
             Clear();
+            await result.Notify();
         }
 
         public async Task PullMassagesJob(SocialAccount account)
@@ -83,7 +90,7 @@ namespace Social.Domain.DomainServices.Facebook
             Clear();
         }
 
-        private async Task AddPosts(List<FbPost> posts)
+        private async Task AddPosts(FacebookProcessResult result, List<FbPost> posts)
         {
             if (!posts.Any())
             {
@@ -153,6 +160,7 @@ namespace Social.Domain.DomainServices.Facebook
                         }
 
                         await _conversationService.InsertAsync(conversation);
+                        result.WithNewConversation(conversation);
                     }
                     uow.Complete();
                 }
@@ -249,7 +257,7 @@ namespace Social.Domain.DomainServices.Facebook
 
 
 
-        private async Task AddComments(List<FbComment> comments)
+        private async Task AddComments(FacebookProcessResult result, List<FbComment> comments)
         {
             if (!comments.Any())
             {
@@ -290,11 +298,14 @@ namespace Social.Domain.DomainServices.Facebook
                         message.SenderId = sender.Id;
                         message.ParentId = parent.Id;
                         message.ReceiverId = parent.SenderId;
+                        message.ConversationId = conversation.Id;
                         conversation.Messages.Add(message);
                         conversation.Status = ConversationStatus.PendingInternal;
                         conversation.LastMessageSenderId = message.SenderId;
                         conversation.LastMessageSentTime = message.SendTime;
                         conversation.TryToMakeWallPostVisible(_account);
+                        result.WithUpdatedConversation(conversation);
+                        result.WithNewMessage(message);
                     }
 
                     uow.Complete();
@@ -302,7 +313,7 @@ namespace Social.Domain.DomainServices.Facebook
             }
         }
 
-        private async Task AddReplyComments(List<FbComment> replyComments)
+        private async Task AddReplyComments(FacebookProcessResult result, List<FbComment> replyComments)
         {
             if (!replyComments.Any())
             {
@@ -346,11 +357,14 @@ namespace Social.Domain.DomainServices.Facebook
                         message.SenderId = sender.Id;
                         message.ReceiverId = parent.SenderId;
                         message.ParentId = parent.Id;
+                        message.ConversationId = conversation.Id;
                         conversation.Messages.Add(message);
                         conversation.Status = ConversationStatus.PendingInternal;
                         conversation.LastMessageSenderId = message.SenderId;
                         conversation.LastMessageSentTime = message.SendTime;
                         conversation.TryToMakeWallPostVisible(_account);
+                        result.WithUpdatedConversation(conversation);
+                        result.WithNewMessage(message);
                     }
                     uow.Complete();
                 }
