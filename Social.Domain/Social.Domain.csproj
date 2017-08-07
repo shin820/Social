@@ -180,10 +180,14 @@
     <Compile Include="DomainServices\SocialUserService.cs" />
     <Compile Include="DomainServices\Facebook\PullJobService.cs" />
     <Compile Include="DomainServices\TwitterAuthService.cs" />
+    <Compile Include="DomainServices\Twitter\TwitterConverter.cs" />
+    <Compile Include="DomainServices\Twitter\TwitterDirectMessageService.cs" />
+    <Compile Include="DomainServices\Twitter\TwitterTweetService.cs" />
     <Compile Include="DomainServices\Twitter\TwitterProcessResult.cs" />
     <Compile Include="DomainServices\Twitter\TwitterPullJobService.cs" />
     <Compile Include="DomainServices\Twitter\TwitterService.cs" />
     <Compile Include="DomainServices\Twitter\TweetTreeWalker.cs" />
+    <Compile Include="DomainServices\Twitter\TwitterUtil.cs" />
     <Compile Include="Entities\Conversation.cs" />
     <Compile Include="Entities\ConversationField.cs" />
     <Compile Include="Entities\ConversationFieldOption.cs" />
