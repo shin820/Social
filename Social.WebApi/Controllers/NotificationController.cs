@@ -29,7 +29,7 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("conversation-created")]
-        [HttpPost]
+        [HttpGet]
         public IHttpActionResult ConversationCreated(int conversationId)
         {
             var dto = _conversationAppService.Find(conversationId);
@@ -41,7 +41,7 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("conversation-updated")]
-        [HttpPost]
+        [HttpGet]
         public IHttpActionResult ConversationUpdated(int conversationId)
         {
             var dto = _conversationAppService.Find(conversationId);
@@ -53,7 +53,7 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("facebook-comment-created")]
-        [HttpPost]
+        [HttpGet]
         public IHttpActionResult FacebookCommentMessageCreated(int messageId)
         {
             var dto = _messageAppService.GetFacebookPostCommentMessage(messageId);
@@ -65,7 +65,7 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("facebook-message-created")]
-        [HttpPost]
+        [HttpGet]
         public IHttpActionResult FacebookMessageCreated(int messageId)
         {
             var dto = _messageAppService.GetFacebookDirectMessage(messageId);
@@ -77,7 +77,7 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("twitter-tweet-created")]
-        [HttpPost]
+        [HttpGet]
         public IHttpActionResult TwitterTweetCreated(int messageId)
         {
             var dto = _messageAppService.GetTwitterTweetMessage(messageId);
@@ -89,7 +89,7 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("twitter-direct-message-created")]
-        [HttpPost]
+        [HttpGet]
         public IHttpActionResult TwitterDirectMessageCreated(int messageId)
         {
             var dto = _messageAppService.GetTwitterDirectMessage(messageId);

@@ -240,7 +240,7 @@ namespace Social.Domain.DomainServices.Twitter
                         conversation.LastMessageSentTime = message.SendTime;
                     }
                     _conversationService.Update(conversation);
-                    CurrentUnitOfWork.SaveChangesAsync();
+                    CurrentUnitOfWork.SaveChanges();
                     _result.WithUpdatedConversation(conversation);
                     _result.WithNewMessage(message);
                 }

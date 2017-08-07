@@ -81,6 +81,8 @@ namespace Social.Domain.DomainServices.Twitter
             {
                 await _notificationManager.NotifyNewConversation(newConversation.SiteId, newConversation.Id);
             }
+
+            _newConversations.Clear();
         }
 
         private async Task NotifyUpdateConversations()
@@ -89,6 +91,8 @@ namespace Social.Domain.DomainServices.Twitter
             {
                 await _notificationManager.NotifyUpdateConversation(updatedConversation.SiteId, updatedConversation.Id);
             }
+
+            _updatedConversations.Clear();
         }
 
         private async Task NotifyNewMessages()
@@ -104,6 +108,8 @@ namespace Social.Domain.DomainServices.Twitter
                     await _notificationManager.NotifyNewTwitterTweet(newMessage.SiteId, newMessage.Id);
                 }
             }
+
+            _newMessages.Clear();
         }
     }
 }

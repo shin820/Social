@@ -209,6 +209,7 @@
     <Compile Include="Entities\SocialUser.cs" />
     <Compile Include="Entities\TwitterAuth.cs" />
     <Compile Include="GeneralDataContext.cs" />
+    <Compile Include="NotificationManager.cs" />
     <Compile Include="SiteDataContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SiteDataRepository.cs" />

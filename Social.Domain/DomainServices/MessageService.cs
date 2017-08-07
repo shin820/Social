@@ -45,7 +45,7 @@ namespace Social.Domain.DomainServices
 
         public override Message Find(int id)
         {
-            return base.FindAll().Where(t => t.IsDeleted == false).FirstOrDefault();
+            return base.FindAll().Where(t => t.IsDeleted == false && t.Id == id).FirstOrDefault();
         }
 
         public Message FindByOriginalId(MessageSource source, string originalId)
