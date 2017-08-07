@@ -17,5 +17,23 @@ namespace Social.Domain.DomainServices.Twitter
         {
             MessagesCreated = new List<Message>();
         }
+
+        public void CreateConversation(Conversation conversation)
+        {
+            if (ConversationCreated == null)
+            {
+                ConversationCreated = conversation;
+            }
+        }
+
+        public void UpdateConversation(Conversation conversation)
+        {
+            ConversationUpdated = conversation;
+        }
+
+        public void CreateMessage(Message message)
+        {
+            MessagesCreated.Add(message);
+        }
     }
 }
