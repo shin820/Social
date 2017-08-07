@@ -49,7 +49,7 @@ namespace Social.WebApi.Controllers
         [HttpPost]
         public IHttpActionResult FacebookCommentMessageCreated(FacebookPostCommentMessageDto messageDto)
         {
-            _hub.Clients.Group(Request.GetSiteId().ToString()).facebookCommentCreated(messageDto);
+            _hub.Clients.Group(messageDto.ConversationId.ToString()).facebookCommentCreated(messageDto);
             return Ok();
         }
 
@@ -57,7 +57,7 @@ namespace Social.WebApi.Controllers
         [HttpPost]
         public IHttpActionResult FacebookMessageCreated(FacebookMessageDto messageDto)
         {
-            _hub.Clients.Group(Request.GetSiteId().ToString()).facebookMessageCreated(messageDto);
+            _hub.Clients.Group(messageDto.ConversationId.ToString()).facebookMessageCreated(messageDto);
             return Ok();
         }
 
@@ -65,7 +65,7 @@ namespace Social.WebApi.Controllers
         [HttpPost]
         public IHttpActionResult TwitterTweetCreated(TwitterTweetMessageDto messageDto)
         {
-            _hub.Clients.Group(Request.GetSiteId().ToString()).twitterTweetCreated(messageDto);
+            _hub.Clients.Group(messageDto.ConversationId.ToString()).twitterTweetCreated(messageDto);
             return Ok();
         }
 
@@ -73,7 +73,7 @@ namespace Social.WebApi.Controllers
         [HttpPost]
         public IHttpActionResult TwitterDirectMessageCreated(TwitterDirectMessageDto messageDto)
         {
-            _hub.Clients.Group(Request.GetSiteId().ToString()).twitterDirectMessageCreated(messageDto);
+            _hub.Clients.Group(messageDto.ConversationId.ToString()).twitterDirectMessageCreated(messageDto);
             return Ok();
         }
     }

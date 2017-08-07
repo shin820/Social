@@ -9,9 +9,12 @@
         <h2>Real Time Notifications</h2>
     </div>
     <div class="row">
-        <div class="col-md-1">
+        <div class="col-md-2">
+            <span>Conversation Id : <input id="txtConversationId" type="text" /></span>
+            <button id="btnJoinConversation">Join Conversation</button>
+            <button id="btnLeaveConversation">Leave Conversation</button>
         </div>
-        <div class="col-md-11">
+        <div class="col-md-10">
             <div id="discussion"></div>
         </div>
     </div>
@@ -32,16 +35,44 @@
 
             hub.client.conversationCreated = function (conversation) {
                 console.log(conversation);
-                $('#discussion').append("<p>" + htmlEncode("Create " + conversation.id) + "</p > ");
+                $('#discussion').append("<p>" + htmlEncode("Conversation Created : " + conversation.id) + "</p > ");
             }
             hub.client.conversationUpdated = function (conversation) {
                 console.log(conversation);
-                $('#discussion').append("<p>" + htmlEncode("Update " + conversation.id) + "</p > ");
+                $('#discussion').append("<p>" + htmlEncode("Conversation Updated : " + conversation.id) + "</p > ");
+            }
+            hub.client.facebookCommentCreated = function (messsage) {
+                console.log(messsage);
+                $('#discussion').append("<p>" + htmlEncode("Facebook comment created : " + messsage.id) + "</p > ");
+            }
+            hub.client.facebookMessageCreated = function (messsage) {
+                console.log(messsage);
+                $('#discussion').append("<p>" + htmlEncode("Facebook message created : " + messsage.id) + "</p > ");
+            }
+            hub.client.twitterTweetCreated = function (messsage) {
+                console.log(messsage);
+                $('#discussion').append("<p>" + htmlEncode("Twitter tweet created : " + messsage.id) + "</p > ");
+            }
+            hub.client.TwitterDirectMessageCreated = function (messsage) {
+                console.log(messsage);
+                $('#discussion').append("<p>" + htmlEncode("Twitter direct message created : " + messsage.id) + "</p > ");
             }
 
             $.connection.hub.start().done(function () {
-            });
 
+                $("#btnJoinConversation").click(function () {
+                    var conversationId = $("#txtConversationId").val();
+                    if (conversationId) {
+                        hub.server.joinConversation(conversationId);
+                    }
+                });
+                $("#btnLeaveConversation").click(function () {
+                    var conversationId = $("#txtConversationId").val();
+                    if (conversationId) {
+                        hub.server.leaveConversation(conversationId);
+                    }
+                });
+            });
         });
 
         function htmlEncode(value) {
