@@ -12,6 +12,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Social.Application.AppServices
 {
@@ -29,14 +30,17 @@ namespace Social.Application.AppServices
     {
         private IConversationService _conversationService;
         private IDomainService<ConversationLog> _logService;
+        private INotificationManager _notificationManager;
 
         public ConversationAppService(
             IConversationService conversationService,
-            IDomainService<ConversationLog> logService
+            IDomainService<ConversationLog> logService,
+            INotificationManager notificationManager
             )
         {
             _conversationService = conversationService;
             _logService = logService;
+            _notificationManager = notificationManager;
         }
 
         public PagedList<ConversationDto> Find(ConversationSearchDto dto)
@@ -76,10 +80,15 @@ namespace Social.Application.AppServices
 
         public void Update(int id, ConversationUpdateDto updateDto)
         {
-            var conversationDto = _conversationService.Find(id);
-            var conversation = Mapper.Map<Conversation>(conversationDto);
-            Mapper.Map(updateDto, conversation);
-            _conversationService.Update(conversation);
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                var conversationDto = _conversationService.Find(id);
+                var conversation = Mapper.Map<Conversation>(conversationDto);
+                Mapper.Map(updateDto, conversation);
+                _conversationService.Update(conversation);
+                uow.Complete();
+            }
+            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), id);
         }
 
         public IList<ConversationLogDto> GetLogs(int converationId)
