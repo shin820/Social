@@ -56,5 +56,25 @@ namespace Framework.Core
 
             return query.Skip(skipRows).Take(pager.PageSize);
         }
+
+        public static IQueryable<TEntity> Paging<TEntity>(this IQueryable<TEntity> query, IdPager pager) where TEntity : Entity
+        {
+            if (pager.MaxNumberOfDataRetrieve <= 0)
+            {
+                pager.MaxNumberOfDataRetrieve = 200;
+            }
+
+            if (pager.SinceId.HasValue)
+            {
+                query = query.Where(t => t.Id > pager.SinceId.Value);
+            }
+
+            if (pager.MaxId.HasValue)
+            {
+                query = query.Where(t => t.Id <= pager.MaxId.Value);
+            }
+
+            return query.OrderByDescending(t => t.Id).Take(pager.MaxNumberOfDataRetrieve);
+        }
     }
 }

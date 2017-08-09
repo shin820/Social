@@ -19,7 +19,7 @@ namespace Social.Application.AppServices
     public interface IConversationAppService
     {
         ConversationDto Find(int id);
-        PagedList<ConversationDto> Find(ConversationSearchDto searchDto);
+        IList<ConversationDto> Find(ConversationSearchDto searchDto);
         ConversationDto Insert(ConversationCreateDto createDto);
         void Delete(int id);
         void Update(int id, ConversationUpdateDto updateDto);
@@ -43,7 +43,7 @@ namespace Social.Application.AppServices
             _notificationManager = notificationManager;
         }
 
-        public PagedList<ConversationDto> Find(ConversationSearchDto dto)
+        public IList<ConversationDto> Find(ConversationSearchDto dto)
         {
             if (dto.Since == null && dto.Util == null)
             {
@@ -56,7 +56,7 @@ namespace Social.Application.AppServices
             conversations = _conversationService.ApplyFilter(conversations, dto.FilterId);
             conversations = _conversationService.ApplyKeyword(conversations, dto.Keyword);
 
-            return conversations.PagingAndMapping<Conversation, ConversationDto>(dto);
+            return conversations.Paging(dto).ProjectTo<ConversationDto>().ToList();
         }
 
         public ConversationDto Find(int id)
