@@ -385,6 +385,7 @@ namespace Social.Domain.DomainServices.Facebook
                 };
 
                 await _socialUserService.InsertAsync(sender);
+                await CurrentUnitOfWork.SaveChangesAsync();
                 senders.Add(sender);
             }
             return senders;
@@ -404,6 +405,7 @@ namespace Social.Domain.DomainServices.Facebook
                     Source = SocialUserSource.Facebook
                 };
                 await _socialUserService.InsertAsync(user);
+                await CurrentUnitOfWork.SaveChangesAsync();
             }
             return user;
         }
