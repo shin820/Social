@@ -27,7 +27,7 @@ namespace Social.WebApi.Controllers
             return _appService.FindAll();
         }
 
-        [Route("GetManegeFilters")]
+        [Route("manege-filters")]
         public List<FilterManageDto> GetManegeFilters()
         {
             return _appService.FindManageFilters();

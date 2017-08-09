@@ -266,6 +266,10 @@ namespace Social.Infrastructure.Facebook
                         {
                             Uri uri = new Uri(messageShare.Url);
                             messageShare.MimeType = uri.GetMimeType();
+                            if (messageShare.MimeType.Contains("image"))
+                            {
+                                messageShare.Type = MessageAttachmentType.Image;
+                            }
                         }
 
                         if (string.IsNullOrWhiteSpace(messageShare.Url) && !string.IsNullOrWhiteSpace(messageShare.Name) && string.IsNullOrWhiteSpace(message.Content))
@@ -443,6 +447,10 @@ namespace Social.Infrastructure.Facebook
                             {
                                 Uri uri = new Uri(messageShare.Url);
                                 messageShare.MimeType = uri.GetMimeType();
+                                if(messageShare.MimeType.Contains("image"))
+                                {
+                                    messageShare.Type = MessageAttachmentType.Image;
+                                }
                             }
 
                             if (string.IsNullOrWhiteSpace(messageShare.Url) && !string.IsNullOrWhiteSpace(messageShare.Name) && string.IsNullOrWhiteSpace(message.Content))
