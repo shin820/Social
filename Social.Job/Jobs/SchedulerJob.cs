@@ -81,7 +81,7 @@ namespace Social.Job.Jobs
         {
             return trigger =>
             {
-                trigger.WithCronSchedule(cronExpression).Build();
+                trigger.WithCronSchedule(cronExpression, x => x.WithMisfireHandlingInstructionIgnoreMisfires()).Build();
             };
         }
 
