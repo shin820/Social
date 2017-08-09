@@ -17,7 +17,7 @@ namespace Framework.Core
                 string mimeType = MimeTypeMap.GetMimeType(fileInfo.Extension);
                 return mimeType;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return string.Empty;
             }
