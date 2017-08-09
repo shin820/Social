@@ -109,6 +109,7 @@ namespace Social.Domain.DomainServices.Facebook
                 };
 
                 await SocialUserService.InsertAsync(user);
+                await CurrentUnitOfWork.SaveChangesAsync();
             }
             return user;
         }
