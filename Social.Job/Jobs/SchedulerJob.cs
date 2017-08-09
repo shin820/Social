@@ -70,15 +70,15 @@ namespace Social.Job.Jobs
             {
                 //ScheduleJob<FacebookWebHookJob>(facebookAccount, context);
                 ScheduleJob<PullTaggedVisitorPostsJob>(facebookAccount, context, CronTrigger(AppSettings.FacebookPullTaggedVisitorPostsJobCronExpression));
-                ScheduleJob<PullVisitorPostsFromFeedJob>(facebookAccount, context, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
+                //ScheduleJob<PullVisitorPostsFromFeedJob>(facebookAccount, context, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
                 //ScheduleJob<PullMassagesJob>(facebookAccount, context, CronTrigger(AppSettings.FacebookPullMessagesJobCronExpression));
             }
 
             foreach (var twitterAccount in twitterAccounts)
             {
                 ScheduleJob<TwitterUserStreamJob>(twitterAccount, context, StartNowTrigger());
-                ScheduleJob<TwitterPullDirectMessagesJob>(twitterAccount, context, CronTrigger(AppSettings.TwitterPullDirectMessagesJobCronExpression));
-                ScheduleJob<TwitterPullTweetsJob>(twitterAccount, context, CronTrigger(AppSettings.TwitterPullTweetsJobCronExpression));
+                //ScheduleJob<TwitterPullDirectMessagesJob>(twitterAccount, context, CronTrigger(AppSettings.TwitterPullDirectMessagesJobCronExpression));
+                //ScheduleJob<TwitterPullTweetsJob>(twitterAccount, context, CronTrigger(AppSettings.TwitterPullTweetsJobCronExpression));
             }
         }
 
