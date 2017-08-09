@@ -179,7 +179,7 @@
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\StatusExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\TimeToLastMessageExpression.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\TotalMessagesExpression.cs" />
-    <Compile Include="DomainServices\Filter\FilterService.cs" />
+    <Compile Include="DomainServices\FilterService.cs" />
     <Compile Include="DomainServices\MessageService.cs" />
     <Compile Include="DomainServices\SocialAccountService.cs" />
     <Compile Include="DomainServices\SocialUserService.cs" />

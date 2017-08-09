@@ -33,6 +33,8 @@ namespace Social.Job
 
         public ISocialAccountService SocialAccountService { get; set; }
 
+        public IDependencyResolver DependencyResolver { get; set; }
+
         protected IUnitOfWork CurrentUnitOfWork
         {
             get { return UnitOfWorkManager.Current; }
