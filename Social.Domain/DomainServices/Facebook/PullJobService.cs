@@ -103,7 +103,7 @@ namespace Social.Domain.DomainServices.Facebook
             {
                 using (CurrentUnitOfWork.SetSiteId(_account.SiteId))
                 {
-                    List<SocialUser> senders = await GetOrCreateSocialUsers(_account.Token, posts.Select(t => t.from).ToList());
+                    List<SocialUser> senders = await _socialUserService.GetOrCreateSocialUsers(_account.Token, posts.Select(t => t.from).ToList());
                     foreach (var post in posts)
                     {
                         var sender = senders.FirstOrDefault(t => t.OriginalId == post.from.id);
@@ -194,8 +194,8 @@ namespace Social.Domain.DomainServices.Facebook
                                     continue;
                                 }
 
-                                var sender = await GetOrCreateFacebookUser(_account.Token, fbMessage.SenderId);
-                                var receiver = await GetOrCreateFacebookUser(_account.Token, fbMessage.ReceiverId);
+                                var sender = await _socialUserService.GetOrCreateFacebookUser(_account.Token, fbMessage.SenderId);
+                                var receiver = await _socialUserService.GetOrCreateFacebookUser(_account.Token, fbMessage.ReceiverId);
                                 Message message = FacebookConverter.ConvertMessage(fbMessage, sender, receiver, _account);
                                 message.ConversationId = existingConversation.Id;
                                 existingConversation.IfRead = false;
@@ -224,8 +224,8 @@ namespace Social.Domain.DomainServices.Facebook
 
                             foreach (var fbMessage in fbconversation.Messages.data)
                             {
-                                var sender = await GetOrCreateFacebookUser(_account.Token, fbMessage.SenderId);
-                                var receiver = await GetOrCreateFacebookUser(_account.Token, fbMessage.ReceiverId);
+                                var sender = await _socialUserService.GetOrCreateFacebookUser(_account.Token, fbMessage.SenderId);
+                                var receiver = await _socialUserService.GetOrCreateFacebookUser(_account.Token, fbMessage.ReceiverId);
                                 Message message = FacebookConverter.ConvertMessage(fbMessage, sender, receiver, _account);
 
                                 conversation.Subject = GetSubject(message.Content);
@@ -269,7 +269,7 @@ namespace Social.Domain.DomainServices.Facebook
             {
                 using (CurrentUnitOfWork.SetSiteId(_account.SiteId))
                 {
-                    List<SocialUser> senders = await GetOrCreateSocialUsers(_account.Token, comments.Select(t => t.from).ToList());
+                    List<SocialUser> senders = await _socialUserService.GetOrCreateSocialUsers(_account.Token, comments.Select(t => t.from).ToList());
                     var postIds = comments.Select(t => t.PostId).Distinct().ToList();
                     var conversations = _conversationService.FindAll().Where(t => postIds.Contains(t.OriginalId)).ToList();
                     var parents = _messageService.FindAll().Where(t => postIds.Contains(t.OriginalId)).ToList();
@@ -325,7 +325,7 @@ namespace Social.Domain.DomainServices.Facebook
             {
                 using (CurrentUnitOfWork.SetSiteId(_account.SiteId))
                 {
-                    List<SocialUser> senders = await GetOrCreateSocialUsers(_account.Token, replyComments.Select(t => t.from).ToList());
+                    List<SocialUser> senders = await _socialUserService.GetOrCreateSocialUsers(_account.Token, replyComments.Select(t => t.from).ToList());
 
                     var postIds = replyComments.Select(t => t.PostId).Distinct().ToList();
                     var conversations = _conversationService.FindAll().Where(t => postIds.Contains(t.OriginalId)).ToList();
@@ -379,47 +379,6 @@ namespace Social.Domain.DomainServices.Facebook
             }
 
             return message.Length <= 200 ? message : message.Substring(200);
-        }
-
-        private async Task<List<SocialUser>> GetOrCreateSocialUsers(string token, List<FbUser> fbSenders)
-        {
-            List<SocialUser> senders = new List<SocialUser>();
-            var fbSenderIds = fbSenders.Select(t => t.id).ToList();
-            var existingUsers = _socialUserService.FindAll().Where(t => t.Source == SocialUserSource.Facebook && fbSenderIds.Contains(t.OriginalId)).ToList();
-            senders.AddRange(existingUsers);
-            fbSenders.RemoveAll(t => existingUsers.Any(e => e.OriginalId == t.id));
-            foreach (var fbSender in fbSenders)
-            {
-                var sender = new SocialUser()
-                {
-                    OriginalId = fbSender.id,
-                    Name = fbSender.name,
-                    Email = fbSender.email,
-                    Source = SocialUserSource.Facebook,
-                };
-
-                await _socialUserService.InsertAsync(sender);
-                senders.Add(sender);
-            }
-            return senders;
-        }
-
-        private async Task<SocialUser> GetOrCreateFacebookUser(string token, string fbUserId)
-        {
-            var user = _socialUserService.FindAll().Where(t => t.OriginalId == fbUserId && t.Source == SocialUserSource.Facebook).FirstOrDefault();
-            if (user == null)
-            {
-                FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId);
-                user = new SocialUser
-                {
-                    OriginalId = fbUser.id,
-                    Name = fbUser.name,
-                    Email = fbUser.email,
-                    Source = SocialUserSource.Facebook
-                };
-                await _socialUserService.InsertAsync(user);
-            }
-            return user;
         }
 
         private async Task Init(FbPagingData<FbPost> posts)
