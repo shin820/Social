@@ -31,7 +31,7 @@ namespace Social.Job.Jobs
 
             stream.StreamIsReady += (sender, args) =>
             {
-                Logger.Info($"Twitter User Stream is ready. JobKey={context.JobDetail.Key}.");
+                Logger.Info($"Twitter User Stream is ready. JobKey = {context.JobDetail.Key}.");
             };
 
             stream.MessageReceived += async (sender, args) =>
@@ -65,7 +65,9 @@ namespace Social.Job.Jobs
 
             stream.StreamStopped += (sender, args) =>
             {
-                Logger.Error($"Twitter User Stream stopped. JobKey={context.JobDetail.Key}.", args.Exception);
+                var exception = args.Exception;
+                var disconnectedMesage = args.DisconnectMessage;
+                Logger.Error($"Twitter User Stream stopped. JobKey = {context.JobDetail.Key}. Disconnected Message = {disconnectedMesage}.", args.Exception);
             };
 
             await stream.StartStreamAsync();
