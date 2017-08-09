@@ -274,10 +274,8 @@
     <Compile Include="Controllers\AgentController.cs" />
     <Compile Include="Controllers\DepartmentController.cs" />
     <Compile Include="Controllers\FacebookController.cs" />
-    <Compile Include="Controllers\NotificationController.cs" />
-    <Compile Include="Controllers\NotificationTestController.cs" />
+    <Compile Include="Controllers\UserInfoController.cs" />
     <Compile Include="Controllers\TestController.cs" />
-    <Compile Include="Core\SignalRContractResolver.cs" />
     <Compile Include="Core\SwaggerOperationFilter.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
@@ -323,7 +321,6 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\FacebookHub.cs" />
-    <Compile Include="Hubs\NotificationHub.cs" />
     <Compile Include="Models\Account\AuthenticationModel.cs" />
     <Compile Include="Models\Account\Me.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -374,7 +371,9 @@
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
@@ -389,7 +388,6 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Facebook\Index.cshtml" />
-    <Content Include="Views\NotificationTest\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
