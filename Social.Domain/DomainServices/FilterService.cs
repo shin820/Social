@@ -29,8 +29,8 @@ namespace Social.Domain
         private IConversationService _Conversation;
 
         public FilterService(
-            IRepository<FilterCondition> filterConditionRepo, 
-            IRepository<Filter> filterRepo, 
+            IRepository<FilterCondition> filterConditionRepo,
+            IRepository<Filter> filterRepo,
             IRepository<Conversation> ConversationService,
             IRepository<SocialUser> UserRepo, IConversationService Conversation)
         {
@@ -40,7 +40,6 @@ namespace Social.Domain
             _Conversation = Conversation;
             _UserRepo = UserRepo;
         }
-
 
         public void DeleteConditons(Filter updateFilter)
         {

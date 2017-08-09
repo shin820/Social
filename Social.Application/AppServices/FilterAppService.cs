@@ -22,7 +22,7 @@ namespace Social.Application.AppServices
         FilterDetailsDto Find(int id);
         FilterDetailsDto Insert(FilterCreateDto createDto);
         void Delete(int id);
-        FilterDetailsDto Update(int id,FilterUpdateDto updateDto);
+        FilterDetailsDto Update(int id, FilterUpdateDto updateDto);
     }
 
 
@@ -82,7 +82,7 @@ namespace Social.Application.AppServices
             _domainService.Delete(id);
         }
 
-        public FilterDetailsDto Update(int id,FilterUpdateDto updateDto)
+        public FilterDetailsDto Update(int id, FilterUpdateDto updateDto)
         {
             var updateFilter = _domainService.Find(id);
 
@@ -96,17 +96,16 @@ namespace Social.Application.AppServices
 
         public List<FilterManageDto> FindManageFilters()
         {
-            List<Filter> Filters = _domainService.FindAll().Include(t => t.Conditions).Where(u => u.IfPublic == true || u.CreatedBy == UserContext.UserId).ToList();
-            List<FilterManageDto> FilterDtos = new List<FilterManageDto>();
-            foreach (var Filter in Filters)
+            List<Filter> filters = _domainService.FindAll().Where(u => u.IfPublic == true || u.CreatedBy == UserContext.UserId).ToList();
+            List<FilterManageDto> filterDtos = new List<FilterManageDto>();
+            foreach (var filter in filters)
             {
-                var FilterDto = Mapper.Map<FilterManageDto>(Filter);
-                FilterDto.CreatedByName = _domainService.GetCreatedByName(Filter);
-                FilterDtos.Add(FilterDto);
-
+                var filterDto = Mapper.Map<FilterManageDto>(filter);
+                filterDto.CreatedByName = _agentService.GetDiaplyName(filter.CreatedBy);
+                filterDtos.Add(filterDto);
             }
-            return FilterDtos;
+            return filterDtos;
         }
 
-        }
+    }
 }
