@@ -113,22 +113,22 @@
       <publishTime>04/13/2015 15:48:00</publishTime>
     </File>
     <File Include="bin/Framework.Core.dll">
-      <publishTime>07/27/2017 19:18:12</publishTime>
+      <publishTime>08/03/2017 17:07:16</publishTime>
     </File>
     <File Include="bin/Framework.Core.dll.config">
       <publishTime>07/12/2017 12:27:36</publishTime>
     </File>
     <File Include="bin/Framework.Core.pdb">
-      <publishTime>07/27/2017 19:18:12</publishTime>
+      <publishTime>08/03/2017 17:07:16</publishTime>
     </File>
     <File Include="bin/Framework.WebApi.dll">
-      <publishTime>07/27/2017 19:18:25</publishTime>
+      <publishTime>08/03/2017 17:45:40</publishTime>
     </File>
     <File Include="bin/Framework.WebApi.dll.config">
       <publishTime>07/17/2017 09:25:56</publishTime>
     </File>
     <File Include="bin/Framework.WebApi.pdb">
-      <publishTime>07/27/2017 19:18:25</publishTime>
+      <publishTime>08/03/2017 17:45:40</publishTime>
     </File>
     <File Include="bin/LinqKit.dll">
       <publishTime>03/21/2017 12:15:32</publishTime>
@@ -290,37 +290,37 @@
       <publishTime>06/27/2016 14:50:24</publishTime>
     </File>
     <File Include="bin/Social.Application.dll">
-      <publishTime>08/03/2017 09:28:46</publishTime>
+      <publishTime>08/08/2017 14:52:39</publishTime>
     </File>
     <File Include="bin/Social.Application.dll.config">
       <publishTime>07/24/2017 14:32:13</publishTime>
     </File>
     <File Include="bin/Social.Application.pdb">
-      <publishTime>08/03/2017 09:28:46</publishTime>
+      <publishTime>08/08/2017 14:52:39</publishTime>
     </File>
     <File Include="bin/Social.Domain.dll">
-      <publishTime>08/03/2017 09:28:44</publishTime>
+      <publishTime>08/08/2017 14:52:38</publishTime>
     </File>
     <File Include="bin/Social.Domain.dll.config">
       <publishTime>07/24/2017 14:32:14</publishTime>
     </File>
     <File Include="bin/Social.Domain.pdb">
-      <publishTime>08/03/2017 09:28:44</publishTime>
+      <publishTime>08/08/2017 14:52:38</publishTime>
     </File>
     <File Include="bin/Social.Infrastructure.dll">
-      <publishTime>08/02/2017 19:56:03</publishTime>
+      <publishTime>08/08/2017 14:52:37</publishTime>
     </File>
     <File Include="bin/Social.Infrastructure.dll.config">
       <publishTime>07/24/2017 14:32:11</publishTime>
     </File>
     <File Include="bin/Social.Infrastructure.pdb">
-      <publishTime>08/02/2017 19:56:03</publishTime>
+      <publishTime>08/08/2017 14:52:37</publishTime>
     </File>
     <File Include="bin/Social.WebApi.dll">
-      <publishTime>08/03/2017 09:28:53</publishTime>
+      <publishTime>08/08/2017 14:52:43</publishTime>
     </File>
     <File Include="bin/Social.WebApi.pdb">
-      <publishTime>08/03/2017 09:28:53</publishTime>
+      <publishTime>08/08/2017 14:52:43</publishTime>
     </File>
     <File Include="bin/Swashbuckle.Core.dll">
       <publishTime>11/01/2016 22:04:36</publishTime>
@@ -344,7 +344,7 @@
       <publishTime>11/05/2016 04:57:02</publishTime>
     </File>
     <File Include="bin/System.Security.Cryptography.Algorithms.dll">
-      <publishTime>11/05/2016 04:57:14</publishTime>
+      <publishTime>04/01/2017 16:59:14</publishTime>
     </File>
     <File Include="bin/System.Security.Cryptography.Encoding.dll">
       <publishTime>11/05/2016 04:57:08</publishTime>
@@ -518,16 +518,19 @@
       <publishTime>06/28/2017 09:57:30</publishTime>
     </File>
     <File Include="Views/Facebook/Index.cshtml">
-      <publishTime>06/29/2017 11:57:44</publishTime>
+      <publishTime>08/07/2017 09:53:44</publishTime>
     </File>
     <File Include="Views/Home/Index.cshtml">
       <publishTime>06/28/2017 09:57:21</publishTime>
+    </File>
+    <File Include="Views/NotificationTest/Index.cshtml">
+      <publishTime>08/07/2017 10:33:52</publishTime>
     </File>
     <File Include="Views/Shared/Error.cshtml">
       <publishTime>06/28/2017 09:57:21</publishTime>
     </File>
     <File Include="Views/Shared/_Layout.cshtml">
-      <publishTime>08/02/2017 10:46:32</publishTime>
+      <publishTime>08/07/2017 10:17:23</publishTime>
     </File>
     <File Include="Views/Web.config">
       <publishTime>06/28/2017 09:57:21</publishTime>
@@ -536,7 +539,7 @@
       <publishTime>06/28/2017 09:57:21</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>08/02/2017 13:20:06</publishTime>
+      <publishTime>08/08/2017 14:55:17</publishTime>
     </File>
   </ItemGroup>
 </Project>

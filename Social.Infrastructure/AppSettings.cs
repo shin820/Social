@@ -9,6 +9,14 @@ namespace Social.Infrastructure
 {
     public static class AppSettings
     {
+        public static string NotificationApiBaseAddress
+        {
+            get
+            {
+                return GetAppSetting("NotificationApiBaseAddress");
+            }
+        }
+
         public static string TwitterConsumerKey
         {
             get

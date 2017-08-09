@@ -28,7 +28,7 @@ namespace Social.WebApi.Controllers
         }
 
         [Route()]
-        public PagedList<ConversationDto> GetConversations([FromUri(Name = "")]ConversationSearchDto searchDto)
+        public IList<ConversationDto> GetConversations([FromUri(Name = "")]ConversationSearchDto searchDto)
         {
             searchDto = searchDto ?? new ConversationSearchDto();
             return _conversationAppService.Find(searchDto);
@@ -40,22 +40,22 @@ namespace Social.WebApi.Controllers
             return _conversationAppService.Find(id);
         }
 
-        [Route()]
-        [ResponseType(typeof(ConversationDto))]
-        public IHttpActionResult PostConversation(ConversationCreateDto createDto)
-        {
-            createDto = createDto ?? new ConversationCreateDto();
-            var conversation = _conversationAppService.Insert(createDto);
+        //[Route()]
+        //[ResponseType(typeof(ConversationDto))]
+        //public IHttpActionResult PostConversation(ConversationCreateDto createDto)
+        //{
+        //    createDto = createDto ?? new ConversationCreateDto();
+        //    var conversation = _conversationAppService.Insert(createDto);
 
-            return CreatedAtRoute("GetConversation", new { id = conversation.Id }, conversation);
-        }
+        //    return CreatedAtRoute("GetConversation", new { id = conversation.Id }, conversation);
+        //}
 
-        [Route("{id}")]
-        public IHttpActionResult DeleteConversation(int id)
-        {
-            _conversationAppService.Delete(id);
-            return StatusCode(HttpStatusCode.NoContent);
-        }
+        //[Route("{id}")]
+        //public IHttpActionResult DeleteConversation(int id)
+        //{
+        //    _conversationAppService.Delete(id);
+        //    return StatusCode(HttpStatusCode.NoContent);
+        //}
 
         [Route("{id}")]
         [ResponseType(typeof(ConversationDto))]

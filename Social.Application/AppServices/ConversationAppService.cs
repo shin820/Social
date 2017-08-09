@@ -12,13 +12,14 @@ using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Social.Application.AppServices
 {
     public interface IConversationAppService
     {
         ConversationDto Find(int id);
-        PagedList<ConversationDto> Find(ConversationSearchDto searchDto);
+        IList<ConversationDto> Find(ConversationSearchDto searchDto);
         ConversationDto Insert(ConversationCreateDto createDto);
         void Delete(int id);
         void Update(int id, ConversationUpdateDto updateDto);
@@ -29,17 +30,20 @@ namespace Social.Application.AppServices
     {
         private IConversationService _conversationService;
         private IDomainService<ConversationLog> _logService;
+        private INotificationManager _notificationManager;
 
         public ConversationAppService(
             IConversationService conversationService,
-            IDomainService<ConversationLog> logService
+            IDomainService<ConversationLog> logService,
+            INotificationManager notificationManager
             )
         {
             _conversationService = conversationService;
             _logService = logService;
+            _notificationManager = notificationManager;
         }
 
-        public PagedList<ConversationDto> Find(ConversationSearchDto dto)
+        public IList<ConversationDto> Find(ConversationSearchDto dto)
         {
             if (dto.Since == null && dto.Util == null)
             {
@@ -52,7 +56,7 @@ namespace Social.Application.AppServices
             conversations = _conversationService.ApplyFilter(conversations, dto.FilterId);
             conversations = _conversationService.ApplyKeyword(conversations, dto.Keyword);
 
-            return conversations.PagingAndMapping<Conversation, ConversationDto>(dto);
+            return conversations.Paging(dto).ProjectTo<ConversationDto>().ToList();
         }
 
         public ConversationDto Find(int id)
@@ -76,10 +80,15 @@ namespace Social.Application.AppServices
 
         public void Update(int id, ConversationUpdateDto updateDto)
         {
-            var conversationDto = _conversationService.Find(id);
-            var conversation = Mapper.Map<Conversation>(conversationDto);
-            Mapper.Map(updateDto, conversation);
-            _conversationService.Update(conversation);
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                var conversationDto = _conversationService.Find(id);
+                var conversation = Mapper.Map<Conversation>(conversationDto);
+                Mapper.Map(updateDto, conversation);
+                _conversationService.Update(conversation);
+                uow.Complete();
+            }
+            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), id);
         }
 
         public IList<ConversationLogDto> GetLogs(int converationId)

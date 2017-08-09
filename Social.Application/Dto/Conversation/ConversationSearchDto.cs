@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Social.Application.Dto
 {
-    public class ConversationSearchDto : Pager
+    public class ConversationSearchDto : IdPager
     {
         public int? FilterId { get; set; }
         public string Keyword { get; set; }

@@ -10,6 +10,7 @@ namespace Social.Application.Dto
     public class FacebookMessageDto : IHaveSendAgent
     {
         public int Id { get; set; }
+        public int ConversationId { get; set; }
         public string UserAvatar { get; set; }
         public int UserId { get; set; }
         public string UserName { get; set; }

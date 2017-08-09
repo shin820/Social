@@ -7,6 +7,7 @@ using Social.Domain.Entities;
 using Social.Infrastructure.Facebook;
 using Framework.Core;
 using Social.Infrastructure.Enum;
+using Social.Infrastructure;
 
 namespace Social.Domain.DomainServices.Facebook
 {
@@ -15,10 +16,11 @@ namespace Social.Domain.DomainServices.Facebook
         public IConversationService ConversationService { get; set; }
         public ISocialUserService SocialUserService { get; set; }
         public IMessageService MessageService { get; set; }
+        public INotificationManager NotificationManager { get; set; }
 
         public abstract bool IsMatch(FbHookChange change);
 
-        public abstract Task Process(SocialAccount socialAccount, FbHookChange change);
+        public abstract Task<FacebookProcessResult> Process(SocialAccount socialAccount, FbHookChange change);
 
         protected string GetSubject(string message)
         {
@@ -63,7 +65,7 @@ namespace Social.Domain.DomainServices.Facebook
 
         protected async Task UpdateConversation(Conversation conversation)
         {
-         //   ConversationService.Update(conversation);
+            //   ConversationService.Update(conversation);
 
             await ConversationService.UpdateAsync(conversation);
         }

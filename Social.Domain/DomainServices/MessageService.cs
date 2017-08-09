@@ -1,4 +1,5 @@
 ﻿using Framework.Core;
+using Social.Domain.DomainServices.Twitter;
 using Social.Domain.Entities;
 using Social.Infrastructure;
 using Social.Infrastructure.Enum;
@@ -44,7 +45,7 @@ namespace Social.Domain.DomainServices
 
         public override Message Find(int id)
         {
-            return base.FindAll().Where(t => t.IsDeleted == false).FirstOrDefault();
+            return base.FindAll().Where(t => t.IsDeleted == false && t.Id == id).FirstOrDefault();
         }
 
         public Message FindByOriginalId(MessageSource source, string originalId)
@@ -218,7 +219,7 @@ namespace Social.Domain.DomainServices
             IMessage twitterDirectMessage = twitterService.PublishMessage(twitterAccount, prviousTwitterUser, message);
 
             // create message to db
-            Message directMessage = twitterService.ConvertToMessage(twitterDirectMessage);
+            Message directMessage = TwitterConverter.ConvertToMessage(twitterDirectMessage);
             directMessage.ConversationId = conversation.Id;
             directMessage.SenderId = twitterAccount.Id;
             directMessage.SendAgentId = UserContext.UserId;
@@ -280,7 +281,7 @@ namespace Social.Domain.DomainServices
                     }
 
                     // add message
-                    replyMessage = twitterService.ConvertToMessage(replyTweet);
+                    replyMessage = TwitterConverter.ConvertToMessage(replyTweet);
                     replyMessage.ConversationId = conversation.Id;
                     replyMessage.SenderId = twitterAccount.Id;
                     replyMessage.SendAgentId = UserContext.UserId;

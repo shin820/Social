@@ -107,6 +107,7 @@
     <Compile Include="OAuth\OAuthClient.cs" />
     <Compile Include="ErrorInfo.cs" />
     <Compile Include="OAuth\OAuthRefreshToken.cs" />
+    <Compile Include="Paging\IdPager.cs" />
     <Compile Include="ServiceBase.cs" />
     <Compile Include="UnitOfWork\CurrentUnitOfWorkProvider.cs" />
     <Compile Include="UnitOfWork\ICurrentUnitOfWorkProvider.cs" />
