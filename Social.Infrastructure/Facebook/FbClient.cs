@@ -151,6 +151,43 @@ namespace Social.Infrastructure.Facebook
             //}
         }
 
+        public static  FbUser GetFacebookUserInfo(string token, string fbUserId)
+        {
+            FacebookClient client = new FacebookClient(token);
+            string url = "/" + fbUserId + "?fields=id,name,link,picture";
+
+            try
+            {
+                dynamic result = client.GetTaskAsync(url);
+
+                var me = new FbUser
+                {
+                    id = result.id,
+                    name = result.name,
+                    link = result.link
+                };
+                if (result.picture != null && result.picture.data != null)
+                {
+                    if (result.picture.data.url != null)
+                    {
+                        me.pic = result.picture.data.url;
+                    }
+                }
+
+                return me;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Get user info from facebook failed.token={token},url={url}", ex);
+                throw ex;
+            }
+
+            //if (userInfo.picture != null && userInfo.picture.data.url != null)
+            //{
+            //    user.Avatar = userInfo.picture.data.url;
+            //}
+        }
+
         public static string PublishComment(string token, string parentId, string message)
         {
             FacebookClient client = new FacebookClient(token);
