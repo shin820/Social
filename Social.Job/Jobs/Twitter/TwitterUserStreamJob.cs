@@ -14,17 +14,10 @@ namespace Social.Job.Jobs
 {
     public class TwitterUserStreamJob : JobBase, ITransient
     {
-        private ITwitterAppService _twitterAppService;
-
-        public TwitterUserStreamJob(
-            ITwitterAppService twitterAppService
-            )
-        {
-            _twitterAppService = twitterAppService;
-        }
-
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
+            ITwitterAppService twitterAppService = DependencyResolver.Resolve<ITwitterAppService>();
+
             SocialAccount socialAccount = await GetTwitterSocialAccount(context);
             if (socialAccount == null)
             {
@@ -46,7 +39,7 @@ namespace Social.Job.Jobs
                 if (socialAccount.IfConvertMessageToConversation)
                 {
                     Auth.SetCredentials(creds);
-                    await _twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
+                    await twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
                 }
             };
 
@@ -56,7 +49,7 @@ namespace Social.Job.Jobs
                 if (socialAccount.IfConvertMessageToConversation)
                 {
                     Auth.SetCredentials(creds);
-                    await _twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
+                    await twitterAppService.ProcessDirectMessage(socialAccount, args.Message);
                 }
             };
 
@@ -66,7 +59,7 @@ namespace Social.Job.Jobs
                 if (socialAccount.IfConvertTweetToConversation)
                 {
                     Auth.SetCredentials(creds);
-                    await _twitterAppService.ProcessTweet(socialAccount, args.Tweet);
+                    await twitterAppService.ProcessTweet(socialAccount, args.Tweet);
                 }
             };
 
