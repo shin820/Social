@@ -50,6 +50,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "site-scripts", "site-script
 		SQL\site-scripts\09 Site_Create_t_Social_Message.sql = SQL\site-scripts\09 Site_Create_t_Social_Message.sql
 		SQL\site-scripts\10 Site_Create_t_Social_MessageAttachment.sql = SQL\site-scripts\10 Site_Create_t_Social_MessageAttachment.sql
 		SQL\site-scripts\11 Site_Create_t_Social_TwitterAuth.sql = SQL\site-scripts\11 Site_Create_t_Social_TwitterAuth.sql
+		SQL\site-scripts\12 Site_Add_t_Social_ConversationField.sql = SQL\site-scripts\12 Site_Add_t_Social_ConversationField.sql
+		SQL\site-scripts\13 Site_Add_t_Social_ConversationFieldOption.sql = SQL\site-scripts\13 Site_Add_t_Social_ConversationFieldOption.sql
+		SQL\site-scripts\14 Site_Add_t_Social_Filter.sql = SQL\site-scripts\14 Site_Add_t_Social_Filter.sql
+		SQL\site-scripts\15 Site_Add_t_Social_FilterCondition.sql = SQL\site-scripts\15 Site_Add_t_Social_FilterCondition.sql
 	EndProjectSection
 EndProject
 Global
