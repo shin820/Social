@@ -20,7 +20,7 @@ namespace Social.Domain.DomainServices
         IQueryable<Message> FindAllByConversationId(int conversationId);
         bool IsDuplicatedMessage(MessageSource messageSource, string originalId);
         Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, string message);
-        Message ReplyTwitterDirectMessage(int conversationId, int twitterAccountId, string message);
+        Message ReplyTwitterDirectMessage(int conversationId, string message);
         Message ReplyFacebookMessage(int conversationId, string content);
         Message ReplyFacebookPostOrComment(int conversationId, int parentId, string content);
     }
@@ -186,7 +186,7 @@ namespace Social.Domain.DomainServices
             return comment;
         }
 
-        public Message ReplyTwitterDirectMessage(int conversationId, int twitterAccountId, string message)
+        public Message ReplyTwitterDirectMessage(int conversationId, string message)
         {
             var twitterService = DependencyResolver.Resolve<ITwitterService>();
 
@@ -196,14 +196,18 @@ namespace Social.Domain.DomainServices
                 throw SocialExceptions.BadRequest("Conversation source must be twitter direct message.");
             }
 
-            SocialAccount twitterAccount = _socialAccountService.Find(twitterAccountId);
+            SocialAccount twitterAccount = conversation.Messages.Where(t => t.Sender.Type == SocialUserType.IntegrationAccount).Select(t => t.Sender.SocialAccount).FirstOrDefault();
+            if (twitterAccount == null)
+            {
+                twitterAccount = conversation.Messages.Where(t => t.Receiver.Type == SocialUserType.IntegrationAccount).Select(t => t.Receiver.SocialAccount).FirstOrDefault();
+            }
             if (twitterAccount == null)
             {
                 throw SocialExceptions.BadRequest("Invalid twitter account id.");
             }
 
             var messages = FindAllByConversationId(conversation.Id).ToList();
-            var lastMessageSender = messages.Where(t => t.SenderId != twitterAccountId).OrderByDescending(t => t.SendTime).Select(t => t.Sender).FirstOrDefault();
+            var lastMessageSender = messages.Where(t => t.SenderId != twitterAccount.Id).OrderByDescending(t => t.SendTime).Select(t => t.Sender).FirstOrDefault();
             if (lastMessageSender == null)
             {
                 throw SocialExceptions.BadRequest("Cant't find last message from conversation.");
