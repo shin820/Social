@@ -17,7 +17,7 @@ namespace Social.Domain.DomainServices.Twitter
         private IConversationService _conversationService;
         private IMessageService _messageService;
         private ISocialUserService _socialUserService;
-        private TwitterProcessResult _result;
+        private INotificationManager _notificationManager;
 
         public TwitterDirectMessageService(
             IConversationService conversationService,
@@ -29,14 +29,15 @@ namespace Social.Domain.DomainServices.Twitter
             _conversationService = conversationService;
             _messageService = messageService;
             _socialUserService = socialUserService;
-            _result = new TwitterProcessResult(notificationManager);
+            _notificationManager = notificationManager;
         }
 
         public async Task<TwitterProcessResult> ProcessDirectMessage(SocialAccount account, IMessage directMsg)
         {
+            TwitterProcessResult result = new TwitterProcessResult(_notificationManager);
             if (_messageService.IsDuplicatedMessage(MessageSource.TwitterDirectMessage, directMsg.Id.ToString()))
             {
-                return _result;
+                return result;
             }
 
             bool isSendByAccount = directMsg.SenderId.ToString() == account.SocialUser.OriginalId;
@@ -57,14 +58,14 @@ namespace Social.Domain.DomainServices.Twitter
                 existingConversation.Messages.Add(message);
                 _conversationService.Update(existingConversation);
                 CurrentUnitOfWork.SaveChanges();
-                _result.WithUpdatedConversation(existingConversation);
-                _result.WithNewMessage(message);
+                result.WithUpdatedConversation(existingConversation);
+                result.WithNewMessage(message);
             }
             else
             {
                 if (sender.Id == account.SocialUser.Id)
                 {
-                    return _result;
+                    return result;
                 }
 
                 var message = TwitterConverter.ConvertToMessage(directMsg);
@@ -83,10 +84,10 @@ namespace Social.Domain.DomainServices.Twitter
                 conversation.Messages.Add(message);
                 _conversationService.AddConversation(account, conversation);
                 CurrentUnitOfWork.SaveChanges();
-                _result.WithNewConversation(conversation);
+                result.WithNewConversation(conversation);
             }
 
-            return _result;
+            return result;
         }
     }
 }
