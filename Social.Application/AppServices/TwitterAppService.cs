@@ -55,7 +55,7 @@ namespace Social.Application.AppServices
 
             if (result != null)
             {
-                await result.Notify();
+                await result.Notify(account.SiteId);
             }
         }
 
@@ -69,7 +69,7 @@ namespace Social.Application.AppServices
 
             if (result != null)
             {
-                await result.Notify();
+                await result.Notify(account.SiteId);
             }
         }
     }

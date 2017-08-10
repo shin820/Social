@@ -6,6 +6,7 @@ namespace Social.Domain
     using Social.Domain.Entities;
     using Social.Infrastructure.Enum;
     using System.Data.Entity;
+    using System.Data.Entity.Infrastructure.Interception;
 
     public class SiteDataContext : DataContext, ITransient
     {
@@ -15,6 +16,11 @@ namespace Social.Domain
         {
             Database.SetInitializer<SiteDataContext>(null);
             Database.Log = t => logger.Debug(t);
+        }
+
+        static SiteDataContext()
+        {
+            DbInterception.Add(new ShardingTableInterceptor());
         }
 
         public virtual DbSet<Conversation> Conversations { get; set; }

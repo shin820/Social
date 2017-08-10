@@ -77,7 +77,7 @@ namespace Social.Domain.DomainServices.Facebook
 
                         if (result != null)
                         {
-                            await result.Notify();
+                            await result.Notify(socialAccount.SiteId);
                         }
                     }
                 }

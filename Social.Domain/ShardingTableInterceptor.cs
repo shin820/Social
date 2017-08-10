@@ -1,42 +1,30 @@
 ﻿using Framework.Core;
+using Framework.Core.UnitOfWork;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using System.Data.Entity.Infrastructure.Interception;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Framework.Core.EntityFramework
+namespace Social.Domain
 {
     public class ShardingTableInterceptor : IDbCommandInterceptor
     {
         private static List<string> ShardingBySiteTables = new List<string>();
 
-        private Func<int?> _siteIdFunc = () => null;
-
-        public Func<int?> SiteIdFunc
-        {
-            get
-            {
-                return _siteIdFunc;
-            }
-            set
-            {
-                _siteIdFunc = value;
-            }
-        }
-
         static ShardingTableInterceptor()
         {
-            var entities = typeof(ShardingTableInterceptor).Assembly.GetExportedTypes().Where(t => t.IsAssignableFrom(typeof(Entity)));
+            var entities = typeof(ShardingTableInterceptor).Assembly.GetExportedTypes().Where(t => typeof(Entity).IsAssignableFrom(t));
 
             foreach (var entity in entities)
             {
-                if (entity is IShardingBySiteId)
+                if (typeof(IShardingBySiteId).IsAssignableFrom(entity))
                 {
                     var tableAttribute = entity.GetAttribute<TableAttribute>();
                     if (tableAttribute != null && !string.IsNullOrWhiteSpace(tableAttribute.Name))
@@ -79,7 +67,8 @@ namespace Framework.Core.EntityFramework
 
         public void ReplaceTableName(DbCommand command)
         {
-            int? siteId = SiteIdFunc();
+            CurrentUnitOfWorkProvider provider = new CurrentUnitOfWorkProvider();
+            int? siteId = provider.Current.GetSiteId();
             if (siteId == null)
             {
                 return;
@@ -89,8 +78,8 @@ namespace Framework.Core.EntityFramework
             {
                 string commandText = command.CommandText.ToLower();
 
-                bool hasShardingTable = commandText.Contains(shardingTable);
-                bool isReplaced = commandText.Contains(shardingTable + siteId);
+                bool hasShardingTable = commandText.Contains(shardingTable.ToLower());
+                bool isReplaced = commandText.Contains(shardingTable.ToLower() + siteId);
 
                 if (hasShardingTable && !isReplaced)
                 {

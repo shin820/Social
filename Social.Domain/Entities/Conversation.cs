@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Social.Domain.Entities
 {
     [Table("t_Social_Conversation")]
-    public class Conversation : EntityWithSite, ISoftDelete, IHaveCreatedTime, IHaveModifiedTime
+    public class Conversation : Entity, ISoftDelete, IHaveCreatedTime, IHaveModifiedTime, IShardingBySiteId
     {
         public Conversation()
         {

@@ -27,11 +27,6 @@ namespace Framework.Core.EntityFramework
         {
         }
 
-        static DataContext()
-        {
-            DbInterception.Add(new ShardingTableInterceptor());
-        }
-
         protected DataContext()
         {
             InitializeDbContext();

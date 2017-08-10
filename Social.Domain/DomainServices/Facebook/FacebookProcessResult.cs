@@ -67,44 +67,44 @@ namespace Social.Domain.DomainServices.Facebook
             _newMessages.Add(message);
         }
 
-        public async Task Notify()
+        public async Task Notify(int siteId)
         {
-            await NotifyNewConversations();
-            await NotifyUpdateConversations();
-            await NotifyNewMessages();
+            await NotifyNewConversations(siteId);
+            await NotifyUpdateConversations(siteId);
+            await NotifyNewMessages(siteId);
         }
 
-        private async Task NotifyNewConversations()
+        private async Task NotifyNewConversations(int siteId)
         {
             foreach (var newConversation in _newConversations)
             {
-                await _notificationManager.NotifyNewConversation(newConversation.SiteId, newConversation.Id);
+                await _notificationManager.NotifyNewConversation(siteId, newConversation.Id);
             }
 
             _newConversations.Clear();
         }
 
-        private async Task NotifyUpdateConversations()
+        private async Task NotifyUpdateConversations(int siteId)
         {
             foreach (var updatedConversation in _updatedConversations)
             {
-                await _notificationManager.NotifyUpdateConversation(updatedConversation.SiteId, updatedConversation.Id);
+                await _notificationManager.NotifyUpdateConversation(siteId, updatedConversation.Id);
             }
 
             _updatedConversations.Clear();
         }
 
-        private async Task NotifyNewMessages()
+        private async Task NotifyNewMessages(int siteId)
         {
             foreach (var newMessage in _newMessages.OrderBy(t => t.Id))
             {
                 if (newMessage.Source == MessageSource.FacebookMessage)
                 {
-                    await _notificationManager.NotifyNewFacebookMessage(newMessage.SiteId, newMessage.Id);
+                    await _notificationManager.NotifyNewFacebookMessage(siteId, newMessage.Id);
                 }
                 if (newMessage.Source == MessageSource.FacebookPostComment)
                 {
-                    await _notificationManager.NotifyNewFacebookComment(newMessage.SiteId, newMessage.Id);
+                    await _notificationManager.NotifyNewFacebookComment(siteId, newMessage.Id);
                 }
             }
 

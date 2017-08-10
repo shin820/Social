@@ -76,7 +76,7 @@ namespace Social.Domain.DomainServices.Facebook
             await AddComments(result, CommentsToBeCreated);
             await AddReplyComments(result, ReplyCommentsToBeCretaed);
             Clear();
-            await result.Notify();
+            await result.Notify(account.SiteId);
         }
 
         public async Task PullMassagesJob(SocialAccount account)

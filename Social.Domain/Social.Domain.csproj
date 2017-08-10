@@ -211,6 +211,7 @@
     <Compile Include="Entities\TwitterAuth.cs" />
     <Compile Include="GeneralDataContext.cs" />
     <Compile Include="NotificationManager.cs" />
+    <Compile Include="ShardingTableInterceptor.cs" />
     <Compile Include="SiteDataContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SiteDataRepository.cs" />
