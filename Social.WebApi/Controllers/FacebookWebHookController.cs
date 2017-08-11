@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Description;
 using static Social.Infrastructure.Facebook.FacebookWebHookClient;
 
 namespace Social.WebApi.Controllers
@@ -18,6 +19,7 @@ namespace Social.WebApi.Controllers
     /// api used by facebook.
     /// </summary>
     [IgnoreSiteId]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class FacebookWebHookController : ApiController
     {
         private IFacebookAppService _facebookWebHookAppService;
