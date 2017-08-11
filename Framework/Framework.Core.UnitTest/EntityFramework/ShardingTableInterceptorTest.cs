@@ -11,11 +11,19 @@ namespace Framework.Core.UnitTest.EntityFramework
 {
     public class ShardingTableInterceptorTest
     {
+        private ShardingTableInterceptor _interceptor;
+
+        public ShardingTableInterceptorTest()
+        {
+            _interceptor = new ShardingTableInterceptor(new[] { Assembly.GetExecutingAssembly() });
+        }
+
+
+
         [Fact]
         public void ShouldInitializeShardingTables()
         {
-            ShardingTableInterceptor interceptor = new ShardingTableInterceptor(new[] { Assembly.GetExecutingAssembly() });
-            List<string> shardingTables = interceptor.GetShardingBySiteTables();
+            List<string> shardingTables = _interceptor.GetShardingBySiteTables();
 
             Assert.Equal(2, shardingTables.Count);
             Assert.True(shardingTables.Contains("t_Test_Table1"));
@@ -25,37 +33,33 @@ namespace Framework.Core.UnitTest.EntityFramework
         [Fact]
         public void ShouldAddSiteIdToTableName()
         {
-            ShardingTableInterceptor interceptor = new ShardingTableInterceptor(new[] { Assembly.GetExecutingAssembly() });
             string sql = "select * from t_Test_Table1";
 
-            Assert.Equal("select * from t_Test_Table110000", interceptor.GetSql(10000, sql));
+            Assert.Equal("select * from t_Test_Table110000", _interceptor.GetSql(10000, sql));
         }
 
         [Fact]
         public void ShouldNotAddSiteIdToSimilarTableName()
         {
-            ShardingTableInterceptor interceptor = new ShardingTableInterceptor(new[] { Assembly.GetExecutingAssembly() });
             string sql = "select * from t_Test_Table1Ex";
 
-            Assert.Equal("select * from t_Test_Table1Ex", interceptor.GetSql(10000, sql));
+            Assert.Equal("select * from t_Test_Table1Ex", _interceptor.GetSql(10000, sql));
         }
 
         [Fact]
         public void ShouldAddSiteIdWithMulitpleTableNames()
         {
-            ShardingTableInterceptor interceptor = new ShardingTableInterceptor(new[] { Assembly.GetExecutingAssembly() });
             string sql = "select * from [t_Test_Table1] join t_Test_Table1Ex join t_Test_Table2";
 
-            Assert.Equal("select * from [t_Test_Table110000] join t_Test_Table1Ex join t_Test_Table210000", interceptor.GetSql(10000, sql));
+            Assert.Equal("select * from [t_Test_Table110000] join t_Test_Table1Ex join t_Test_Table210000", _interceptor.GetSql(10000, sql));
         }
 
         [Fact]
         public void ShouldIgnoreCase()
         {
-            ShardingTableInterceptor interceptor = new ShardingTableInterceptor(new[] { Assembly.GetExecutingAssembly() });
             string sql = "select * from t_test_table1 join t_test_table2";
 
-            Assert.Equal("select * from t_Test_Table110000 join t_Test_Table210000", interceptor.GetSql(10000, sql));
+            Assert.Equal("select * from t_Test_Table110000 join t_Test_Table210000", _interceptor.GetSql(10000, sql));
         }
 
         [Table("t_Test_Table1")]
