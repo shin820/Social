@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Social.Domain.Entities
 {
     [Table("t_Social_MessageAttachment")]
-    public class MessageAttachment : Entity, IShardingBySiteId
+    public class MessageAttachment : EntityWithSite, IShardingBySiteId
     {
         public int MessageId { get; set; }
         [MaxLength(200)]
