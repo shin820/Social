@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Framework.Core
 {
-    public static class EnumExtension
+    public static class EnumExtensions
     {
         public static string GetName(this Enum enumObj)
         {

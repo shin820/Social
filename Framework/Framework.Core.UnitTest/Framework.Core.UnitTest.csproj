@@ -63,6 +63,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EntityFramework\ShardingTableInterceptorTest.cs" />
+    <Compile Include="Extensions\EnumExtensionsTest.cs" />
+    <Compile Include="Extensions\QueryableExtensionsTest.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Extensions\UriExtensionsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
