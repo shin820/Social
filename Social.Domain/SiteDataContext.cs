@@ -20,7 +20,7 @@ namespace Social.Domain
 
         static SiteDataContext()
         {
-            DbInterception.Add(new ShardingTableInterceptor());
+            DbInterception.Add(new ShardingTableInterceptor(new[] { typeof(SiteDataContext).Assembly }));
         }
 
         public virtual DbSet<Conversation> Conversations { get; set; }
