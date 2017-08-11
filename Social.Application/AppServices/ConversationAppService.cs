@@ -51,7 +51,7 @@ namespace Social.Application.AppServices
                 dto.Since = DateTime.UtcNow.AddMonths(-3);
             }
             var conversations = _conversationService.FindAll();
-            conversations = conversations.WhereIf(dto.Since != null, t => t.CreatedTime >= dto.Since);
+            conversations = conversations.WhereIf(dto.Since != null, t => t.CreatedTime > dto.Since);
             conversations = conversations.WhereIf(dto.Util != null, t => t.CreatedTime <= dto.Util);
             conversations = _conversationService.ApplyFilter(conversations, dto.FilterId);
             conversations = _conversationService.ApplyKeyword(conversations, dto.Keyword);

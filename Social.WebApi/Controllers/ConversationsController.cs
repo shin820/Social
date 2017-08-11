@@ -1,23 +1,27 @@
-﻿using Framework.Core;
-using Social.Application.AppServices;
+﻿using Social.Application.AppServices;
 using Social.Application.Dto;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
 
 namespace Social.WebApi.Controllers
 {
+    /// <summary>
+    /// Api about conversations.
+    /// </summary>
     [RoutePrefix("api/conversations")]
     public class ConversationsController : ApiController
     {
         private IConversationAppService _conversationAppService;
         private IConversationMessageAppService _messageAppService;
 
+        /// <summary>
+        /// ConversationsController
+        /// </summary>
+        /// <param name="conversationAppService"></param>
+        /// <param name="messageAppService"></param>
         public ConversationsController(
             IConversationAppService conversationAppService,
             IConversationMessageAppService messageAppService
@@ -27,6 +31,11 @@ namespace Social.WebApi.Controllers
             _messageAppService = messageAppService;
         }
 
+        /// <summary>
+        /// Get conversations
+        /// </summary>
+        /// <param name="searchDto"></param>
+        /// <returns></returns>
         [Route()]
         public IList<ConversationDto> GetConversations([FromUri(Name = "")]ConversationSearchDto searchDto)
         {
@@ -34,6 +43,11 @@ namespace Social.WebApi.Controllers
             return _conversationAppService.Find(searchDto);
         }
 
+        /// <summary>
+        /// Get conversation by id.
+        /// </summary>
+        /// <param name="id">conversation id</param>
+        /// <returns></returns>
         [Route("{id}", Name = "GetConversation")]
         public ConversationDto GetConversation(int id)
         {
@@ -57,6 +71,12 @@ namespace Social.WebApi.Controllers
         //    return StatusCode(HttpStatusCode.NoContent);
         //}
 
+        /// <summary>
+        /// Update conversation.
+        /// </summary>
+        /// <param name="id">conversation id</param>
+        /// <param name="createDto"></param>
+        /// <returns></returns>
         [Route("{id}")]
         [ResponseType(typeof(ConversationDto))]
         public IHttpActionResult PutConversation(int id, ConversationUpdateDto createDto)
@@ -67,18 +87,33 @@ namespace Social.WebApi.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        /// <summary>
+        /// Get conversation logs.
+        /// </summary>
+        /// <param name="conversationId"></param>
+        /// <returns></returns>
         [Route("{conversationId}/logs")]
         public IList<ConversationLogDto> GetLogs(int conversationId)
         {
             return _conversationAppService.GetLogs(conversationId);
         }
 
+        /// <summary>
+        /// Get conversation messages for facebook message.
+        /// </summary>
+        /// <param name="conversationId"></param>
+        /// <returns></returns>
         [Route("{conversationId}/facebook-messages")]
         public IList<FacebookMessageDto> GetFacebookMessages(int conversationId)
         {
             return _messageAppService.GetFacebookDirectMessages(conversationId);
         }
 
+        /// <summary>
+        /// reply message for facebook message.
+        /// </summary>
+        /// <param name="conversationId"></param>
+        /// <returns></returns>
         [Route("{conversationId}/facebook-messages")]
         public IHttpActionResult PostFacebookMessages(int conversationId, [Required] string message)
         {
@@ -86,12 +121,22 @@ namespace Social.WebApi.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Get conversation messages for facebook post.
+        /// </summary>
+        /// <param name="conversationId"></param>
+        /// <returns></returns>
         [Route("{conversationId}/facebook-post-messages")]
         public FacebookPostMessageDto GetFacebookPostMessages(int conversationId)
         {
             return _messageAppService.GetFacebookPostMessages(conversationId);
         }
 
+        /// <summary>
+        /// reply message for facebook post/comment.
+        /// </summary>
+        /// <param name="conversationId"></param>
+        /// <returns></returns>
         [Route("{conversationId}/facebook-post-messages")]
         public IHttpActionResult PostFacebookPostMessages(int conversationId, [Required] string message, [Required] int parenId)
         {
@@ -99,12 +144,23 @@ namespace Social.WebApi.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Get conversation messages for twitter direct message.
+        /// </summary>
+        /// <param name="conversationId"></param>
+        /// <returns></returns>
         [Route("{conversationId}/twitter-direct-messages")]
         public IList<TwitterDirectMessageDto> GetTwitterDirectMessages(int conversationId)
         {
             return _messageAppService.GetTwitterDirectMessages(conversationId);
         }
 
+        /// <summary>
+        /// reply message for twitter direct message.
+        /// </summary>
+        /// <param name="conversationId"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         [Route("{conversationId}/twitter-direct-messages")]
         public IHttpActionResult PostTwitterDirectMessages(int conversationId, [Required]string message)
         {
@@ -112,12 +168,24 @@ namespace Social.WebApi.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Get conversation messages for twitter tweet.
+        /// </summary>
+        /// <param name="conversationId"></param>
+        /// <returns></returns>
         [Route("{conversationId}/twitter-tweet-messages")]
         public IList<TwitterTweetMessageDto> GetTwitterTweetMessages(int conversationId)
         {
             return _messageAppService.GetTwitterTweetMessages(conversationId);
         }
 
+        /// <summary>
+        /// reply message for twitter tweet.
+        /// </summary>
+        /// <param name="conversationId"></param>
+        /// <param name="message"></param>
+        /// <param name="twitterAccountId"></param>
+        /// <returns></returns>
         [Route("{conversationId}/twitter-tweet-messages")]
         public IHttpActionResult PostTwitterTweetMessages(int conversationId, [Required]string message, [Required]int twitterAccountId)
         {

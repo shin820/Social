@@ -4,6 +4,9 @@ using Social.WebApi;
 using Swashbuckle.Application;
 using Social.WebApi.App_Start;
 using Social.WebApi.Core;
+using System.Reflection;
+using System.IO;
+using System;
 
 [assembly: PreApplicationStartMethod(typeof(SwaggerConfig), "Register")]
 
@@ -98,9 +101,10 @@ namespace Social.WebApi
                         // Xml comments (http://msdn.microsoft.com/en-us/library/b2s063f7(v=vs.110).aspx), you can incorporate
                         // those comments into the generated docs and UI. You can enable this by providing the path to one or
                         // more Xml comment files.
-                        //
-                        //c.IncludeXmlComments(GetXmlCommentsPath());
-
+                        var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                        c.IncludeXmlComments(Path.Combine(baseDirectory, "bin", "Social.WebApi.XML"));
+                        c.IncludeXmlComments(Path.Combine(baseDirectory, "bin", "Social.Application.XML"));
+                        c.IncludeXmlComments(Path.Combine(baseDirectory, "bin", "Framework.Core.XML"));
                         // Swashbuckle makes a best attempt at generating Swagger compliant JSON schemas for the various types
                         // exposed in your API. However, there may be occasions when more control of the output is needed.
                         // This is supported through the "MapType" and "SchemaFilter" options:

@@ -14,11 +14,18 @@ using static Social.Infrastructure.Facebook.FacebookWebHookClient;
 
 namespace Social.WebApi.Controllers
 {
+    /// <summary>
+    /// api used by facebook.
+    /// </summary>
     [IgnoreSiteId]
     public class FacebookWebHookController : ApiController
     {
         private IFacebookAppService _facebookWebHookAppService;
 
+        /// <summary>
+        /// FacebookWebHookController
+        /// </summary>
+        /// <param name="facebookWebHookAppService"></param>
         public FacebookWebHookController(IFacebookAppService facebookWebHookAppService)
         {
             _facebookWebHookAppService = facebookWebHookAppService;
@@ -31,7 +38,10 @@ namespace Social.WebApi.Controllers
             get { return _hub.Value; }
         }
 
-        // GET api/values/5
+        /// <summary>
+        /// This api is used by facebook when setting call back url at facebook.
+        /// </summary>
+        /// <returns></returns>
         public int Get()
         {
             var queryStrings = Request.GetQueryNameValuePairs();
@@ -39,7 +49,10 @@ namespace Social.WebApi.Controllers
             return int.Parse(challenge);
         }
 
-        // POST api/values
+        /// <summary>
+        /// This is call back url for facebook web hook.
+        /// </summary>
+        /// <returns></returns>
         public async Task<IHttpActionResult> Post()
         {
             try
@@ -49,7 +62,7 @@ namespace Social.WebApi.Controllers
                 Hub.Clients.All.newRaw(rawData);
 
                 FbHookData data = await request.Content.ReadAsAsync<FbHookData>();
-                 await _facebookWebHookAppService.ProcessWebHookData(data);
+                await _facebookWebHookAppService.ProcessWebHookData(data);
 
                 if (data == null || !data.Entry.Any())
                 {

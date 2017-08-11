@@ -15,12 +15,20 @@ using System.Web.Http.Description;
 
 namespace Social.WebApi.Controllers
 {
+    /// <summary>
+    /// Api used for adding facebook account to our system and managing facebook accounts in our system..
+    /// </summary>
     [RoutePrefix("api/facebook-accounts")]
     public class FacebookAccountsController : ApiController
     {
         private IUnitOfWorkManager _uowManager;
         private IFacebookAccountAppService _appService;
 
+        /// <summary>
+        /// FacebookAccountsController
+        /// </summary>
+        /// <param name="uowManager"></param>
+        /// <param name="appService"></param>
         public FacebookAccountsController(
             IUnitOfWorkManager uowManager,
             IFacebookAccountAppService appService
@@ -30,6 +38,11 @@ namespace Social.WebApi.Controllers
             _appService = appService;
         }
 
+        /// <summary>
+        /// Make a integration request, fron-end page should redirect to this api rather than calling this api directly.
+        /// </summary>
+        /// <param name="redirectUri">After social user agree to integrated to our system, the page will redirect to this url.</param>
+        /// <returns></returns>
         [HttpGet]
         [Route("integration-request")]
         public IHttpActionResult IntegrationRequest([Required]string redirectUri)
@@ -37,6 +50,12 @@ namespace Social.WebApi.Controllers
             return Redirect(FbClient.GetAuthUrl(redirectUri));
         }
 
+        /// <summary>
+        /// Get user's facebook pages, we use this api to decide which page can be integrated into our system.
+        /// </summary>
+        /// <param name="code">A code which provided by facebook.</param>
+        /// <param name="redirectUri">This url must be equal to the redirectUri you used when making integration request.</param>
+        /// <returns></returns>
         [HttpGet]
         [Route("pending-add-pages")]
         public async Task<PendingAddFacebookPagesDto> GetPendingAddPages([Required]string code, [Required]string redirectUri)
@@ -44,6 +63,10 @@ namespace Social.WebApi.Controllers
             return await _appService.GetPendingAddPagesAsync(code, redirectUri);
         }
 
+        /// <summary>
+        /// Get facebook pages in our system.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("pages")]
         public IList<FacebookPageListDto> GetPages()
@@ -51,6 +74,10 @@ namespace Social.WebApi.Controllers
             return _appService.GetPages();
         }
 
+        /// <summary>
+        /// Get facebook pages by id.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("pages/{id}", Name = "GetFacebookPage")]
         [ResponseType(typeof(FacebookPageDto))]
@@ -65,6 +92,11 @@ namespace Social.WebApi.Controllers
             return Ok(page);
         }
 
+        /// <summary>
+        /// Add facebook page.
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("pages")]
         public async Task<IHttpActionResult> AddPage([Required] AddFaceboookPageDto dto)
@@ -73,6 +105,12 @@ namespace Social.WebApi.Controllers
             return CreatedAtRoute("GetFacebookPage", new { id = pageDto.Id }, pageDto);
         }
 
+        /// <summary>
+        /// Update facebook page.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [HttpPut]
         [Route("pages/{id}")]
         public FacebookPageDto UpdatePage(int id, [Required]UpdateFacebookPageDto dto)
@@ -81,6 +119,11 @@ namespace Social.WebApi.Controllers
             return page;
         }
 
+        /// <summary>
+        /// Delete facebook page.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete]
         [Route("pages/{id}")]
         public async Task<IHttpActionResult> DeletePage(int id)

@@ -7,6 +7,9 @@ using System.Web.Http;
 
 namespace Social.WebApi.Controllers
 {
+    /// <summary>
+    /// api used for push notification to front-end.
+    /// </summary>
     [RoutePrefix("api/notifications")]
     public class NotificationController : ApiController
     {
@@ -19,6 +22,12 @@ namespace Social.WebApi.Controllers
 
         private IConversationAppService _conversationAppService;
         private IConversationMessageAppService _messageAppService;
+
+        /// <summary>
+        /// NotificationController
+        /// </summary>
+        /// <param name="conversationAppService"></param>
+        /// <param name="messageAppService"></param>
         public NotificationController(
             IConversationAppService conversationAppService,
             IConversationMessageAppService messageAppService
