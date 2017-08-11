@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppService.cs" />
+    <Compile Include="DataAnnotations\EnumAttribute.cs" />
     <Compile Include="DefaultConnectionStringResolver.cs" />
     <Compile Include="DisposeAction.cs" />
     <Compile Include="Entities\ISoftDelete.cs" />

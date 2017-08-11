@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Framework.Core;
 
 namespace Social.Application.Dto
 {
@@ -12,6 +13,7 @@ namespace Social.Application.Dto
     {
         [Required]
         public int? FieldId { get; set; }
+        [Enum]
         [Required]
         public ConditionMatchType? MatchType { get; set; }
         [Required]

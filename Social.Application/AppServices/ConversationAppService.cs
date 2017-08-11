@@ -90,18 +90,13 @@ namespace Social.Application.AppServices
 
         public ConversationDto Update(int id, ConversationUpdateDto updateDto)
         {
-            Conversation conversation = null;
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            Conversation conversation = _conversationService.Find(id);
+            if (conversation == null)
             {
-                conversation = _conversationService.Find(id);
-                if (conversation == null)
-                {
-                    throw SocialExceptions.ConversationIdNotExists(id);
-                }
-                Mapper.Map(updateDto, conversation);
-                _conversationService.Update(conversation);
-                uow.Complete();
+                throw SocialExceptions.ConversationIdNotExists(id);
             }
+            Mapper.Map(updateDto, conversation);
+            _conversationService.Update(conversation);
             _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), id);
             return Mapper.Map<ConversationDto>(conversation);
         }
