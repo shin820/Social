@@ -25,7 +25,7 @@ namespace Framework.WebApi
             var query = HttpUtility.ParseQueryString(request.RequestUri.Query);
             int siteId = 0;
             int.TryParse(query["siteId"], out siteId);
-            if (siteId == 0)
+            if (siteId <= 0)
             {
                 throw new ExceptionWithCode(HttpStatusCode.BadRequest, 40000, "Site id is required.");
             }
