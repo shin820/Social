@@ -114,10 +114,10 @@ namespace Social.WebApi.Controllers
         /// <returns></returns>
         [HttpDelete]
         [Route("accounts/{id}")]
-        public async Task<IHttpActionResult> DeleteAccount(int id)
+        public async Task<int> DeleteAccount(int id)
         {
             await _appService.DeleteAccountAsync(id);
-            return StatusCode(HttpStatusCode.NoContent);
+            return id;
         }
     }
 }

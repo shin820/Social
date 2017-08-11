@@ -112,10 +112,9 @@ namespace Social.WebApi.Controllers
         /// <param name="conversationId"></param>
         /// <returns></returns>
         [Route("{conversationId}/facebook-messages")]
-        public IHttpActionResult PostFacebookMessages(int conversationId, [Required] string message)
+        public FacebookMessageDto PostFacebookMessages(int conversationId, [Required] string message)
         {
-            _messageAppService.ReplyFacebookMessage(conversationId, message);
-            return Ok();
+            return _messageAppService.ReplyFacebookMessage(conversationId, message);
         }
 
         /// <summary>
@@ -135,10 +134,9 @@ namespace Social.WebApi.Controllers
         /// <param name="conversationId"></param>
         /// <returns></returns>
         [Route("{conversationId}/facebook-post-messages")]
-        public IHttpActionResult PostFacebookPostMessages(int conversationId, [Required] string message, [Required] int parenId)
+        public FacebookPostCommentMessageDto PostFacebookPostMessages(int conversationId, [Required] string message, [Required] int parenId)
         {
-            _messageAppService.ReplyFacebookPostOrComment(conversationId, parenId, message);
-            return Ok();
+            return _messageAppService.ReplyFacebookPostOrComment(conversationId, parenId, message);
         }
 
         /// <summary>
@@ -159,10 +157,9 @@ namespace Social.WebApi.Controllers
         /// <param name="message"></param>
         /// <returns></returns>
         [Route("{conversationId}/twitter-direct-messages")]
-        public IHttpActionResult PostTwitterDirectMessages(int conversationId, [Required]string message)
+        public TwitterDirectMessageDto PostTwitterDirectMessages(int conversationId, [Required]string message)
         {
-            _messageAppService.ReplyTwitterDirectMessage(conversationId, message);
-            return Ok();
+            return _messageAppService.ReplyTwitterDirectMessage(conversationId, message);
         }
 
         /// <summary>
@@ -184,10 +181,9 @@ namespace Social.WebApi.Controllers
         /// <param name="twitterAccountId"></param>
         /// <returns></returns>
         [Route("{conversationId}/twitter-tweet-messages")]
-        public IHttpActionResult PostTwitterTweetMessages(int conversationId, [Required]string message, [Required]int twitterAccountId)
+        public TwitterTweetMessageDto PostTwitterTweetMessages(int conversationId, [Required]string message, [Required]int twitterAccountId)
         {
-            _messageAppService.ReplyTwitterTweetMessage(conversationId, twitterAccountId, message);
-            return Ok();
+            return _messageAppService.ReplyTwitterTweetMessage(conversationId, twitterAccountId, message);
         }
     }
 }
