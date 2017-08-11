@@ -34,7 +34,7 @@ namespace Framework.WebApi.Filters
             }
             else
             {
-                throw new ExceptionWithCode(40000, $"Parameter '{invliadParamterKeys.FirstOrDefault()}' is required.");
+                throw new ExceptionWithCode(HttpStatusCode.BadRequest, 40000, $"Parameter '{invliadParamterKeys.FirstOrDefault()}' is required.");
             }
         }
 

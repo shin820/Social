@@ -11,5 +11,8 @@ namespace Social.Infrastructure
         Task NotifyNewTwitterDirectMessage(int siteId, int messageId);
         Task NotifyNewTwitterTweet(int siteId, int messageId);
         Task NotifyUpdateConversation(int siteId, int conversationId);
+        Task NotifyNewPublicFilter(int siteId, int filterId);
+        Task NotifyDeletePublicFilter(int siteId, int filterId);
+        Task NotifyUpdatePublicFilter(int siteId, int filterId);
     }
 }

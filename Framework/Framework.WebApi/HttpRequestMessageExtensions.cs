@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace Framework.WebApi
             int.TryParse(query["siteId"], out siteId);
             if (siteId == 0)
             {
-                throw new ExceptionWithCode(0, "Site id is required.");
+                throw new ExceptionWithCode(HttpStatusCode.BadRequest, 40000, "Site id is required.");
             }
 
             //if(!SiteProcess.IfExistsSiteId(siteId))

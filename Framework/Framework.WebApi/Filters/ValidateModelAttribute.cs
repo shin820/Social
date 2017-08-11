@@ -23,7 +23,7 @@ namespace Framework.WebApi
 
                 actionContext.Response = actionContext.Request.CreateResponse(
                     HttpStatusCode.BadRequest,
-                    new ErrorInfo(0, errorMessage)
+                    new ErrorInfo(40000, errorMessage)
                     );
             }
         }

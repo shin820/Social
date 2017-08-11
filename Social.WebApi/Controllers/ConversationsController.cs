@@ -78,13 +78,10 @@ namespace Social.WebApi.Controllers
         /// <param name="createDto"></param>
         /// <returns></returns>
         [Route("{id}")]
-        [ResponseType(typeof(ConversationDto))]
-        public IHttpActionResult PutConversation(int id, ConversationUpdateDto createDto)
+        public ConversationDto PutConversation(int id, ConversationUpdateDto createDto)
         {
             createDto = createDto ?? new ConversationUpdateDto();
-            _conversationAppService.Update(id, createDto);
-
-            return StatusCode(HttpStatusCode.NoContent);
+            return _conversationAppService.Update(id, createDto);
         }
 
         /// <summary>

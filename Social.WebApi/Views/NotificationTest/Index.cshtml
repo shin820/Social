@@ -57,6 +57,18 @@
                 console.log(messsage);
                 $('#discussion').append("<p>" + htmlEncode("Twitter direct message created : " + messsage.id) + "</p > ");
             }
+            hub.client.publicFilterCreated = function (id) {
+                console.log(id);
+                $('#discussion').append("<p>" + htmlEncode("public filter created : " + id) + "</p > ");
+            }
+            hub.client.publicFilterDeleted = function (id) {
+                console.log(id);
+                $('#discussion').append("<p>" + htmlEncode("public filter deleted : " + id) + "</p > ");
+            }
+            hub.client.publicFilterUpdated = function (id) {
+                console.log(id);
+                $('#discussion').append("<p>" + htmlEncode("public filter updated : " + id) + "</p > ");
+            }
 
             $.connection.hub.start().done(function () {
 

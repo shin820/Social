@@ -108,5 +108,30 @@ namespace Social.WebApi.Controllers
             }
             return Ok();
         }
+
+
+        [Route("public-filter-created")]
+        [HttpGet]
+        public IHttpActionResult PublicFilterCreated(int filterId)
+        {
+            _hub.Clients.Group(Request.GetSiteId().ToString()).publicFilterCreated(filterId);
+            return Ok();
+        }
+
+        [Route("public-filter-deleted")]
+        [HttpGet]
+        public IHttpActionResult PublicFilterDeleted(int filterId)
+        {
+            _hub.Clients.Group(Request.GetSiteId().ToString()).publicFilterDeleted(filterId);
+            return Ok();
+        }
+
+        [Route("public-filter-updated")]
+        [HttpGet]
+        public IHttpActionResult PublicFilterUpdated(int filterId)
+        {
+            _hub.Clients.Group(Request.GetSiteId().ToString()).publicFilterUpdated(filterId);
+            return Ok();
+        }
     }
 }
