@@ -21,7 +21,8 @@ namespace Social.Application.Dto
         public string Name { get; set; }
         public int Index { get; set; }
         public bool IfPublic { get; set; }
-        public FilterType Type { get; set; }
+        [Required]
+        public FilterType? Type { get; set; }
         public string LogicalExpression { get; set; }
 
         // public virtual Conversation Conversation { get; set; }
