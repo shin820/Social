@@ -106,7 +106,8 @@ namespace Framework.Core
 
         private string ReplaceTableName(string input, string tableName, int siteId)
         {
-            string sql = Regex.Replace(input, $"{tableName}$", tableName + siteId, RegexOptions.IgnoreCase);
+            string sql = input;
+            sql = Regex.Replace(sql, $"{tableName}$", tableName + siteId, RegexOptions.IgnoreCase);
             sql = Regex.Replace(sql, $"{tableName}\\s", tableName + siteId + " ", RegexOptions.IgnoreCase);
             sql = Regex.Replace(sql, $"\\[{tableName}\\]", "[" + tableName + siteId + "]", RegexOptions.IgnoreCase);
             return sql;
@@ -114,9 +115,7 @@ namespace Framework.Core
 
         private bool IsMatch(string sql, string tableName)
         {
-            return Regex.IsMatch(sql, $"{tableName}$", RegexOptions.IgnoreCase)
-                || Regex.IsMatch(sql, $"{tableName}\\s", RegexOptions.IgnoreCase)
-                || Regex.IsMatch(sql, $"\\[{tableName}\\]", RegexOptions.IgnoreCase);
+            return Regex.IsMatch(sql, $"({tableName}$|{tableName}\\s|\\[{tableName}\\])", RegexOptions.IgnoreCase);
         }
     }
 }
