@@ -10,7 +10,7 @@ namespace Framework.Core
     {
         private int _errorCode;
 
-        public ExceptionWithCode(int errorCode, string message)
+        public ExceptionWithCode(int errorCode, string message) : base(message)
         {
             _errorCode = errorCode;
         }

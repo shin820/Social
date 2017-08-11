@@ -12,12 +12,7 @@ namespace Social.Infrastructure
     {
         public static ExceptionWithCode FacebookOauthException(FacebookOAuthException fbOauthException)
         {
-            return new ExceptionWithCode(40000, fbOauthException.Message, fbOauthException);
-        }
-
-        public static ExceptionWithCode InvalidParameter(string key)
-        {
-            return new ExceptionWithCode(40001, $"Invalid parameter '{key}'.");
+            return new ExceptionWithCode(40001, fbOauthException.Message, fbOauthException);
         }
 
         public static ExceptionWithCode OriginalPostOrTweetHasBeenDeleted()
@@ -25,9 +20,9 @@ namespace Social.Infrastructure
             return new ExceptionWithCode(40002, $"The original Post or Tweet is deleted.");
         }
 
-        public static BadRequestException BadRequest(string msg)
+        public static ExceptionWithCode BadRequest(string msg)
         {
-            return new BadRequestException(msg);
+            return new ExceptionWithCode(40000, msg);
         }
 
         public static NotFoundException ConversationIdNotExists(int id)
