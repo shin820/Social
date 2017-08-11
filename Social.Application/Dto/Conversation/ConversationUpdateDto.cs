@@ -10,9 +10,9 @@ namespace Social.Application.Dto
 {
     public class ConversationUpdateDto
     {
-      //  public int Id { get; set; }
-
-        public ConversationSource Source { get; set; }
+        //  public int Id { get; set; }
+        [Required]
+        public ConversationSource? Source { get; set; }
 
         //public string SocialId { get; set; }
 
@@ -28,13 +28,15 @@ namespace Social.Application.Dto
 
         public int? DepartmentId { get; set; }
 
-        public ConversationStatus Status { get; set; }
+        [Required]
+        public ConversationStatus? Status { get; set; }
 
         [Required]
         [MaxLength(200)]
         public string Subject { get; set; }
 
-        public ConversationPriority Priority { get; set; }
+        [Required]
+        public ConversationPriority? Priority { get; set; }
 
         [MaxLength(2000)]
         public string Note { get; set; }
