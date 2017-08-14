@@ -97,6 +97,8 @@ namespace Social.Domain.DomainServices.Facebook
                 return;
             }
 
+            var socialAccounts = _socialUserService.FindAll().Where(t => t.Source == SocialUserSource.Facebook && t.Type == SocialUserType.IntegrationAccount).ToList();
+
             posts = posts.OrderBy(t => t.created_time).ToList();
 
             using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
@@ -114,7 +116,19 @@ namespace Social.Domain.DomainServices.Facebook
 
                         var firstMessage = FacebookConverter.ConvertToMessage(_account.Token, post);
                         firstMessage.SenderId = sender.Id;
-                        if (firstMessage.SenderId != _account.Id)
+                        var recipient = GetRecipient(post, socialAccounts);
+                        if (recipient != null)
+                        {
+                            // a post @ multiple social accounts.
+                            if (recipient.Id != _account.Id)
+                            {
+                                return;
+                            }
+
+                            firstMessage.ReceiverId = recipient.Id;
+                        }
+
+                        if (recipient == null && firstMessage.SenderId != _account.Id)
                         {
                             firstMessage.ReceiverId = _account.Id;
                         }
@@ -165,6 +179,24 @@ namespace Social.Domain.DomainServices.Facebook
                     uow.Complete();
                 }
             }
+        }
+
+        private SocialUser GetRecipient(FbPost post, IList<SocialUser> allAccounts)
+        {
+            if (post.to.data == null || !post.to.data.Any())
+            {
+                return null;
+            }
+            foreach (var to in post.to.data)
+            {
+                var socialAccount = allAccounts.FirstOrDefault(t => t.OriginalId == to.id);
+                if (socialAccount != null)
+                {
+                    return socialAccount;
+                }
+            }
+
+            return null;
         }
 
         private async Task AddConversations(List<FbConversation> fbConversations)
