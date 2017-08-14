@@ -151,7 +151,7 @@ namespace Social.Infrastructure.Facebook
             //}
         }
 
-        public static  FbUser GetFacebookUserInfo(string token, string fbUserId)
+        public static FbUser GetFacebookUserInfo(string token, string fbUserId)
         {
             FacebookClient client = new FacebookClient(token);
             string url = "/" + fbUserId + "?fields=id,name,link,picture";
@@ -175,7 +175,7 @@ namespace Social.Infrastructure.Facebook
                 }
                 if (result.email != null)
                 {
-                     me.email = result.email;
+                    me.email = result.email;
                 }
 
                 return me;
@@ -225,13 +225,13 @@ namespace Social.Infrastructure.Facebook
             return result.id;
         }
 
-        public async static Task<IList<FbMessage>> GetMessagesFromConversationId(string token, string fbConversationId)
+        public async static Task<IList<FbMessage>> GetMessagesFromConversationId(string token, string fbConversationId, int limit)
         {
             List<FbMessage> messages = new List<FbMessage>();
             Checker.NotNullOrWhiteSpace(token, nameof(token));
             Checker.NotNullOrWhiteSpace(fbConversationId, nameof(fbConversationId));
             FacebookClient client = new FacebookClient(token);
-            string url = "/" + fbConversationId + "/messages?fields=from,to,message,id,created_time,attachments,shares{link,name,id}&limit=10";
+            string url = $"/{fbConversationId}/messages?fields=from,to,message,id,created_time,attachments,shares{{link,name,id}}&limit={limit}";
             dynamic fbMessages = await client.GetTaskAsync(url);
             foreach (var fbMessage in fbMessages.data)
             {
@@ -483,7 +483,7 @@ namespace Social.Infrastructure.Facebook
                             {
                                 Uri uri = new Uri(messageShare.Url);
                                 messageShare.MimeType = uri.GetMimeType();
-                                if(messageShare.MimeType.Contains("image"))
+                                if (messageShare.MimeType.Contains("image"))
                                 {
                                     messageShare.Type = MessageAttachmentType.Image;
                                 }
