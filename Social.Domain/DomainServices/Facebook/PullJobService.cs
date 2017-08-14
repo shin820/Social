@@ -17,7 +17,7 @@ namespace Social.Domain.DomainServices.Facebook
     {
         Task PullTaggedVisitorPosts(SocialAccount account);
         Task PullVisitorPostsFromFeed(SocialAccount account);
-        Task PullMassagesJob(SocialAccount account);
+        Task PullMessagesJob(SocialAccount account);
     }
 
     public class PullJobService : ServiceBase, IPullJobService
@@ -79,10 +79,10 @@ namespace Social.Domain.DomainServices.Facebook
             await result.Notify(account.SiteId);
         }
 
-        public async Task PullMassagesJob(SocialAccount account)
+        public async Task PullMessagesJob(SocialAccount account)
         {
             _account = account;
-            var data = await FbClient.GetConversationsPosts(_account.SocialUser.OriginalId, _account.Token);
+            var data = await FbClient.GetConversationsMessages(_account.SocialUser.OriginalId, _account.Token);
             await InitForConversation(data);
             RemoveDuplicated();
             await AddConversations(ConversationsToBeCreated);

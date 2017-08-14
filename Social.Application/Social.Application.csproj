@@ -145,6 +145,10 @@
     <Compile Include="Dto\ConversationMessage\MessageAttachmentDto.cs" />
     <Compile Include="Dto\ConversationMessage\TwitterDirectMessageDto.cs" />
     <Compile Include="Dto\Conversation\ConversationLogDto.cs" />
+    <Compile Include="Dto\Conversation\FacebookMessagesDto.cs" />
+    <Compile Include="Dto\Conversation\FacebookPostMessagesDto.cs" />
+    <Compile Include="Dto\Conversation\TwitterDirectMessagesDto.cs" />
+    <Compile Include="Dto\Conversation\TwitterTweetMessagesDto.cs" />
     <Compile Include="Dto\Department\DepartmentDto.cs" />
     <Compile Include="Dto\FacebookAccount\FacebookPageDto.cs" />
     <Compile Include="Dto\FacebookAccount\FacebookPageListDto.cs" />

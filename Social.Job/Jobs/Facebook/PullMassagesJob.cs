@@ -27,7 +27,7 @@ namespace Social.Job.Jobs.Facebook
 
             await UnitOfWorkManager.RunWithoutTransaction(socialAccount.SiteId, async () =>
            {
-               await _sevice.PullMassagesJob(socialAccount);
+               await _sevice.PullMessagesJob(socialAccount);
            });
         }
     }

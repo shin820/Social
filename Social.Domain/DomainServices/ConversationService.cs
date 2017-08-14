@@ -142,7 +142,7 @@ namespace Social.Domain.DomainServices
 
         public IQueryable<Conversation> FindAll(Filter filter)
         {
-            var conversations = Repository.FindAll().AsExpandable().Where(t => t.IsDeleted == false);
+            var conversations = Repository.FindAll().AsExpandable().Where(t => t.IsDeleted == false && t.IfRead == false);
             var expression = _filterExpressionFactory.Create(filter);
             conversations = conversations.Where(expression);
 
