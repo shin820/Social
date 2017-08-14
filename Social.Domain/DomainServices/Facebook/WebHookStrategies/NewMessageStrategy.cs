@@ -24,7 +24,7 @@ namespace Social.Domain.DomainServices.Facebook
                 return result;
             }
 
-            IList<FbMessage> fbMessages = await FbClient.GetMessagesFromConversationId(socialAccount.Token, change.Value.ThreadId);
+            IList<FbMessage> fbMessages = await FbClient.GetMessagesFromConversationId(socialAccount.Token, change.Value.ThreadId, 1);
             foreach (var fbMessage in fbMessages)
             {
                 if (IsDuplicatedMessage(fbMessage.Id))
