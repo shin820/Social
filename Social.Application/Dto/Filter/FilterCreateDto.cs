@@ -22,6 +22,7 @@ namespace Social.Application.Dto
         public int Index { get; set; }
         public bool IfPublic { get; set; }
         public FilterType Type { get; set; }
+        [MaxLength(200)]
         public string LogicalExpression { get; set; }
 
         // public virtual Conversation Conversation { get; set; }

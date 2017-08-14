@@ -276,6 +276,7 @@
     <Compile Include="Controllers\FacebookController.cs" />
     <Compile Include="Controllers\UserInfoController.cs" />
     <Compile Include="Controllers\TestController.cs" />
+    <Compile Include="Core\SignalRContractResolver.cs" />
     <Compile Include="Core\SwaggerOperationFilter.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />

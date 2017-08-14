@@ -55,25 +55,39 @@ namespace Social.Domain.DomainServices
 
         public FbUser GetFacebookInfo(string OriginalId, Conversation conversation, int userId)
         {
-            int? accountId = null;
-            while (accountId == null)
+            var socialAccount = _socialAccountRepo.Find(userId);
+            string token = null;
+            if (socialAccount != null)
             {
-                accountId = conversation.Messages.First().SenderId == userId ? conversation.Messages.First().ReceiverId : conversation.Messages.First().SenderId;
+                token = socialAccount.Token;
             }
-            string token = _socialAccountRepo.Find(accountId.Value).Token;
+            else
+            {
+                int? accountId = null;
+                while (accountId == null)
+                {
+                    accountId = conversation.Messages.First().SenderId == userId ? conversation.Messages.First().ReceiverId : conversation.Messages.First().SenderId;
+                }
+                token = _socialAccountRepo.Find(accountId.Value).Token;
+            }
+
             FbUser fbUser =  FbClient.GetFacebookUserInfo(token, OriginalId);
             return fbUser;
         }
 
         public IUser GetTwitterInfo(string OriginalId, Conversation conversation, int userId)
         {
+            SocialAccount socialAccount = _socialAccountRepo.Find(userId);
             var twitterService = DependencyResolver.Resolve<ITwitterService>();
-            int? accountId = null;
-            while (accountId == null)
-            {
-                accountId = conversation.Messages.First().SenderId == userId ? conversation.Messages.First().ReceiverId : conversation.Messages.First().SenderId;
+            if (socialAccount == null)
+            {             
+                int? accountId = null;
+                while (accountId == null)
+                {
+                    accountId = conversation.Messages.First().SenderId == userId ? conversation.Messages.First().ReceiverId : conversation.Messages.First().SenderId;
+                }
+                socialAccount = _socialAccountRepo.Find(accountId.Value);
             }
-           SocialAccount socialAccount = _socialAccountRepo.Find(accountId.Value);
             IUser twitterUser = twitterService.GetUser(socialAccount, long.Parse(OriginalId));
             return twitterUser;
         }

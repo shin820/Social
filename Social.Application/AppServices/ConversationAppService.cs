@@ -55,6 +55,7 @@ namespace Social.Application.AppServices
             conversations = conversations.WhereIf(dto.Util != null, t => t.CreatedTime <= dto.Util);
             conversations = _conversationService.ApplyFilter(conversations, dto.FilterId);
             conversations = _conversationService.ApplyKeyword(conversations, dto.Keyword);
+            conversations = _conversationService.ApplyOriginalId(conversations, dto.UserId);
 
             return conversations.Paging(dto).ProjectTo<ConversationDto>().ToList();
         }

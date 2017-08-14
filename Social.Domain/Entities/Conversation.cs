@@ -66,7 +66,6 @@ namespace Social.Domain.Entities
                 && IsHidden && LastMessageSenderId != account.Id)
             {
                 IsHidden = false;
-                Status = ConversationStatus.New;
             }
         }
     }

@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Social.Application.Dto;
+using Social.Application.Dto.UserInfo;
 using Social.Domain.DomainServices;
 using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
+using Social.Infrastructure.Facebook;
 
 namespace Social.Application
 {
@@ -68,6 +70,7 @@ namespace Social.Application
                 .ForMember(dest => dest.Avatar, src => src.MapFrom(x => x.SocialUser.Avatar));
             CreateMap<UpdateTwitterAccountDto, SocialAccount>();
 
+            CreateMap<FbUser, UserInfoDto>();
         }
     }
 }

@@ -80,7 +80,7 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("{conversationId}/facebook-messages")]
-        public IHttpActionResult PostFacebookMessages(int conversationId, [Required] string message)
+        public IHttpActionResult PostFacebookMessages(int conversationId, [Required][MaxLength(2000)] string message)
         {
             _messageAppService.ReplyFacebookMessage(conversationId, message);
             return Ok();
@@ -93,9 +93,9 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("{conversationId}/facebook-post-messages")]
-        public IHttpActionResult PostFacebookPostMessages(int conversationId, [Required] string message, [Required] int parenId)
+        public IHttpActionResult PostFacebookPostMessages(int conversationId, [Required][MaxLength(2000)] string message, [Required][Range(0, int.MaxValue)] int parentId)
         {
-            _messageAppService.ReplyFacebookPostOrComment(conversationId, parenId, message);
+            _messageAppService.ReplyFacebookPostOrComment(conversationId, parentId, message);
             return Ok();
         }
 
@@ -106,7 +106,7 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("{conversationId}/twitter-direct-messages")]
-        public IHttpActionResult PostTwitterDirectMessages(int conversationId, [Required]string message, [Required]int twitterAccountId)
+        public IHttpActionResult PostTwitterDirectMessages(int conversationId, [Required][MaxLength(2000)]string message, [Required][Range(0,int.MaxValue)] int twitterAccountId)
         {
             _messageAppService.ReplyTwitterDirectMessage(conversationId, twitterAccountId, message);
             return Ok();
@@ -119,7 +119,7 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("{conversationId}/twitter-tweet-messages")]
-        public IHttpActionResult PostTwitterTweetMessages(int conversationId, [Required]string message, [Required]int twitterAccountId)
+        public IHttpActionResult PostTwitterTweetMessages(int conversationId, [Required][MaxLength(2000)]string message, [Required][Range(0, int.MaxValue)] int twitterAccountId)
         {
             _messageAppService.ReplyTwitterTweetMessage(conversationId, twitterAccountId, message);
             return Ok();

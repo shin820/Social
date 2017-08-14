@@ -1,4 +1,7 @@
-﻿using Social.Application.Dto.UserInfo;
+﻿using AutoMapper;
+using Framework.Core;
+using Social.Application.Dto;
+using Social.Application.Dto.UserInfo;
 using Social.Domain.DomainServices;
 using Social.Domain.Entities;
 using Social.Infrastructure.Facebook;
@@ -14,13 +17,16 @@ namespace Social.Application.AppServices
     public interface IUserInfoAppService
     {
         UserInfoDto Find(string OriginalId);
+        IList<ConversationDto> FindConversations(string OriginalId);
     }
-    public class UserInfoAppService:IUserInfoAppService
+    public class UserInfoAppService: AppService, IUserInfoAppService
     {
         private IUserInfoService _domainService;
-        public UserInfoAppService(IUserInfoService domainService)
+        private IConversationAppService _conversationService;
+        public UserInfoAppService(IUserInfoService domainService, IConversationAppService conversationService)
         {
             _domainService = domainService;
+            _conversationService = conversationService;
         }
 
 
@@ -31,19 +37,43 @@ namespace Social.Application.AppServices
             if(user!= null)
             {
                 List<Conversation> conversations = _domainService.GetConversations(user.Id);
-                userInfoDto.Conversations = conversations.OrderBy(t => t.LastMessageSentTime).ToList();
-                if (user.Source == Infrastructure.Enum.SocialUserSource.Facebook)
+                if (user.Source == Infrastructure.Enum.SocialUserSource.Facebook && conversations.Count >0)
                 {
                     FbUser facebookInfo = _domainService.GetFacebookInfo(OriginalId, conversations.First(), user.Id);
-                    userInfoDto.FbUser = facebookInfo;
+                    userInfoDto = Mapper.Map<UserInfoDto>(facebookInfo);
                 }
-                else if(user.Source == Infrastructure.Enum.SocialUserSource.Twitter)
+                else if(user.Source == Infrastructure.Enum.SocialUserSource.Twitter && conversations.Count > 0)
                 {
                     IUser twitterUserInfo = _domainService.GetTwitterInfo(OriginalId, conversations.First(), user.Id);
-                    userInfoDto.TwitterUser = twitterUserInfo;
+                    userInfoDto.name = twitterUserInfo.Name;
+                    userInfoDto.id = twitterUserInfo.Id.ToString();
+                    userInfoDto.pic = twitterUserInfo.ProfileImageUrl;
+                    userInfoDto.ScreenName = twitterUserInfo.ScreenName;
+                    userInfoDto.Location = twitterUserInfo.Location;
+                    userInfoDto.FollowersCount = twitterUserInfo.FollowersCount;
+                    userInfoDto.FriendsCount = twitterUserInfo.FriendsCount;
+                    userInfoDto.StatusesCount = twitterUserInfo.StatusesCount;
+                    userInfoDto.Description = twitterUserInfo.Description;
+                    userInfoDto.JoinedDate = twitterUserInfo.CreatedAt.ToString();
+                    if (twitterUserInfo.Entities.Website != null)
+                    {
+                        userInfoDto.Website = twitterUserInfo.Entities.Website.Urls.First().DisplayedURL;
+                    }
                 }
             }
             return userInfoDto;
+        }
+
+        public IList<ConversationDto> FindConversations(string OriginalId)
+        {
+            SocialUser user = _domainService.GetUser(OriginalId);
+            ConversationSearchDto searchDto = new ConversationSearchDto();
+            if (user != null)
+            {
+                searchDto.UserId = user.Id;
+                return _conversationService.Find(searchDto);
+            }
+            return null;
         }
     }
 }
