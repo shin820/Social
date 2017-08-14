@@ -18,7 +18,6 @@ namespace Social.Application.Dto
         /// <summary>
         /// Subject, note, message, sender or ricpient.
         /// </summary>
-        public string Keyword { get; set; }
         [MaxLength(100)]
         public string Keyword { get; set; }
 

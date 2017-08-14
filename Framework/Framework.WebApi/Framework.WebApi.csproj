@@ -78,6 +78,10 @@
     <Compile Include="SessionAuthenticationHandler.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Social.Infrastructure\Social.Infrastructure.csproj">
+      <Project>{FE79D2DF-6B23-4278-9C84-FC1D6487C45B}</Project>
+      <Name>Social.Infrastructure</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Framework.Core\Framework.Core.csproj">
       <Project>{1d101296-5f63-46cf-ab35-4a72ea5a9c08}</Project>
       <Name>Framework.Core</Name>

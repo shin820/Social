@@ -1,4 +1,5 @@
 ﻿using Framework.Core;
+using Social.Infrastructure;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -37,7 +38,7 @@ namespace Framework.WebApi.Filters
             }
             else
             {
-                throw new BadRequestException($"Parameter '{invliadParamterKeys.FirstOrDefault()}' is required or invalid.");
+                throw SocialExceptions.BadRequest($"Parameter '{invliadParamterKeys.FirstOrDefault()}' is required or invalid.");
             }
         }
 
