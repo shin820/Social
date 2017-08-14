@@ -161,12 +161,21 @@ namespace Social.Domain.DomainServices
 
         public async Task<List<SocialUser>> GetOrCreateSocialUsers(string token, List<FbUser> fbSenders)
         {
+            var uniqueFbSenders = new List<FbUser>();
+            foreach (var fbSender in fbSenders)
+            {
+                if (!uniqueFbSenders.Any(t => t.id == fbSender.id))
+                {
+                    uniqueFbSenders.Add(fbSender);
+                }
+            }
+
             List<SocialUser> senders = new List<SocialUser>();
-            var fbSenderIds = fbSenders.Select(t => t.id).ToList();
+            var fbSenderIds = uniqueFbSenders.Select(t => t.id).ToList();
             var existingUsers = FindAll().Where(t => t.Source == SocialUserSource.Facebook && fbSenderIds.Contains(t.OriginalId)).ToList();
             senders.AddRange(existingUsers);
-            fbSenders.RemoveAll(t => existingUsers.Any(e => e.OriginalId == t.id));
-            foreach (var fbSender in fbSenders)
+            uniqueFbSenders.RemoveAll(t => existingUsers.Any(e => e.OriginalId == t.id));
+            foreach (var fbSender in uniqueFbSenders)
             {
                 var sender = new SocialUser()
                 {
