@@ -63,7 +63,7 @@ namespace Social.Domain.DomainServices.Twitter
             {
                 type = MessageAttachmentType.Image;
             }
-            if (media.MediaType == "vedio")
+            if (media.MediaType == "vedio" || media.MediaType == "video")
             {
                 type = MessageAttachmentType.Video;
             }
