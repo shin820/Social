@@ -16,7 +16,7 @@ namespace Social.Application.AppServices
         Task ProcessWebHookData(FbHookData fbData);
         Task PullTaggedVisitorPosts(SocialAccount socialAccount);
         Task PullVisitorPostsFromFeed(SocialAccount socialAccount);
-        Task PullMassagesJob(SocialAccount socialAccount);
+        Task PullMessagesJob(SocialAccount socialAccount);
     }
 
     public class FacebookAppService : AppService, IFacebookAppService
@@ -38,9 +38,9 @@ namespace Social.Application.AppServices
             await _facebookWebHookService.ProcessWebHookData(fbData);
         }
 
-        public async Task PullMassagesJob(SocialAccount socialAccount)
+        public async Task PullMessagesJob(SocialAccount socialAccount)
         {
-            await _facebookPullJobService.PullMassagesJob(socialAccount);
+            await _facebookPullJobService.PullMessagesJob(socialAccount);
         }
 
         public async Task PullTaggedVisitorPosts(SocialAccount socialAccount)

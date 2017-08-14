@@ -381,7 +381,7 @@ namespace Social.Infrastructure.Facebook
         }
 
 
-        public async static Task<FbPagingData<FbConversation>> GetConversationsPosts(string pageId, string token)
+        public async static Task<FbPagingData<FbConversation>> GetConversationsMessages(string pageId, string token)
         {
             Checker.NotNullOrWhiteSpace(token, nameof(token));
             Checker.NotNullOrWhiteSpace(token, nameof(pageId));
