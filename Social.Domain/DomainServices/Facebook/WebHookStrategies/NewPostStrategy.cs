@@ -82,7 +82,7 @@ namespace Social.Domain.DomainServices.Facebook
                 LastMessageSentTime = message.SendTime
             };
 
-            if (change.Value.Item == "status" && message.SenderId == socialAccount.Id)
+            if (change.Value.Verb == "add" && message.SenderId == socialAccount.Id)
             {
                 conversation.Source = ConversationSource.FacebookWallPost;
                 conversation.IsHidden = true;

@@ -33,7 +33,7 @@ namespace Social.WebApi
             IDependencyResolver resolver = config.DependencyResolver.GetService(typeof(IDependencyResolver)) as IDependencyResolver;
 
             config.Filters.Add(new SiteIdRequiredAttribute());
-            config.Filters.Add(new RequiredParametersFilter());
+            config.Filters.Add(new InvalidParametersFilter());
             config.Filters.Add(new ValidateModelAttribute());
             config.Filters.Add(new UnitOfWorkFilter(resolver.Resolve<IUnitOfWorkManager>()));
             config.Filters.Add(new ApiExceptionFilterAttribute());

@@ -17,6 +17,7 @@ namespace Social.Application.Dto
         [Required]
         public ConditionMatchType? MatchType { get; set; }
         [Required]
+        [MaxLength(200)]
         public string Value { get; set; }
         public int Index { get; set; }
     }

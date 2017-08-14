@@ -25,6 +25,7 @@ namespace Social.Application.Dto
         [Enum]
         [Required]
         public FilterType? Type { get; set; }
+        [MaxLength(200)]
         public string LogicalExpression { get; set; }
 
         // public virtual Conversation Conversation { get; set; }

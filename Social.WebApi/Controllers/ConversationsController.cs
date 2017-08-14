@@ -134,7 +134,7 @@ namespace Social.WebApi.Controllers
         /// <param name="conversationId"></param>
         /// <returns></returns>
         [Route("{conversationId}/facebook-post-messages")]
-        public FacebookPostCommentMessageDto PostFacebookPostMessages(int conversationId, [Required] string message, [Required] int parenId)
+        public FacebookPostCommentMessageDto PostFacebookPostMessages(int conversationId, [Required][MaxLength(2000)] string message, [Required][Range(0, int.MaxValue)] int parenId)
         {
             return _messageAppService.ReplyFacebookPostOrComment(conversationId, parenId, message);
         }
@@ -157,7 +157,7 @@ namespace Social.WebApi.Controllers
         /// <param name="message"></param>
         /// <returns></returns>
         [Route("{conversationId}/twitter-direct-messages")]
-        public TwitterDirectMessageDto PostTwitterDirectMessages(int conversationId, [Required]string message)
+        public TwitterDirectMessageDto PostTwitterDirectMessages(int conversationId, [Required][MaxLength(2000)]string message, [Required][Range(0,int.MaxValue)] int twitterAccountId)
         {
             return _messageAppService.ReplyTwitterDirectMessage(conversationId, message);
         }
@@ -181,7 +181,7 @@ namespace Social.WebApi.Controllers
         /// <param name="twitterAccountId"></param>
         /// <returns></returns>
         [Route("{conversationId}/twitter-tweet-messages")]
-        public TwitterTweetMessageDto PostTwitterTweetMessages(int conversationId, [Required]string message, [Required]int twitterAccountId)
+        public TwitterTweetMessageDto PostTwitterTweetMessages(int conversationId, [Required][MaxLength(2000)]string message, [Required][Range(0, int.MaxValue)]int twitterAccountId)
         {
             return _messageAppService.ReplyTwitterTweetMessage(conversationId, twitterAccountId, message);
         }

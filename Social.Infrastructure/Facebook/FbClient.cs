@@ -158,7 +158,7 @@ namespace Social.Infrastructure.Facebook
 
             try
             {
-                dynamic result = client.GetTaskAsync(url);
+                dynamic result = client.Get(url);
 
                 var me = new FbUser
                 {
@@ -173,6 +173,10 @@ namespace Social.Infrastructure.Facebook
                         me.pic = result.picture.data.url;
                     }
                 }
+                if (result.email != null)
+                {
+                     me.email = result.email;
+                }
 
                 return me;
             }
@@ -181,11 +185,6 @@ namespace Social.Infrastructure.Facebook
                 Logger.Error($"Get user info from facebook failed.token={token},url={url}", ex);
                 throw ex;
             }
-
-            //if (userInfo.picture != null && userInfo.picture.data.url != null)
-            //{
-            //    user.Avatar = userInfo.picture.data.url;
-            //}
         }
 
         public static string PublishComment(string token, string parentId, string message)

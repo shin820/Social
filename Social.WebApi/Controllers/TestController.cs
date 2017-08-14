@@ -1,6 +1,7 @@
 ﻿using Social.Infrastructure.Facebook;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
@@ -12,7 +13,7 @@ namespace Social.WebApi.Controllers
     {
         [Route("facebook-post")]
         [HttpPost]
-        public IHttpActionResult PublishFacebookPost(string pageId, string message, string token)
+        public IHttpActionResult PublishFacebookPost(string pageId, [MaxLength(2000)] string message, string token)
         {
             FbClient.PublishPost(pageId, token, message);
             return Ok();
@@ -20,7 +21,7 @@ namespace Social.WebApi.Controllers
 
         [Route("facebook-comment")]
         [HttpPost]
-        public IHttpActionResult PublishFacebookComment(string message, string parentId, string token)
+        public IHttpActionResult PublishFacebookComment([MaxLength(2000)]string message, string parentId, string token)
         {
             FbClient.PublishComment(token, parentId, message);
             return Ok();
