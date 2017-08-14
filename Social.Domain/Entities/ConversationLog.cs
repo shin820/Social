@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Social.Domain.Entities
 {
     [Table("t_Social_ConversationLog")]
-    public class ConversationLog : EntityWithSite, IHaveCreation
+    public class ConversationLog : Entity, IHaveCreation, IShardingBySiteId
     {
         public int ConversationId { get; set; }
         public ConversationLogType Type { get; set; }

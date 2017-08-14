@@ -107,7 +107,6 @@
     <Compile Include="IHaveCreatedBy.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Notification\INotificationManager.cs" />
-    <Compile Include="Notification\NotificationManager.cs" />
     <Compile Include="SocialExceptions.cs" />
     <Compile Include="Facebook\FacebookWebHookClient.cs" />
     <Compile Include="Facebook\FbAttachment.cs" />

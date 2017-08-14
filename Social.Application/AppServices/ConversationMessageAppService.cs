@@ -24,10 +24,10 @@ namespace Social.Application.AppServices
         TwitterDirectMessageDto GetTwitterDirectMessage(int messageId);
         IList<TwitterTweetMessageDto> GetTwitterTweetMessages(int conversationId);
         TwitterTweetMessageDto GetTwitterTweetMessage(int messageId);
-        void ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, string message);
-        void ReplyTwitterDirectMessage(int conversationId, int tweetAccountId, string message);
-        void ReplyFacebookMessage(int conversationId, string content);
-        void ReplyFacebookPostOrComment(int conversationId, int parentId, string content);
+        TwitterTweetMessageDto ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, string message);
+        TwitterDirectMessageDto ReplyTwitterDirectMessage(int conversationId, string message);
+        FacebookMessageDto ReplyFacebookMessage(int conversationId, string content);
+        FacebookPostCommentMessageDto ReplyFacebookPostOrComment(int conversationId, int parentId, string content);
     }
 
     public class ConversationMessageAppService : AppService, IConversationMessageAppService
@@ -156,24 +156,36 @@ namespace Social.Application.AppServices
             return result;
         }
 
-        public void ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, string message)
+        public TwitterTweetMessageDto ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, string messageContent)
         {
-            _messageService.ReplyTwitterTweetMessage(conversationId, tweetAccountId, message);
+            Message message = _messageService.ReplyTwitterTweetMessage(conversationId, tweetAccountId, messageContent);
+            var dto = Mapper.Map<TwitterTweetMessageDto>(message);
+            dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
+            return dto;
         }
 
-        public void ReplyTwitterDirectMessage(int conversationId, int tweetAccountId, string message)
+        public TwitterDirectMessageDto ReplyTwitterDirectMessage(int conversationId, string messageContent)
         {
-            _messageService.ReplyTwitterDirectMessage(conversationId, tweetAccountId, message);
+            Message message = _messageService.ReplyTwitterDirectMessage(conversationId, messageContent);
+            var dto = Mapper.Map<TwitterDirectMessageDto>(message);
+            dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
+            return dto;
         }
 
-        public void ReplyFacebookMessage(int conversationId, string content)
+        public FacebookMessageDto ReplyFacebookMessage(int conversationId, string content)
         {
-            _messageService.ReplyFacebookMessage(conversationId, content);
+            Message message = _messageService.ReplyFacebookMessage(conversationId, content);
+            var dto = Mapper.Map<FacebookMessageDto>(message);
+            dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
+            return dto;
         }
 
-        public void ReplyFacebookPostOrComment(int conversationId, int parentId, string content)
+        public FacebookPostCommentMessageDto ReplyFacebookPostOrComment(int conversationId, int parentId, string content)
         {
-            _messageService.ReplyFacebookPostOrComment(conversationId, parentId, content);
+            Message message = _messageService.ReplyFacebookPostOrComment(conversationId, parentId, content);
+            var dto = Mapper.Map<FacebookPostCommentMessageDto>(message);
+            dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
+            return dto;
         }
 
         public FacebookMessageDto GetFacebookDirectMessage(int messageId)

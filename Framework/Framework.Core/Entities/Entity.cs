@@ -12,6 +12,6 @@ namespace Framework.Core
 
     public abstract class Entity<T>
     {
-        public T Id { get; private set; }
+        public T Id { get; protected set; }
     }
 }

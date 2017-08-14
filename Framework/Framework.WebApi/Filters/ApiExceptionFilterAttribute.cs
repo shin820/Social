@@ -35,30 +35,8 @@ namespace Framework.WebApi.Filters
             if (codeException != null)
             {
                 context.Response = context.Request.CreateResponse(
-                HttpStatusCode.BadRequest,
+                codeException.HttpStatusCode,
                 new ErrorInfo(codeException.ErrorCode, codeException.Message)
-                );
-
-                return;
-            }
-
-            var badRequestException = context.Exception as BadRequestException;
-            if (badRequestException != null)
-            {
-                context.Response = context.Request.CreateResponse(
-                HttpStatusCode.BadRequest,
-                new { Message = badRequestException.Message }
-                );
-
-                return;
-            }
-
-            var notFoundException = context.Exception as NotFoundException;
-            if (notFoundException != null)
-            {
-                context.Response = context.Request.CreateResponse(
-                HttpStatusCode.NotFound,
-                new { Message = notFoundException.Message }
                 );
 
                 return;

@@ -22,7 +22,7 @@ namespace Social.Domain.DomainServices.Twitter
         private ISocialUserService _socialUserService;
         private ISocialAccountService _socialAccountService;
         private TweetTreeWalker _twitterTreeWalker;
-        private TwitterProcessResult _result;
+        private INotificationManager _notificationManager;
 
         public TwitterTweetService(
             IConversationService conversationService,
@@ -37,20 +37,21 @@ namespace Social.Domain.DomainServices.Twitter
             _socialUserService = socialUserService;
             _socialAccountService = socialAccountService;
             _twitterTreeWalker = new TweetTreeWalker();
-            _result = new TwitterProcessResult(notificationManager);
+            _notificationManager = notificationManager;
         }
 
         public async Task<TwitterProcessResult> ProcessTweet(SocialAccount currentAccount, ITweet currentTweet)
         {
+            TwitterProcessResult result = new TwitterProcessResult(_notificationManager);
             IList<SocialAccount> allAccounts = _socialAccountService.FindAllTwitterAccounts().ToList();
 
-            if (ShouldProcess(currentAccount, allAccounts, currentTweet))
+            if (!ShouldProcess(currentAccount, allAccounts, currentTweet))
             {
-                List<ITweet> tweets = _twitterTreeWalker.BuildTweetTree(currentTweet);
-                await AddTweets(currentAccount, allAccounts, tweets);
+                return new TwitterProcessResult(_notificationManager);
             }
 
-            return _result;
+            List<ITweet> tweets = _twitterTreeWalker.BuildTweetTree(currentTweet);
+            return await AddTweets(currentAccount, allAccounts, tweets);
         }
 
         private bool ShouldProcess(SocialAccount currentAccount, IList<SocialAccount> allAccounts, ITweet currentTweet)
@@ -96,11 +97,12 @@ namespace Social.Domain.DomainServices.Twitter
             return isCreatedByAnother && !isMentionMe;
         }
 
-        private async Task AddTweets(SocialAccount currentAccount, IList<SocialAccount> allAccounts, List<ITweet> tweets)
+        private async Task<TwitterProcessResult> AddTweets(SocialAccount currentAccount, IList<SocialAccount> allAccounts, List<ITweet> tweets)
         {
+            var result = new TwitterProcessResult(_notificationManager);
             if (!tweets.Any())
             {
-                return;
+                return result;
             }
 
             tweets = tweets.OrderByDescending(t => t.CreatedAt).ToList();
@@ -115,10 +117,12 @@ namespace Social.Domain.DomainServices.Twitter
 
                 await UnitOfWorkManager.RunWithNewTransaction(currentAccount.SiteId, async () =>
                 {
-                    await AddTweet(currentAccount, allAccounts, tweets, tweet);
+                    await AddTweet(result, currentAccount, allAccounts, tweets, tweet);
                     CurrentUnitOfWork.SaveChanges();
                 });
             }
+
+            return result;
         }
 
         private bool IsIntergrationAccountInvolved(ITweet tweet, IList<SocialAccount> allAccounts)
@@ -126,7 +130,7 @@ namespace Social.Domain.DomainServices.Twitter
             return IsIntegrationAccount(tweet.CreatedBy.IdStr, allAccounts) || tweet.UserMentions.Any(t => IsIntegrationAccount(t.IdStr, allAccounts));
         }
 
-        private async Task AddTweet(SocialAccount account, IList<SocialAccount> socialAccounts, List<ITweet> tweets, ITweet currentTweet)
+        private async Task AddTweet(TwitterProcessResult result, SocialAccount account, IList<SocialAccount> socialAccounts, List<ITweet> tweets, ITweet currentTweet)
         {
             var senderOriginalId = currentTweet.CreatedBy.IdStr;
             var receiverOrignalId = GetReceiverOriginalId(account, socialAccounts, currentTweet);
@@ -144,7 +148,7 @@ namespace Social.Domain.DomainServices.Twitter
                     return;
                 }
 
-                await SaveTweet(account, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
+                await SaveTweet(result, account, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
             }
 
             // integration account sent to customer
@@ -152,7 +156,7 @@ namespace Social.Domain.DomainServices.Twitter
                 && !IsIntegrationAccount(receiverOrignalId, socialAccounts))
             {
                 var customerOriginalIds = new List<string> { receiverOrignalId };
-                await SaveTweet(account, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
+                await SaveTweet(result, account, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
             }
 
             // customer sent to integration account
@@ -160,11 +164,11 @@ namespace Social.Domain.DomainServices.Twitter
                 && IsIntegrationAccount(receiverOrignalId, socialAccounts))
             {
                 var customerOriginalIds = new List<string> { senderOriginalId };
-                await SaveTweet(account, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
+                await SaveTweet(result, account, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
             }
         }
 
-        private async Task SaveTweet(SocialAccount account, ITweet currentTweet, List<ITweet> tweets, string senderOriginalId, string receiverOriginalId, List<string> customerOrginalIds)
+        private async Task SaveTweet(TwitterProcessResult result, SocialAccount account, ITweet currentTweet, List<ITweet> tweets, string senderOriginalId, string receiverOriginalId, List<string> customerOrginalIds)
         {
             var sender = await _socialUserService.GetOrCreateTwitterUser(senderOriginalId);
             var receiver = await _socialUserService.GetOrCreateTwitterUser(receiverOriginalId);
@@ -172,7 +176,7 @@ namespace Social.Domain.DomainServices.Twitter
             var message = TwitterConverter.ConvertToMessage(currentTweet);
             message.SenderId = sender.Id;
             message.ReceiverId = receiver.Id;
-            SaveConversations(account, conversations, message);
+            SaveConversations(result, account, conversations, message);
         }
 
         private IList<Conversation> FindConversations(IList<ITweet> tweets, List<string> customerOriginalIds)
@@ -220,7 +224,7 @@ namespace Social.Domain.DomainServices.Twitter
             return socialAccounts.Any(t => t.SocialUser.OriginalId == originalId);
         }
 
-        private void SaveConversations(SocialAccount account, IList<Conversation> conversations, Message message)
+        private void SaveConversations(TwitterProcessResult result, SocialAccount account, IList<Conversation> conversations, Message message)
         {
             if (conversations.Any())
             {
@@ -241,8 +245,8 @@ namespace Social.Domain.DomainServices.Twitter
                     }
                     _conversationService.Update(conversation);
                     CurrentUnitOfWork.SaveChanges();
-                    _result.WithUpdatedConversation(conversation);
-                    _result.WithNewMessage(message);
+                    result.WithUpdatedConversation(conversation);
+                    result.WithNewMessage(message);
                 }
             }
             else
@@ -260,7 +264,7 @@ namespace Social.Domain.DomainServices.Twitter
                 conversation.Messages.Add(message);
                 _conversationService.AddConversation(account, conversation);
                 CurrentUnitOfWork.SaveChanges();
-                _result.WithNewConversation(conversation);
+                result.WithNewConversation(conversation);
             }
         }
     }

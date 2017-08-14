@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Social.Domain.Entities
 {
     [Table("t_Social_Message")]
-    public class Message : EntityWithSite, ISoftDelete
+    public class Message : Entity, ISoftDelete, IShardingBySiteId
     {
         public Message()
         {

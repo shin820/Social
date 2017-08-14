@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Framework.Core;
 
 namespace Social.Application.Dto
 {
@@ -21,7 +22,9 @@ namespace Social.Application.Dto
         public string Name { get; set; }
         public int Index { get; set; }
         public bool IfPublic { get; set; }
-        public FilterType Type { get; set; }
+        [Enum]
+        [Required]
+        public FilterType? Type { get; set; }
         [MaxLength(200)]
         public string LogicalExpression { get; set; }
 

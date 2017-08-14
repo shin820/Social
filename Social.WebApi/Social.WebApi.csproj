@@ -36,6 +36,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Social.WebApi.xml</DocumentationFile>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -45,6 +47,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Social.WebApi.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=4.6.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
@@ -274,8 +277,10 @@
     <Compile Include="Controllers\AgentController.cs" />
     <Compile Include="Controllers\DepartmentController.cs" />
     <Compile Include="Controllers\FacebookController.cs" />
+    <Compile Include="Controllers\NotificationController.cs" />
+    <Compile Include="Controllers\NotificationTestController.cs" />
     <Compile Include="Controllers\UserInfoController.cs" />
-    <Compile Include="Controllers\TestController.cs" />
+    <Compile Include="Core\SignalRContractResolver.cs" />
     <Compile Include="Core\SignalRContractResolver.cs" />
     <Compile Include="Core\SwaggerOperationFilter.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
@@ -322,6 +327,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\FacebookHub.cs" />
+    <Compile Include="Hubs\NotificationHub.cs" />
     <Compile Include="Models\Account\AuthenticationModel.cs" />
     <Compile Include="Models\Account\Me.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -389,6 +395,7 @@
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Facebook\Index.cshtml" />
+    <Content Include="Views\NotificationTest\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

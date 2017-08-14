@@ -22,7 +22,7 @@ namespace Social.Application.AppServices
         IList<ConversationDto> Find(ConversationSearchDto searchDto);
         ConversationDto Insert(ConversationCreateDto createDto);
         void Delete(int id);
-        void Update(int id, ConversationUpdateDto updateDto);
+        ConversationDto Update(int id, ConversationUpdateDto updateDto);
         IList<ConversationLogDto> GetLogs(int converationId);
     }
 
@@ -51,7 +51,7 @@ namespace Social.Application.AppServices
                 dto.Since = DateTime.UtcNow.AddMonths(-3);
             }
             var conversations = _conversationService.FindAll();
-            conversations = conversations.WhereIf(dto.Since != null, t => t.CreatedTime >= dto.Since);
+            conversations = conversations.WhereIf(dto.Since != null, t => t.CreatedTime > dto.Since);
             conversations = conversations.WhereIf(dto.Util != null, t => t.CreatedTime <= dto.Util);
             conversations = _conversationService.ApplyFilter(conversations, dto.FilterId);
             conversations = _conversationService.ApplyKeyword(conversations, dto.Keyword);
@@ -63,6 +63,11 @@ namespace Social.Application.AppServices
         public ConversationDto Find(int id)
         {
             var conversation = _conversationService.Find(id);
+            if (conversation == null)
+            {
+                throw SocialExceptions.ConversationIdNotExists(id);
+            }
+
             return Mapper.Map<ConversationDto>(conversation);
         }
 
@@ -76,20 +81,25 @@ namespace Social.Application.AppServices
 
         public void Delete(int id)
         {
-            _conversationService.Delete(id);
+            var conversation = _conversationService.Find(id);
+            if (conversation == null)
+            {
+                throw SocialExceptions.ConversationIdNotExists(id);
+            }
+            _conversationService.Delete(conversation);
         }
 
-        public void Update(int id, ConversationUpdateDto updateDto)
+        public ConversationDto Update(int id, ConversationUpdateDto updateDto)
         {
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            Conversation conversation = _conversationService.Find(id);
+            if (conversation == null)
             {
-                var conversationDto = _conversationService.Find(id);
-                var conversation = Mapper.Map<Conversation>(conversationDto);
-                Mapper.Map(updateDto, conversation);
-                _conversationService.Update(conversation);
-                uow.Complete();
+                throw SocialExceptions.ConversationIdNotExists(id);
             }
+            Mapper.Map(updateDto, conversation);
+            _conversationService.Update(conversation);
             _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), id);
+            return Mapper.Map<ConversationDto>(conversation);
         }
 
         public IList<ConversationLogDto> GetLogs(int converationId)

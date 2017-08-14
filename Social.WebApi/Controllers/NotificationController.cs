@@ -7,6 +7,9 @@ using System.Web.Http;
 
 namespace Social.WebApi.Controllers
 {
+    /// <summary>
+    /// api used for push notification to front-end.
+    /// </summary>
     [RoutePrefix("api/notifications")]
     public class NotificationController : ApiController
     {
@@ -19,6 +22,12 @@ namespace Social.WebApi.Controllers
 
         private IConversationAppService _conversationAppService;
         private IConversationMessageAppService _messageAppService;
+
+        /// <summary>
+        /// NotificationController
+        /// </summary>
+        /// <param name="conversationAppService"></param>
+        /// <param name="messageAppService"></param>
         public NotificationController(
             IConversationAppService conversationAppService,
             IConversationMessageAppService messageAppService
@@ -97,6 +106,31 @@ namespace Social.WebApi.Controllers
             {
                 _hub.Clients.Group(dto.ConversationId.ToString()).twitterDirectMessageCreated(dto);
             }
+            return Ok();
+        }
+
+
+        [Route("public-filter-created")]
+        [HttpGet]
+        public IHttpActionResult PublicFilterCreated(int filterId)
+        {
+            _hub.Clients.Group(Request.GetSiteId().ToString()).publicFilterCreated(filterId);
+            return Ok();
+        }
+
+        [Route("public-filter-deleted")]
+        [HttpGet]
+        public IHttpActionResult PublicFilterDeleted(int filterId)
+        {
+            _hub.Clients.Group(Request.GetSiteId().ToString()).publicFilterDeleted(filterId);
+            return Ok();
+        }
+
+        [Route("public-filter-updated")]
+        [HttpGet]
+        public IHttpActionResult PublicFilterUpdated(int filterId)
+        {
+            _hub.Clients.Group(Request.GetSiteId().ToString()).publicFilterUpdated(filterId);
             return Ok();
         }
     }

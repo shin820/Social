@@ -17,18 +17,21 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Framework.Core.xml</DocumentationFile>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Framework.Core.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AutoMapper, Version=6.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
@@ -73,22 +76,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppService.cs" />
+    <Compile Include="DataAnnotations\EnumAttribute.cs" />
     <Compile Include="DefaultConnectionStringResolver.cs" />
     <Compile Include="DisposeAction.cs" />
     <Compile Include="Entities\ISoftDelete.cs" />
     <Compile Include="EntityFramework\DataContext.cs" />
     <Compile Include="EntityFramework\EfRepository.cs" />
     <Compile Include="EntityFramework\ShardingTableInterceptor.cs" />
-    <Compile Include="Exception\BadRequestException.cs" />
-    <Compile Include="Exception\NotFoundException.cs" />
     <Compile Include="Extensions\ClaimsIdentityExtensions.cs" />
     <Compile Include="Dependency\DependencyResolver.cs" />
     <Compile Include="Dependency\IDependencyResolver.cs" />
     <Compile Include="Dependency\ITransient.cs" />
     <Compile Include="DomainService.cs" />
     <Compile Include="Exception\ExceptionWithCode.cs" />
-    <Compile Include="Extensions\EnumExtension.cs" />
-    <Compile Include="Extensions\IListExtensions.cs" />
+    <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\UriExtensions.cs" />
     <Compile Include="IConnectionStringResolver.cs" />
     <Compile Include="IDbContextProvider.cs" />

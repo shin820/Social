@@ -1,0 +1,53 @@
+BEGIN
+    --DECLARE @siteDbId INT
+	DECLARE @siteFrom INT
+	DECLARE @siteTo INT
+
+	--SET @siteDbId=21;
+	SET @siteFrom=(@siteDbId-1)*500
+	SET @siteTo=@siteFrom+500
+
+	DECLARE @siteId INT
+	SET @siteId=@siteFrom
+
+	WHILE @siteId < @siteTo
+	BEGIN
+	    DECLARE @siteIdStr nvarchar(100)
+		SET @siteIdStr=CONVERT(nvarchar(100),@siteId)
+		DECLARE @sql varchar(max)
+		SET @sql=
+		'
+		IF NOT EXISTS (SELECT name FROM sysobjects WHERE type=''U'' AND name=''t_Social_Message'+@siteIdStr+''')
+		BEGIN
+			CREATE TABLE [t_Social_Message'+@siteIdStr+'](
+				[Id] [int] IDENTITY(1,1) NOT NULL,
+				[ConversationId] [int] NOT NULL,
+				[Source] [smallint] NOT NULL,
+				[OriginalId] [nvarchar](200) NOT NULL,
+				[OriginalLink] [nvarchar](500) NULL,
+				[ParentId] [int] NULL,
+				[SendTime] [datetime] NOT NULL,
+				[SenderId] [int] NOT NULL,
+				[ReceiverId] [int] NULL,
+				[Content] [nvarchar](2000) NULL,
+				[Story] [nvarchar](500) NULL,
+				[IsDeleted] [bit] DEFAULT(0) NOT NULL,
+				[QuoteTweetId] [nvarchar](200) NULL,
+				[SendAgentId] [int] NULL,
+			 CONSTRAINT [PK_t_Social_Message'+@siteIdStr+'] PRIMARY KEY CLUSTERED 
+			(
+				[Id] ASC
+			)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+			) ON [PRIMARY]
+			ALTER TABLE [t_Social_Message'+@siteIdStr+']  WITH CHECK ADD  CONSTRAINT [FK_t_Social_Message'+@siteIdStr+'_t_Social_Conversation'+@siteIdStr+'_ConversationId] FOREIGN KEY([ConversationId])
+			REFERENCES [t_Social_Conversation'+@siteIdStr+'] ([Id])
+			ALTER TABLE [t_Social_Message'+@siteIdStr+'] CHECK CONSTRAINT [FK_t_Social_Message'+@siteIdStr+'_t_Social_Conversation'+@siteIdStr+'_ConversationId]
+			CREATE INDEX IX_t_Social_Message'+@siteIdStr+'_OriginalId_Source ON t_Social_Message'+@siteIdStr+'([OriginalId],[Source] ASC)
+			CREATE INDEX IX_t_Social_Message'+@siteIdStr+'_SenderId ON t_Social_Message'+@siteIdStr+'([SenderId] ASC)
+	        CREATE INDEX IX_t_Social_Message'+@siteIdStr+'_ReceiverId ON t_Social_Message'+@siteIdStr+'([ReceiverId] ASC)
+		END
+		'
+	EXEC(@sql)
+	SET @siteId=@siteId+1
+	END
+END

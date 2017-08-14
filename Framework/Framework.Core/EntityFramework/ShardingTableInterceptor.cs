@@ -1,47 +1,41 @@
-﻿using Framework.Core;
-using System;
+﻿using Framework.Core.UnitOfWork;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using System.Data.Entity.Infrastructure.Interception;
 using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
-namespace Framework.Core.EntityFramework
+namespace Framework.Core
 {
     public class ShardingTableInterceptor : IDbCommandInterceptor
     {
-        private static List<string> ShardingBySiteTables = new List<string>();
+        private List<string> _shardingBySiteTables = new List<string>();
 
-        private Func<int?> _siteIdFunc = () => null;
-
-        public Func<int?> SiteIdFunc
+        public ShardingTableInterceptor(Assembly[] assemblies)
         {
-            get
-            {
-                return _siteIdFunc;
-            }
-            set
-            {
-                _siteIdFunc = value;
-            }
+            Initialize(assemblies);
         }
 
-        static ShardingTableInterceptor()
+        private void Initialize(Assembly[] assemblies)
         {
-            var entities = typeof(ShardingTableInterceptor).Assembly.GetExportedTypes().Where(t => t.IsAssignableFrom(typeof(Entity)));
-
-            foreach (var entity in entities)
+            foreach (var assembly in assemblies)
             {
-                if (entity is IShardingBySiteId)
+                //var entities = typeof(ShardingTableInterceptor).Assembly.GetExportedTypes().Where(t => typeof(Entity).IsAssignableFrom(t));
+                var entities = assembly.GetExportedTypes().Where(t => typeof(Entity).IsAssignableFrom(t));
+                foreach (var entity in entities)
                 {
-                    var tableAttribute = entity.GetAttribute<TableAttribute>();
-                    if (tableAttribute != null && !string.IsNullOrWhiteSpace(tableAttribute.Name))
+                    if (typeof(IShardingBySiteId).IsAssignableFrom(entity))
                     {
-                        ShardingBySiteTables.Add(tableAttribute.Name);
+                        var tableAttribute = entity.GetAttribute<TableAttribute>();
+                        if (tableAttribute != null && !string.IsNullOrWhiteSpace(tableAttribute.Name))
+                        {
+                            if (!_shardingBySiteTables.Contains(tableAttribute.Name))
+                            {
+                                _shardingBySiteTables.Add(tableAttribute.Name);
+                            }
+                        }
                     }
                 }
             }
@@ -77,26 +71,51 @@ namespace Framework.Core.EntityFramework
             ReplaceTableName(command);
         }
 
-        public void ReplaceTableName(DbCommand command)
+        private void ReplaceTableName(DbCommand command)
         {
-            int? siteId = SiteIdFunc();
+            CurrentUnitOfWorkProvider provider = new CurrentUnitOfWorkProvider();
+            int? siteId = provider.Current.GetSiteId();
             if (siteId == null)
             {
                 return;
             }
 
-            foreach (var shardingTable in ShardingBySiteTables)
-            {
-                string commandText = command.CommandText.ToLower();
+            command.CommandText = GetSql(siteId.Value, command.CommandText);
+        }
 
-                bool hasShardingTable = commandText.Contains(shardingTable);
-                bool isReplaced = commandText.Contains(shardingTable + siteId);
+        public List<string> GetShardingBySiteTables()
+        {
+            return _shardingBySiteTables;
+        }
+
+        public string GetSql(int siteId, string orignalSql)
+        {
+            string sql = orignalSql;
+            foreach (var shardingTable in _shardingBySiteTables)
+            {
+                bool hasShardingTable = IsMatch(sql, shardingTable);
+                bool isReplaced = IsMatch(sql, shardingTable + siteId);
 
                 if (hasShardingTable && !isReplaced)
                 {
-                    command.CommandText = command.CommandText.Replace(shardingTable, shardingTable + siteId.ToString());
+                    sql = ReplaceTableName(sql, shardingTable, siteId);
                 }
             }
+            return sql;
+        }
+
+        private string ReplaceTableName(string input, string tableName, int siteId)
+        {
+            string sql = input;
+            sql = Regex.Replace(sql, $"{tableName}$", tableName + siteId, RegexOptions.IgnoreCase);
+            sql = Regex.Replace(sql, $"{tableName}\\s", tableName + siteId + " ", RegexOptions.IgnoreCase);
+            sql = Regex.Replace(sql, $"\\[{tableName}\\]", "[" + tableName + siteId + "]", RegexOptions.IgnoreCase);
+            return sql;
+        }
+
+        private bool IsMatch(string sql, string tableName)
+        {
+            return Regex.IsMatch(sql, $"({tableName}$|{tableName}\\s|\\[{tableName}\\])", RegexOptions.IgnoreCase);
         }
     }
 }

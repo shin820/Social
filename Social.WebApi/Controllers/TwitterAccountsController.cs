@@ -32,8 +32,9 @@ namespace Social.WebApi.Controllers
         }
 
         /// <summary>
-        /// Redirect user to go on Twitter.com to authenticate
+        /// Make a integration request, fron-end page should redirect to this api rather than calling this api directly.
         /// </summary>
+        /// <param name="redirectUri">After social user grant related permissions to our system, current page will redirect to this url.</param>
         /// <returns></returns>
         [HttpGet]
         [Route("integration-request")]
@@ -48,8 +49,10 @@ namespace Social.WebApi.Controllers
         }
 
         /// <summary>
-        /// Twitter will redirect it's page to this api after users agree to grant permissions to our app on Twitter.
+        /// This api is used by twitter.
         /// </summary>
+        /// <param name="authorization_id"></param>
+        /// <param name="redirectUri"></param>
         /// <param name="oauth_verifier"></param>
         /// <returns></returns>
         [HttpGet]
@@ -60,13 +63,22 @@ namespace Social.WebApi.Controllers
             return Redirect(redirectUri);
         }
 
+        /// <summary>
+        /// Get accounts.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("accounts")]
-        public IList<TwitterAccountListDto> GetPages()
+        public IList<TwitterAccountListDto> GetAccounts()
         {
             return _appService.GetAccounts();
         }
 
+        /// <summary>
+        /// Get account by id.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("accounts/{id}")]
         [ResponseType(typeof(TwitterAccountDto))]
@@ -81,6 +93,12 @@ namespace Social.WebApi.Controllers
             return Ok(page);
         }
 
+        /// <summary>
+        /// update account.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dto"></param>
+        /// <returns></returns>
         [HttpPut]
         [Route("accounts/{id}")]
         public TwitterAccountDto UpdateAccount(int id, [Required]UpdateTwitterAccountDto dto)
@@ -89,12 +107,17 @@ namespace Social.WebApi.Controllers
             return account;
         }
 
+        /// <summary>
+        ///  delete account.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete]
         [Route("accounts/{id}")]
-        public async Task<IHttpActionResult> DeleteAccount(int id)
+        public async Task<int> DeleteAccount(int id)
         {
             await _appService.DeleteAccountAsync(id);
-            return StatusCode(HttpStatusCode.NoContent);
+            return id;
         }
     }
 }
