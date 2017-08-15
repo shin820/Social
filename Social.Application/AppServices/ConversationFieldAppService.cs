@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using Framework.Core;
 using Social.Application.Dto;
+using Social.Domain.DomainServices;
 using Social.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -12,23 +13,23 @@ using System.Threading.Tasks;
 
 namespace Social.Application.AppServices
 {
-    public interface IConversationFieldService
+    public interface IConversationFieldAppService
     {
         List<ConversationFieldDto> FindAll();
         ConversationFieldDto Find(int id);
     }
-    public class ConversationFieldAppService : AppService, IConversationFieldService
+    public class ConversationFieldAppService : AppService, IConversationFieldAppService
     {
-        private IDomainService<ConversationField> _domainService;
+        private IConversationFieldService _domainService;
 
-        public ConversationFieldAppService(IDomainService<ConversationField> domainService)
+        public ConversationFieldAppService(IConversationFieldService domainService)
         {
             _domainService = domainService;
         }
 
         public List<ConversationFieldDto> FindAll()
         {
-            return _domainService.FindAll().ProjectTo<ConversationFieldDto>().ToList();
+            return _domainService.FinAllAndFillOptions().Select(t => Mapper.Map<ConversationFieldDto>(t)).ToList();
         }
 
         public ConversationFieldDto Find(int id)

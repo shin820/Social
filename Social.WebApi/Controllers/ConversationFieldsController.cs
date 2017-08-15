@@ -14,13 +14,13 @@ namespace Social.WebApi.Controllers
     [RoutePrefix("api/conversation-fields")]
     public class ConversationFieldsController : ApiController
     {
-        private IConversationFieldService _appService;
+        private IConversationFieldAppService _appService;
 
         /// <summary>
         /// ConversationFieldsController
         /// </summary>
         /// <param name="appService"></param>
-        public ConversationFieldsController(IConversationFieldService appService)
+        public ConversationFieldsController(IConversationFieldAppService appService)
         {
             _appService = appService;
         }

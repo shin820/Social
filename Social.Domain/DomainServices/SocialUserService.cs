@@ -54,7 +54,6 @@ namespace Social.Domain.DomainServices
 
         //    return user;
         //}
-
         public override IQueryable<SocialUser> FindAll()
         {
             return base.FindAll().Where(t => t.IsDeleted == false);

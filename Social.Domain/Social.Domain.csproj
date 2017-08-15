@@ -142,6 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DomainServices\AgentService.cs" />
+    <Compile Include="DomainServices\ConversationFieldService.cs" />
     <Compile Include="DomainServices\ConversationService.cs" />
     <Compile Include="DomainServices\DepartmentService.cs" />
     <Compile Include="DomainServices\Facebook\FacebookProcessResult.cs" />
