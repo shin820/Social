@@ -17,7 +17,7 @@ namespace Framework.Core
                 bool valid = Enum.IsDefined(enumType, value);
                 if (!valid)
                 {
-                    return new ValidationResult($"{value} is not a valid type for type {enumType.Name}.");
+                    return new ValidationResult($"{value} is not valid for type {enumType.Name}.");
                 }
             }
 

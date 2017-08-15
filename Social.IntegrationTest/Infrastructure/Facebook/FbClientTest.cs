@@ -33,5 +33,11 @@ namespace Social.IntegrationTest.Infrastructure.Facebook
             var me = await FbClient.GetMe("EAACEdEose0cBAKjXdit7tZC26ZAUHlMTbj3RZCDtQLgJaTfJXxS7TWZCeDihcpWBp4sKZAtvhSzfca9x7pxxIeSRZBLZBZBxC32eUDr0nQSqnbTIIJnkPR20R2BOMf3ZAN8F4A7S0FTT5F3xAuGVNixC9k7ZCYQHNOvmAqn71SkFU8vrphWTuhH7lAZBhRl2jkLdQsZD");
             Assert.NotNull(me);
         }
+
+        [Fact]
+        public async Task DeleteFacebookAccount()
+        {
+            await FbClient.UnSubscribeApp("18", "EAAR8yzs1uVQBACjMl0TyHgxHnsnKklXhwlymMAtZBMVzbtqJUc7yZCspGpzMVkTEE6bMExj1qJyNHEHGdaxc6oNnZB1FZBp2qvCf4p8F538tiOBUi2LZBZAhZBdUSTWj3b4aiAw5vpG7AvrPQhtqUErAyvZCizZAsyOsMA7wu8x7jN2PNz37WjrSK");
+        }
     }
 }

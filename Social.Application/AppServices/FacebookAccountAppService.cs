@@ -51,6 +51,11 @@ namespace Social.Application.AppServices
             FbUser me = await FbClient.GetMe(userToken);
             IList<FbPage> pages = await FbClient.GetPages(userToken);
             List<string> pageIds = pages.Select(t => t.Id).ToList();
+            foreach (var page in pages)
+            {
+                FbUser fbUser = await FbClient.GetUserInfo(userToken, page.Id);
+                page.Avatar = fbUser.pic;
+            }
             var facebookAccounts = _socialAccountService.FindAll()
                 .Where(t => t.SocialUser.Source == SocialUserSource.Facebook && pageIds.Contains(t.SocialUser.OriginalId))
                 .ToList();

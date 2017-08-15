@@ -25,10 +25,15 @@ namespace Social.Infrastructure.Facebook
 
         public async static Task UnSubscribeApp(string pageId, string pageToken)
         {
-            HttpClient client = new HttpClient();
-            HttpResponseMessage response = await client.DeleteAsync($"https://graph.facebook.com/v2.9/{pageId}/subscribed_apps?access_token={pageToken}");
-            string result = await response.Content.ReadAsStringAsync();
-            response.EnsureSuccessStatusCode();
+            FacebookClient client = new FacebookClient();
+            try
+            {
+                await client.DeleteTaskAsync($"https://graph.facebook.com/v2.9/{pageId}/subscribed_apps?access_token={pageToken}");
+            }
+            catch (FacebookOAuthException ex)
+            {
+                throw SocialExceptions.FacebookOauthException(ex);
+            }
         }
 
         public static string GetUserToken(string code, string redirectUri)

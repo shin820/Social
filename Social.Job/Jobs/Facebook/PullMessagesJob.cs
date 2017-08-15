@@ -9,11 +9,11 @@ using Social.Application.AppServices;
 
 namespace Social.Job.Jobs.Facebook
 {
-    public class PullMassagesJob : JobBase, ITransient
+    public class PullMessagesJob : JobBase, ITransient
     {
         private IFacebookAppService _sevice;
 
-        public PullMassagesJob(IFacebookAppService service)
+        public PullMessagesJob(IFacebookAppService service)
         {
             _sevice = service;
         }
