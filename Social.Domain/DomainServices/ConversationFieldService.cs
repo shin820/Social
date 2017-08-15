@@ -38,6 +38,7 @@ namespace Social.Domain.DomainServices
             FillAgentOptions(fields);
             FillDepartmentOptions(fields);
             FillSocialAccountOptions(fields);
+            FillDateTimeOptions(fields);
 
             return fields;
         }
@@ -116,6 +117,29 @@ namespace Social.Domain.DomainServices
                         FieldId = matchField.Id,
                         Value = t.Id.ToString()
                     }).ToList();
+                }
+            }
+        }
+
+        private void FillDateTimeOptions(IList<ConversationField> fields)
+        {
+            if (!fields.Any())
+            {
+                return;
+            }
+
+            var fieldNames = new List<string> { "Last Message Sent", "Created", "Last Modified" };
+            var matchFileds = fields.Where(t => t.IfSystem == true && t.DataType == FieldDataType.DateTime && fieldNames.Contains(t.Name));
+            if (matchFileds.Any())
+            {
+                foreach (var matchField in matchFileds)
+                {
+                    matchField.Options.Clear();
+                    matchField.Options.Add(new ConversationFieldOption { Name = "Today", Value = DateTime.UtcNow.ToString(), SiteId = matchField.SiteId, FieldId = matchField.Id });
+                    matchField.Options.Add(new ConversationFieldOption { Name = "Yesterday", Value = DateTime.UtcNow.ToString(), SiteId = matchField.SiteId, FieldId = matchField.Id });
+                    matchField.Options.Add(new ConversationFieldOption { Name = "7 Days Ago", Value = DateTime.UtcNow.ToString(), SiteId = matchField.SiteId, FieldId = matchField.Id });
+                    matchField.Options.Add(new ConversationFieldOption { Name = "30 Days Ago", Value = DateTime.UtcNow.ToString(), SiteId = matchField.SiteId, FieldId = matchField.Id });
+                    matchField.Options.Add(new ConversationFieldOption { Name = "Custom", Value = string.Empty, SiteId = matchField.SiteId, FieldId = matchField.Id });
                 }
             }
         }
