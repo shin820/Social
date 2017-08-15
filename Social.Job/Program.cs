@@ -25,8 +25,19 @@ namespace Social.Job
                 x.SetDescription(AppSettings.SocialJobWindowsServiceDescription);
                 x.SetDisplayName(AppSettings.SocialJobWindowsServiceDisplayName);
                 x.SetServiceName(AppSettings.SocialJobWindowsServiceName);
-                x.StartAutomaticallyDelayed();
-                x.EnableServiceRecovery(action => action.RestartService(1));
+                x.StartAutomatically();
+                x.EnableServiceRecovery(action =>
+                {
+                    action.RestartService(1);
+                    action.OnCrashOnly();
+
+                    action.RestartService(3);
+                    action.OnCrashOnly();
+
+                    action.RestartService(5);
+                    action.OnCrashOnly();
+
+                });
                 x.OnException(ex =>
                 {
                     SchedulerLogger.GetLogger().Error(ex);

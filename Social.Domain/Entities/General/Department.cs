@@ -1,12 +1,14 @@
-﻿using System;
+﻿using Framework.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Social.Domain.Entities.LiveChat
+namespace Social.Domain.Entities.General
 {
-    class Department
+    public class Department : Entity
     {
+        public string Name { get; set; }
     }
 }

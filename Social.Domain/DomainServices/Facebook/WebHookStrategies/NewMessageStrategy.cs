@@ -3,6 +3,7 @@ using Social.Infrastructure.Facebook;
 using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Social.Domain.DomainServices.Facebook
 {
@@ -24,14 +25,14 @@ namespace Social.Domain.DomainServices.Facebook
                 return result;
             }
 
-            IList<FbMessage> fbMessages = await FbClient.GetMessagesFromConversationId(socialAccount.Token, change.Value.ThreadId, 1);
+            IList<FbMessage> fbMessages = await FbClient.GetMessagesFromConversationId(socialAccount.Token, change.Value.ThreadId, 10);
+            string[] orgiginalIds = fbMessages.Select(t => t.Id).ToArray();
+            List<Message> existedMessages = MessageService.FindAll().Where(t => t.Source == MessageSource.FacebookMessage && orgiginalIds.Contains(t.OriginalId)).ToList();
+            // remove duplicated messages.
+            fbMessages = fbMessages.Where(t => !existedMessages.Any(m => m.OriginalId == t.Id)).OrderByDescending(t => t.SendTime).ToList();
+
             foreach (var fbMessage in fbMessages)
             {
-                if (IsDuplicatedMessage(fbMessage.Id))
-                {
-                    return result;
-                }
-
                 await Process(result, fbMessage, socialAccount, change);
             }
 
@@ -48,15 +49,24 @@ namespace Social.Domain.DomainServices.Facebook
             {
                 Message message = Convert(fbMessage, sender, receiver, socialAccount);
                 message.ConversationId = existingConversation.Id;
-                existingConversation.IfRead = false;
-                existingConversation.Status = sender.Id != socialAccount.SocialUser.Id ? ConversationStatus.PendingInternal : ConversationStatus.PendingExternal;
-                existingConversation.LastMessageSenderId = message.SenderId;
-                existingConversation.LastMessageSentTime = message.SendTime;
+                bool isNewMessage = fbMessage.SendTime > existingConversation.LastMessageSentTime;
+
+                if (isNewMessage)
+                {
+                    existingConversation.IfRead = false;
+                    existingConversation.Status = sender.Id != socialAccount.SocialUser.Id ? ConversationStatus.PendingInternal : ConversationStatus.PendingExternal;
+                    existingConversation.LastMessageSenderId = message.SenderId;
+                    existingConversation.LastMessageSentTime = message.SendTime;
+                }
+
                 existingConversation.Messages.Add(message);
                 await UpdateConversation(existingConversation);
                 await CurrentUnitOfWork.SaveChangesAsync();
 
-                result.WithUpdatedConversation(existingConversation);
+                if (isNewMessage)
+                {
+                    result.WithUpdatedConversation(existingConversation);
+                }
                 result.WithNewMessage(message);
             }
             else
