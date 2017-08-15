@@ -78,7 +78,7 @@ namespace Social.Application.AppServices
 
             List<FilterCondition> filterConditons = new List<FilterCondition>();
             filterConditons = Mapper.Map<List<FilterConditionCreateDto>, List<FilterCondition>>(createDto.Conditions.ToList());
-
+            _domainService.CheckFieldIdExist(filterConditons);
             filter.Conditions = filterConditons;
             filter = _domainService.Insert(filter);
             CurrentUnitOfWork.SaveChanges();

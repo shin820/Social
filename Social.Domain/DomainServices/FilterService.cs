@@ -1,6 +1,7 @@
 ﻿using Framework.Core;
 using Social.Domain.DomainServices;
 using Social.Domain.Entities;
+using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
@@ -19,11 +20,13 @@ namespace Social.Domain
         void DeleteConditons(Filter updateFilter);
         int GetConversationNum(Filter filter);
         string GetCreatedByName(Filter filter);
+        void CheckFieldIdExist(List<FilterCondition> filterConditons);
     }
     public class FilterService : DomainService<Filter>, IFilterService
     {
         private IRepository<Filter> _filterRepo;
         private IRepository<FilterCondition> _filterConditionRepo;
+        private IRepository<ConversationField> _conversationFieldRepo;       
         private IRepository<Conversation> _ConversationService;
         private IRepository<SocialUser> _UserRepo;
         private IConversationService _Conversation;
@@ -32,13 +35,15 @@ namespace Social.Domain
             IRepository<FilterCondition> filterConditionRepo,
             IRepository<Filter> filterRepo,
             IRepository<Conversation> ConversationService,
-            IRepository<SocialUser> UserRepo, IConversationService Conversation)
+            IRepository<SocialUser> UserRepo, IConversationService Conversation,
+            IRepository<ConversationField> conversationFieldRepo)
         {
             _filterConditionRepo = filterConditionRepo;
             _filterRepo = filterRepo;
             _ConversationService = ConversationService;
             _Conversation = Conversation;
             _UserRepo = UserRepo;
+            _conversationFieldRepo = conversationFieldRepo;
         }
 
         public void DeleteConditons(Filter updateFilter)
@@ -53,6 +58,7 @@ namespace Social.Domain
 
         public void UpdateFilter(Filter filter, FilterCondition[] contiditons)
         {
+            CheckFieldIdExist(contiditons.ToList());
             foreach (var condition in contiditons)
             {
                 _filterConditionRepo.Insert(filter.Conditions[0]);
@@ -69,6 +75,22 @@ namespace Social.Domain
         public string GetCreatedByName(Filter filter)
         {
             return _UserRepo.Find(filter.CreatedBy).Name;
+        }
+
+        public void CheckFieldIdExist(List<FilterCondition> filterConditons)
+        {
+            List<int> fieldIds = new List<int>();
+
+            foreach (var filterCondition in filterConditons)
+            {
+                fieldIds.Add(filterCondition.FieldId);
+            }
+            fieldIds.RemoveAll(a => _conversationFieldRepo.FindAll().Where(t => fieldIds.Contains(t.Id)).Select(t => t.Id).ToList().Contains(a));
+            if (fieldIds.Count != 0)
+            {
+                throw SocialExceptions.BadRequest($"FieldId '{fieldIds[0]}' not exists");
+            }
+            
         }
     }
 }
