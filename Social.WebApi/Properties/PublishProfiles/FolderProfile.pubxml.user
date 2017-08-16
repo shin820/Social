@@ -113,22 +113,22 @@
       <publishTime>04/13/2015 15:48:00</publishTime>
     </File>
     <File Include="bin/Framework.Core.dll">
-      <publishTime>08/14/2017 12:59:31</publishTime>
+      <publishTime>08/15/2017 18:54:11</publishTime>
     </File>
     <File Include="bin/Framework.Core.dll.config">
       <publishTime>08/14/2017 12:13:10</publishTime>
     </File>
     <File Include="bin/Framework.Core.pdb">
-      <publishTime>08/14/2017 12:59:31</publishTime>
+      <publishTime>08/15/2017 18:54:11</publishTime>
     </File>
     <File Include="bin/Framework.WebApi.dll">
-      <publishTime>08/14/2017 13:48:58</publishTime>
+      <publishTime>08/15/2017 18:54:25</publishTime>
     </File>
     <File Include="bin/Framework.WebApi.dll.config">
       <publishTime>08/14/2017 12:13:11</publishTime>
     </File>
     <File Include="bin/Framework.WebApi.pdb">
-      <publishTime>08/14/2017 13:48:58</publishTime>
+      <publishTime>08/15/2017 18:54:25</publishTime>
     </File>
     <File Include="bin/LinqKit.dll">
       <publishTime>03/21/2017 12:15:32</publishTime>
@@ -359,40 +359,40 @@
       <publishTime>07/19/2017 14:40:20</publishTime>
     </File>
     <File Include="bin/Social.Application.dll">
-      <publishTime>08/14/2017 13:48:59</publishTime>
+      <publishTime>08/15/2017 18:54:26</publishTime>
     </File>
     <File Include="bin/Social.Application.dll.config">
       <publishTime>08/14/2017 12:28:17</publishTime>
     </File>
     <File Include="bin/Social.Application.pdb">
-      <publishTime>08/14/2017 13:48:59</publishTime>
+      <publishTime>08/15/2017 18:54:26</publishTime>
     </File>
     <File Include="bin/Social.Domain.dll">
-      <publishTime>08/14/2017 13:48:58</publishTime>
+      <publishTime>08/15/2017 18:54:25</publishTime>
     </File>
     <File Include="bin/Social.Domain.dll.config">
       <publishTime>08/14/2017 12:28:17</publishTime>
     </File>
     <File Include="bin/Social.Domain.pdb">
-      <publishTime>08/14/2017 13:48:58</publishTime>
+      <publishTime>08/15/2017 18:54:25</publishTime>
     </File>
     <File Include="bin/Social.Infrastructure.dll">
-      <publishTime>08/14/2017 13:48:56</publishTime>
+      <publishTime>08/15/2017 18:54:23</publishTime>
     </File>
     <File Include="bin/Social.Infrastructure.dll.config">
       <publishTime>08/14/2017 12:28:17</publishTime>
     </File>
     <File Include="bin/Social.Infrastructure.pdb">
-      <publishTime>08/14/2017 13:48:56</publishTime>
+      <publishTime>08/15/2017 18:54:23</publishTime>
     </File>
     <File Include="bin/Social.WebApi.dll">
-      <publishTime>08/14/2017 13:49:04</publishTime>
+      <publishTime>08/15/2017 18:54:33</publishTime>
     </File>
     <File Include="bin/Social.WebApi.pdb">
-      <publishTime>08/14/2017 13:49:04</publishTime>
+      <publishTime>08/15/2017 18:54:33</publishTime>
     </File>
     <File Include="bin/Social.WebApi.xml">
-      <publishTime>08/14/2017 13:49:03</publishTime>
+      <publishTime>08/15/2017 18:54:32</publishTime>
     </File>
     <File Include="bin/Swashbuckle.Core.dll">
       <publishTime>07/08/2017 01:30:56</publishTime>
@@ -572,7 +572,7 @@
       <publishTime>06/28/2017 09:57:21</publishTime>
     </File>
     <File Include="log4net.config">
-      <publishTime>07/13/2017 10:57:25</publishTime>
+      <publishTime>08/14/2017 15:44:16</publishTime>
     </File>
     <File Include="packages.config">
       <publishTime>08/14/2017 12:18:56</publishTime>
@@ -656,7 +656,7 @@
       <publishTime>06/28/2017 09:57:21</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>08/14/2017 13:49:06</publishTime>
+      <publishTime>08/14/2017 17:59:43</publishTime>
     </File>
   </ItemGroup>
 </Project>
