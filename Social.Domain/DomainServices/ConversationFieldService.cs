@@ -3,6 +3,7 @@ using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ namespace Social.Domain.DomainServices
 
         public IList<ConversationField> FinAllAndFillOptions()
         {
-            var fields = this.FindAll().ToList();
+            var fields = this.FindAll().Include(t => t.Options).AsNoTracking().ToList();
             FillAgentOptions(fields);
             FillDepartmentOptions(fields);
             FillSocialAccountOptions(fields);
