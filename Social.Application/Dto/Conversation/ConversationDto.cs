@@ -23,7 +23,9 @@ namespace Social.Application.Dto
 
         public int LastMessageSenderId { get; set; }
 
-        public  string LastMessageSenderName { get; set; }
+        public string LastMessageSenderName { get; set; }
+
+        public string LastMessageSenderAvatar { get; set; }
 
         public int? LastRepliedAgentId { get; set; }
 
