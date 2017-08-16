@@ -25,6 +25,9 @@ namespace Social.Domain.DomainServices
         IQueryable<Conversation> ApplyOriginalId(IQueryable<Conversation> conversations, int? userId);
         Conversation CheckIfExists(int id);
         Conversation GetUnClosedConversation(string originalId);
+        Conversation Take(int conversationId);
+        Conversation Close(int conversationId);
+        Conversation Reopen(int conversationId);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -197,6 +200,48 @@ namespace Social.Domain.DomainServices
             CheckStatus(oldEntity, entity);
             WriteConversationLog(oldEntity, entity);
             base.Update(entity);
+        }
+
+        public Conversation Take(int conversationId)
+        {
+            var entity = this.Find(conversationId);
+            if (entity == null)
+            {
+                throw SocialExceptions.ConversationIdNotExists(conversationId);
+            }
+
+            entity.AgentId = UserContext.UserId;
+            this.Update(entity);
+
+            return entity;
+        }
+
+        public Conversation Close(int conversationId)
+        {
+            var entity = this.Find(conversationId);
+            if (entity == null)
+            {
+                throw SocialExceptions.ConversationIdNotExists(conversationId);
+            }
+
+            entity.Status = ConversationStatus.Closed;
+            this.Update(entity);
+
+            return entity;
+        }
+
+        public Conversation Reopen(int conversationId)
+        {
+            var entity = this.Find(conversationId);
+            if (entity == null)
+            {
+                throw SocialExceptions.ConversationIdNotExists(conversationId);
+            }
+
+            entity.Status = ConversationStatus.PendingInternal;
+            this.Update(entity);
+
+            return entity;
         }
 
         private void CheckStatus(Conversation oldEntity, Conversation conversation)

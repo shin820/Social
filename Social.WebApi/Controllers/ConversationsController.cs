@@ -85,6 +85,39 @@ namespace Social.WebApi.Controllers
         }
 
         /// <summary>
+        /// Assign agent assignee to current agent.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Route("{id}/take")]
+        public ConversationDto TakeConversation(int id)
+        {
+            return _conversationAppService.Take(id);
+        }
+
+        /// <summary>
+        /// Reopen conversation.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Route("{id}/reopen")]
+        public ConversationDto ReopenConversation(int id)
+        {
+            return _conversationAppService.Take(id);
+        }
+
+        /// <summary>
+        /// Close conversation.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Route("{id}/close")]
+        public ConversationDto CloseConversation(int id)
+        {
+            return _conversationAppService.Take(id);
+        }
+
+        /// <summary>
         /// Get conversation logs.
         /// </summary>
         /// <param name="conversationId"></param>
