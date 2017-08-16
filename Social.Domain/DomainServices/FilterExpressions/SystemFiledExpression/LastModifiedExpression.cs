@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace Social.Domain.DomainServices
 {
-    class LastModifiedExpression : DateTimeExpression
+    public class LastModifiedExpression : DateTimeExpression
     {
         public LastModifiedExpression() : base("Last Modified")
         {

@@ -3,6 +3,7 @@ using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,10 +35,11 @@ namespace Social.Domain.DomainServices
 
         public IList<ConversationField> FinAllAndFillOptions()
         {
-            var fields = this.FindAll().ToList();
+            var fields = this.FindAll().Include(t => t.Options).AsNoTracking().ToList();
             FillAgentOptions(fields);
             FillDepartmentOptions(fields);
             FillSocialAccountOptions(fields);
+            FillDateTimeOptions(fields);
 
             return fields;
         }
@@ -116,6 +118,29 @@ namespace Social.Domain.DomainServices
                         FieldId = matchField.Id,
                         Value = t.Id.ToString()
                     }).ToList();
+                }
+            }
+        }
+
+        private void FillDateTimeOptions(IList<ConversationField> fields)
+        {
+            if (!fields.Any())
+            {
+                return;
+            }
+
+            var fieldNames = new List<string> { "Last Message Sent", "Created", "Last Modified" };
+            var matchFileds = fields.Where(t => t.IfSystem == true && t.DataType == FieldDataType.DateTime && fieldNames.Contains(t.Name));
+            if (matchFileds.Any())
+            {
+                foreach (var matchField in matchFileds)
+                {
+                    matchField.Options.Clear();
+                    matchField.Options.Add(new ConversationFieldOption { Name = "Today", Value = "@Today", SiteId = matchField.SiteId, FieldId = matchField.Id });
+                    matchField.Options.Add(new ConversationFieldOption { Name = "Yesterday", Value = "@Yesterday", SiteId = matchField.SiteId, FieldId = matchField.Id });
+                    matchField.Options.Add(new ConversationFieldOption { Name = "7 Days Ago", Value = "@7 Days Ago", SiteId = matchField.SiteId, FieldId = matchField.Id });
+                    matchField.Options.Add(new ConversationFieldOption { Name = "30 Days Ago", Value = "@30 Days Ago", SiteId = matchField.SiteId, FieldId = matchField.Id });
+                    matchField.Options.Add(new ConversationFieldOption { Name = "Custom", Value = string.Empty, SiteId = matchField.SiteId, FieldId = matchField.Id });
                 }
             }
         }

@@ -64,7 +64,7 @@ namespace Social.Job.Jobs
             {
                 RunningJobs.Schedule<PullTaggedVisitorPostsJob>(_scheduleJobManager, facebookAccount, CronTrigger(AppSettings.FacebookPullTaggedVisitorPostsJobCronExpression));
                 RunningJobs.Schedule<PullVisitorPostsFromFeedJob>(_scheduleJobManager, facebookAccount, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
-                RunningJobs.Schedule<PullMassagesJob>(_scheduleJobManager, facebookAccount, CronTrigger(AppSettings.FacebookPullMessagesJobCronExpression));
+                RunningJobs.Schedule<PullMessagesJob>(_scheduleJobManager, facebookAccount, CronTrigger(AppSettings.FacebookPullMessagesJobCronExpression));
             }
 
             foreach (var twitterAccount in twitterAccounts)
