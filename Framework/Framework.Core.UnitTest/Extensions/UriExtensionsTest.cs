@@ -27,7 +27,7 @@ namespace Framework.Core.UnitTest.Extensions
 
             string mimeType = uri.GetMimeType();
 
-            Assert.NotEqual("application/octet-stream", mimeType);
+            Assert.Equal("application/octet-stream", mimeType);
         }
     }
 }
