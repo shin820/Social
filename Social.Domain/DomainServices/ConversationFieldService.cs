@@ -137,8 +137,8 @@ namespace Social.Domain.DomainServices
                     matchField.Options.Clear();
                     matchField.Options.Add(new ConversationFieldOption { Name = "Today", Value = "@Today", SiteId = matchField.SiteId, FieldId = matchField.Id });
                     matchField.Options.Add(new ConversationFieldOption { Name = "Yesterday", Value = "@Yesterday", SiteId = matchField.SiteId, FieldId = matchField.Id });
-                    matchField.Options.Add(new ConversationFieldOption { Name = "7 Days Ago", Value = "@7DaysAgo", SiteId = matchField.SiteId, FieldId = matchField.Id });
-                    matchField.Options.Add(new ConversationFieldOption { Name = "30 Days Ago", Value = "@30DaysAgo", SiteId = matchField.SiteId, FieldId = matchField.Id });
+                    matchField.Options.Add(new ConversationFieldOption { Name = "7 Days Ago", Value = "@7 Days Ago", SiteId = matchField.SiteId, FieldId = matchField.Id });
+                    matchField.Options.Add(new ConversationFieldOption { Name = "30 Days Ago", Value = "@30 Days Ago", SiteId = matchField.SiteId, FieldId = matchField.Id });
                     matchField.Options.Add(new ConversationFieldOption { Name = "Custom", Value = string.Empty, SiteId = matchField.SiteId, FieldId = matchField.Id });
                 }
             }
