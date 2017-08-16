@@ -11,24 +11,24 @@ namespace Social.Domain.DomainServices
 {
     public class DepartmentAssigneeExpression : OptionExpression
     {
-        private IDepartmentService _DepartmentService;
-        private IUserContext _UserContext;
-        public DepartmentAssigneeExpression(IUserContext UserContext,  IDepartmentService DepartmentService) : base("Department Assignee", "")
+        private IDepartmentService _departmentService;
+        private IUserContext _userContext;
+        public DepartmentAssigneeExpression(IUserContext userContext,  IDepartmentService departmentService) : base("Department Assignee", "")
         {
-            _DepartmentService = DepartmentService;
-            _UserContext = UserContext;
+            _departmentService = departmentService;
+            _userContext = userContext;
         }
 
         protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
         {
             int? value = MatchValue(condition);
-            return t => t.DepartmentId == value;
+            return t => t.DepartmentId.HasValue && t.DepartmentId.Value == value;
         }
 
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
         {
             int? value = MatchValue(condition);
-            return t => t.DepartmentId != value;
+            return t => t.DepartmentId.HasValue && t.DepartmentId.Value != value;
         }
 
         protected override object GetValue(string rawValue)
@@ -41,7 +41,7 @@ namespace Social.Domain.DomainServices
             int value = default(int);
             if (condition.Value == "@My Department")
             {
-                value = _DepartmentService.GetMyDepartmentId(_UserContext.UserId);
+                value = _departmentService.GetMyDepartmentId(_userContext.UserId);
             }
             else if (condition.Value == "Blank")
             {

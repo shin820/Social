@@ -17,13 +17,13 @@ namespace Social.Domain.DomainServices
         protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
         {
             int value = int.Parse(condition.Value);
-            return  t => t.Messages.Any(m => m.SendAgentId == value);
+            return  t => t.Messages.Any(m => m.SendAgentId.HasValue && m.SendAgentId.Value == value);
         }
 
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
         {
             int value = int.Parse(condition.Value);
-            return t => t.Messages.Any(m => m.SendAgentId != value);
+            return t => t.Messages.Any(m => m.SendAgentId.HasValue && m.SendAgentId.Value != value);
         }
 
         protected override object GetValue(string value)

@@ -18,13 +18,13 @@ namespace Social.Domain.DomainServices
         protected override Expression<Func<Conversation, bool>> After(string date)
         {
             DateTime value = DateTime.Parse(date);
-            return t => t.ModifiedTime > value;
+            return t => t.ModifiedTime.HasValue && t.ModifiedTime.Value > value;
         }
 
         protected override Expression<Func<Conversation, bool>> Before(string date)
         {
             DateTime value = DateTime.Parse(date);
-            return t => t.ModifiedTime < value;
+            return t => t.ModifiedTime.HasValue && t.ModifiedTime.Value < value;
         }
 
         protected override Expression<Func<Conversation, bool>> Between(string date)
@@ -32,15 +32,15 @@ namespace Social.Domain.DomainServices
             string[] value = date.Split('|');
             DateTime DateTime1 = DateTime.Parse(value[0]);
             DateTime DateTime2 = DateTime.Parse(value[1]);
-            return t => t.ModifiedTime <= DateTime1 || t.ModifiedTime >= DateTime2;
+            return t => t.ModifiedTime.HasValue && t.ModifiedTime.Value <= DateTime1 && t.ModifiedTime.Value >= DateTime2;
         }
 
         protected override Expression<Func<Conversation, bool>> Is(string date)
         {
             DateTime value = DateTime.Parse(date);
-            return t => ((DateTime)t.ModifiedTime).Year == value.Year
-                       && ((DateTime)t.ModifiedTime).Month == value.Month
-                       && ((DateTime)t.ModifiedTime).Day == value.Day;
+            return t => t.ModifiedTime.HasValue && ((DateTime)t.ModifiedTime.Value).Year == value.Year
+                       && ((DateTime)t.ModifiedTime.Value).Month == value.Month
+                       && ((DateTime)t.ModifiedTime.Value).Day == value.Day;
         }
     }
 }
