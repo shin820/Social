@@ -22,15 +22,15 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("{originalId}", Name = "GetUserInfo")]
-        public UserInfoDto GetUserInfo([MaxLength(200)]string OriginalId)
+        public UserInfoDto GetUserInfo([MaxLength(200)]string originalId)
         {
-            return _appService.Find(OriginalId);
+            return _appService.Find(originalId);
         }
 
         [Route("{originalId}/user-conversations")]
-        public IList<ConversationDto> GetUserConversations([MaxLength(200)]string OriginalId)
+        public IList<ConversationDto> GetUserConversations([MaxLength(200)]string originalId)
         {
-            return _appService.FindConversations(OriginalId);
+            return _appService.FindConversations(originalId);
         }
     }
 }

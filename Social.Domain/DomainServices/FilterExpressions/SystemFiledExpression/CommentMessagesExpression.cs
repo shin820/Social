@@ -17,22 +17,22 @@ namespace Social.Domain.DomainServices.FilterExpressions.SystemFiledExpression
 
         protected override Expression<Func<Conversation, bool>> Contain(FilterCondition condition)
         {
-            return t => t.Messages.Any(m => m.Content.Contains(condition.Value));
+            return t => t.Messages.Any(m => m.Content != null && m.Content.Contains(condition.Value));
         }
 
         protected override Expression<Func<Conversation, bool>> NotContain(FilterCondition condition)
         {
-            return t => t.Messages.Any(m => !m.Content.Contains(condition.Value));
+            return t => t.Messages.Any(m => m.Content != null && !m.Content.Contains(condition.Value));
         }
 
         protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
         {
-            return t => t.Messages.Any(m => m.Content == condition.Value);
+            return t => t.Messages.Any(m => m.Content != null && m.Content == condition.Value);
         }
 
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
         {
-            return t => t.Messages.Any(m => m.Content != condition.Value);
+            return t => t.Messages.Any(m => m.Content != null && m.Content != condition.Value);
         }
     }
 }

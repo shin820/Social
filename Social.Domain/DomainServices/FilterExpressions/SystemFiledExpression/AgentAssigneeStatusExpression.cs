@@ -12,10 +12,10 @@ namespace Social.Domain.DomainServices
 {
     public class AgentAssigneeStatusExpression : OptionExpression
     {
-        private IAgentService _AgentService;
-        public AgentAssigneeStatusExpression(IAgentService AgentService) : base("Agent Assignee Status", "")
+        private IAgentService _agentService;
+        public AgentAssigneeStatusExpression(IAgentService agentService) : base("Agent Assignee Status", "")
         {
-            _AgentService = AgentService;
+            _agentService = agentService;
         }
 
         protected override object GetValue(string value)
@@ -25,11 +25,11 @@ namespace Social.Domain.DomainServices
 
         protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
         {
-            int[] AgentIds = _AgentService.IsMatchStatusAgents(int.Parse(condition.Value));
+            int[] agentIds = _agentService.IsMatchStatusAgents(int.Parse(condition.Value));
             var predicate = PredicateBuilder.New<Conversation>();
-            foreach (int member in AgentIds)
+            foreach (int member in agentIds)
             {
-                Expression<Func<Conversation, bool>> b = t => (int)t.AgentId == member;
+                Expression<Func<Conversation, bool>> b = t => t.AgentId.HasValue&&(int)t.AgentId.Value == member;
                 predicate = predicate.Or(b);
             }
             return predicate;
@@ -37,11 +37,11 @@ namespace Social.Domain.DomainServices
 
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
         {
-            int[] AgentIds = _AgentService.IsMatchStatusAgents(int.Parse(condition.Value));
+            int[] agentIds = _agentService.IsMatchStatusAgents(int.Parse(condition.Value));
             var predicate = PredicateBuilder.New<Conversation>();
-            foreach (int member in AgentIds)
+            foreach (int member in agentIds)
             {
-                Expression<Func<Conversation, bool>> b = t => (int)t.AgentId != member;
+                Expression<Func<Conversation, bool>> b = t => t.AgentId.HasValue&&(int)t.AgentId.Value != member;
                 predicate = predicate.And(b);
             }
             return predicate;

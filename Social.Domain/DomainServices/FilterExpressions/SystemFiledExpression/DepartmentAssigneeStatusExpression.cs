@@ -12,10 +12,10 @@ namespace Social.Domain.DomainServices
 {
     public class DepartmentAssigneeStatusExpression : OptionExpression
     {
-        private IDepartmentService _DepartmentService;
-        public DepartmentAssigneeStatusExpression(IDepartmentService DepartmentService) : base("Department Assignee Status", "")
+        private IDepartmentService _departmentService;
+        public DepartmentAssigneeStatusExpression(IDepartmentService departmentService) : base("Department Assignee Status", "")
         {
-            _DepartmentService = DepartmentService;
+            _departmentService = departmentService;
         }
 
         protected override object GetValue(string value)
@@ -25,11 +25,11 @@ namespace Social.Domain.DomainServices
 
         protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
         {
-            int[] DepartmentIds = _DepartmentService.IsMatchStatusDepartments(int.Parse(condition.Value));
+            int[] departmentIds = _departmentService.IsMatchStatusDepartments(int.Parse(condition.Value));
             var predicate = PredicateBuilder.New<Conversation>();
-            foreach (int member in DepartmentIds)
+            foreach (int member in departmentIds)
             {
-                Expression<Func<Conversation, bool>> b = t => (int)t.DepartmentId == member;
+                Expression<Func<Conversation, bool>> b = t =>t.DepartmentId.HasValue && (int)t.DepartmentId.Value == member;
                 predicate = predicate.Or(b);
             }
             return predicate;
@@ -37,11 +37,11 @@ namespace Social.Domain.DomainServices
 
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
         {
-            int[] DepartmentIds = _DepartmentService.IsMatchStatusDepartments(int.Parse(condition.Value));
+            int[] departmentIds = _departmentService.IsMatchStatusDepartments(int.Parse(condition.Value));
             var predicate = PredicateBuilder.New<Conversation>();
-            foreach (int member in DepartmentIds)
+            foreach (int member in departmentIds)
             {
-                Expression<Func<Conversation, bool>> b = t => (int)t.DepartmentId != member;
+                Expression<Func<Conversation, bool>> b = t => t.DepartmentId.HasValue && (int)t.DepartmentId.Value != member;
                 predicate = predicate.And(b);
             }
             return predicate;
