@@ -8,6 +8,7 @@
     <TimeStampOfAssociatedLegacyPublishXmlFile />
     <_NewBackgroundProfile>False</_NewBackgroundProfile>
     <_PublishTargetUrl>D:\Social_QA\WebApi_QA</_PublishTargetUrl>
+    <EncryptedPassword />
   </PropertyGroup>
   <ItemGroup>
     <File Include="ApplicationInsights.config">
