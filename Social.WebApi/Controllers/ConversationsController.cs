@@ -90,6 +90,7 @@ namespace Social.WebApi.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [Route("{id}/take")]
+        [HttpPut]
         public ConversationDto TakeConversation(int id)
         {
             return _conversationAppService.Take(id);
@@ -101,6 +102,7 @@ namespace Social.WebApi.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [Route("{id}/reopen")]
+        [HttpPut]
         public ConversationDto ReopenConversation(int id)
         {
             return _conversationAppService.Take(id);
@@ -112,6 +114,7 @@ namespace Social.WebApi.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [Route("{id}/close")]
+        [HttpPut]
         public ConversationDto CloseConversation(int id)
         {
             return _conversationAppService.Take(id);
