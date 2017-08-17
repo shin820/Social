@@ -1,5 +1,6 @@
 ﻿using Facebook;
 using Framework.Core;
+using Social.Domain.Core;
 using Social.Domain.DomainServices.Facebook;
 using Social.Domain.Entities;
 using Social.Infrastructure.Enum;

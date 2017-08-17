@@ -2,6 +2,7 @@
 using Framework.Core.UnitOfWork;
 using Social.Application;
 using Social.Domain;
+using Social.Domain.Core;
 using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
 using System;

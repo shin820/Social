@@ -1,4 +1,4 @@
-namespace Social.Domain
+namespace Social.Domain.Core
 {
     using Framework.Core;
     using Framework.Core.EntityFramework;

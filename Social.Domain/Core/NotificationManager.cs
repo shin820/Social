@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Social.Infrastructure
+namespace Social.Infrastructure.Core
 {
     public class NotificationManager : INotificationManager
     {

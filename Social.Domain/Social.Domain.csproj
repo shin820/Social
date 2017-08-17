@@ -210,11 +210,11 @@
     <Compile Include="Entities\SocialAccount.cs" />
     <Compile Include="Entities\SocialUser.cs" />
     <Compile Include="Entities\TwitterAuth.cs" />
-    <Compile Include="GeneralDataContext.cs" />
-    <Compile Include="NotificationManager.cs" />
-    <Compile Include="SiteDataContext.cs" />
+    <Compile Include="Core\GeneralDataContext.cs" />
+    <Compile Include="Core\NotificationManager.cs" />
+    <Compile Include="Core\SiteDataContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SiteDataRepository.cs" />
+    <Compile Include="Core\SiteDataRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

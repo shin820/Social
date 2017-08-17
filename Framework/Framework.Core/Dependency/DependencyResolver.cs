@@ -50,15 +50,17 @@ namespace Framework.Core
                   .If(type => !type.GetTypeInfo().IsGenericTypeDefinition)
                   .WithService.Self()
                   .WithService.AllInterfaces()
+                  .Configure(configurer => configurer.Named(Guid.NewGuid().ToString())) //this is not a good idea, but we have to add these code to make container works fine with Obfuscator.
                   .LifestyleTransient(),
-
                Classes.FromAssembly(assembly)
                   .BasedOn(typeof(ServiceBase))
                   .WithServiceAllInterfaces()
+                  .Configure(configurer => configurer.Named(Guid.NewGuid().ToString())) //this is not a good idea, but we have to add these code to make container works fine with Obfuscator.
                   .LifestyleTransient(),
                Classes.FromAssembly(assembly)
                   .BasedOn(typeof(EfRepository<,>))
                   .WithServiceAllInterfaces()
+                  .Configure(configurer => configurer.Named(Guid.NewGuid().ToString())) //this is not a good idea, but we have to add these code to make container works fine with Obfuscator.
                   .LifestyleTransient()
               );
         }
