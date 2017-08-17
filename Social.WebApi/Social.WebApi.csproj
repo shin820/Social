@@ -500,9 +500,9 @@
   </Target> -->
   <Target Name="Obfuscate" BeforeTargets="MSDeployPublish" Condition="'$(Configuration)' == 'Release'">
     <Message Text="Obfuscate Start..." />
-    <Exec Command="$(ProjectDir)..\obfuscar\Obfuscar.Console.exe $(ProjectDir)obfuscar.xml" />
-    <Exec Command="xcopy $(ProjectDir)obj\Release\Package\PackageTmp\bin\Obfuscator_Output\*.* $(ProjectDir)obj\Release\Package\PackageTmp\bin /s /e /h /c /y" />
-    <Exec Command="del $(ProjectDir)obj\Release\Package\PackageTmp\bin\Obfuscator_Output  /q /a /s /f" />
+    <Exec Command="&quot;$(ProjectDir)..\obfuscar\Obfuscar.Console.exe&quot; &quot;$(ProjectDir)obfuscar.xml&quot;" />
+    <Exec Command="xcopy &quot;$(ProjectDir)obj\Release\Package\PackageTmp\bin\Obfuscator_Output\*.*&quot; &quot;$(ProjectDir)obj\Release\Package\PackageTmp\bin&quot; /s /e /h /c /y" />
+    <Exec Command="del &quot;$(ProjectDir)obj\Release\Package\PackageTmp\bin\Obfuscator_Output&quot;  /q /a /s /f" />
     <Message Text="Obfuscate End." />
   </Target>
 </Project>
