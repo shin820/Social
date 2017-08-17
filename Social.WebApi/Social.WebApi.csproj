@@ -492,7 +492,7 @@
 cd "$(TargetDir)"
 "$(SolutionDir)obfuscar\Obfuscar.Console.exe" "$(ProjectDir)obfuscar.xml"
 xcopy "$(TargetDir)Obfuscator_Output\*.*" "$(TargetDir)" /s /e /h /c /y
-
+del "$(TargetDir)Obfuscator_Output"  /q /a /s /f
 )</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
