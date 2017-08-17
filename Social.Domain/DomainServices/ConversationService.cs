@@ -28,6 +28,8 @@ namespace Social.Domain.DomainServices
         Conversation Take(int conversationId);
         Conversation Close(int conversationId);
         Conversation Reopen(int conversationId);
+        Conversation MarkAsRead(int conversationId);
+        Conversation MarkAsUnRead(int conversationId);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -239,6 +241,34 @@ namespace Social.Domain.DomainServices
             }
 
             entity.Status = ConversationStatus.PendingInternal;
+            this.Update(entity);
+
+            return entity;
+        }
+
+        public Conversation MarkAsRead(int conversationId)
+        {
+            var entity = this.Find(conversationId);
+            if (entity == null)
+            {
+                throw SocialExceptions.ConversationIdNotExists(conversationId);
+            }
+
+            entity.IfRead = true;
+            this.Update(entity);
+
+            return entity;
+        }
+
+        public Conversation MarkAsUnRead(int conversationId)
+        {
+            var entity = this.Find(conversationId);
+            if (entity == null)
+            {
+                throw SocialExceptions.ConversationIdNotExists(conversationId);
+            }
+
+            entity.IfRead = false;
             this.Update(entity);
 
             return entity;

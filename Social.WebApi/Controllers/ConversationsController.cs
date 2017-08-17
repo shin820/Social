@@ -121,6 +121,30 @@ namespace Social.WebApi.Controllers
         }
 
         /// <summary>
+        /// Mark conversation as Read.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Route("{id}/mark-as-read")]
+        [HttpPut]
+        public ConversationDto MarkAsRead(int id)
+        {
+            return _conversationAppService.MarkAsRead(id);
+        }
+
+        /// <summary>
+        /// Mark conversation as UnRead.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Route("{id}/mark-as-unread")]
+        [HttpPut]
+        public ConversationDto MarkAsUnRead(int id)
+        {
+            return _conversationAppService.MarkAsUnRead(id);
+        }
+
+        /// <summary>
         /// Get conversation logs.
         /// </summary>
         /// <param name="conversationId"></param>

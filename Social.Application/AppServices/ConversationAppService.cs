@@ -27,6 +27,8 @@ namespace Social.Application.AppServices
         ConversationDto Take(int conversationId);
         ConversationDto Close(int conversationId);
         ConversationDto Reopen(int conversationId);
+        ConversationDto MarkAsRead(int conversationId);
+        ConversationDto MarkAsUnRead(int conversationId);
     }
 
     public class ConversationAppService : AppService, IConversationAppService
@@ -129,6 +131,18 @@ namespace Social.Application.AppServices
         public ConversationDto Reopen(int conversationId)
         {
             var entity = _conversationService.Reopen(conversationId);
+            return Mapper.Map<ConversationDto>(entity);
+        }
+
+        public ConversationDto MarkAsRead(int conversationId)
+        {
+            var entity = _conversationService.MarkAsRead(conversationId);
+            return Mapper.Map<ConversationDto>(entity);
+        }
+
+        public ConversationDto MarkAsUnRead(int conversationId)
+        {
+            var entity = _conversationService.MarkAsUnRead(conversationId);
             return Mapper.Map<ConversationDto>(entity);
         }
     }
