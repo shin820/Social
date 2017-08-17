@@ -22,7 +22,7 @@ namespace Social.Domain.DomainServices.FilterExpressions.SystemFiledExpression
 
         protected override Expression<Func<Conversation, bool>> NotContain(FilterCondition condition)
         {
-            return t => t.Messages.Any(m => !m.Sender.Name.Contains(condition.Value) && (m.Sender.Email != null && ! m.Sender.Email.Contains(condition.Value)));
+            return t => t.Messages.Any(m => !m.Sender.Name.Contains(condition.Value) && (m.Sender.Email != null && ! m.Sender.Email.Contains(condition.Value)|| m.Sender.Email == null));
         }
 
         protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
@@ -32,7 +32,7 @@ namespace Social.Domain.DomainServices.FilterExpressions.SystemFiledExpression
 
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
         {
-            return t => t.Messages.Any(m => m.Sender.Name != condition.Value && (m.Sender.Email != null && m.Sender.Email != condition.Value));
+            return t => t.Messages.Any(m => m.Sender.Name != condition.Value && (m.Sender.Email != null && m.Sender.Email != condition.Value || m.Sender.Email == null));
         }
 
     }

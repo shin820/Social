@@ -32,7 +32,7 @@ namespace Social.Domain.DomainServices
             string[] value = date.Split('|');
             DateTime DateTime1 = DateTime.Parse(value[0]);
             DateTime DateTime2 = DateTime.Parse(value[1]);
-            return t => t.CreatedTime <= DateTime1 || t.CreatedTime >= DateTime2;
+            return t => t.CreatedTime >= DateTime1 && t.CreatedTime <= DateTime2;
         }
 
         protected override Expression<Func<Conversation, bool>> Is(string date)

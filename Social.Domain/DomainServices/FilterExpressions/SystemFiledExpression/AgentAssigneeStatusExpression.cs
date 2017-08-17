@@ -26,25 +26,13 @@ namespace Social.Domain.DomainServices
         protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
         {
             int[] agentIds = _agentService.IsMatchStatusAgents(int.Parse(condition.Value));
-            var predicate = PredicateBuilder.New<Conversation>();
-            foreach (int member in agentIds)
-            {
-                Expression<Func<Conversation, bool>> b = t => t.AgentId.HasValue&&(int)t.AgentId.Value == member;
-                predicate = predicate.Or(b);
-            }
-            return predicate;
+            return t => t.AgentId.HasValue && agentIds.Contains(t.AgentId.Value);
         }
 
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
         {
             int[] agentIds = _agentService.IsMatchStatusAgents(int.Parse(condition.Value));
-            var predicate = PredicateBuilder.New<Conversation>();
-            foreach (int member in agentIds)
-            {
-                Expression<Func<Conversation, bool>> b = t => t.AgentId.HasValue&&(int)t.AgentId.Value != member;
-                predicate = predicate.And(b);
-            }
-            return predicate;
+            return t => t.AgentId.HasValue && !agentIds.Contains(t.AgentId.Value) || !t.AgentId.HasValue;
         }
     }
 }

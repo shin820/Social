@@ -28,7 +28,7 @@ namespace Social.Domain.DomainServices
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
         {
             int? value = MatchValue(condition);
-            return t => t.DepartmentId.HasValue && t.DepartmentId.Value != value;
+            return t => t.DepartmentId.HasValue && t.DepartmentId.Value != value || !t.DepartmentId.HasValue;
         }
 
         protected override object GetValue(string rawValue)

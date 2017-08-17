@@ -23,7 +23,7 @@ namespace Social.Domain.DomainServices
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
         {
             int value = int.Parse(condition.Value);
-            return t => t.Messages.Any(m => m.SendAgentId.HasValue && m.SendAgentId.Value != value);
+            return t => t.Messages.Any(m => m.SendAgentId.HasValue && m.SendAgentId.Value != value ||!m.SendAgentId.HasValue);
         }
 
         protected override object GetValue(string value)

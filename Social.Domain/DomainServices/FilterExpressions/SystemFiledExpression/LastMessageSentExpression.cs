@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace Social.Domain.DomainServices
 {
-    class LastMessageSentExpression : DateTimeExpression
+    public class LastMessageSentExpression : DateTimeExpression
     {
         public LastMessageSentExpression() : base("Last Message Sent")
         {
@@ -28,7 +28,7 @@ namespace Social.Domain.DomainServices
             string[] value = date.Split('|');
             DateTime DateTime1 = DateTime.Parse(value[0]);
             DateTime DateTime2 = DateTime.Parse(value[1]);
-            return t => t.LastMessageSentTime <= DateTime1 || t.LastMessageSentTime >= DateTime2;
+            return t => t.LastMessageSentTime >= DateTime1 && t.LastMessageSentTime <= DateTime2;
         }
 
         protected override Expression<Func<Conversation, bool>> Is(string date)

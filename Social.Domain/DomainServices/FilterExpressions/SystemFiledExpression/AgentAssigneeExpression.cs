@@ -28,7 +28,7 @@ namespace Social.Domain.DomainServices
                 var predicate = PredicateBuilder.New<Conversation>();
                 foreach (int member in members)
                 {
-                    Expression<Func<Conversation, bool>> b = t => t.AgentId.HasValue&&(int)t.AgentId.Value == member;
+                    Expression<Func<Conversation, bool>> b = t => t.AgentId.HasValue&&t.AgentId.Value == member;
                     predicate = predicate.Or(b);                   
                 }
                 return predicate;
@@ -50,7 +50,7 @@ namespace Social.Domain.DomainServices
                 var predicate = PredicateBuilder.New<Conversation>();
                 foreach (int member in members)
                 {
-                    Expression<Func<Conversation, bool>> b = t =>t.AgentId.HasValue&& (int)t.AgentId.Value != member;
+                    Expression<Func<Conversation, bool>> b = t =>t.AgentId.HasValue&& t.AgentId.Value != member||!t.AgentId.HasValue;
                     predicate = predicate.And(b);
                 }
                 return predicate;
@@ -60,7 +60,7 @@ namespace Social.Domain.DomainServices
                 value = MatchValue(condition);
             }
             
-            return t => t.AgentId != value;
+            return t => t.AgentId.HasValue && t.AgentId.Value != value || !t.AgentId.HasValue;
         }
 
         protected override object GetValue(string rawValue)
