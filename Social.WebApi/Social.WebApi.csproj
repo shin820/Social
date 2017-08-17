@@ -488,7 +488,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>if $(ConfigurationName) == Debug (
-
 cd "$(TargetDir)"
 "$(SolutionDir)obfuscar\Obfuscar.Console.exe" "$(ProjectDir)obfuscar.xml"
 xcopy "$(TargetDir)Obfuscator_Output\*.*" "$(TargetDir)" /s /e /h /c /y
