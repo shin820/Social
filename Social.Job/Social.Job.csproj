@@ -206,11 +206,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Debug (
-cd "$(TargetDir)"
-"$(SolutionDir)obfuscar\Obfuscar.Console.exe" "$(ProjectDir)obfuscar.xml"
-xcopy "$(TargetDir)Obfuscator_Output\*.*" "$(TargetDir)" /s /e /h /c /y
-del "$(TargetDir)Obfuscator_Output"  /q /a /s /f
-)</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>

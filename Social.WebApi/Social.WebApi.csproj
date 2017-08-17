@@ -26,7 +26,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
-    <Use64BitIISExpress />
+    <Use64BitIISExpress>false</Use64BitIISExpress>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -375,7 +375,10 @@
     <Content Include="Content\bootstrap.css.map" />
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
-    <None Include="Properties\PublishProfiles\Debug.pubxml" />
+    <Content Include="obfuscate.bat" />
+    <None Include="Properties\PublishProfiles\Debug.pubxml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\PublishProfiles\Release.pubxml" />
     <None Include="Scripts\jquery-3.1.1.intellisense.js" />
     <Content Include="obfuscar.xml">
@@ -487,12 +490,8 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Debug (
-cd "$(TargetDir)"
-"$(SolutionDir)obfuscar\Obfuscar.Console.exe" "$(ProjectDir)obfuscar.xml"
-xcopy "$(TargetDir)Obfuscator_Output\*.*" "$(TargetDir)" /s /e /h /c /y
-del "$(TargetDir)Obfuscator_Output"  /q /a /s /f
-)</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -500,4 +499,11 @@ del "$(TargetDir)Obfuscator_Output"  /q /a /s /f
   </Target>
   <Target Name="AfterBuild">
   </Target> -->
+  <Target Name="Obfuscate" BeforeTargets="MSDeployPublish" Condition="'$(Configuration)' == 'Release'">
+    <Message Text="Obfuscate Start..." />
+    <Exec Command="$(SolutionDir)obfuscar\Obfuscar.Console.exe $(ProjectDir)obfuscar.xml" />
+    <Exec Command="xcopy $(SolutionDir)Social.WebApi\obj\Release\Package\PackageTmp\bin\Obfuscator_Output\*.* $(SolutionDir)Social.WebApi\obj\Release\Package\PackageTmp\bin /s /e /h /c /y" />
+    <Exec Command="del $(SolutionDir)Social.WebApi\obj\Release\Package\PackageTmp\bin\Obfuscator_Output  /q /a /s /f" />
+    <Message Text="Obfuscate End." />
+  </Target>
 </Project>
