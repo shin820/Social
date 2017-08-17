@@ -12,10 +12,9 @@ namespace Social.Application
     {
         public DtoMappings()
         {
-            CreateMap<Conversation, ConversationDto>().ForMember(dto => dto.LastMessageSenderName, opt =>
-            {
-                opt.MapFrom(s => s.LastMessageSender.Name);
-            });
+            CreateMap<Conversation, ConversationDto>()
+                .ForMember(dto => dto.LastMessageSenderName, opt => opt.MapFrom(s => s.LastMessageSender.Name))
+                .ForMember(dto => dto.LastMessageSenderAvatar, opt => opt.MapFrom(s => s.LastMessageSender.Avatar));
             CreateMap<ConversationCreateDto, Conversation>();
             CreateMap<FilterCreateDto, Filter>();
             CreateMap<Filter, FilterListDto>();

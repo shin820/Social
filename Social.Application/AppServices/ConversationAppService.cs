@@ -24,6 +24,11 @@ namespace Social.Application.AppServices
         void Delete(int id);
         ConversationDto Update(int id, ConversationUpdateDto updateDto);
         IList<ConversationLogDto> GetLogs(int converationId);
+        ConversationDto Take(int conversationId);
+        ConversationDto Close(int conversationId);
+        ConversationDto Reopen(int conversationId);
+        ConversationDto MarkAsRead(int conversationId);
+        ConversationDto MarkAsUnRead(int conversationId);
     }
 
     public class ConversationAppService : AppService, IConversationAppService
@@ -109,6 +114,36 @@ namespace Social.Application.AppServices
                 .OrderByDescending(t => t.CreatedTime)
                 .ProjectTo<ConversationLogDto>()
                 .ToList();
+        }
+
+        public ConversationDto Take(int conversationId)
+        {
+            var entity = _conversationService.Take(conversationId);
+            return Mapper.Map<ConversationDto>(entity);
+        }
+
+        public ConversationDto Close(int conversationId)
+        {
+            var entity = _conversationService.Close(conversationId);
+            return Mapper.Map<ConversationDto>(entity);
+        }
+
+        public ConversationDto Reopen(int conversationId)
+        {
+            var entity = _conversationService.Reopen(conversationId);
+            return Mapper.Map<ConversationDto>(entity);
+        }
+
+        public ConversationDto MarkAsRead(int conversationId)
+        {
+            var entity = _conversationService.MarkAsRead(conversationId);
+            return Mapper.Map<ConversationDto>(entity);
+        }
+
+        public ConversationDto MarkAsUnRead(int conversationId)
+        {
+            var entity = _conversationService.MarkAsUnRead(conversationId);
+            return Mapper.Map<ConversationDto>(entity);
         }
     }
 }

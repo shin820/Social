@@ -2,6 +2,7 @@
 using Castle.MicroKernel.Registration;
 using Framework.Core;
 using Social.Domain;
+using Social.Domain.Core;
 
 namespace Social.Application
 {

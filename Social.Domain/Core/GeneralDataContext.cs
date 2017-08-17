@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Social.Domain
+namespace Social.Domain.Core
 {
     public class GeneralDataContext : DataContext, ITransient
     {

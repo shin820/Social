@@ -1,4 +1,5 @@
 ﻿using Framework.Core;
+using Social.Domain.Core;
 using Social.Domain.Entities;
 using Social.Infrastructure;
 using Social.Infrastructure.Enum;

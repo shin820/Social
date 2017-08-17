@@ -8,6 +8,7 @@ using Social.Job.Jobs.Facebook;
 using Social.Domain;
 using Social.Domain.Entities;
 using Social.Infrastructure;
+using Social.Domain.Core;
 
 namespace Social.Job.Jobs
 {

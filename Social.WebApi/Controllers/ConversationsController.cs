@@ -85,6 +85,66 @@ namespace Social.WebApi.Controllers
         }
 
         /// <summary>
+        /// Assign agent assignee to current agent.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Route("{id}/take")]
+        [HttpPut]
+        public ConversationDto TakeConversation(int id)
+        {
+            return _conversationAppService.Take(id);
+        }
+
+        /// <summary>
+        /// Reopen conversation.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Route("{id}/reopen")]
+        [HttpPut]
+        public ConversationDto ReopenConversation(int id)
+        {
+            return _conversationAppService.Take(id);
+        }
+
+        /// <summary>
+        /// Close conversation.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Route("{id}/close")]
+        [HttpPut]
+        public ConversationDto CloseConversation(int id)
+        {
+            return _conversationAppService.Take(id);
+        }
+
+        /// <summary>
+        /// Mark conversation as Read.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Route("{id}/mark-as-read")]
+        [HttpPut]
+        public ConversationDto MarkAsRead(int id)
+        {
+            return _conversationAppService.MarkAsRead(id);
+        }
+
+        /// <summary>
+        /// Mark conversation as UnRead.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Route("{id}/mark-as-unread")]
+        [HttpPut]
+        public ConversationDto MarkAsUnRead(int id)
+        {
+            return _conversationAppService.MarkAsUnRead(id);
+        }
+
+        /// <summary>
         /// Get conversation logs.
         /// </summary>
         /// <param name="conversationId"></param>
