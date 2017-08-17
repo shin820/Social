@@ -1,4 +1,5 @@
 ﻿using Social.Domain.Entities;
+using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Social.Application.Dto
 {
-    public class FilterDetailsDto
+    public class FilterDetailsDto : IHaveCreatedBy
     {
         public int Id { get; set; }
         [Required]
@@ -21,6 +22,7 @@ namespace Social.Application.Dto
         public string LogicalExpression { get; set; }
 
         public int CreatedBy { get; set; }
+        public string CreatedByName { get; set; }
         public DateTime CreatedTime { get; set; }
 
         public virtual IList<FilterConditionCreateDto> Conditions { get; set; }

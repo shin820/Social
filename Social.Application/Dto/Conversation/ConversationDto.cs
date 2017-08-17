@@ -27,11 +27,15 @@ namespace Social.Application.Dto
 
         public string LastMessageSenderAvatar { get; set; }
 
+        public string LastMessage { get; set; }
+
         public int? LastRepliedAgentId { get; set; }
 
         public int? AgentId { get; set; }
+        public string AgentName { get; set; }
 
         public int? DepartmentId { get; set; }
+        public string DepartmentName { get; set; }
 
         public ConversationStatus Status { get; set; }
 
