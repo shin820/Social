@@ -29,7 +29,7 @@ namespace Social.Application.AppServices
 
         public List<ConversationFieldDto> FindAll()
         {
-            return _domainService.FinAllAndFillOptions().Select(t => Mapper.Map<ConversationFieldDto>(t)).ToList();
+            return _domainService.FindAllAndFillOptions().Select(t => Mapper.Map<ConversationFieldDto>(t)).ToList();
         }
 
         public ConversationFieldDto Find(int id)
