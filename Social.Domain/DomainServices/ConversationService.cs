@@ -30,6 +30,9 @@ namespace Social.Domain.DomainServices
         Conversation Reopen(int conversationId);
         Conversation MarkAsRead(int conversationId);
         Conversation MarkAsUnRead(int conversationId);
+        string GetAgentName(Conversation conversation);
+        string GetDepartmentName(Conversation conversation);
+        string GetLastMessage(Conversation conversation);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -337,6 +340,33 @@ namespace Social.Domain.DomainServices
                 Type = type,
                 Content = message,
             });
+        }
+
+        public string GetAgentName(Conversation conversation)
+        {
+            if (conversation.AgentId.HasValue)
+            {
+                return _agentService.Find(conversation.AgentId.Value).Name;
+            }
+            else
+                return null;
+        }
+
+        public string GetDepartmentName(Conversation conversation)
+        {
+            if (conversation.DepartmentId.HasValue)
+            {
+                return _departmentService.Find(conversation.DepartmentId.Value).Name;
+            }
+            else
+                return null;
+        }
+
+        public string GetLastMessage(Conversation conversation)
+        {
+            var messages = conversation.Messages;
+            messages = messages.OrderBy(t => t.SendTime).ToList();
+            return messages.Last().Content;
         }
     }
 }

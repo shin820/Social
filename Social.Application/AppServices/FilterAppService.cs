@@ -68,7 +68,7 @@ namespace Social.Application.AppServices
                 throw SocialExceptions.FilterNotExists(id);
             }
             var filterDto = Mapper.Map<FilterDetailsDto>(filter);
-
+            filterDto.CreatedByName = _domainService.GetCreatedByName(filter);
             return filterDto;
         }
 
@@ -85,7 +85,11 @@ namespace Social.Application.AppServices
 
             _notificationManager.NotifyNewPublicFilter(filter.SiteId, filter.Id);
 
-            return Mapper.Map<FilterDetailsDto>(filter);
+            var filterDto = Mapper.Map<FilterDetailsDto>(filter);
+            List <FilterDetailsDto> filterDtos = new List<FilterDetailsDto>();
+            filterDtos.Add(filterDto);
+            _agentService.FillCreatedByName(filterDtos);
+            return filterDto;
         }
 
         public void Delete(int id)
@@ -113,7 +117,11 @@ namespace Social.Application.AppServices
             CurrentUnitOfWork.SaveChanges();
 
             _notificationManager.NotifyNewPublicFilter(updateFilter.SiteId, updateFilter.Id);
-            return Mapper.Map<FilterDetailsDto>(updateFilter);
+            var filterDto = Mapper.Map<FilterDetailsDto>(updateFilter);
+            List<FilterDetailsDto> filterDtos = new List<FilterDetailsDto>();
+            filterDtos.Add(filterDto);
+            _agentService.FillCreatedByName(filterDtos);
+            return filterDto;
         }
 
         public List<FilterManageDto> FindManageFilters()
