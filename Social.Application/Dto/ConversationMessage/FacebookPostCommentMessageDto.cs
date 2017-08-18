@@ -1,4 +1,5 @@
 ﻿using Social.Infrastructure;
+using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace Social.Application.Dto
     public class FacebookPostCommentMessageDto : IHaveSendAgent
     {
         public int Id { get; set; }
+        public MessageSource Source { get; set; }
         public int ConversationId { get; set; }
         public int ParentId { get; set; }
         public string UserAvatar { get; set; }
