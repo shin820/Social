@@ -346,7 +346,14 @@ namespace Social.Domain.DomainServices
         {
             if (conversation.AgentId.HasValue)
             {
-                return _agentService.Find(conversation.AgentId.Value).Name;
+                if (_agentService.Find(conversation.AgentId.Value) != null)
+                {
+                    return _agentService.Find(conversation.AgentId.Value).Name;
+                }
+                else
+                {
+                    return null;
+                }
             }
             else
             {
@@ -358,7 +365,14 @@ namespace Social.Domain.DomainServices
         {
             if (conversation.DepartmentId.HasValue)
             {
-                return _departmentService.Find(conversation.DepartmentId.Value).Name;
+                if (_departmentService.Find(conversation.DepartmentId.Value) != null)
+                {
+                    return _departmentService.Find(conversation.DepartmentId.Value).Name;
+                }
+                else
+                {
+                    return null;
+                }
             }
             else
             {
