@@ -349,7 +349,9 @@ namespace Social.Domain.DomainServices
                 return _agentService.Find(conversation.AgentId.Value).Name;
             }
             else
+            {
                 return null;
+            }
         }
 
         public string GetDepartmentName(Conversation conversation)
@@ -359,14 +361,23 @@ namespace Social.Domain.DomainServices
                 return _departmentService.Find(conversation.DepartmentId.Value).Name;
             }
             else
+            {
                 return null;
+            }
         }
 
         public string GetLastMessage(Conversation conversation)
         {
             var messages = conversation.Messages;
-            messages = messages.OrderBy(t => t.SendTime).ToList();
-            return messages.Last().Content;
+            if (messages != null)
+            {
+                messages = messages.OrderBy(t => t.SendTime).ToList();
+                return messages.Last().Content;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
