@@ -22,7 +22,7 @@ namespace Social.Domain.DomainServices
         IQueryable<Conversation> ApplyFilter(IQueryable<Conversation> conversations, int? filterId);
         IQueryable<Conversation> ApplyFilter(IQueryable<Conversation> conversations, Filter filter);
         IQueryable<Conversation> ApplyKeyword(IQueryable<Conversation> conversations, string keyword);
-        IQueryable<Conversation> ApplyOriginalId(IQueryable<Conversation> conversations, int? userId);
+        IQueryable<Conversation> ApplySenderOrReceiverId(IQueryable<Conversation> conversations, int? userId);
         Conversation CheckIfExists(int id);
         Conversation GetUnClosedConversation(string originalId);
         Conversation Take(int conversationId);
@@ -109,14 +109,11 @@ namespace Social.Domain.DomainServices
             return conversations;
         }
 
-        public IQueryable<Conversation> ApplyOriginalId(IQueryable<Conversation> conversations, int? userId)
+        public IQueryable<Conversation> ApplySenderOrReceiverId(IQueryable<Conversation> conversations, int? userId)
         {
             if (userId != null)
             {
-                var predicate = PredicateBuilder.New<Conversation>();
-                predicate = predicate.Or(t => t.Messages.Any(m => m.SenderId == userId || m.ReceiverId == userId));
-
-                conversations = conversations.Where(predicate);
+                conversations = conversations.Where(t => t.Messages.Any(m => m.SenderId == userId || m.ReceiverId == userId));
             }
 
             return conversations;

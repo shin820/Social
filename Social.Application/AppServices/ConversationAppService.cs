@@ -63,20 +63,23 @@ namespace Social.Application.AppServices
             conversations = conversations.WhereIf(dto.Util != null, t => t.CreatedTime <= dto.Util);
             conversations = _conversationService.ApplyFilter(conversations, dto.FilterId);
             conversations = _conversationService.ApplyKeyword(conversations, dto.Keyword);
-            conversations = _conversationService.ApplyOriginalId(conversations, dto.UserId);
+            conversations = _conversationService.ApplySenderOrReceiverId(conversations, dto.UserId);
 
-            List<ConversationDto> conversationDtos =  conversations.Paging(dto).ProjectTo<ConversationDto>().ToList();
+            List<ConversationDto> conversationDtos = conversations.Paging(dto).ProjectTo<ConversationDto>().ToList();
 
-            var messages = _messageService.GetLastMessages(conversations.Select(t => t.Id).ToArray());
-            for (int i = 0; i < conversationDtos.Count();i++)
+            var lastMessages = _messageService.GetLastMessages(conversations.Select(t => t.Id).ToArray());
+            for (int i = 0; i < conversationDtos.Count(); i++)
             {
                 conversationDtos[i].AgentName = _conversationService.GetAgentName(conversations.ToArray()[i]);
                 conversationDtos[i].DepartmentName = _conversationService.GetDepartmentName(conversations.ToArray()[i]);
-                if (messages.Where(t => t.ConversationId == conversationDtos[i].Id).FirstOrDefault() != null)
+                if (lastMessages != null && lastMessages.Any())
                 {
-                    conversationDtos[i].LastMessage = messages.Where(t => t.ConversationId == conversationDtos[i].Id).FirstOrDefault().Content;
+                    var lastMessage = lastMessages.FirstOrDefault(t => t.ConversationId == conversationDtos[i].Id);
+                    if (lastMessage != null)
+                    {
+                        conversationDtos[i].LastMessage = lastMessage.Content;
+                    }
                 }
-
             }
             return conversationDtos;
         }
@@ -90,9 +93,9 @@ namespace Social.Application.AppServices
             }
 
             var conversationDto = Mapper.Map<ConversationDto>(conversation);
-            GetOtherFields(conversation, conversationDto);
+            FillFields(conversation, conversationDto);
             return conversationDto;
-            
+
         }
 
         public ConversationDto Insert(ConversationCreateDto createDto)
@@ -101,7 +104,7 @@ namespace Social.Application.AppServices
             conversation = _conversationService.Insert(conversation);
             CurrentUnitOfWork.SaveChanges();
             var conversationDto = Mapper.Map<ConversationDto>(conversation);
-            GetOtherFields(conversation, conversationDto);
+            FillFields(conversation, conversationDto);
             return conversationDto;
         }
 
@@ -126,7 +129,7 @@ namespace Social.Application.AppServices
             _conversationService.Update(conversation);
             _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), id);
             var conversationDto = Mapper.Map<ConversationDto>(conversation);
-            GetOtherFields(conversation, conversationDto);
+            FillFields(conversation, conversationDto);
             return conversationDto;
         }
 
@@ -143,7 +146,7 @@ namespace Social.Application.AppServices
         {
             var entity = _conversationService.Take(conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
-            GetOtherFields(entity, conversationDto);
+            FillFields(entity, conversationDto);
             return conversationDto;
         }
 
@@ -151,7 +154,7 @@ namespace Social.Application.AppServices
         {
             var entity = _conversationService.Close(conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
-            GetOtherFields(entity, conversationDto);
+            FillFields(entity, conversationDto);
             return conversationDto;
         }
 
@@ -159,7 +162,7 @@ namespace Social.Application.AppServices
         {
             var entity = _conversationService.Reopen(conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
-            GetOtherFields(entity, conversationDto);
+            FillFields(entity, conversationDto);
             return conversationDto;
         }
 
@@ -167,7 +170,7 @@ namespace Social.Application.AppServices
         {
             var entity = _conversationService.MarkAsRead(conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
-            GetOtherFields(entity, conversationDto);
+            FillFields(entity, conversationDto);
             return conversationDto;
         }
 
@@ -175,17 +178,19 @@ namespace Social.Application.AppServices
         {
             var entity = _conversationService.MarkAsUnRead(conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
-            GetOtherFields(entity, conversationDto);
+            FillFields(entity, conversationDto);
             return conversationDto;
         }
 
-        private void GetOtherFields(Conversation conversation, ConversationDto conversationDto)
+        private void FillFields(Conversation conversation, ConversationDto conversationDto)
         {
             conversationDto.AgentName = _conversationService.GetAgentName(conversation);
             conversationDto.DepartmentName = _conversationService.GetDepartmentName(conversation);
-            if (_messageService.GetLastMessages(new int[] { conversation.Id }).FirstOrDefault() != null)
+
+            var messages = _messageService.FindAllByConversationId(conversation.Id);
+            if (messages != null && messages.Any())
             {
-                conversationDto.LastMessage = _messageService.GetLastMessages(new int[] { conversation.Id }).FirstOrDefault().Content;
+                conversationDto.LastMessage = messages.OrderByDescending(t => t.Id).First().Content;
             }
         }
     }
