@@ -23,6 +23,7 @@ namespace Social.Domain.DomainServices
         Message ReplyTwitterDirectMessage(int conversationId, string message);
         Message ReplyFacebookMessage(int conversationId, string content);
         Message ReplyFacebookPostOrComment(int conversationId, int parentId, string content);
+        IList<Message> GetLastMessages(int[] conversationIds);
     }
 
     public class MessageService : DomainService<Message>, IMessageService
@@ -369,6 +370,19 @@ namespace Social.Domain.DomainServices
             }
 
             return previousMessages.OrderByDescending(t => t.SendTime).ToList();
+        }
+
+
+        public IList<Message> GetLastMessages(int[] conversationIds)
+        {
+            var lastMessageIds =
+                FindAll().Where(t => conversationIds.Contains(t.ConversationId))
+                .GroupBy(t => t.ConversationId)
+                 .Select(t => t.Max(m => m.Id))
+                 .ToList();
+
+            IList<Message> messages = FindAll().Where(t => lastMessageIds.Contains(t.Id)).ToList();
+            return messages;
         }
     }
 }

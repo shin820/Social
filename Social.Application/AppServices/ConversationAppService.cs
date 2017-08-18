@@ -34,18 +34,21 @@ namespace Social.Application.AppServices
     public class ConversationAppService : AppService, IConversationAppService
     {
         private IConversationService _conversationService;
+        private IMessageService _messageService;
         private IDomainService<ConversationLog> _logService;
         private INotificationManager _notificationManager;
 
         public ConversationAppService(
             IConversationService conversationService,
             IDomainService<ConversationLog> logService,
-            INotificationManager notificationManager
+            INotificationManager notificationManager,
+            IMessageService messageService
             )
         {
             _conversationService = conversationService;
             _logService = logService;
             _notificationManager = notificationManager;
+            _messageService = messageService;
         }
 
         public IList<ConversationDto> Find(ConversationSearchDto dto)
@@ -64,9 +67,16 @@ namespace Social.Application.AppServices
 
             List<ConversationDto> conversationDtos =  conversations.Paging(dto).ProjectTo<ConversationDto>().ToList();
 
-            for(int i = 0; i < conversationDtos.Count();i++)
+            var messages = _messageService.GetLastMessages(conversations.Select(t => t.Id).ToArray());
+            for (int i = 0; i < conversationDtos.Count();i++)
             {
-                GetOtherFields(conversations.ToArray()[i], conversationDtos[i]);
+                conversationDtos[i].AgentName = _conversationService.GetAgentName(conversations.ToArray()[i]);
+                conversationDtos[i].DepartmentName = _conversationService.GetDepartmentName(conversations.ToArray()[i]);
+                if (messages.Where(t => t.ConversationId == conversationDtos[i].Id).FirstOrDefault() != null)
+                {
+                    conversationDtos[i].LastMessage = messages.Where(t => t.ConversationId == conversationDtos[i].Id).FirstOrDefault().Content;
+                }
+
             }
             return conversationDtos;
         }
@@ -173,7 +183,10 @@ namespace Social.Application.AppServices
         {
             conversationDto.AgentName = _conversationService.GetAgentName(conversation);
             conversationDto.DepartmentName = _conversationService.GetDepartmentName(conversation);
-            conversationDto.LastMessage = _conversationService.GetLastMessage(conversation);
+            if (_messageService.GetLastMessages(new int[] { conversation.Id }).FirstOrDefault() != null)
+            {
+                conversationDto.LastMessage = _messageService.GetLastMessages(new int[] { conversation.Id }).FirstOrDefault().Content;
+            }
         }
     }
 }

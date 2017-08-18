@@ -32,7 +32,6 @@ namespace Social.Domain.DomainServices
         Conversation MarkAsUnRead(int conversationId);
         string GetAgentName(Conversation conversation);
         string GetDepartmentName(Conversation conversation);
-        string GetLastMessage(Conversation conversation);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -380,18 +379,6 @@ namespace Social.Domain.DomainServices
             }
         }
 
-        public string GetLastMessage(Conversation conversation)
-        {
-            var messages = conversation.Messages;
-            if (messages != null)
-            {
-                messages = messages.OrderBy(t => t.SendTime).ToList();
-                return messages.Last().Content;
-            }
-            else
-            {
-                return null;
-            }
-        }
+
     }
 }
