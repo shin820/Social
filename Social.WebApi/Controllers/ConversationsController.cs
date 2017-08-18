@@ -105,7 +105,7 @@ namespace Social.WebApi.Controllers
         [HttpPut]
         public ConversationDto ReopenConversation(int id)
         {
-            return _conversationAppService.Take(id);
+            return _conversationAppService.Reopen(id);
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace Social.WebApi.Controllers
         [HttpPut]
         public ConversationDto CloseConversation(int id)
         {
-            return _conversationAppService.Take(id);
+            return _conversationAppService.Close(id);
         }
 
         /// <summary>
