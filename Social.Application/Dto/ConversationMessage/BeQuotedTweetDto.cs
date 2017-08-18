@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Social.Infrastructure.Enum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace Social.Application.Dto
 {
     public class BeQuotedTweetDto
     {
+        public MessageSource Source { get; set; }
         public string OriginalLink { get; set; }
         public string UserAvatar { get; set; }
         public string UserName { get; set; }

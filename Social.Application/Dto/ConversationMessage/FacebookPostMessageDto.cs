@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Social.Infrastructure.Enum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,7 @@ namespace Social.Application.Dto
     public class FacebookPostMessageDto
     {
         public int Id { get; set; }
+        public MessageSource Source { get; set; }
         public string UserAvatar { get; set; }
         public int UserId { get; set; }
         public string UserName { get; set; }
