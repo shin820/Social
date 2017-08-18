@@ -74,7 +74,12 @@ namespace Social.Domain
 
         public string GetCreatedByName(Filter filter)
         {
-            return _UserRepo.Find(filter.CreatedBy).Name;
+            if (_UserRepo.Find(filter.CreatedBy) != null)
+            {
+                return _UserRepo.Find(filter.CreatedBy).Name;
+            }
+            else
+                return null;
         }
 
         public void CheckFieldIdExist(List<FilterCondition> filterConditons)

@@ -62,7 +62,13 @@ namespace Social.Application.AppServices
             conversations = _conversationService.ApplyKeyword(conversations, dto.Keyword);
             conversations = _conversationService.ApplyOriginalId(conversations, dto.UserId);
 
-            return conversations.Paging(dto).ProjectTo<ConversationDto>().ToList();
+            List<ConversationDto> conversationDtos =  conversations.Paging(dto).ProjectTo<ConversationDto>().ToList();
+
+            for(int i = 0; i < conversationDtos.Count();i++)
+            {
+                GetOtherFields(conversations.ToArray()[i], conversationDtos[i]);
+            }
+            return conversationDtos;
         }
 
         public ConversationDto Find(int id)
@@ -73,7 +79,10 @@ namespace Social.Application.AppServices
                 throw SocialExceptions.ConversationIdNotExists(id);
             }
 
-            return Mapper.Map<ConversationDto>(conversation);
+            var conversationDto = Mapper.Map<ConversationDto>(conversation);
+            GetOtherFields(conversation, conversationDto);
+            return conversationDto;
+            
         }
 
         public ConversationDto Insert(ConversationCreateDto createDto)
@@ -81,7 +90,9 @@ namespace Social.Application.AppServices
             var conversation = Mapper.Map<Conversation>(createDto);
             conversation = _conversationService.Insert(conversation);
             CurrentUnitOfWork.SaveChanges();
-            return Mapper.Map<ConversationDto>(conversation);
+            var conversationDto = Mapper.Map<ConversationDto>(conversation);
+            GetOtherFields(conversation, conversationDto);
+            return conversationDto;
         }
 
         public void Delete(int id)
@@ -104,7 +115,9 @@ namespace Social.Application.AppServices
             Mapper.Map(updateDto, conversation);
             _conversationService.Update(conversation);
             _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), id);
-            return Mapper.Map<ConversationDto>(conversation);
+            var conversationDto = Mapper.Map<ConversationDto>(conversation);
+            GetOtherFields(conversation, conversationDto);
+            return conversationDto;
         }
 
         public IList<ConversationLogDto> GetLogs(int converationId)
@@ -119,31 +132,48 @@ namespace Social.Application.AppServices
         public ConversationDto Take(int conversationId)
         {
             var entity = _conversationService.Take(conversationId);
-            return Mapper.Map<ConversationDto>(entity);
+            var conversationDto = Mapper.Map<ConversationDto>(entity);
+            GetOtherFields(entity, conversationDto);
+            return conversationDto;
         }
 
         public ConversationDto Close(int conversationId)
         {
             var entity = _conversationService.Close(conversationId);
-            return Mapper.Map<ConversationDto>(entity);
+            var conversationDto = Mapper.Map<ConversationDto>(entity);
+            GetOtherFields(entity, conversationDto);
+            return conversationDto;
         }
 
         public ConversationDto Reopen(int conversationId)
         {
             var entity = _conversationService.Reopen(conversationId);
-            return Mapper.Map<ConversationDto>(entity);
+            var conversationDto = Mapper.Map<ConversationDto>(entity);
+            GetOtherFields(entity, conversationDto);
+            return conversationDto;
         }
 
         public ConversationDto MarkAsRead(int conversationId)
         {
             var entity = _conversationService.MarkAsRead(conversationId);
-            return Mapper.Map<ConversationDto>(entity);
+            var conversationDto = Mapper.Map<ConversationDto>(entity);
+            GetOtherFields(entity, conversationDto);
+            return conversationDto;
         }
 
         public ConversationDto MarkAsUnRead(int conversationId)
         {
             var entity = _conversationService.MarkAsUnRead(conversationId);
-            return Mapper.Map<ConversationDto>(entity);
+            var conversationDto = Mapper.Map<ConversationDto>(entity);
+            GetOtherFields(entity, conversationDto);
+            return conversationDto;
+        }
+
+        private void GetOtherFields(Conversation conversation, ConversationDto conversationDto)
+        {
+            conversationDto.AgentName = _conversationService.GetAgentName(conversation);
+            conversationDto.DepartmentName = _conversationService.GetDepartmentName(conversation);
+            conversationDto.LastMessage = _conversationService.GetLastMessage(conversation);
         }
     }
 }
