@@ -14,7 +14,7 @@ namespace Framework.Core
         public IDependencyResolver DependencyResolver { get; set; }
 
         private IUnitOfWorkManager _unitOfWorkManager;
-        public IUnitOfWorkManager UnitOfWorkManager
+        public virtual IUnitOfWorkManager UnitOfWorkManager
         {
             get
             {

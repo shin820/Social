@@ -187,7 +187,7 @@ namespace Social.Application.AppServices
             conversationDto.AgentName = _conversationService.GetAgentName(conversation);
             conversationDto.DepartmentName = _conversationService.GetDepartmentName(conversation);
 
-            var messages = _messageService.FindAllByConversationId(conversation.Id);
+            var messages = _messageService.FindAll().Where(t => t.ConversationId == conversation.Id);
             if (messages != null && messages.Any())
             {
                 conversationDto.LastMessage = messages.OrderByDescending(t => t.Id).First().Content;
