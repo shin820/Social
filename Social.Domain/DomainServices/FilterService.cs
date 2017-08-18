@@ -21,29 +21,33 @@ namespace Social.Domain
         int GetConversationNum(Filter filter);
         string GetCreatedByName(Filter filter);
         void CheckFieldIdExist(List<FilterCondition> filterConditons);
+        void CheckFieldValue(List<FilterCondition> filterConditons);
     }
     public class FilterService : DomainService<Filter>, IFilterService
     {
         private IRepository<Filter> _filterRepo;
         private IRepository<FilterCondition> _filterConditionRepo;
         private IRepository<ConversationField> _conversationFieldRepo;       
-        private IRepository<Conversation> _ConversationService;
-        private IRepository<SocialUser> _UserRepo;
-        private IConversationService _Conversation;
+        private IRepository<Conversation> _conversationService;
+        private IRepository<SocialUser> _userRepo;
+        private IRepository<ConversationFieldOption> _conversationFieldOptionService;
+        private IConversationService _conversation;
 
         public FilterService(
             IRepository<FilterCondition> filterConditionRepo,
             IRepository<Filter> filterRepo,
-            IRepository<Conversation> ConversationService,
-            IRepository<SocialUser> UserRepo, IConversationService Conversation,
-            IRepository<ConversationField> conversationFieldRepo)
+            IRepository<Conversation> conversationService,
+            IRepository<SocialUser> userRepo, IConversationService conversation,
+            IRepository<ConversationField> conversationFieldRepo,
+            IRepository<ConversationFieldOption> conversationFieldOptionService)
         {
             _filterConditionRepo = filterConditionRepo;
             _filterRepo = filterRepo;
-            _ConversationService = ConversationService;
-            _Conversation = Conversation;
-            _UserRepo = UserRepo;
+            _conversationService = conversationService;
+            _conversation = conversation;
+            _userRepo = userRepo;
             _conversationFieldRepo = conversationFieldRepo;
+            _conversationFieldOptionService = conversationFieldOptionService;
         }
 
         public void DeleteConditons(Filter updateFilter)
@@ -59,6 +63,7 @@ namespace Social.Domain
         public void UpdateFilter(Filter filter, FilterCondition[] contiditons)
         {
             CheckFieldIdExist(contiditons.ToList());
+            CheckFieldValue(contiditons.ToList());
             foreach (var condition in contiditons)
             {
                 _filterConditionRepo.Insert(filter.Conditions[0]);
@@ -69,14 +74,14 @@ namespace Social.Domain
 
         public int GetConversationNum(Filter filter)
         {
-            return _Conversation.FindAll(filter).Count();
+            return _conversation.FindAll(filter).Count();
         }
 
         public string GetCreatedByName(Filter filter)
         {
-            if (_UserRepo.Find(filter.CreatedBy) != null)
+            if (_userRepo.Find(filter.CreatedBy) != null)
             {
-                return _UserRepo.Find(filter.CreatedBy).Name;
+                return _userRepo.Find(filter.CreatedBy).Name;
             }
             else
                 return null;
@@ -97,5 +102,37 @@ namespace Social.Domain
             }
             
         }
-    }
+
+        public void CheckFieldValue(List<FilterCondition> filterConditons)
+        {
+            foreach(var filterConditon in filterConditons)
+            {
+                if (_conversationFieldRepo.Find(filterConditon.FieldId).DataType == FieldDataType.DateTime)
+                {
+                    DateTime date;
+                    if (!DateTime.TryParse(filterConditon.Value, out date))
+                    {
+                        throw SocialExceptions.BadRequest($"The value's type is not DateTime : '{filterConditon.Value}' ");
+                    }
+                }
+                else if (_conversationFieldRepo.Find(filterConditon.FieldId).DataType == FieldDataType.Number)
+                {
+                    int number;
+                    if (!int.TryParse(filterConditon.Value, out number))
+                    {
+                        throw SocialExceptions.BadRequest($"The value's type is not Number : '{filterConditon.Value}' ");
+                    }
+                }
+                else if (_conversationFieldRepo.Find(filterConditon.FieldId).DataType == FieldDataType.Option)
+                {
+                    var conversationFieldOption = _conversationFieldOptionService.FindAll().Where(t => t.Value == filterConditon.Value && t.FieldId == filterConditon.FieldId).ToList();
+                    if (conversationFieldOption.Count() == 0)
+                    {
+                        throw SocialExceptions.BadRequest($"The value's type is not Option : '{filterConditon.Value}' ");
+                    }
+                }
+            }
+        }
+
+        }
 }

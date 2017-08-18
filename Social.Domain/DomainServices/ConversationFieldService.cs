@@ -12,7 +12,7 @@ namespace Social.Domain.DomainServices
 {
     public interface IConversationFieldService : IDomainService<ConversationField>
     {
-        IList<ConversationField> FinAllAndFillOptions();
+        IList<ConversationField> FindAllAndFillOptions();
     }
 
 
@@ -33,7 +33,7 @@ namespace Social.Domain.DomainServices
             _socialUserService = socialUserService;
         }
 
-        public IList<ConversationField> FinAllAndFillOptions()
+        public IList<ConversationField> FindAllAndFillOptions()
         {
             var fields = this.FindAll().Include(t => t.Options).AsNoTracking().ToList();
             FillAgentOptions(fields);

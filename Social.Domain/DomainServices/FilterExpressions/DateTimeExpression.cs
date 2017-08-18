@@ -19,38 +19,38 @@ namespace Social.Domain.DomainServices.FilterExpressions
         }
         public Expression<Func<Conversation, bool>> Build(FilterCondition condition)
         {
-            string Date = condition.Value;
+            string date = condition.Value;
             if (condition.Value == "@Today")
             {
-                Date = DateTime.UtcNow.ToString("yyyy-MM-dd");
+                date = DateTime.UtcNow.ToString("yyyy-MM-dd");
             }
             else if (condition.Value == "@Yesterday")
             {
-                Date = DateTime.UtcNow.AddDays(-1).ToString("yyyy-MM-dd");
+                date = DateTime.UtcNow.AddDays(-1).ToString("yyyy-MM-dd");
             }
             else if (condition.Value == "@7 Days Ago")
             {
-                Date = DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd");
+                date = DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd");
             }
             else if (condition.Value == "@30 Days Ago")
             {
-                Date = DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
+                date = DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
             }
             if (condition.MatchType == ConditionMatchType.Is)
             {
-                return Is(Date);
+                return Is(date);
             }
             if (condition.MatchType == ConditionMatchType.Before)
             {
-                return Before(Date);
+                return Before(date);
             }
             if (condition.MatchType == ConditionMatchType.After)
             {
-                return After(Date);
+                return After(date);
             }
             if (condition.MatchType == ConditionMatchType.Between)
             {
-                return Between(Date);
+                return Between(date);
             }
 
             return null;
