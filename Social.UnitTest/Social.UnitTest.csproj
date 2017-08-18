@@ -77,7 +77,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DomainServices\FilterExpressions\DateTimeExpressionTest.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFieldExpression\AgentAssigneeExpressionTest.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFieldExpression\AgentAssigneeStatusExpressionTest.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFieldExpression\CommentMessagesExpressionTest.cs" />
