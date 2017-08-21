@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Social.Application.Dto
 {
-    class FilterConditionDto
+    public class FilterConditionDto
     {
         public int Id { get; set; }
         public int FilterId { get; set; }

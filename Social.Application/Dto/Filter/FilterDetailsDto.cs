@@ -25,6 +25,6 @@ namespace Social.Application.Dto
         public string CreatedByName { get; set; }
         public DateTime CreatedTime { get; set; }
 
-        public virtual IList<FilterConditionCreateDto> Conditions { get; set; }
+        public virtual IList<FilterConditionDto> Conditions { get; set; }
     }
 }
