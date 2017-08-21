@@ -1,4 +1,4 @@
-﻿using Framework.Core.Session;
+﻿using Framework.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,18 +13,17 @@ namespace Framework.WebApi
 {
     public class SessionAuthenticationHandler : DelegatingHandler
     {
-        //private IUserSessionProvider _userSessionProvider;
+        private IUserSessionProvider _userSessionProvider;
 
-        //public SessionAuthenticationHandler(IUserSessionProvider userSessionProvider)
-        //{
-        //    _userSessionProvider = userSessionProvider;
-        //}
+        public SessionAuthenticationHandler(IUserSessionProvider userSessionProvider)
+        {
+            _userSessionProvider = userSessionProvider;
+        }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             int siteId = request.GetSiteId();
-            //int currentOperatorId = Comm.Comm100.Framework.Http.SessionHelper.GetSessionValue_CurrentOperatorId(siteId);
-            int currentOperatorId = 1;
+            int currentOperatorId = _userSessionProvider.GetUserId();
             if (currentOperatorId > 0)
             {
                 ClaimsIdentity cliamsIdentity = new ClaimsIdentity("SessionIdentity");

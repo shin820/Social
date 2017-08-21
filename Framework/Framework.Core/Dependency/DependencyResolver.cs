@@ -32,6 +32,7 @@ namespace Framework.Core
                 Component.For<ITransactionStrategy>().ImplementedBy<TransactionStrategy>().LifestyleTransient(),
                 Component.For<IDbContextResolver>().ImplementedBy<DefaultDbContextResolver>().LifestyleTransient(),
                 Component.For<IConnectionStringResolver>().ImplementedBy<DefaultConnectionStringResolver>().LifestyleTransient(),
+                Component.For<IUserSessionProvider>().ImplementedBy<DefaultUserSessionProvider>().LifestyleTransient(),
                 Component.For<ICurrentUnitOfWorkProvider>().ImplementedBy<CurrentUnitOfWorkProvider>().LifestyleTransient()
                 );
         }

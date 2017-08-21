@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Framework.Core.Session
+namespace Framework.Core
 {
     public interface IUserSessionProvider
     {
-        int? GetUserId();
+        int GetUserId();
     }
 }
