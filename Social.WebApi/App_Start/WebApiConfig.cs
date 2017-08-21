@@ -14,7 +14,9 @@ namespace Social.WebApi
     {
         public static void Register(HttpConfiguration config)
         {
-            config.MessageHandlers.Add(new SessionAuthenticationHandler());
+            IDependencyResolver resolver = config.DependencyResolver.GetService(typeof(IDependencyResolver)) as IDependencyResolver;
+
+            config.MessageHandlers.Add(new SessionAuthenticationHandler(resolver.Resolve<IUserSessionProvider>()));
 
             // Web API 配置和服务
             config.Formatters.JsonFormatter.SerializerSettings.ContractResolver
@@ -29,8 +31,6 @@ namespace Social.WebApi
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }
             );
-
-            IDependencyResolver resolver = config.DependencyResolver.GetService(typeof(IDependencyResolver)) as IDependencyResolver;
 
             config.Filters.Add(new SiteIdRequiredAttribute());
             config.Filters.Add(new InvalidParametersFilter());

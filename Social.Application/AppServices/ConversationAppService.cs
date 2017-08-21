@@ -53,14 +53,14 @@ namespace Social.Application.AppServices
 
         public IList<ConversationDto> Find(ConversationSearchDto dto)
         {
-            if (dto.Since == null && dto.Util == null)
+            if (dto.Since == null && dto.Until == null)
             {
-                dto.Util = DateTime.UtcNow;
+                dto.Until = DateTime.UtcNow;
                 dto.Since = DateTime.UtcNow.AddMonths(-3);
             }
             var conversations = _conversationService.FindAll();
             conversations = conversations.WhereIf(dto.Since != null, t => t.CreatedTime > dto.Since);
-            conversations = conversations.WhereIf(dto.Util != null, t => t.CreatedTime <= dto.Util);
+            conversations = conversations.WhereIf(dto.Until != null, t => t.CreatedTime <= dto.Until);
             conversations = _conversationService.ApplyFilter(conversations, dto.FilterId);
             conversations = _conversationService.ApplyKeyword(conversations, dto.Keyword);
             conversations = _conversationService.ApplySenderOrReceiverId(conversations, dto.UserId);
@@ -202,7 +202,7 @@ namespace Social.Application.AppServices
             {
                 conversationDto.DepartmentName = departments.FirstOrDefault().Name;
             }
-            var messages = _messageService.FindAllByConversationId(conversation.Id);
+            var messages = _messageService.FindAll().Where(t => t.ConversationId == conversation.Id);
             if (messages != null && messages.Any())
             {
                 conversationDto.LastMessage = messages.OrderByDescending(t => t.Id).First().Content;

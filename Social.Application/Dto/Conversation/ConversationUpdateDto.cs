@@ -11,9 +11,9 @@ namespace Social.Application.Dto
 {
     public class ConversationUpdateDto
     {
-        [Enum]
-        [Required]
-        public ConversationSource? Source { get; set; }
+        //[Enum]
+        //[Required]
+        //public ConversationSource? Source { get; set; }
 
         public bool IfRead { get; set; }
 

@@ -109,6 +109,8 @@
     <Compile Include="OAuth\OAuthRefreshToken.cs" />
     <Compile Include="Paging\IdPager.cs" />
     <Compile Include="ServiceBase.cs" />
+    <Compile Include="Session\IUserSessionProvider.cs" />
+    <Compile Include="Session\DefaultUserSessionProvider.cs" />
     <Compile Include="UnitOfWork\CurrentUnitOfWorkProvider.cs" />
     <Compile Include="UnitOfWork\ICurrentUnitOfWorkProvider.cs" />
     <Compile Include="UnitOfWork\InnerUnitOfWorkCompleteHandle.cs" />
