@@ -28,9 +28,9 @@ namespace Social.Application.Dto
 
 
         /// <summary>
-        /// The result will contains conversations which create time less or equal to Util date.
+        /// The result will contains conversations which create time less or equal to Until date.
         /// </summary>
-        public DateTime? Util { get; set; }
+        public DateTime? Until { get; set; }
         [Range(0, int.MaxValue)]
         public int? UserId { get; set; }
     }

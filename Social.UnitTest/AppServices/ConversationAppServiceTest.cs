@@ -74,7 +74,7 @@ namespace Social.UnitTest.AppServices
             ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, null, messageService.Object);
 
             // Act
-            IList<ConversationDto> conversationDtoList = appSerice.Find(new ConversationSearchDto { Util = DateTime.UtcNow });
+            IList<ConversationDto> conversationDtoList = appSerice.Find(new ConversationSearchDto { Until = DateTime.UtcNow });
 
             // Assert
             Assert.True(conversationDtoList.Any());
