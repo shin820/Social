@@ -1,4 +1,5 @@
 ﻿using Framework.Core;
+using Framework.Core.Json;
 using Framework.Core.UnitOfWork;
 using Framework.WebApi;
 using Framework.WebApi.Filters;
@@ -22,6 +23,7 @@ namespace Social.WebApi
             config.Formatters.JsonFormatter.SerializerSettings.ContractResolver
                 = new CamelCasePropertyNamesContractResolver();
             config.Formatters.JsonFormatter.UseDataContractJsonSerializer = false;
+            config.Formatters.JsonFormatter.SerializerSettings.Converters.Add(new UnitDateTimeConverter());
 
             // Web API 路由
             config.MapHttpAttributeRoutes();

@@ -217,6 +217,7 @@
     <Compile Include="Core\SiteDataRepository.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

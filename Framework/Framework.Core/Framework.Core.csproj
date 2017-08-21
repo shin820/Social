@@ -55,6 +55,9 @@
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Collections.Immutable.1.4.0\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
@@ -81,6 +84,7 @@
     <Compile Include="Entities\ISoftDelete.cs" />
     <Compile Include="EntityFramework\DataContext.cs" />
     <Compile Include="EntityFramework\EfRepository.cs" />
+    <Compile Include="EntityFramework\EntityDateTimePropertiesInfo.cs" />
     <Compile Include="EntityFramework\ShardingTableInterceptor.cs" />
     <Compile Include="Extensions\ClaimsIdentityExtensions.cs" />
     <Compile Include="Dependency\DependencyResolver.cs" />
@@ -88,6 +92,7 @@
     <Compile Include="Dependency\ITransient.cs" />
     <Compile Include="DomainService.cs" />
     <Compile Include="Exception\ExceptionWithCode.cs" />
+    <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\EnumExtensions.cs" />
     <Compile Include="Extensions\UriExtensions.cs" />
     <Compile Include="IConnectionStringResolver.cs" />
@@ -99,6 +104,7 @@
     <Compile Include="Entities\IHaveModification.cs" />
     <Compile Include="Entities\IHaveSiteId.cs" />
     <Compile Include="Entities\IShardingBySiteId.cs" />
+    <Compile Include="Json\UnitDateTimeConverter.cs" />
     <Compile Include="MimeTypeMap.cs" />
     <Compile Include="OAuth\ApplicationTypes.cs" />
     <Compile Include="Checker.cs" />
@@ -108,10 +114,12 @@
     <Compile Include="ErrorInfo.cs" />
     <Compile Include="OAuth\OAuthRefreshToken.cs" />
     <Compile Include="Paging\IdPager.cs" />
+    <Compile Include="Utils\ReflectionHelper.cs" />
     <Compile Include="ServiceBase.cs" />
     <Compile Include="Session\IUserSessionProvider.cs" />
     <Compile Include="Session\DefaultUserSessionProvider.cs" />
     <Compile Include="UnitOfWork\CurrentUnitOfWorkProvider.cs" />
+    <Compile Include="EntityFramework\DateTimePropertyInfoHelper.cs" />
     <Compile Include="UnitOfWork\ICurrentUnitOfWorkProvider.cs" />
     <Compile Include="UnitOfWork\InnerUnitOfWorkCompleteHandle.cs" />
     <Compile Include="UnitOfWork\ITransactionStrategy.cs" />
