@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using Framework.Core;
 using Social.Application.Dto;
+using Social.Domain.DomainServices;
 using Social.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -19,33 +20,20 @@ namespace Social.Application.AppServices
 
     public class DepartmentAppService : AppService, IDepartmentAppService
     {
-        public DepartmentAppService()
+        private IDepartmentService _departmentService;
+        public DepartmentAppService(IDepartmentService departmentService)
         {
+            _departmentService = departmentService;
         }
 
         public List<DepartmentDto> FindAll()
         {
-            List<DepartmentDto> DepartmentDtos = new List<DepartmentDto>();
-            DepartmentDto DepartmentDto1 = new DepartmentDto();
-            DepartmentDto1.Id = 1; DepartmentDto1.Name = "Sales"; 
-            DepartmentDtos.Add(DepartmentDto1);
-            DepartmentDto DepartmentDto2 = new DepartmentDto();
-            DepartmentDto2.Id = 2; DepartmentDto2.Name = "Support"; 
-            DepartmentDtos.Add(DepartmentDto2);
-            return DepartmentDtos;
+            return _departmentService.FindAll().ProjectTo<DepartmentDto>().ToList();
         }
 
         public DepartmentDto Find(int id)
         {
-            List<DepartmentDto> DepartmentDtos = FindAll();
-            foreach (var DepartmentDto in DepartmentDtos)
-            {
-                if (DepartmentDto.Id == id)
-                {
-                    return DepartmentDto;
-                }
-            }
-            return null;
+            return Mapper.Map<DepartmentDto>(_departmentService.Find(id));
         }
 
     }

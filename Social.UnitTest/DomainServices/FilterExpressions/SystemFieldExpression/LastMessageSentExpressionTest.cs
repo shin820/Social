@@ -1,5 +1,6 @@
 ﻿using Social.Domain.DomainServices;
 using Social.Domain.Entities;
+using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         {
             FilterCondition condition = new FilterCondition
             {
-                Field = new ConversationField { Name = "Created", DataType = FieldDataType.DateTime },
+                Field = new ConversationField { Name = "Last Message Sent", DataType = FieldDataType.DateTime },
                 MatchType = ConditionMatchType.Is,
                 Value = "@Today"
             };
@@ -36,13 +37,12 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
             Assert.Equal(1, result.First().Id);
         }
 
-
         [Fact]
         public void ShouldFilterByBeforeCondition()
         {
             FilterCondition condition = new FilterCondition
             {
-                Field = new ConversationField { Name = "Created", DataType = FieldDataType.DateTime },
+                Field = new ConversationField { Name = "Last Message Sent", DataType = FieldDataType.DateTime },
                 MatchType = ConditionMatchType.Before,
                 Value = "@Today"
             };
@@ -61,13 +61,12 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
             Assert.Equal(2, result.First().Id);
         }
 
-
         [Fact]
         public void ShouldFilterByAfterCondition()
         {
             FilterCondition condition = new FilterCondition
             {
-                Field = new ConversationField { Name = "Created", DataType = FieldDataType.DateTime },
+                Field = new ConversationField { Name = "Last Message Sent", DataType = FieldDataType.DateTime },
                 MatchType = ConditionMatchType.After,
                 Value = "@Yesterday"
             };
@@ -91,7 +90,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         {
             FilterCondition condition = new FilterCondition
             {
-                Field = new ConversationField { Name = "Created", DataType = FieldDataType.DateTime },
+                Field = new ConversationField { Name = "Last Message Sent", DataType = FieldDataType.DateTime },
                 MatchType = ConditionMatchType.Between,
                 Value = DateTime.UtcNow.AddDays(-3).ToString("yyyy-MM-dd hh:mm:ss") + '|' + DateTime.UtcNow.AddDays(-1).ToString("yyyy-MM-dd hh:mm:ss")
             };
@@ -108,6 +107,25 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
 
             Assert.Equal(1, result.Count);
             Assert.Equal(2, result.First().Id);
+        }
+
+        [Fact]
+        public void ShouldCheckValueType()
+        {
+            FilterCondition condition = new FilterCondition
+            {
+                Field = new ConversationField { Name = "Last Message Sent", DataType = FieldDataType.DateTime },
+                MatchType = ConditionMatchType.Is,
+                Value = "0"
+            };
+            try
+            {
+                var expression = new LastMessageSentExpression().Build(condition);
+            }
+            catch(Exception ex)
+            {
+                Assert.Equal("The value of date time is invalid", ex.Message);
+            }
         }
     }
 }

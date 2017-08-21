@@ -14,7 +14,7 @@ namespace Social.Domain.DomainServices
         string GetDiaplyName(int? id);
         void FillAgentName(IEnumerable<IHaveSendAgent> list);
         void FillCreatedByName(IEnumerable<IHaveCreatedBy> list);
-        int[] IsMatchStatusAgents(int status);
+        int[] GetMatchedStatusAgents(int status);
         IQueryable<Agent> FindAll();
         Agent Find(int id);
     }
@@ -28,13 +28,13 @@ namespace Social.Domain.DomainServices
                 new Agent { Id=1,Name="Test Agent 1"},
                 new Agent { Id=2,Name="Test Agent 2"},
                 new Agent { Id=3,Name="Test Agent 3"},
-                new Agent { Id=3,Name="Test Agent 4"},
-                new Agent { Id=3,Name="Test Agent 5"},
-                new Agent { Id=3,Name="Test Agent 6"},
-                new Agent { Id=3,Name="Test Agent 7"},
-                new Agent { Id=3,Name="Test Agent 8"},
-                new Agent { Id=3,Name="Test Agent 9"},
-                new Agent { Id=3,Name="Test Agent 10"},
+                new Agent { Id=4,Name="Test Agent 4"},
+                new Agent { Id=5,Name="Test Agent 5"},
+                new Agent { Id=6,Name="Test Agent 6"},
+                new Agent { Id=7,Name="Test Agent 7"},
+                new Agent { Id=8,Name="Test Agent 8"},
+                new Agent { Id=9,Name="Test Agent 9"},
+                new Agent { Id=10,Name="Test Agent 10"},
             };
 
             return agents.AsQueryable();
@@ -90,7 +90,7 @@ namespace Social.Domain.DomainServices
             }
         }
 
-        public int[] IsMatchStatusAgents(int status)
+        public int[] GetMatchedStatusAgents(int status)
         {
             return new int[] { };
 

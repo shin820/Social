@@ -1,6 +1,7 @@
 ﻿using Framework.Core;
 using LinqKit;
 using Social.Domain.Entities;
+using Social.Domain.Entities.General;
 using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
@@ -30,8 +31,8 @@ namespace Social.Domain.DomainServices
         Conversation Reopen(int conversationId);
         Conversation MarkAsRead(int conversationId);
         Conversation MarkAsUnRead(int conversationId);
-        string GetAgentName(Conversation conversation);
-        string GetDepartmentName(Conversation conversation);
+        List<Agent> GetAgents(List<Conversation> conversations);
+        List<Department> GetDepartments(List<Conversation> conversations);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -338,44 +339,36 @@ namespace Social.Domain.DomainServices
             });
         }
 
-        public string GetAgentName(Conversation conversation)
+        public List<Agent> GetAgents(List<Conversation> conversations)
         {
-            if (conversation.AgentId.HasValue)
+            List<Agent> agents = new List<Agent>();
+            foreach (var conversation in conversations)
             {
-                if (_agentService.Find(conversation.AgentId.Value) != null)
+                if (conversation.AgentId.HasValue)
                 {
-                    return _agentService.Find(conversation.AgentId.Value).Name;
-                }
-                else
-                {
-                    return null;
+                    if (_agentService.Find(conversation.AgentId.Value) != null)
+                    {
+                        agents.Add(_agentService.Find(conversation.AgentId.Value));
+                    }
                 }
             }
-            else
-            {
-                return null;
-            }
+            return agents;
         }
 
-        public string GetDepartmentName(Conversation conversation)
+        public List<Department> GetDepartments(List<Conversation> conversations)
         {
-            if (conversation.DepartmentId.HasValue)
+            List<Department> departments = new List<Department>();
+            foreach (var conversation in conversations)
             {
-                if (_departmentService.Find(conversation.DepartmentId.Value) != null)
+                if (conversation.DepartmentId.HasValue)
                 {
-                    return _departmentService.Find(conversation.DepartmentId.Value).Name;
-                }
-                else
-                {
-                    return null;
+                    if (_agentService.Find(conversation.DepartmentId.Value) != null)
+                    {
+                        departments.Add(_departmentService.Find(conversation.DepartmentId.Value));
+                    }
                 }
             }
-            else
-            {
-                return null;
-            }
+            return departments;
         }
-
-
     }
 }

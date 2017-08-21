@@ -25,13 +25,13 @@ namespace Social.Domain.DomainServices
 
         protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
         {
-            int[] agentIds = _agentService.IsMatchStatusAgents(int.Parse(condition.Value));
+            int[] agentIds = _agentService.GetMatchedStatusAgents(int.Parse(condition.Value));
             return t => t.AgentId.HasValue && agentIds.Contains(t.AgentId.Value);
         }
 
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
         {
-            int[] agentIds = _agentService.IsMatchStatusAgents(int.Parse(condition.Value));
+            int[] agentIds = _agentService.GetMatchedStatusAgents(int.Parse(condition.Value));
             return t => t.AgentId.HasValue && !agentIds.Contains(t.AgentId.Value) || !t.AgentId.HasValue;
         }
     }

@@ -68,10 +68,18 @@ namespace Social.Application.AppServices
             List<ConversationDto> conversationDtos = conversations.Paging(dto).ProjectTo<ConversationDto>().ToList();
 
             var lastMessages = _messageService.GetLastMessages(conversations.Select(t => t.Id).ToArray());
+            var agents = _conversationService.GetAgents(conversations.ToList());
+            var departments = _conversationService.GetDepartments(conversations.ToList());
             for (int i = 0; i < conversationDtos.Count(); i++)
             {
-                conversationDtos[i].AgentName = _conversationService.GetAgentName(conversations.ToArray()[i]);
-                conversationDtos[i].DepartmentName = _conversationService.GetDepartmentName(conversations.ToArray()[i]);
+                if (agents.Find(t => t.Id == conversations.ToArray()[i].AgentId) != null)
+                {
+                    conversationDtos[i].AgentName = agents.Find(t => t.Id == conversations.ToArray()[i].AgentId).Name;
+                }
+                if (departments.Find(t => t.Id == conversations.ToArray()[i].DepartmentId) != null)
+                {
+                    conversationDtos[i].DepartmentName = departments.Find(t => t.Id == conversations.ToArray()[i].DepartmentId).Name;
+                }
                 if (lastMessages != null && lastMessages.Any())
                 {
                     var lastMessage = lastMessages.FirstOrDefault(t => t.ConversationId == conversationDtos[i].Id);
@@ -184,9 +192,16 @@ namespace Social.Application.AppServices
 
         private void FillFields(Conversation conversation, ConversationDto conversationDto)
         {
-            conversationDto.AgentName = _conversationService.GetAgentName(conversation);
-            conversationDto.DepartmentName = _conversationService.GetDepartmentName(conversation);
-
+            var agents = _conversationService.GetAgents(new List<Conversation> { conversation });
+            if (agents.Count() > 0)
+            {
+                conversationDto.AgentName = agents.FirstOrDefault().Name;
+            }
+            var departments = _conversationService.GetDepartments(new List<Conversation> { conversation });
+            if (departments.Count() > 0)
+            {
+                conversationDto.DepartmentName = departments.FirstOrDefault().Name;
+            }
             var messages = _messageService.FindAll().Where(t => t.ConversationId == conversation.Id);
             if (messages != null && messages.Any())
             {

@@ -14,7 +14,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         public void ShouldFilterByIsCondition()
         {
             var departmentServiceMock = new Mock<IDepartmentService>();
-            departmentServiceMock.Setup(t => t.IsMatchStatusDepartments(1)).Returns(new[] { 1, 3 });
+            departmentServiceMock.Setup(t => t.GetMatchedStatusDepartments(1)).Returns(new[] { 1, 3 });
 
 
             FilterCondition condition = new FilterCondition
@@ -41,7 +41,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         public void ShouldFilterByIsNotCondition()
         {
             var departmentServiceMock = new Mock<IDepartmentService>();
-            departmentServiceMock.Setup(t => t.IsMatchStatusDepartments(1)).Returns(new[] { 1, 3 });
+            departmentServiceMock.Setup(t => t.GetMatchedStatusDepartments(1)).Returns(new[] { 1, 3 });
 
 
             FilterCondition condition = new FilterCondition

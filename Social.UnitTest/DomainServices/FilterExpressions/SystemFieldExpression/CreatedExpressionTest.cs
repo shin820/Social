@@ -109,5 +109,24 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
             Assert.Equal(1, result.Count);
             Assert.Equal(2, result.First().Id);
         }
+
+        [Fact]
+        public void ShouldCheckValueType()
+        {
+            FilterCondition condition = new FilterCondition
+            {
+                Field = new ConversationField { Name = "Created", DataType = FieldDataType.DateTime },
+                MatchType = ConditionMatchType.Is,
+                Value = "0"
+            };
+            try
+            {
+                var expression = new CreatedExpression().Build(condition);
+            }
+            catch (Exception ex)
+            {
+                Assert.Equal("The value of date time is invalid", ex.Message);
+            }
+        }
     }
 }
