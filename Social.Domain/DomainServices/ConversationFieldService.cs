@@ -21,21 +21,24 @@ namespace Social.Domain.DomainServices
         private IDepartmentService _departmentService;
         private IAgentService _agentService;
         private ISocialUserService _socialUserService;
+        private IDomainService<ConversationField> _conversationFieldService;
 
         public ConversationFieldService(
             IDepartmentService departmentService,
             IAgentService agentService,
-            ISocialUserService socialUserService
+            ISocialUserService socialUserService,
+            IDomainService<ConversationField> conversationFieldService
             )
         {
             _departmentService = departmentService;
             _agentService = agentService;
             _socialUserService = socialUserService;
+            _conversationFieldService = conversationFieldService;
         }
 
         public IList<ConversationField> FindAllAndFillOptions()
         {
-            var fields = this.FindAll().Include(t => t.Options).AsNoTracking().ToList();
+            var fields = _conversationFieldService.FindAll().Include(t => t.Options).AsNoTracking().ToList();
             FillAgentOptions(fields);
             FillDepartmentOptions(fields);
             FillSocialAccountOptions(fields);

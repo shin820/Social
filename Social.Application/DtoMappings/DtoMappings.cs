@@ -3,6 +3,7 @@ using Social.Application.Dto;
 using Social.Application.Dto.UserInfo;
 using Social.Domain.DomainServices;
 using Social.Domain.Entities;
+using Social.Domain.Entities.General;
 using Social.Infrastructure.Enum;
 using Social.Infrastructure.Facebook;
 
@@ -70,6 +71,8 @@ namespace Social.Application
             CreateMap<UpdateTwitterAccountDto, SocialAccount>();
 
             CreateMap<FbUser, UserInfoDto>();
+            CreateMap<Agent, AgentDto>();
+            CreateMap<Department, DepartmentDto>();
         }
     }
 }

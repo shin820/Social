@@ -13,7 +13,7 @@ namespace Social.Domain.DomainServices
         string GetDisplayName(int? departmentId);
         int GetMyDepartmentId(int userId);
         int[] GetMyDepartmentMembers(int userId);
-        int[] IsMatchStatusDepartments(int status);
+        int[] GetMatchedStatusDepartments(int status);
         IQueryable<Department> FindAll();
         Department Find(int id);
     }
@@ -76,7 +76,7 @@ namespace Social.Domain.DomainServices
             return new int[] { };
         }
 
-        public int[] IsMatchStatusDepartments(int status)
+        public int[] GetMatchedStatusDepartments(int status)
         {
             return new int[] { };
         }
