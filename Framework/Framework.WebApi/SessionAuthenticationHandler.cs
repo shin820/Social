@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Framework.Core.Session;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -12,6 +13,13 @@ namespace Framework.WebApi
 {
     public class SessionAuthenticationHandler : DelegatingHandler
     {
+        //private IUserSessionProvider _userSessionProvider;
+
+        //public SessionAuthenticationHandler(IUserSessionProvider userSessionProvider)
+        //{
+        //    _userSessionProvider = userSessionProvider;
+        //}
+
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             int siteId = request.GetSiteId();
