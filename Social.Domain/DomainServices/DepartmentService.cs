@@ -14,13 +14,14 @@ namespace Social.Domain.DomainServices
         int GetMyDepartmentId(int userId);
         int[] GetMyDepartmentMembers(int userId);
         int[] GetMatchedStatusDepartments(int status);
-        IQueryable<Department> FindAll();
+        IList<Department> FindAll();
         Department Find(int id);
+        IList<Department> Find(IEnumerable<int> ids);
     }
 
-    public class DepartmentService : ITransient, IDepartmentService
+    public class DepartmentService :ServiceBase, ITransient, IDepartmentService
     {
-        public IQueryable<Department> FindAll()
+        public IList<Department> FindAll()
         {
             var departments = new List<Department>
             {
@@ -31,12 +32,22 @@ namespace Social.Domain.DomainServices
                 new Department{Id=5,Name="Test Department 5"},
             };
 
-            return departments.AsQueryable();
+            return departments;
         }
 
         public Department Find(int id)
         {
             return FindAll().FirstOrDefault(t => t.Id == id);
+        }
+
+        public IList<Department> Find(IEnumerable<int> ids)
+        {
+            if (ids == null)
+            {
+                return new List<Department>();
+            }
+
+            return FindAll().Where(t => ids.Contains(t.Id)).ToList();
         }
 
 

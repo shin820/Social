@@ -28,7 +28,7 @@ namespace Social.Application.AppServices
 
         public List<DepartmentDto> FindAll()
         {
-            return _departmentService.FindAll().ProjectTo<DepartmentDto>().ToList();
+            return _departmentService.FindAll().Select(t => Mapper.Map<DepartmentDto>(t)).ToList();
         }
 
         public DepartmentDto Find(int id)

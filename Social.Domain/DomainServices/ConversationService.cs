@@ -31,8 +31,6 @@ namespace Social.Domain.DomainServices
         Conversation Reopen(int conversationId);
         Conversation MarkAsRead(int conversationId);
         Conversation MarkAsUnRead(int conversationId);
-        List<Agent> GetAgents(List<Conversation> conversations);
-        List<Department> GetDepartments(List<Conversation> conversations);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -337,38 +335,6 @@ namespace Social.Domain.DomainServices
                 Type = type,
                 Content = message,
             });
-        }
-
-        public List<Agent> GetAgents(List<Conversation> conversations)
-        {
-            List<Agent> agents = new List<Agent>();
-            foreach (var conversation in conversations)
-            {
-                if (conversation.AgentId.HasValue)
-                {
-                    if (_agentService.Find(conversation.AgentId.Value) != null)
-                    {
-                        agents.Add(_agentService.Find(conversation.AgentId.Value));
-                    }
-                }
-            }
-            return agents;
-        }
-
-        public List<Department> GetDepartments(List<Conversation> conversations)
-        {
-            List<Department> departments = new List<Department>();
-            foreach (var conversation in conversations)
-            {
-                if (conversation.DepartmentId.HasValue)
-                {
-                    if (_agentService.Find(conversation.DepartmentId.Value) != null)
-                    {
-                        departments.Add(_departmentService.Find(conversation.DepartmentId.Value));
-                    }
-                }
-            }
-            return departments;
         }
     }
 }

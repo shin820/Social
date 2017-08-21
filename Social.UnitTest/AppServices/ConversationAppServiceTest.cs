@@ -24,7 +24,9 @@ namespace Social.UnitTest.AppServices
             var conversationService = new Mock<IConversationService>();
             conversationService.Setup(t => t.Find(1)).Returns(fakeConversationEntity);
             var messageService = MakeFakeMessageService(fakeConversationEntity.Messages);
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, null, messageService);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService);
+            appSerice.AgentService = new Mock<IAgentService>().Object;
+            appSerice.DepartmentService = new Mock<IDepartmentService>().Object;
 
             // Act
             ConversationDto conversationDto = appSerice.Find(1);
@@ -41,7 +43,7 @@ namespace Social.UnitTest.AppServices
             var conversationService = new Mock<IConversationService>();
             conversationService.Setup(t => t.Find(1)).Returns<Conversation>(null);
             var messageService = new Mock<IMessageService>();
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, null, messageService.Object);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService.Object);
 
             // Act
             Action action = () => { appSerice.Find(1); };
@@ -71,7 +73,9 @@ namespace Social.UnitTest.AppServices
                  fakeConversationEntityList.First(t => t.Id == 2).Messages.FirstOrDefault()
              }
             );
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, null, messageService.Object);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService.Object);
+            appSerice.AgentService = new Mock<IAgentService>().Object;
+            appSerice.DepartmentService = new Mock<IDepartmentService>().Object;
 
             // Act
             IList<ConversationDto> conversationDtoList = appSerice.Find(new ConversationSearchDto { Until = DateTime.UtcNow });
@@ -90,7 +94,9 @@ namespace Social.UnitTest.AppServices
             var conversationService = new Mock<IConversationService>();
             conversationService.Setup(t => t.Insert(It.IsAny<Conversation>())).Returns(fakeConversationEntity);
             var messageService = MakeFakeMessageService(fakeConversationEntity.Messages);
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, null, messageService);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService);
+            appSerice.AgentService = new Mock<IAgentService>().Object;
+            appSerice.DepartmentService = new Mock<IDepartmentService>().Object;
             appSerice.UnitOfWorkManager = MakeFakeUnitOfWorkManager();
 
             // Act
@@ -111,7 +117,8 @@ namespace Social.UnitTest.AppServices
             var messageService = MakeFakeMessageService(fakeConversationEntity.Messages);
             var conversationService = new Mock<IConversationService>();
             conversationService.Setup(t => t.Find(1)).Returns(fakeConversationEntity);
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, notificationService, messageService);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService);
+            appSerice.NotificationManager = notificationService;
             appSerice.UnitOfWorkManager = MakeFakeUnitOfWorkManager();
 
             // Act
@@ -129,7 +136,7 @@ namespace Social.UnitTest.AppServices
             // Arrange
             var conversationService = new Mock<IConversationService>();
             conversationService.Setup(t => t.Find(1)).Returns<Conversation>(null);
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, null, null);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null);
 
             // Act
             Action action = () => { appSerice.Update(1, new ConversationUpdateDto()); };
@@ -147,7 +154,8 @@ namespace Social.UnitTest.AppServices
             var messageService = MakeFakeMessageService(fakeConversationEntity.Messages);
             var conversationService = new Mock<IConversationService>();
             conversationService.Setup(t => t.Find(1)).Returns(fakeConversationEntity);
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, notificationService.Object, messageService);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService);
+            appSerice.NotificationManager = notificationService.Object;
             appSerice.UnitOfWorkManager = MakeFakeUnitOfWorkManager();
 
             // Act
@@ -164,7 +172,7 @@ namespace Social.UnitTest.AppServices
             var fakeConversationEntity = MakeConversationEntity(1);
             var conversationService = new Mock<IConversationService>();
             conversationService.Setup(t => t.Find(1)).Returns(fakeConversationEntity);
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, null, null);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null);
 
             // Act
             appSerice.Delete(1);
@@ -179,7 +187,7 @@ namespace Social.UnitTest.AppServices
             // Arrange
             var conversationService = new Mock<IConversationService>();
             conversationService.Setup(t => t.Find(1)).Returns<Conversation>(null);
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, null, null);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null);
 
             // Act
             Action action = () => { appSerice.Delete(1); };
