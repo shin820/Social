@@ -385,6 +385,7 @@
     <None Include="Scripts\jquery-3.1.1.intellisense.js" />
     <Content Include="obfuscar.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -501,11 +502,11 @@
   </Target>
   <Target Name="AfterBuild">
   </Target> -->
-  <Target Name="Obfuscate" BeforeTargets="MSDeployPublish" Condition="'$(Configuration)' == 'Debug'">
+  <Target Name="Obfuscate" BeforeTargets="MSDeployPublish" Condition="'$(Configuration)' == 'Release'">
     <Message Text="Obfuscate Start..." />
     <Exec Command="&quot;$(ProjectDir)..\obfuscar\Obfuscar.Console.exe&quot; &quot;$(ProjectDir)obfuscar.xml&quot;" />
-    <Exec Command="xcopy &quot;$(ProjectDir)obj\Debug\Package\PackageTmp\bin\Obfuscator_Output\*.*&quot; &quot;$(ProjectDir)obj\Debug\Package\PackageTmp\bin&quot; /s /e /h /c /y" />
-    <Exec Command="del &quot;$(ProjectDir)obj\Debug\Package\PackageTmp\bin\Obfuscator_Output&quot;  /q /a /s /f" />
+    <Exec Command="xcopy &quot;$(ProjectDir)obj\Release\Package\PackageTmp\bin\Obfuscator_Output\*.*&quot; &quot;$(ProjectDir)obj\Release\Package\PackageTmp\bin&quot; /s /e /h /c /y" />
+    <Exec Command="del &quot;$(ProjectDir)obj\Release\Package\PackageTmp\bin\Obfuscator_Output&quot;  /q /a /s /f" />
     <Message Text="Obfuscate End." />
   </Target>
 </Project>
