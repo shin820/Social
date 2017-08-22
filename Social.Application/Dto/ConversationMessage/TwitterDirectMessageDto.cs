@@ -11,6 +11,7 @@ namespace Social.Application.Dto
     public class TwitterDirectMessageDto : IHaveSendAgent
     {
         public int Id { get; set; }
+        public string OriginalLink { get; set; }
         public MessageSource Source { get; set; }
         public int ConversationId { get; set; }
         public string UserAvatar { get; set; }

@@ -23,5 +23,39 @@ namespace Framework.Core
 
             return datetime.Value.ToUnixTimeSeconds();
         }
+
+
+        public static DateTime Normalize(this DateTime dateTime)
+        {
+            if (dateTime.Kind == DateTimeKind.Unspecified)
+            {
+                return DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+            }
+
+            if (dateTime.Kind == DateTimeKind.Local)
+            {
+                return dateTime.ToUniversalTime();
+            }
+
+            return dateTime;
+        }
+
+        public static DateTime? Normalize(this DateTime? dateTime)
+        {
+            if (dateTime.HasValue)
+            {
+                if (dateTime.Value.Kind == DateTimeKind.Unspecified)
+                {
+                    return DateTime.SpecifyKind(dateTime.Value, DateTimeKind.Utc);
+                }
+
+                if (dateTime.Value.Kind == DateTimeKind.Local)
+                {
+                    return dateTime.Value.ToUniversalTime();
+                }
+            }
+
+            return dateTime;
+        }
     }
 }

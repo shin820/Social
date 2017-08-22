@@ -166,6 +166,9 @@
     <Reference Include="System.Reflection.TypeExtensions, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Reflection.TypeExtensions.4.4.0\lib\net461\System.Reflection.TypeExtensions.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization.Primitives">
+      <HintPath>..\packages\System.Runtime.Serialization.Primitives.4.3.0\lib\net46\System.Runtime.Serialization.Primitives.dll</HintPath>
+    </Reference>
     <Reference Include="System.Security.Cryptography.Algorithms, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.Cryptography.Algorithms.4.3.0\lib\net461\System.Security.Cryptography.Algorithms.dll</HintPath>
     </Reference>
@@ -382,6 +385,7 @@
     <None Include="Scripts\jquery-3.1.1.intellisense.js" />
     <Content Include="obfuscar.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -498,11 +502,11 @@
   </Target>
   <Target Name="AfterBuild">
   </Target> -->
-  <Target Name="Obfuscate" BeforeTargets="MSDeployPublish" Condition="'$(Configuration)' == 'Release'">
+  <Target Name="Obfuscate" BeforeTargets="MSDeployPublish" Condition="'$(Configuration)' == 'Debug'">
     <Message Text="Obfuscate Start..." />
     <Exec Command="&quot;$(ProjectDir)..\obfuscar\Obfuscar.Console.exe&quot; &quot;$(ProjectDir)obfuscar.xml&quot;" />
-    <Exec Command="xcopy &quot;$(ProjectDir)obj\Release\Package\PackageTmp\bin\Obfuscator_Output\*.*&quot; &quot;$(ProjectDir)obj\Release\Package\PackageTmp\bin&quot; /s /e /h /c /y" />
-    <Exec Command="del &quot;$(ProjectDir)obj\Release\Package\PackageTmp\bin\Obfuscator_Output&quot;  /q /a /s /f" />
+    <Exec Command="xcopy &quot;$(ProjectDir)obj\Debug\Package\PackageTmp\bin\Obfuscator_Output\*.*&quot; &quot;$(ProjectDir)obj\Debug\Package\PackageTmp\bin&quot; /s /e /h /c /y" />
+    <Exec Command="del &quot;$(ProjectDir)obj\Debug\Package\PackageTmp\bin\Obfuscator_Output&quot;  /q /a /s /f" />
     <Message Text="Obfuscate End." />
   </Target>
 </Project>

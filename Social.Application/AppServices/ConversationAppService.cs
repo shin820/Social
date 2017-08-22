@@ -35,20 +35,27 @@ namespace Social.Application.AppServices
     {
         private IConversationService _conversationService;
         private IMessageService _messageService;
+
+        private IAgentService _agentService;
+        private IDepartmentService _departmentService;
         private IDomainService<ConversationLog> _logService;
         private INotificationManager _notificationManager;
 
         public ConversationAppService(
             IConversationService conversationService,
+            IMessageService messageService,
+            IAgentService agentService,
+            IDepartmentService departmentService,
             IDomainService<ConversationLog> logService,
-            INotificationManager notificationManager,
-            IMessageService messageService
+            INotificationManager notificationManager
             )
         {
             _conversationService = conversationService;
+            _messageService = messageService;
+            _agentService = agentService;
+            _departmentService = departmentService;
             _logService = logService;
             _notificationManager = notificationManager;
-            _messageService = messageService;
         }
 
         public IList<ConversationDto> Find(ConversationSearchDto dto)
@@ -66,30 +73,28 @@ namespace Social.Application.AppServices
             conversations = _conversationService.ApplySenderOrReceiverId(conversations, dto.UserId);
 
             List<ConversationDto> conversationDtos = conversations.Paging(dto).ProjectTo<ConversationDto>().ToList();
+            FillFiledsForDtoList(conversationDtos);
 
-            var lastMessages = _messageService.GetLastMessages(conversations.Select(t => t.Id).ToArray());
-            var agents = _conversationService.GetAgents(conversations.ToList());
-            var departments = _conversationService.GetDepartments(conversations.ToList());
-            for (int i = 0; i < conversationDtos.Count(); i++)
-            {
-                if (agents.Find(t => t.Id == conversations.ToArray()[i].AgentId) != null)
-                {
-                    conversationDtos[i].AgentName = agents.Find(t => t.Id == conversations.ToArray()[i].AgentId).Name;
-                }
-                if (departments.Find(t => t.Id == conversations.ToArray()[i].DepartmentId) != null)
-                {
-                    conversationDtos[i].DepartmentName = departments.Find(t => t.Id == conversations.ToArray()[i].DepartmentId).Name;
-                }
-                if (lastMessages != null && lastMessages.Any())
-                {
-                    var lastMessage = lastMessages.FirstOrDefault(t => t.ConversationId == conversationDtos[i].Id);
-                    if (lastMessage != null)
-                    {
-                        conversationDtos[i].LastMessage = lastMessage.Content;
-                    }
-                }
-            }
             return conversationDtos;
+        }
+
+        private void FillFiledsForDtoList(IList<ConversationDto> conversationDtos)
+        {
+            var lastMessages = _messageService.GetLastMessages(conversationDtos.Select(t => t.Id).ToArray());
+            var agents = _agentService.Find(conversationDtos.Where(t => t.AgentId.HasValue).Select(t => t.AgentId.Value));
+            var departments = _departmentService.Find(conversationDtos.Where(t => t.DepartmentId.HasValue).Select(t => t.DepartmentId.Value));
+
+            foreach (var conversationDto in conversationDtos)
+            {
+                var agent = agents?.FirstOrDefault(t => t.Id == conversationDto.AgentId);
+                conversationDto.AgentName = agent?.Name;
+
+                var department = departments?.FirstOrDefault(t => t.Id == conversationDto.DepartmentId);
+                conversationDto.DepartmentName = department?.Name;
+
+                var lastMessage = lastMessages?.FirstOrDefault(t => t.ConversationId == conversationDto.Id);
+                conversationDto.LastMessage = lastMessage?.Content;
+            }
         }
 
         public ConversationDto Find(int id)
@@ -101,7 +106,7 @@ namespace Social.Application.AppServices
             }
 
             var conversationDto = Mapper.Map<ConversationDto>(conversation);
-            FillFields(conversation, conversationDto);
+            FillFields(conversationDto);
             return conversationDto;
 
         }
@@ -112,7 +117,7 @@ namespace Social.Application.AppServices
             conversation = _conversationService.Insert(conversation);
             CurrentUnitOfWork.SaveChanges();
             var conversationDto = Mapper.Map<ConversationDto>(conversation);
-            FillFields(conversation, conversationDto);
+            FillFields(conversationDto);
             return conversationDto;
         }
 
@@ -137,7 +142,7 @@ namespace Social.Application.AppServices
             _conversationService.Update(conversation);
             _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), id);
             var conversationDto = Mapper.Map<ConversationDto>(conversation);
-            FillFields(conversation, conversationDto);
+            FillFields(conversationDto);
             return conversationDto;
         }
 
@@ -154,7 +159,7 @@ namespace Social.Application.AppServices
         {
             var entity = _conversationService.Take(conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(entity, conversationDto);
+            FillFields(conversationDto);
             return conversationDto;
         }
 
@@ -162,7 +167,7 @@ namespace Social.Application.AppServices
         {
             var entity = _conversationService.Close(conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(entity, conversationDto);
+            FillFields(conversationDto);
             return conversationDto;
         }
 
@@ -170,7 +175,7 @@ namespace Social.Application.AppServices
         {
             var entity = _conversationService.Reopen(conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(entity, conversationDto);
+            FillFields(conversationDto);
             return conversationDto;
         }
 
@@ -178,7 +183,7 @@ namespace Social.Application.AppServices
         {
             var entity = _conversationService.MarkAsRead(conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(entity, conversationDto);
+            FillFields(conversationDto);
             return conversationDto;
         }
 
@@ -186,23 +191,25 @@ namespace Social.Application.AppServices
         {
             var entity = _conversationService.MarkAsUnRead(conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(entity, conversationDto);
+            FillFields(conversationDto);
             return conversationDto;
         }
 
-        private void FillFields(Conversation conversation, ConversationDto conversationDto)
+        private void FillFields(ConversationDto conversationDto)
         {
-            var agents = _conversationService.GetAgents(new List<Conversation> { conversation });
-            if (agents.Count() > 0)
+            if (conversationDto.AgentId.HasValue)
             {
-                conversationDto.AgentName = agents.FirstOrDefault().Name;
+                var agent = _agentService.Find(conversationDto.AgentId.Value);
+                conversationDto.AgentName = agent?.Name;
             }
-            var departments = _conversationService.GetDepartments(new List<Conversation> { conversation });
-            if (departments.Count() > 0)
+
+            if (conversationDto.DepartmentId.HasValue)
             {
-                conversationDto.DepartmentName = departments.FirstOrDefault().Name;
+                var department = _departmentService.Find(conversationDto.DepartmentId.Value);
+                conversationDto.DepartmentName = department?.Name;
             }
-            var messages = _messageService.FindAll().Where(t => t.ConversationId == conversation.Id);
+
+            var messages = _messageService.FindAll().Where(t => t.ConversationId == conversationDto.Id);
             if (messages != null && messages.Any())
             {
                 conversationDto.LastMessage = messages.OrderByDescending(t => t.Id).First().Content;

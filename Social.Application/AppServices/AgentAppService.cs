@@ -18,7 +18,7 @@ namespace Social.Application.AppServices
         AgentDto Find(int id);
     }
 
-    public class AgentAppService:AppService,IAgentAppService
+    public class AgentAppService : AppService, IAgentAppService
     {
         private IAgentService _agentService;
         public AgentAppService(IAgentService agentService)
@@ -28,7 +28,7 @@ namespace Social.Application.AppServices
 
         public List<AgentDto> FindAll()
         {
-            return  _agentService.FindAll().ProjectTo<AgentDto>().ToList();
+            return _agentService.FindAll().Select(t => Mapper.Map<AgentDto>(t)).ToList();
         }
 
         public AgentDto Find(int id)

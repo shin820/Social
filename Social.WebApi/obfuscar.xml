@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <Obfuscator>
-  <Var name="InPath" value=".\obj\Release\Package\PackageTmp\bin" />
-  <Var name="OutPath" value=".\obj\Release\Package\PackageTmp\bin\Obfuscator_Output" />
+  <Var name="InPath" value=".\obj\Debug\Package\PackageTmp\bin" />
+  <Var name="OutPath" value=".\obj\Debug\Package\PackageTmp\bin\Obfuscator_Output" />
   <Var name="HidePrivateApi" value="true" />
   <Var name="KeepPublicApi" value="false" />
   <Var name="ReuseNames" value="false" />

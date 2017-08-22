@@ -1,6 +1,7 @@
 ﻿using Framework.WebApi;
 using Microsoft.AspNet.SignalR;
 using Social.Application.AppServices;
+using Social.Infrastructure;
 using Social.Infrastructure.Facebook;
 using Social.WebApi.Hubs;
 using System;
@@ -73,6 +74,7 @@ namespace Social.WebApi.Controllers
             }
             catch (Exception ex)
             {
+                Logger.Error(ex);
                 Hub.Clients.All.newRaw(ex.StackTrace);
                 return Ok();
             }

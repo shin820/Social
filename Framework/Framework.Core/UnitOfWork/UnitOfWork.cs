@@ -1,10 +1,13 @@
 ﻿using Castle.Core;
 using Framework.Core;
+using Framework.Core.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Configuration;
 using System.Data.Entity;
+using System.Data.Entity.Core.Objects;
+using System.Data.Entity.Infrastructure;
 using System.Threading.Tasks;
 
 namespace Framework.Core.UnitOfWork
@@ -57,7 +60,7 @@ namespace Framework.Core.UnitOfWork
 
         public virtual TDbContext GetOrCreateDbContext<TDbContext>() where TDbContext : DbContext
         {
-            var connectionString =  _connectionStringResolver.GetNameOrConnectionString(_siteId);
+            var connectionString = _connectionStringResolver.GetNameOrConnectionString(_siteId);
             var dbContextKey = typeof(TDbContext).FullName + "#" + connectionString;
 
             DbContext dbContext;
@@ -76,6 +79,11 @@ namespace Framework.Core.UnitOfWork
                 {
                     dbContext.Database.CommandTimeout = (int)Convert.ChangeType(Options.Timeout.Value.TotalSeconds, typeof(int));
                 }
+
+                ((IObjectContextAdapter)dbContext).ObjectContext.ObjectMaterialized += (sender, args) =>
+                {
+                    ObjectContext_ObjectMaterialized(dbContext, args);
+                };
 
                 _activeDbContexts[dbContextKey] = dbContext;
             }
@@ -235,6 +243,19 @@ namespace Framework.Core.UnitOfWork
         public int? GetSiteId()
         {
             return _siteId;
+        }
+
+        private static void ObjectContext_ObjectMaterialized(DbContext dbContext, ObjectMaterializedEventArgs e)
+        {
+            var entityType = ObjectContext.GetObjectType(e.Entity.GetType());
+
+            dbContext.Configuration.AutoDetectChangesEnabled = false;
+            var previousState = dbContext.Entry(e.Entity).State;
+
+            DateTimePropertyInfoHelper.NormalizeDatePropertyKinds(e.Entity, entityType);
+
+            dbContext.Entry(e.Entity).State = previousState;
+            dbContext.Configuration.AutoDetectChangesEnabled = true;
         }
     }
 }

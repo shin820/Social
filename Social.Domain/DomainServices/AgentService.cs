@@ -15,13 +15,14 @@ namespace Social.Domain.DomainServices
         void FillAgentName(IEnumerable<IHaveSendAgent> list);
         void FillCreatedByName(IEnumerable<IHaveCreatedBy> list);
         int[] GetMatchedStatusAgents(int status);
-        IQueryable<Agent> FindAll();
+        IList<Agent> FindAll();
         Agent Find(int id);
+        IList<Agent> Find(IEnumerable<int> ids);
     }
 
-    public class AgentService : ITransient, IAgentService
+    public class AgentService : ServiceBase, ITransient, IAgentService
     {
-        public IQueryable<Agent> FindAll()
+        public IList<Agent> FindAll()
         {
             var agents = new List<Agent>
             {
@@ -37,12 +38,22 @@ namespace Social.Domain.DomainServices
                 new Agent { Id=10,Name="Test Agent 10"},
             };
 
-            return agents.AsQueryable();
+            return agents;
         }
 
         public Agent Find(int id)
         {
             return FindAll().FirstOrDefault(t => t.Id == id);
+        }
+
+        public IList<Agent> Find(IEnumerable<int> ids)
+        {
+            if (ids == null)
+            {
+                return new List<Agent>();
+            }
+
+            return FindAll().Where(t => ids.Contains(t.Id)).ToList();
         }
 
         public string GetDiaplyName(int? id)

@@ -32,7 +32,7 @@ namespace Social.UnitTest.DomainServices
                 new Agent { Id=1,Name="Test Agent 1"},
                 new Agent { Id=2,Name="Test Agent 2"},
                 new Agent { Id=3,Name="Test Agent 3"}
-            }.AsQueryable());
+            });
             var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
             conversationFieldService.Repository = conversationFieldServiceMock.Object;
             var fields = conversationFieldService.FindAllAndFillOptions();
@@ -59,7 +59,7 @@ namespace Social.UnitTest.DomainServices
                 new Department{Id=2,Name="Test Department 2"},
                 new Department{Id=3,Name="Test Department 3"},
                 new Department{Id=4,Name="Test Department 4"}
-            }.AsQueryable());
+            });
             var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
             conversationFieldService.Repository = conversationFieldServiceMock.Object;
             var fields = conversationFieldService.FindAllAndFillOptions();

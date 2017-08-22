@@ -12,6 +12,7 @@ namespace Social.Application.Dto
     {
         public int Id { get; set; }
         public MessageSource Source { get; set; }
+        public string OriginalLink { get; set; }
         public int ConversationId { get; set; }
         public string UserAvatar { get; set; }
         public int UserId { get; set; }
