@@ -30,7 +30,7 @@ namespace Social.Domain
         private IRepository<ConversationField> _conversationFieldRepo;       
         private IRepository<Conversation> _conversationService;
         private IRepository<SocialUser> _userRepo;
-        private IRepository<ConversationFieldOption> _conversationFieldOptionService;
+        private IConversationFieldService _conversationFieldOptionService;
         private IConversationService _conversation;
 
         public FilterService(
@@ -39,7 +39,7 @@ namespace Social.Domain
             IRepository<Conversation> conversationService,
             IRepository<SocialUser> userRepo, IConversationService conversation,
             IRepository<ConversationField> conversationFieldRepo,
-            IRepository<ConversationFieldOption> conversationFieldOptionService)
+            IConversationFieldService conversationFieldOptionService)
         {
             _filterConditionRepo = filterConditionRepo;
             _filterRepo = filterRepo;
@@ -105,17 +105,44 @@ namespace Social.Domain
 
         public void CheckFieldValue(List<FilterCondition> filterConditons)
         {
-            foreach(var filterConditon in filterConditons)
+            var conversationField = _conversationFieldOptionService.FindAllAndFillOptions().Where(t=> filterConditons.Select(f => f.FieldId).Contains(t.Id)).ToList();
+            foreach (var filterConditon in filterConditons)
             {
-                if (_conversationFieldRepo.Find(filterConditon.FieldId).DataType == FieldDataType.DateTime)
+                if (conversationField.Where(t => t.Id == filterConditon.FieldId).FirstOrDefault().DataType == FieldDataType.DateTime)
                 {
-                    DateTime date;
-                    if (!DateTime.TryParse(filterConditon.Value, out date))
+                    if (conversationField.Where(t => t.Id == filterConditon.FieldId && t.Options.Any(o => o.Value == filterConditon.Value)).Count() == 0)
                     {
-                        throw SocialExceptions.BadRequest($"The value's type is not DateTime : '{filterConditon.Value}' ");
+                        if (filterConditon.MatchType == ConditionMatchType.Between)
+                        {
+                            string[] value = filterConditon.Value.Split('|');
+                            if (conversationField.Where(t => t.Id == filterConditon.FieldId && t.Options.Any(o => o.Value == value[0])).Count() == 0)
+                            {
+                                DateTime DateTime1;
+                                if (!DateTime.TryParse(value[0], out DateTime1))
+                                {
+                                    throw SocialExceptions.BadRequest("The value of date time is invalid");
+                                }
+                            }
+                            if (conversationField.Where(t => t.Id == filterConditon.FieldId && t.Options.Any(o => o.Value == value[1])).Count() == 0)
+                            {
+                                DateTime DateTime2;
+                                if (!DateTime.TryParse(value[1], out DateTime2))
+                                {
+                                    throw SocialExceptions.BadRequest("The value of date time is invalid");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            DateTime date;
+                            if (!DateTime.TryParse(filterConditon.Value, out date))
+                            {
+                                throw SocialExceptions.BadRequest($"The value's type is not DateTime : '{filterConditon.Value}' ");
+                            }
+                        }
                     }
                 }
-                else if (_conversationFieldRepo.Find(filterConditon.FieldId).DataType == FieldDataType.Number)
+                else if (conversationField.Where(t => t.Id == filterConditon.FieldId).FirstOrDefault().DataType == FieldDataType.Number)
                 {
                     int number;
                     if (!int.TryParse(filterConditon.Value, out number))
@@ -123,10 +150,11 @@ namespace Social.Domain
                         throw SocialExceptions.BadRequest($"The value's type is not Number : '{filterConditon.Value}' ");
                     }
                 }
-                else if (_conversationFieldRepo.Find(filterConditon.FieldId).DataType == FieldDataType.Option)
+                else if (conversationField.Where(t => t.Id == filterConditon.FieldId).FirstOrDefault().DataType == FieldDataType.Option)
                 {
-                    var conversationFieldOption = _conversationFieldOptionService.FindAll().Where(t => t.Value == filterConditon.Value && t.FieldId == filterConditon.FieldId).ToList();
-                    if (conversationFieldOption.Count() == 0)
+                    //   var conversationFieldOption = _conversationFieldOptionService.FindAll().Where(t => t.Value == filterConditon.Value && t.FieldId == filterConditon.FieldId).ToList();
+
+                    if (conversationField.Where(t => t.Id == filterConditon.FieldId && t.Options.Any(o => o.Value == filterConditon.Value)).Count() == 0)
                     {
                         throw SocialExceptions.BadRequest($"The value's type is not Option : '{filterConditon.Value}' ");
                     }
