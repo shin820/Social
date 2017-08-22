@@ -13,10 +13,19 @@ namespace Social.Domain.DomainServices.Facebook
 {
     public abstract class WebHookStrategy : ServiceBase, IWebHookSrategy
     {
-        public IConversationService ConversationService { get; set; }
-        public ISocialUserService SocialUserService { get; set; }
-        public IMessageService MessageService { get; set; }
-        public INotificationManager NotificationManager { get; set; }
+        protected IConversationService ConversationService { get; set; }
+        protected ISocialUserService SocialUserService { get; set; }
+        protected IMessageService MessageService { get; set; }
+        protected INotificationManager NotificationManager { get; set; }
+
+        public WebHookStrategy(IDependencyResolver dependencyResolver)
+        {
+            ConversationService = dependencyResolver.Resolve<IConversationService>();
+            SocialUserService = dependencyResolver.Resolve<ISocialUserService>();
+            MessageService = dependencyResolver.Resolve<IMessageService>();
+            NotificationManager = dependencyResolver.Resolve<INotificationManager>();
+        }
+
 
         public abstract bool IsMatch(FbHookChange change);
 

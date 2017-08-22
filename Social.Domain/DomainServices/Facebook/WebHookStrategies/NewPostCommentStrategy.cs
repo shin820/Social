@@ -2,11 +2,17 @@
 using Social.Domain.Entities;
 using Social.Infrastructure.Facebook;
 using Social.Infrastructure.Enum;
+using Framework.Core;
 
 namespace Social.Domain.DomainServices.Facebook
 {
     public class NewCommentStrategy : WebHookStrategy
     {
+        public NewCommentStrategy(IDependencyResolver resolver) : base(resolver)
+        {
+
+        }
+
         public override bool IsMatch(FbHookChange change)
         {
             return change.Field == "feed"

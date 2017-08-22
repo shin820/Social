@@ -38,7 +38,6 @@ namespace Social.UnitTest.DomainServices
             }
         }
 
-        [Fact]
         public void ShouldApplyKeywordWorks()
         {
             var agentService = new Mock<IAgentService>();

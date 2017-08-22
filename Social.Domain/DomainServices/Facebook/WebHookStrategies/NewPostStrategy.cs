@@ -10,6 +10,10 @@ namespace Social.Domain.DomainServices.Facebook
 {
     public class NewPostStrategy : WebHookStrategy
     {
+        public NewPostStrategy(IDependencyResolver resolver) : base(resolver)
+        {
+        }
+
         public override bool IsMatch(FbHookChange change)
         {
             bool isTextPost = change.Field == "feed"
