@@ -52,7 +52,7 @@ namespace Social.Domain.DomainServices.Facebook
             var existingConversation = GetUnClosedConversation(change.Value.ThreadId);
             if (existingConversation != null)
             {
-                Message message = Convert(fbMessage, sender, receiver, socialAccount);
+                Message message = FacebookConverter.ConvertMessage(fbMessage, sender, receiver);
                 message.ConversationId = existingConversation.Id;
                 bool isNewMessage = fbMessage.SendTime > existingConversation.LastMessageSentTime;
 
@@ -81,7 +81,7 @@ namespace Social.Domain.DomainServices.Facebook
                     return;
                 }
 
-                Message message = Convert(fbMessage, sender, receiver, socialAccount);
+                Message message = FacebookConverter.ConvertMessage(fbMessage, sender, receiver);
                 var conversation = new Conversation
                 {
                     OriginalId = change.Value.ThreadId,
@@ -98,35 +98,6 @@ namespace Social.Domain.DomainServices.Facebook
 
                 result.WithNewConversation(conversation);
             }
-        }
-
-        private Message Convert(FbMessage fbMessage, SocialUser Sender, SocialUser Receiver, SocialAccount account)
-        {
-            Message message = new Message
-            {
-                SenderId = Sender.Id,
-                ReceiverId = Receiver.Id,
-                Source = MessageSource.FacebookMessage,
-                OriginalId = fbMessage.Id,
-                SendTime = fbMessage.SendTime,
-                Content = fbMessage.Content
-            };
-
-            foreach (var attachment in fbMessage.Attachments)
-            {
-                message.Attachments.Add(new MessageAttachment
-                {
-                    OriginalId = attachment.Id,
-                    Name = attachment.Name,
-                    MimeType = attachment.MimeType,
-                    Type = attachment.Type,
-                    Size = attachment.Size,
-                    Url = attachment.Url,
-                    PreviewUrl = attachment.PreviewUrl
-                });
-            }
-
-            return message;
         }
     }
 }
