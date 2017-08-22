@@ -405,14 +405,14 @@ namespace Social.Infrastructure.Facebook
 
             FbCursors FbCursors = new FbCursors
             {
-                before = fbConversations.paging.cursors.before,
-                after = fbConversations.paging.cursors.after
+                before = fbConversations.paging != null ? fbConversations.paging.cursors.before : null, 
+                after = fbConversations.paging != null ? fbConversations.paging.cursors.after:null
             };
             FbPaging FbPaging = new FbPaging
             {
                 cursors = FbCursors,
-                next = fbConversations.paging.next,
-                previous = fbConversations.paging.previous
+                next = fbConversations.paging != null ? fbConversations.paging.next:null,
+                previous = fbConversations.paging != null ? fbConversations.paging.previous:null
             };
   
             PagingConversation.paging = FbPaging;
