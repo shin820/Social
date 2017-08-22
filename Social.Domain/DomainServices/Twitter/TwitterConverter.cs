@@ -87,7 +87,7 @@ namespace Social.Domain.DomainServices.Twitter
                 };
             }
 
-            return new MessageAttachment
+            var messageAttachment = new MessageAttachment
             {
                 Type = type,
                 Url = media.MediaURL,
@@ -96,6 +96,29 @@ namespace Social.Domain.DomainServices.Twitter
                 OriginalId = media.IdStr,
                 OriginalLink = media.URL
             };
+
+            NormarlizeAttachmentType(messageAttachment);
+
+            return messageAttachment;
+        }
+
+        private static void NormarlizeAttachmentType(MessageAttachment attachment)
+        {
+            if (!string.IsNullOrEmpty(attachment.MimeType))
+            {
+                if (attachment.MimeType.StartsWith("image/", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (attachment.Type != MessageAttachmentType.AnimatedImage)
+                    {
+                        attachment.Type = MessageAttachmentType.Image;
+                    }
+                }
+
+                if (attachment.MimeType.StartsWith("video/", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    attachment.Type = MessageAttachmentType.Video;
+                }
+            }
         }
 
     }

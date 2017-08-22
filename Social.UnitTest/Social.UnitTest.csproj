@@ -83,6 +83,7 @@
     <Compile Include="AppServices\ConversationAppServiceTest.cs" />
     <Compile Include="DomainServices\ConversationFieldServiceTest.cs" />
     <Compile Include="DomainServices\ConversationServiceTest.cs" />
+    <Compile Include="DomainServices\Facebook\FacebookConverterTest.cs" />
     <Compile Include="DomainServices\FilterExpressions\DateTimeExpressionTest.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFieldExpression\AgentAssigneeExpressionTest.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFieldExpression\AgentAssigneeStatusExpressionTest.cs" />

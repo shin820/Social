@@ -40,7 +40,7 @@ namespace Social.Domain.DomainServices.Facebook
                 return result;
             }
 
-            Message message = FacebookConverter.ConvertToMessage(token, comment);
+            Message message = FacebookConverter.ConvertToMessage(comment);
             message.SenderId = sender.Id;
             var parent = GetParent(change.Value.PostId, comment);
             if (parent != null)

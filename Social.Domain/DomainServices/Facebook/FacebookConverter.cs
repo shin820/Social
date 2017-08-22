@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace Social.Domain.DomainServices.Facebook
 {
-    public static class FacebookConverter
+    public class FacebookConverter
     {
-        public static Message ConvertMessage(FbMessage fbMessage, SocialUser Sender, SocialUser Receiver, SocialAccount account)
+        public Message ConvertMessage(FbMessage fbMessage, SocialUser Sender, SocialUser Receiver)
         {
             Message message = new Message
             {
@@ -41,7 +41,7 @@ namespace Social.Domain.DomainServices.Facebook
             return message;
         }
 
-        public static Message ConvertToMessage(string token, FbPost post)
+        public Message ConvertToMessage(FbPost post)
         {
             var message = new Message
             {
@@ -67,7 +67,7 @@ namespace Social.Domain.DomainServices.Facebook
             return message;
         }
 
-        public static Message ConvertToMessage(string token, FbComment comment)
+        public Message ConvertToMessage(FbComment comment)
         {
             Message message = new Message
             {
@@ -86,21 +86,24 @@ namespace Social.Domain.DomainServices.Facebook
             return message;
         }
 
-        public static MessageAttachment ConvertToAttachment(FbAttachment attachment)
+        public MessageAttachment ConvertToAttachment(FbAttachment attachment)
         {
+            MessageAttachment result;
+
             if (attachment.type == "photo" || attachment.type == "sticker")
             {
-                return new MessageAttachment
+                result = new MessageAttachment
                 {
                     OriginalLink = attachment.url,
                     Url = attachment.media.image.src,
+                    PreviewUrl = attachment.media.image.src,
                     Type = MessageAttachmentType.Image,
                     MimeType = new Uri(attachment.media.image.src).GetMimeType()
                 };
             }
-            if (attachment.type.Contains("animated_image"))
+            else if (attachment.type.Contains("animated_image"))
             {
-                return new MessageAttachment
+                result = new MessageAttachment
                 {
                     OriginalLink = attachment.url,
                     PreviewUrl = attachment.media.image.src,
@@ -110,9 +113,9 @@ namespace Social.Domain.DomainServices.Facebook
                 };
             }
 
-            if (attachment.type.Contains("video"))
+            else if (attachment.type.Contains("video"))
             {
-                return new MessageAttachment
+                result = new MessageAttachment
                 {
                     OriginalLink = attachment.url,
                     PreviewUrl = attachment.media.image.src,
@@ -121,14 +124,38 @@ namespace Social.Domain.DomainServices.Facebook
                     MimeType = new Uri(attachment.url).GetMimeType()
                 };
             }
-
-            return new MessageAttachment
+            else
             {
-                OriginalLink = attachment.url,
-                Url = attachment.url,
-                Type = MessageAttachmentType.File,
-                MimeType = new Uri(attachment.url).GetMimeType()
-            };
+                result = new MessageAttachment
+                {
+                    OriginalLink = attachment.url,
+                    Url = attachment.url,
+                    Type = MessageAttachmentType.File,
+                    MimeType = new Uri(attachment.url).GetMimeType()
+                };
+            }
+
+            NormarlizeAttachmentType(result);
+            return result;
+        }
+
+        private void NormarlizeAttachmentType(MessageAttachment attachment)
+        {
+            if (!string.IsNullOrEmpty(attachment.MimeType))
+            {
+                if (attachment.MimeType.StartsWith("image/", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (attachment.Type != MessageAttachmentType.AnimatedImage)
+                    {
+                        attachment.Type = MessageAttachmentType.Image;
+                    }
+                }
+
+                if (attachment.MimeType.StartsWith("video/", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    attachment.Type = MessageAttachmentType.Video;
+                }
+            }
         }
     }
 }
