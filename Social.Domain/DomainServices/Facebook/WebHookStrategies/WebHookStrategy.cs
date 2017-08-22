@@ -17,6 +17,7 @@ namespace Social.Domain.DomainServices.Facebook
         protected ISocialUserService SocialUserService { get; set; }
         protected IMessageService MessageService { get; set; }
         protected INotificationManager NotificationManager { get; set; }
+        protected FacebookConverter FacebookConverter { get; set; }
 
         public WebHookStrategy(IDependencyResolver dependencyResolver)
         {
@@ -24,6 +25,7 @@ namespace Social.Domain.DomainServices.Facebook
             SocialUserService = dependencyResolver.Resolve<ISocialUserService>();
             MessageService = dependencyResolver.Resolve<IMessageService>();
             NotificationManager = dependencyResolver.Resolve<INotificationManager>();
+            FacebookConverter = new FacebookConverter();
         }
 
 

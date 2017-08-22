@@ -69,7 +69,7 @@ namespace Social.Domain.DomainServices.Facebook
             FbPost post = await FbClient.GetPost(socialAccount.Token, change.Value.PostId);
             SocialUser sender = await GetOrCreateFacebookUser(socialAccount.Token, post.from.id);
 
-            Message message = FacebookConverter.ConvertToMessage(token, post);
+            Message message = FacebookConverter.ConvertToMessage(post);
             message.SenderId = sender.Id;
             if (message.SenderId != socialAccount.Id)
             {

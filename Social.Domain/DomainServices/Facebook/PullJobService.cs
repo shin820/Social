@@ -33,6 +33,7 @@ namespace Social.Domain.DomainServices.Facebook
         private IMessageService _messageService;
         private ISocialUserService _socialUserService;
         private INotificationManager _notificationManager;
+        private FacebookConverter _fbConverter;
 
         public PullJobService(
             IConversationService conversationService,
@@ -45,6 +46,7 @@ namespace Social.Domain.DomainServices.Facebook
             _messageService = messageService;
             _socialUserService = socialUserService;
             _notificationManager = notificationManager;
+            _fbConverter = new FacebookConverter();
         }
 
         public async Task PullVisitorPostsFromFeed(SocialAccount account)
@@ -114,7 +116,7 @@ namespace Social.Domain.DomainServices.Facebook
                             continue;
                         }
 
-                        var firstMessage = FacebookConverter.ConvertToMessage(_account.Token, post);
+                        var firstMessage = _fbConverter.ConvertToMessage(post);
                         firstMessage.SenderId = sender.Id;
                         var recipient = GetRecipient(post, socialAccounts);
                         if (recipient != null)
@@ -228,7 +230,7 @@ namespace Social.Domain.DomainServices.Facebook
 
                                 var sender = await _socialUserService.GetOrCreateFacebookUser(_account.Token, fbMessage.SenderId);
                                 var receiver = await _socialUserService.GetOrCreateFacebookUser(_account.Token, fbMessage.ReceiverId);
-                                Message message = FacebookConverter.ConvertMessage(fbMessage, sender, receiver, _account);
+                                Message message = _fbConverter.ConvertMessage(fbMessage, sender, receiver);
                                 message.ConversationId = existingConversation.Id;
                                 existingConversation.IfRead = false;
                                 existingConversation.Status = sender.Id != _account.SocialUser.Id ? ConversationStatus.PendingInternal : ConversationStatus.PendingExternal;
@@ -258,7 +260,7 @@ namespace Social.Domain.DomainServices.Facebook
                             {
                                 var sender = await _socialUserService.GetOrCreateFacebookUser(_account.Token, fbMessage.SenderId);
                                 var receiver = await _socialUserService.GetOrCreateFacebookUser(_account.Token, fbMessage.ReceiverId);
-                                Message message = FacebookConverter.ConvertMessage(fbMessage, sender, receiver, _account);
+                                Message message = _fbConverter.ConvertMessage(fbMessage, sender, receiver);
 
                                 conversation.Subject = GetSubject(message.Content);
                                 conversation.LastMessageSenderId = message.SenderId;
@@ -326,7 +328,7 @@ namespace Social.Domain.DomainServices.Facebook
                             continue;
                         }
 
-                        var message = FacebookConverter.ConvertToMessage(_account.Token, comment);
+                        var message = _fbConverter.ConvertToMessage(comment);
                         message.SenderId = sender.Id;
                         message.ParentId = parent.Id;
                         message.ReceiverId = parent.SenderId;
@@ -385,7 +387,7 @@ namespace Social.Domain.DomainServices.Facebook
                             continue;
                         }
 
-                        var message = FacebookConverter.ConvertToMessage(_account.Token, replyComment);
+                        var message = _fbConverter.ConvertToMessage(replyComment);
                         message.SenderId = sender.Id;
                         message.ReceiverId = parent.SenderId;
                         message.ParentId = parent.Id;
