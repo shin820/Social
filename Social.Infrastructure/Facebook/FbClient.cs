@@ -398,6 +398,7 @@ namespace Social.Infrastructure.Facebook
             string messagesFields = $"messages.since({since}){{from,to,message,id,created_time,attachments,{sharesFields}}}";
             string url = $"/{pageId}/conversations?fields=id,updated_time,{messagesFields}";
 
+            FbPagingData<FbConversation> PagingConversation = new FbPagingData<FbConversation>();
 
             List<FbConversation> Conversations = new List<FbConversation>();
             dynamic fbConversations = await client.GetTaskAsync(url);
@@ -413,8 +414,7 @@ namespace Social.Infrastructure.Facebook
                 next = fbConversations.paging.next,
                 previous = fbConversations.paging.previous
             };
-
-            FbPagingData<FbConversation> PagingConversation = new FbPagingData<FbConversation>();
+  
             PagingConversation.paging = FbPaging;
             foreach (var conversation in fbConversations.data)
             {

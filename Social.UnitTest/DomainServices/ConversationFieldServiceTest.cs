@@ -21,7 +21,7 @@ namespace Social.UnitTest.DomainServices
             var departmentServiceMock = new Mock<IDepartmentService>();
             var agentServiceMock = new Mock<IAgentService>();
             var socialUserServiceMock = new Mock<ISocialUserService>();
-            var conversationFieldServiceMock = new Mock<IDomainService<ConversationField>>();
+            var conversationFieldServiceMock = new Mock<IRepository<ConversationField>>();
 
             conversationFieldServiceMock.Setup(t => t.FindAll()).Returns(new List<ConversationField>
             {
@@ -33,7 +33,8 @@ namespace Social.UnitTest.DomainServices
                 new Agent { Id=2,Name="Test Agent 2"},
                 new Agent { Id=3,Name="Test Agent 3"}
             }.AsQueryable());
-            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object, conversationFieldServiceMock.Object);
+            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
+            conversationFieldService.Repository = conversationFieldServiceMock.Object;
             var fields = conversationFieldService.FindAllAndFillOptions();
 
             Assert.Equal(3, fields.FirstOrDefault().Options.Count());
@@ -46,7 +47,7 @@ namespace Social.UnitTest.DomainServices
             var departmentServiceMock = new Mock<IDepartmentService>();
             var agentServiceMock = new Mock<IAgentService>();
             var socialUserServiceMock = new Mock<ISocialUserService>();
-            var conversationFieldServiceMock = new Mock<IDomainService<ConversationField>>();
+            var conversationFieldServiceMock = new Mock<IRepository<ConversationField>>();
 
             conversationFieldServiceMock.Setup(t => t.FindAll()).Returns(new List<ConversationField>
             {
@@ -59,7 +60,8 @@ namespace Social.UnitTest.DomainServices
                 new Department{Id=3,Name="Test Department 3"},
                 new Department{Id=4,Name="Test Department 4"}
             }.AsQueryable());
-            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object, conversationFieldServiceMock.Object);
+            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
+            conversationFieldService.Repository = conversationFieldServiceMock.Object;
             var fields = conversationFieldService.FindAllAndFillOptions();
 
             Assert.Equal(4, fields.FirstOrDefault().Options.Count());
@@ -72,7 +74,7 @@ namespace Social.UnitTest.DomainServices
             var departmentServiceMock = new Mock<IDepartmentService>();
             var agentServiceMock = new Mock<IAgentService>();
             var socialUserServiceMock = new Mock<ISocialUserService>();
-            var conversationFieldServiceMock = new Mock<IDomainService<ConversationField>>();
+            var conversationFieldServiceMock = new Mock<IRepository<ConversationField>>();
 
             conversationFieldServiceMock.Setup(t => t.FindAll()).Returns(new List<ConversationField>
             {
@@ -85,7 +87,8 @@ namespace Social.UnitTest.DomainServices
                 new SocialUser{Id=3,Name="Test SocialUser 3"},
                 new SocialUser{Id=4,Name="Test SocialUser 4", Type = SocialUserType.IntegrationAccount}
             }.AsQueryable());
-            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object, conversationFieldServiceMock.Object);
+            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
+            conversationFieldService.Repository = conversationFieldServiceMock.Object;
             var fields = conversationFieldService.FindAllAndFillOptions();
 
             Assert.Equal(2, fields.FirstOrDefault().Options.Count());
@@ -98,13 +101,14 @@ namespace Social.UnitTest.DomainServices
             var departmentServiceMock = new Mock<IDepartmentService>();
             var agentServiceMock = new Mock<IAgentService>();
             var socialUserServiceMock = new Mock<ISocialUserService>();
-            var conversationFieldServiceMock = new Mock<IDomainService<ConversationField>>();
+            var conversationFieldServiceMock = new Mock<IRepository<ConversationField>>();
 
             conversationFieldServiceMock.Setup(t => t.FindAll()).Returns(new List<ConversationField>
             {
                 new ConversationField{ Id = 1,Name = "Created", IfSystem = true, DataType = FieldDataType.DateTime}
             }.AsQueryable());
-            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object, conversationFieldServiceMock.Object);
+            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
+            conversationFieldService.Repository = conversationFieldServiceMock.Object;
             var fields = conversationFieldService.FindAllAndFillOptions();
 
             Assert.Equal(5, fields.FirstOrDefault().Options.Count());
