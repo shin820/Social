@@ -18,6 +18,7 @@ namespace Social.UnitTest.DomainServices
         [Fact]
         public void ShouldFillAgentOptions()
         {
+            // Arrange
             var departmentServiceMock = new Mock<IDepartmentService>();
             var agentServiceMock = new Mock<IAgentService>();
             var socialUserServiceMock = new Mock<ISocialUserService>();
@@ -35,8 +36,9 @@ namespace Social.UnitTest.DomainServices
             });
             var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
             conversationFieldService.Repository = conversationFieldServiceMock.Object;
+            // Act
             var fields = conversationFieldService.FindAllAndFillOptions();
-
+            // Assert
             Assert.Equal(3, fields.FirstOrDefault().Options.Count());
             Assert.Equal("Test Agent 3", fields.FirstOrDefault().Options.Where(t => t.Id == 3).FirstOrDefault().Name);
         }
@@ -44,6 +46,7 @@ namespace Social.UnitTest.DomainServices
         [Fact]
         public void ShouldFillDepartmentOptions()
         {
+            // Arrange
             var departmentServiceMock = new Mock<IDepartmentService>();
             var agentServiceMock = new Mock<IAgentService>();
             var socialUserServiceMock = new Mock<ISocialUserService>();
@@ -62,8 +65,9 @@ namespace Social.UnitTest.DomainServices
             });
             var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
             conversationFieldService.Repository = conversationFieldServiceMock.Object;
+            // Act
             var fields = conversationFieldService.FindAllAndFillOptions();
-
+            // Assert
             Assert.Equal(4, fields.FirstOrDefault().Options.Count());
             Assert.Equal("Test Department 4", fields.FirstOrDefault().Options.Where(t => t.Id == 4).FirstOrDefault().Name);
         }
@@ -71,6 +75,7 @@ namespace Social.UnitTest.DomainServices
         [Fact]
         public void ShouldFillSocialAccountOptions()
         {
+            // Arrange
             var departmentServiceMock = new Mock<IDepartmentService>();
             var agentServiceMock = new Mock<IAgentService>();
             var socialUserServiceMock = new Mock<ISocialUserService>();
@@ -89,8 +94,9 @@ namespace Social.UnitTest.DomainServices
             }.AsQueryable());
             var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
             conversationFieldService.Repository = conversationFieldServiceMock.Object;
+            // Act
             var fields = conversationFieldService.FindAllAndFillOptions();
-
+            // Assert
             Assert.Equal(2, fields.FirstOrDefault().Options.Count());
             Assert.Equal("Test SocialUser 4", fields.FirstOrDefault().Options.Where(t => t.Id == 4).FirstOrDefault().Name);
         }
@@ -98,6 +104,7 @@ namespace Social.UnitTest.DomainServices
         [Fact]
         public void ShouldFillDateTimeOptions()
         {
+            // Arrange
             var departmentServiceMock = new Mock<IDepartmentService>();
             var agentServiceMock = new Mock<IAgentService>();
             var socialUserServiceMock = new Mock<ISocialUserService>();
@@ -109,8 +116,9 @@ namespace Social.UnitTest.DomainServices
             }.AsQueryable());
             var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
             conversationFieldService.Repository = conversationFieldServiceMock.Object;
+            // Act
             var fields = conversationFieldService.FindAllAndFillOptions();
-
+            // Assert
             Assert.Equal(5, fields.FirstOrDefault().Options.Count());
             Assert.Equal("@Today", fields.FirstOrDefault().Options.Where(t => t.Name == "Today").FirstOrDefault().Value);
         }
