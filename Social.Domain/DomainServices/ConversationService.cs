@@ -63,7 +63,6 @@ namespace Social.Domain.DomainServices
             {
                 throw SocialExceptions.BadRequest($"Conversation '{id}' not exists.");
             }
-
             return conversation;
         }
 
