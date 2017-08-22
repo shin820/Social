@@ -4,6 +4,7 @@ using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
 using System.Collections.Generic;
 using System.Linq;
+using Framework.Core;
 
 namespace Social.Domain.DomainServices.Facebook
 {
@@ -12,6 +13,10 @@ namespace Social.Domain.DomainServices.Facebook
     /// </summary>
     public class NewMessageStrategy : WebHookStrategy
     {
+        public NewMessageStrategy(IDependencyResolver resolver) : base(resolver)
+        {
+        }
+
         public override bool IsMatch(FbHookChange change)
         {
             return change.Field == "conversations" && change.Value.ThreadId != null;

@@ -1,11 +1,16 @@
 ﻿using System.Threading.Tasks;
 using Social.Domain.Entities;
 using Social.Infrastructure.Facebook;
+using Framework.Core;
 
 namespace Social.Domain.DomainServices.Facebook
 {
     public class RemoveVisitorPostStrategy : WebHookStrategy
     {
+        public RemoveVisitorPostStrategy(IDependencyResolver resolver) : base(resolver)
+        {
+        }
+
         public override bool IsMatch(FbHookChange change)
         {
             return change.Field == "feed"
