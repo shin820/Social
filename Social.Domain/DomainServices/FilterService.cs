@@ -27,7 +27,7 @@ namespace Social.Domain
     {
         private IRepository<Filter> _filterRepo;
         private IRepository<FilterCondition> _filterConditionRepo;
-        private IRepository<ConversationField> _conversationFieldRepo;       
+        private IRepository<ConversationField> _conversationFieldRepo;
         private IRepository<Conversation> _conversationService;
         private IRepository<SocialUser> _userRepo;
         private IConversationFieldService _conversationFieldOptionService;
@@ -100,12 +100,12 @@ namespace Social.Domain
             {
                 throw SocialExceptions.BadRequest($"FieldId '{fieldIds[0]}' not exists");
             }
-            
+
         }
 
         public void CheckFieldValue(List<FilterCondition> filterConditons)
         {
-            var conversationField = _conversationFieldOptionService.FindAllAndFillOptions().Where(t=> filterConditons.Select(f => f.FieldId).Contains(t.Id)).ToList();
+            var conversationField = _conversationFieldOptionService.FindAllAndFillOptions().Where(t => filterConditons.Select(f => f.FieldId).Contains(t.Id)).ToList();
             foreach (var filterConditon in filterConditons)
             {
                 if (conversationField.Where(t => t.Id == filterConditon.FieldId).FirstOrDefault().DataType == FieldDataType.DateTime)
@@ -115,21 +115,15 @@ namespace Social.Domain
                         if (filterConditon.MatchType == ConditionMatchType.Between)
                         {
                             string[] value = filterConditon.Value.Split('|');
-                            if (conversationField.Where(t => t.Id == filterConditon.FieldId && t.Options.Any(o => o.Value == value[0])).Count() == 0)
+                            DateTime DateTime1;
+                            if (!DateTime.TryParse(value[0], out DateTime1))
                             {
-                                DateTime DateTime1;
-                                if (!DateTime.TryParse(value[0], out DateTime1))
-                                {
-                                    throw SocialExceptions.BadRequest("The value of date time is invalid");
-                                }
+                                throw SocialExceptions.BadRequest("The value of date time is invalid");
                             }
-                            if (conversationField.Where(t => t.Id == filterConditon.FieldId && t.Options.Any(o => o.Value == value[1])).Count() == 0)
+                            DateTime DateTime2;
+                            if (!DateTime.TryParse(value[1], out DateTime2))
                             {
-                                DateTime DateTime2;
-                                if (!DateTime.TryParse(value[1], out DateTime2))
-                                {
-                                    throw SocialExceptions.BadRequest("The value of date time is invalid");
-                                }
+                                throw SocialExceptions.BadRequest("The value of date time is invalid");
                             }
                         }
                         else
@@ -162,5 +156,5 @@ namespace Social.Domain
             }
         }
 
-        }
+    }
 }
