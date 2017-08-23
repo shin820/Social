@@ -18,12 +18,12 @@ namespace Social.Domain.DomainServices
     {
         Message FindByOriginalId(MessageSource source, string originalId);
         IQueryable<Message> FindAllByConversationId(int conversationId);
+        IQueryable<Message> FindAllByConversationIds(int[] conversationIds);
         bool IsDuplicatedMessage(MessageSource messageSource, string originalId);
         Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, string message, bool isCloseConversation = false);
         Message ReplyTwitterDirectMessage(int conversationId, string message, bool isCloseConversation = false);
         Message ReplyFacebookMessage(int conversationId, string content, bool isCloseConversation = false);
         Message ReplyFacebookPostOrComment(int conversationId, int postOrCommentId, string content, bool isCloseConversation = false);
-        IList<Message> GetLastMessages(int[] conversationIds);
     }
 
     public class MessageService : DomainService<Message>, IMessageService
@@ -65,6 +65,19 @@ namespace Social.Domain.DomainServices
                 .Include(t => t.Sender.SocialAccount)
                 .Include(t => t.Receiver.SocialAccount)
                 .Where(t => t.ConversationId == conversationId);
+        }
+
+        public IQueryable<Message> FindAllByConversationIds(int[] conversationIds)
+        {
+            if (conversationIds == null || !conversationIds.Any())
+            {
+                return new List<Message>().AsQueryable();
+            }
+
+            return FindAll()
+                .Include(t => t.Sender)
+                .Include(t => t.Receiver)
+                .Where(t => conversationIds.Contains(t.ConversationId));
         }
 
         private IQueryable<Message> FindAllInlcudeDeletedByConversationId(int conversationId)
@@ -382,22 +395,6 @@ namespace Social.Domain.DomainServices
             }
 
             return previousMessages.OrderByDescending(t => t.SendTime).ToList();
-        }
-
-
-        public IList<Message> GetLastMessages(int[] conversationIds)
-        {
-            var lastMessageIds =
-                FindAll().Where(t => conversationIds.Contains(t.ConversationId))
-                .GroupBy(t => t.ConversationId)
-                 .Select(t => t.Max(m => m.Id))
-                 .ToList();
-
-            IList<Message> messages = FindAll()
-                .Include(t => t.Sender)
-                .Include(t => t.Receiver)
-                .Where(t => lastMessageIds.Contains(t.Id)).ToList();
-            return messages;
         }
     }
 }
