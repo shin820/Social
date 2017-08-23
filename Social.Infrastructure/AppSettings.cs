@@ -49,14 +49,6 @@ namespace Social.Infrastructure
             }
         }
 
-        public static string FacebookRedirectUri
-        {
-            get
-            {
-                return GetAppSetting("FacebookOAuthRedirectUri");
-            }
-        }
-
         public static string TwitterPullDirectMessagesJobCronExpression
         {
             get
