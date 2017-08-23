@@ -95,6 +95,7 @@ namespace Social.Application.AppServices
                 var lastMessage = lastMessages?.FirstOrDefault(t => t.ConversationId == conversationDto.Id);
                 conversationDto.LastMessage = lastMessage?.Content;
                 conversationDto.LastIntegrationAccountId = (lastMessage?.IntegrationAccountId).GetValueOrDefault();
+                conversationDto.LastIntegrationAccountName = lastMessage?.IntegrationAccount?.Name;
             }
         }
 
@@ -217,6 +218,7 @@ namespace Social.Application.AppServices
 
                 conversationDto.LastMessage = lastMessage.Content;
                 conversationDto.LastIntegrationAccountId = lastMessage.IntegrationAccountId;
+                conversationDto.LastIntegrationAccountName = lastMessage.IntegrationAccount?.Name;
             }
         }
     }

@@ -79,5 +79,23 @@ namespace Social.Domain.Entities
                 return 0;
             }
         }
+
+        public SocialUser IntegrationAccount
+        {
+            get
+            {
+                if (Receiver != null && Receiver.IsIntegrationAccount)
+                {
+                    return Receiver;
+                }
+
+                if (Sender.IsIntegrationAccount)
+                {
+                    return Sender;
+                }
+
+                return null;
+            }
+        }
     }
 }
