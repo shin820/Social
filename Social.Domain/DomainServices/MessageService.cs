@@ -128,6 +128,7 @@ namespace Social.Domain.DomainServices
             }
 
             var messages = FindAllInlcudeDeletedByConversationId(conversation.Id).ToList();
+            var postMessage = messages.FirstOrDefault(t => t.ParentId == null);
             SocialAccount socialAccount = GetSocialAccountsFromMessages(messages).FirstOrDefault();
             if (socialAccount == null)
             {
@@ -140,6 +141,13 @@ namespace Social.Domain.DomainServices
             {
                 if (previousMessage.IsDeleted)
                 {
+                    continue;
+                }
+
+                bool isReplyToReplyComment = previousMessage.ParentId != null && previousMessage.ParentId != postMessage.Id;
+                if (isReplyToReplyComment)
+                {
+                    //todo @current message user
                     continue;
                 }
 

@@ -20,7 +20,7 @@ namespace Social.Application.Dto
         public string UserName { get; set; }
         public string UserScreenName { get; set; }
         public string UserEmail { get; set; }
-        public int? ParentId { get; set; } = -1;
+        public int? ParentId { get; set; }
         public string QuoteTweetId { get; set; }
         public string Content { get; set; }
         public DateTime SendTime { get; set; }

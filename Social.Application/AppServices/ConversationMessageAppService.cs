@@ -135,22 +135,24 @@ namespace Social.Application.AppServices
                 .ProjectTo<TwitterTweetMessageDto>()
                 .ToList();
             _agentService.FillAgentName(result.Cast<IHaveSendAgent>());
+            result.ForEach(t => { t.ParentId = t.ParentId == null ? -1 : t.ParentId; }); // -1?, front-end need this value by now.
 
-            var quotedMessageDto = result.Where(t => !string.IsNullOrWhiteSpace(t.QuoteTweetId)).FirstOrDefault();
-            if (quotedMessageDto == null)
+            var messageDtoWithQuote = result.Where(t => !string.IsNullOrWhiteSpace(t.QuoteTweetId)).FirstOrDefault();
+            if (messageDtoWithQuote == null)
             {
                 return result;
             }
 
-            var socialAccount = _socialAccountService.Find(quotedMessageDto.UserId);
+            var messageWithQuote = _messageService.Find(messageDtoWithQuote.Id);
+            var socialAccount = _socialAccountService.Find(messageWithQuote.IntegrationAccountId);
             if (socialAccount == null)
             {
                 return result;
             }
-            var quoteTweetMessage = _twitterService.GetTweetMessage(socialAccount, long.Parse(quotedMessageDto.QuoteTweetId));
+            var quoteTweetMessage = _twitterService.GetTweetMessage(socialAccount, long.Parse(messageDtoWithQuote.QuoteTweetId));
             if (quoteTweetMessage != null)
             {
-                quotedMessageDto.QuoteTweet = Mapper.Map<BeQuotedTweetDto>(quoteTweetMessage);
+                messageDtoWithQuote.QuoteTweet = Mapper.Map<BeQuotedTweetDto>(quoteTweetMessage);
             }
 
             return result;
