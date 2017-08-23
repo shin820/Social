@@ -22,7 +22,7 @@ namespace Social.Domain.DomainServices
         Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, string message, bool isCloseConversation = false);
         Message ReplyTwitterDirectMessage(int conversationId, string message, bool isCloseConversation = false);
         Message ReplyFacebookMessage(int conversationId, string content, bool isCloseConversation = false);
-        Message ReplyFacebookPostOrComment(int conversationId, int parentId, string content, bool isCloseConversation = false);
+        Message ReplyFacebookPostOrComment(int conversationId, int replyCommentId, string content, bool isCloseConversation = false);
         IList<Message> GetLastMessages(int[] conversationIds);
     }
 
@@ -119,7 +119,7 @@ namespace Social.Domain.DomainServices
             return message;
         }
 
-        public Message ReplyFacebookPostOrComment(int conversationId, int parentId, string content, bool isCloseConversation = false)
+        public Message ReplyFacebookPostOrComment(int conversationId, int replyCommentId, string content, bool isCloseConversation = false)
         {
             var conversation = _conversationService.CheckIfExists(conversationId);
             if (conversation.Source != ConversationSource.FacebookVisitorPost && conversation.Source != ConversationSource.FacebookWallPost)
@@ -134,7 +134,7 @@ namespace Social.Domain.DomainServices
                 throw SocialExceptions.BadRequest("Facebook integration account can't be found from conversation.");
             }
 
-            var previousMessages = GetFacebookPreviousMessages(messages, parentId);
+            var previousMessages = GetFacebookPreviousMessages(messages, replyCommentId);
             Message comment = null;
             foreach (var previousMessage in previousMessages)
             {

@@ -180,9 +180,9 @@ namespace Social.Application.AppServices
             return dto;
         }
 
-        public FacebookPostCommentMessageDto ReplyFacebookPostOrComment(int conversationId, int parentId, string content, bool isCloseConversation = false)
+        public FacebookPostCommentMessageDto ReplyFacebookPostOrComment(int conversationId, int replyCommentId, string content, bool isCloseConversation = false)
         {
-            Message message = _messageService.ReplyFacebookPostOrComment(conversationId, parentId, content);
+            Message message = _messageService.ReplyFacebookPostOrComment(conversationId, replyCommentId, content);
             var dto = Mapper.Map<FacebookPostCommentMessageDto>(message);
             dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
             return dto;

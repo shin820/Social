@@ -15,7 +15,7 @@ namespace Social.Application.Dto
 
         [Required]
         [Range(0, int.MaxValue)]
-        public int ParenId { get; set; }
+        public int ReplyCommentId { get; set; }
 
         public bool IsCloseConversation { get; set; }
     }
