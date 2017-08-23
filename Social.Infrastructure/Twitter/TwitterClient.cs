@@ -10,7 +10,7 @@ using Tweetinvi.Parameters;
 
 namespace Social.Infrastructure.Twitter
 {
-    public class TwitterClien : ITwitterClient
+    public class TwitterClient : ITwitterClient
     {
         public IAuthenticationContext InitAuthentication(string redirectUri)
         {
