@@ -59,7 +59,17 @@ namespace Social.Domain.DomainServices
                 return null;
             }
 
-            return TwitterConverter.ConvertToMessage(tweet);
+            var message = TwitterConverter.ConvertToMessage(tweet);
+            message.Sender = new SocialUser
+            {
+                Name = tweet.CreatedBy.Name,
+                Avatar = tweet.CreatedBy.ProfileImageUrl,
+                ScreenName = tweet.CreatedBy.ScreenName,
+                OriginalId = tweet.CreatedBy.IdStr,
+                OriginalLink = TwitterHelper.GetUserUrl(tweet.CreatedBy.ScreenName)
+
+            };
+            return message;
         }
 
         public ITweet GetTweet(SocialAccount socialAccount, long tweetId)

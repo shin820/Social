@@ -16,6 +16,7 @@ namespace Social.Application.Dto
         public int ParentId { get; set; }
         public string UserAvatar { get; set; }
         public int UserId { get; set; }
+        public string UserLink { get; set; }
         public SocialUserType UserType { get; set; }
         public string UserName { get; set; }
         public string UserScreenName { get; set; }
