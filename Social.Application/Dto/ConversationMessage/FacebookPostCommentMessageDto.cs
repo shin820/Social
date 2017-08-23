@@ -10,6 +10,12 @@ namespace Social.Application.Dto
 {
     public class FacebookPostCommentMessageDto : IHaveSendAgent
     {
+        public FacebookPostCommentMessageDto()
+        {
+            ReplyComments = new List<FacebookPostCommentMessageDto>();
+            Attachments = new List<MessageAttachmentDto>();
+        }
+
         public int Id { get; set; }
         public MessageSource Source { get; set; }
         public int ConversationId { get; set; }

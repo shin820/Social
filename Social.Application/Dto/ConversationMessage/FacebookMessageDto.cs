@@ -10,6 +10,11 @@ namespace Social.Application.Dto
 {
     public class FacebookMessageDto : IHaveSendAgent
     {
+        public FacebookMessageDto()
+        {
+            Attachments = new List<MessageAttachmentDto>();
+        }
+
         public int Id { get; set; }
         public MessageSource Source { get; set; }
         public string OriginalLink { get; set; }

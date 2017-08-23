@@ -9,6 +9,11 @@ namespace Social.Application.Dto
 {
     public class BeQuotedTweetDto
     {
+        public BeQuotedTweetDto()
+        {
+            Attachments = new List<MessageAttachmentDto>();
+        }
+
         public MessageSource Source { get; set; }
         public string OriginalLink { get; set; }
         public string UserAvatar { get; set; }
