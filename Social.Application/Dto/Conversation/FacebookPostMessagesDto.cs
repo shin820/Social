@@ -11,10 +11,12 @@ namespace Social.Application.Dto
     {
         [Required]
         [MaxLength(2000)]
-        public string message { get; set; }
-            
+        public string Message { get; set; }
+
         [Required]
         [Range(0, int.MaxValue)]
-        public int parenId { get; set; }
+        public int ParenId { get; set; }
+
+        public bool IsCloseConversation { get; set; }
     }
 }

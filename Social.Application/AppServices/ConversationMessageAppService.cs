@@ -24,10 +24,10 @@ namespace Social.Application.AppServices
         TwitterDirectMessageDto GetTwitterDirectMessage(int messageId);
         IList<TwitterTweetMessageDto> GetTwitterTweetMessages(int conversationId);
         TwitterTweetMessageDto GetTwitterTweetMessage(int messageId);
-        TwitterTweetMessageDto ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, string message);
-        TwitterDirectMessageDto ReplyTwitterDirectMessage(int conversationId, string message);
-        FacebookMessageDto ReplyFacebookMessage(int conversationId, string content);
-        FacebookPostCommentMessageDto ReplyFacebookPostOrComment(int conversationId, int parentId, string content);
+        TwitterTweetMessageDto ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, string message, bool isCloseConversation = false);
+        TwitterDirectMessageDto ReplyTwitterDirectMessage(int conversationId, string message, bool isCloseConversation = false);
+        FacebookMessageDto ReplyFacebookMessage(int conversationId, string content, bool isCloseConversation = false);
+        FacebookPostCommentMessageDto ReplyFacebookPostOrComment(int conversationId, int parentId, string content, bool isCloseConversation = false);
     }
 
     public class ConversationMessageAppService : AppService, IConversationMessageAppService
@@ -156,7 +156,7 @@ namespace Social.Application.AppServices
             return result;
         }
 
-        public TwitterTweetMessageDto ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, string messageContent)
+        public TwitterTweetMessageDto ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, string messageContent, bool isCloseConversation = false)
         {
             Message message = _messageService.ReplyTwitterTweetMessage(conversationId, tweetAccountId, messageContent);
             var dto = Mapper.Map<TwitterTweetMessageDto>(message);
@@ -164,7 +164,7 @@ namespace Social.Application.AppServices
             return dto;
         }
 
-        public TwitterDirectMessageDto ReplyTwitterDirectMessage(int conversationId, string messageContent)
+        public TwitterDirectMessageDto ReplyTwitterDirectMessage(int conversationId, string messageContent, bool isCloseConversation = false)
         {
             Message message = _messageService.ReplyTwitterDirectMessage(conversationId, messageContent);
             var dto = Mapper.Map<TwitterDirectMessageDto>(message);
@@ -172,7 +172,7 @@ namespace Social.Application.AppServices
             return dto;
         }
 
-        public FacebookMessageDto ReplyFacebookMessage(int conversationId, string content)
+        public FacebookMessageDto ReplyFacebookMessage(int conversationId, string content, bool isCloseConversation = false)
         {
             Message message = _messageService.ReplyFacebookMessage(conversationId, content);
             var dto = Mapper.Map<FacebookMessageDto>(message);
@@ -180,7 +180,7 @@ namespace Social.Application.AppServices
             return dto;
         }
 
-        public FacebookPostCommentMessageDto ReplyFacebookPostOrComment(int conversationId, int parentId, string content)
+        public FacebookPostCommentMessageDto ReplyFacebookPostOrComment(int conversationId, int parentId, string content, bool isCloseConversation = false)
         {
             Message message = _messageService.ReplyFacebookPostOrComment(conversationId, parentId, content);
             var dto = Mapper.Map<FacebookPostCommentMessageDto>(message);

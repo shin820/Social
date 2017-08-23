@@ -11,6 +11,8 @@ namespace Social.Application.Dto
     {
         [Required]
         [MaxLength(2000)]
-        public string message { get; set; }
+        public string Message { get; set; }
+
+        public bool IsCloseConversation { get; set; }
     }
 }

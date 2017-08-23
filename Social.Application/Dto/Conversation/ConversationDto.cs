@@ -39,6 +39,8 @@ namespace Social.Application.Dto
 
         public ConversationStatus Status { get; set; }
 
+        public int LastIntegrationAccountId { get; set; }
+
         [Required]
         [MaxLength(200)]
         public string Subject { get; set; }

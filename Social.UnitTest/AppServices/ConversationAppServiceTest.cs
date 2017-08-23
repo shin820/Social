@@ -231,6 +231,7 @@ namespace Social.UnitTest.AppServices
             Assert.Equal(entity.LastMessageSentTime, dto.LastMessageSentTime);
             Assert.Equal(entity.Priority, dto.Priority);
             Assert.Equal(entity.Messages.First().Content, dto.LastMessage);
+            Assert.Equal(entity.Messages.First().Sender.Id, dto.LastIntegrationAccountId);
         }
 
         private Conversation MakeConversationEntity(int id)
@@ -247,7 +248,14 @@ namespace Social.UnitTest.AppServices
                 IfRead = true,
                 Messages = new List<Message>
                 {
-                    new Message{ConversationId=id,Content="Test Message Content"}
+                    new Message{
+                        ConversationId =id,
+                        Content ="Test Message Content",
+                        Sender =new SocialUser{
+                            Id =1,
+                            Type =SocialUserType.IntegrationAccount
+                        }
+                    }
                 },
                 LastMessageSenderId = 1,
                 LastMessageSentTime = DateTime.UtcNow,

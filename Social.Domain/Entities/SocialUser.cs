@@ -46,5 +46,7 @@ namespace Social.Domain.Entities
         public bool IsDeleted { get; set; }
 
         public virtual SocialAccount SocialAccount { get; set; }
+
+        public bool IsIntegrationAccount { get { return Type == SocialUserType.IntegrationAccount; } }
     }
 }

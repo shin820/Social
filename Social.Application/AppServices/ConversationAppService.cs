@@ -94,6 +94,7 @@ namespace Social.Application.AppServices
 
                 var lastMessage = lastMessages?.FirstOrDefault(t => t.ConversationId == conversationDto.Id);
                 conversationDto.LastMessage = lastMessage?.Content;
+                conversationDto.LastIntegrationAccountId = (lastMessage?.IntegrationAccountId).GetValueOrDefault();
             }
         }
 
@@ -212,7 +213,10 @@ namespace Social.Application.AppServices
             var messages = _messageService.FindAll().Where(t => t.ConversationId == conversationDto.Id);
             if (messages != null && messages.Any())
             {
-                conversationDto.LastMessage = messages.OrderByDescending(t => t.Id).First().Content;
+                var lastMessage = messages.OrderByDescending(t => t.Id).First();
+
+                conversationDto.LastMessage = lastMessage.Content;
+                conversationDto.LastIntegrationAccountId = lastMessage.IntegrationAccountId;
             }
         }
     }
