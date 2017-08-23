@@ -27,7 +27,7 @@ namespace Social.Application.AppServices
         TwitterTweetMessageDto ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, string message, bool isCloseConversation = false);
         TwitterDirectMessageDto ReplyTwitterDirectMessage(int conversationId, string message, bool isCloseConversation = false);
         FacebookMessageDto ReplyFacebookMessage(int conversationId, string content, bool isCloseConversation = false);
-        FacebookPostCommentMessageDto ReplyFacebookPostOrComment(int conversationId, int parentId, string content, bool isCloseConversation = false);
+        FacebookPostCommentMessageDto ReplyFacebookPostOrComment(int conversationId, int postOrCommentId, string content, bool isCloseConversation = false);
     }
 
     public class ConversationMessageAppService : AppService, IConversationMessageAppService
@@ -180,9 +180,9 @@ namespace Social.Application.AppServices
             return dto;
         }
 
-        public FacebookPostCommentMessageDto ReplyFacebookPostOrComment(int conversationId, int replyCommentId, string content, bool isCloseConversation = false)
+        public FacebookPostCommentMessageDto ReplyFacebookPostOrComment(int conversationId, int postOrCommentId, string content, bool isCloseConversation = false)
         {
-            Message message = _messageService.ReplyFacebookPostOrComment(conversationId, replyCommentId, content);
+            Message message = _messageService.ReplyFacebookPostOrComment(conversationId, postOrCommentId, content);
             var dto = Mapper.Map<FacebookPostCommentMessageDto>(message);
             dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
             return dto;

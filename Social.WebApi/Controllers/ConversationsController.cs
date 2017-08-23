@@ -198,7 +198,7 @@ namespace Social.WebApi.Controllers
         [Route("{conversationId}/facebook-post-messages")]
         public FacebookPostCommentMessageDto PostFacebookPostMessages(int conversationId, FacebookPostMessagesDto dto)
         {
-            return _messageAppService.ReplyFacebookPostOrComment(conversationId, dto.ReplyCommentId, dto.Message, dto.IsCloseConversation);
+            return _messageAppService.ReplyFacebookPostOrComment(conversationId, dto.PostOrCommentId, dto.Message, dto.IsCloseConversation);
         }
 
         /// <summary>
