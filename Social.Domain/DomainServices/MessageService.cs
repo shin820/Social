@@ -30,13 +30,17 @@ namespace Social.Domain.DomainServices
     {
         private ISocialAccountService _socialAccountService;
         private IConversationService _conversationService;
+        private IFbClient _fbClient;
+
         public MessageService(
             ISocialAccountService socialAccountService,
-            IConversationService conversationService
+            IConversationService conversationService,
+            IFbClient fbClient
             )
         {
             _socialAccountService = socialAccountService;
             _conversationService = conversationService;
+            _fbClient = fbClient;
         }
 
         public override IQueryable<Message> FindAll()
@@ -92,7 +96,7 @@ namespace Social.Domain.DomainServices
                 .Select(t => t.Sender).FirstOrDefault();
 
             // publish message to facebook
-            string fbMessageId = FbClient.PublishMessage(socialAccount.Token, conversation.OriginalId, content);
+            string fbMessageId = _fbClient.PublishMessage(socialAccount.Token, conversation.OriginalId, content);
 
             // create message
             var message = new Message
@@ -152,13 +156,13 @@ namespace Social.Domain.DomainServices
                 }
 
                 // publish comment
-                string fbCommentId = FbClient.PublishComment(socialAccount.Token, previousMessage.OriginalId, content);
+                string fbCommentId = _fbClient.PublishComment(socialAccount.Token, previousMessage.OriginalId, content);
                 if (string.IsNullOrWhiteSpace(fbCommentId))
                 {
                     continue;
                 }
 
-                var fbComment = FbClient.GetComment(socialAccount.Token, fbCommentId);
+                var fbComment = _fbClient.GetComment(socialAccount.Token, fbCommentId);
 
                 // add message
                 comment = new Message

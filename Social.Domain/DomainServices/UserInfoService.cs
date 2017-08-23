@@ -17,25 +17,33 @@ namespace Social.Domain.DomainServices
         FbUser GetFacebookInfo(string OriginalId, Conversation conversation, int userId);
         IUser GetTwitterInfo(string OriginalId, Conversation conversation, int userId);
     }
-    public class UserInfoService: DomainService<SocialAccount>, IUserInfoService
+    public class UserInfoService : DomainService<SocialAccount>, IUserInfoService
     {
         private IRepository<SocialUser> _socialUserRepo;
         private IRepository<Message> _messageRepo;
         private IRepository<Conversation> _conversationRepo;
         private IRepository<SocialAccount> _socialAccountRepo;
-        public UserInfoService(IRepository<SocialUser> socialUserRepo, IRepository<Message> messageRepo, IRepository<Conversation> conversationRepo,
-            IRepository<SocialAccount> socialAccountRepo)
+        private IFbClient _fbClient;
+
+        public UserInfoService(
+            IRepository<SocialUser> socialUserRepo,
+            IRepository<Message> messageRepo,
+            IRepository<Conversation> conversationRepo,
+            IRepository<SocialAccount> socialAccountRepo,
+            IFbClient fbClient
+            )
         {
             _socialUserRepo = socialUserRepo;
             _messageRepo = messageRepo;
             _conversationRepo = conversationRepo;
             _socialAccountRepo = socialAccountRepo;
+            _fbClient = fbClient;
         }
 
         public SocialUser GetUser(string OriginalId)
         {
             List<SocialUser> users = _socialUserRepo.FindAll().Where(t => t.OriginalId == OriginalId).ToList();
-            if(users.Count() == 1)
+            if (users.Count() == 1)
             {
                 return users[0];
             }
@@ -71,7 +79,7 @@ namespace Social.Domain.DomainServices
                 token = _socialAccountRepo.Find(accountId.Value).Token;
             }
 
-            FbUser fbUser =  FbClient.GetFacebookUserInfo(token, OriginalId);
+            FbUser fbUser = _fbClient.GetFacebookUserInfo(token, OriginalId);
             return fbUser;
         }
 
@@ -80,7 +88,7 @@ namespace Social.Domain.DomainServices
             SocialAccount socialAccount = _socialAccountRepo.Find(userId);
             var twitterService = DependencyResolver.Resolve<ITwitterService>();
             if (socialAccount == null)
-            {             
+            {
                 int? accountId = null;
                 while (accountId == null)
                 {

@@ -23,19 +23,23 @@ namespace Social.WebApi.Controllers
     {
         private IUnitOfWorkManager _uowManager;
         private IFacebookAccountAppService _appService;
+        private IFbClient _fbClient;
 
         /// <summary>
         /// FacebookAccountsController
         /// </summary>
         /// <param name="uowManager"></param>
         /// <param name="appService"></param>
+        /// <param name="fbClient"></param>
         public FacebookAccountsController(
             IUnitOfWorkManager uowManager,
-            IFacebookAccountAppService appService
+            IFacebookAccountAppService appService,
+            IFbClient fbClient
             )
         {
             _uowManager = uowManager;
             _appService = appService;
+            _fbClient = fbClient;
         }
 
         /// <summary>
@@ -47,7 +51,7 @@ namespace Social.WebApi.Controllers
         [Route("integration-request")]
         public IHttpActionResult IntegrationRequest([Required]string redirectUri)
         {
-            return Redirect(FbClient.GetAuthUrl(redirectUri));
+            return Redirect(_fbClient.GetAuthUrl(redirectUri));
         }
 
         /// <summary>
