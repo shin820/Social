@@ -43,7 +43,7 @@ namespace Social.Infrastructure.Twitter
                 MaxId = maxId,
                 MaximumNumberOfMessagesToRetrieve = maxNumberOfMessagesRetrieve
             };
-            return Message.GetLatestMessagesReceived(parameter);
+            return Message.GetLatestMessagesSent(parameter);
         }
     }
 }
