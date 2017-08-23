@@ -4,15 +4,48 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Tweetinvi;
+using Tweetinvi.Credentials.Models;
 using Tweetinvi.Models;
 using Tweetinvi.Parameters;
 
 namespace Social.Infrastructure.Twitter
 {
-    public class TwitterClient
+    public class TwitterClien : ITwitterClient
     {
+        public IAuthenticationContext InitAuthentication(string redirectUri)
+        {
+            var appCreds = new ConsumerCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret);
+            return AuthFlow.InitAuthentication(appCreds, redirectUri);
+        }
+
+        public IAuthenticatedUser GetAuthenticatedUser(string oauthVerifier, string authorizationKey, string authorizationSecret)
+        {
+            var appCreds = new ConsumerCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret);
+            var token = new AuthenticationToken()
+            {
+                AuthorizationKey = authorizationKey,
+                AuthorizationSecret = authorizationSecret,
+                ConsumerCredentials = appCreds
+            };
+
+            var userCredentils = AuthFlow.CreateCredentialsFromVerifierCode(oauthVerifier, token);
+            var user = User.GetAuthenticatedUser(userCredentils);
+            return user;
+        }
+
+        public void SetUserCredentials(string token, string secret)
+        {
+            Auth.SetUserCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret, token, secret);
+        }
+
         public ITweet GetTweet(long tweetId)
         {
+            return Tweet.GetTweet(tweetId);
+        }
+
+        public ITweet GetTweet(string userToken, string userSecret, long tweetId)
+        {
+            SetUserCredentials(userToken, userSecret);
             return Tweet.GetTweet(tweetId);
         }
 
@@ -23,6 +56,12 @@ namespace Social.Infrastructure.Twitter
 
         public IUser GetUser(long userId)
         {
+            return User.GetUserFromId(userId);
+        }
+
+        public IUser GetUser(string userToken, string userSecret, long userId)
+        {
+            SetUserCredentials(userToken, userSecret);
             return User.GetUserFromId(userId);
         }
 
@@ -44,6 +83,57 @@ namespace Social.Infrastructure.Twitter
                 MaximumNumberOfMessagesToRetrieve = maxNumberOfMessagesRetrieve
             };
             return Message.GetLatestMessagesSent(parameter);
+        }
+
+        public IEnumerable<ITweet> GetUserTimeline(long userId, int maxNumberOfTweetsRetrieve, long? maxId = null)
+        {
+            if (maxId.HasValue)
+            {
+                var parameter = new UserTimelineParameters { MaxId = maxId.Value, MaximumNumberOfTweetsToRetrieve = maxNumberOfTweetsRetrieve };
+                return Timeline.GetUserTimeline(userId, parameter);
+            }
+            else
+            {
+                return Timeline.GetUserTimeline(userId, maxNumberOfTweetsRetrieve);
+            }
+        }
+
+        public IEnumerable<ITweet> GetMentionsTimeline(int maxNumberOfTweetsRetrieve, long? maxId = null)
+        {
+            if (maxId.HasValue)
+            {
+                var parameter = new MentionsTimelineParameters { MaxId = maxId.Value, MaximumNumberOfTweetsToRetrieve = maxNumberOfTweetsRetrieve };
+                return Timeline.GetMentionsTimeline(parameter);
+            }
+            else
+            {
+                return Timeline.GetMentionsTimeline(maxNumberOfTweetsRetrieve);
+            }
+        }
+
+        public ITweet PublishTweet(string message, ITweet inReplyTo)
+        {
+            return Tweet.PublishTweet(message, new PublishTweetOptionalParameters
+            {
+                InReplyToTweet = inReplyTo
+            });
+        }
+
+        public ITweet PublishTweet(string userToken, string userSecret, string message, ITweet inReplyTo)
+        {
+            SetUserCredentials(userToken, userSecret);
+            return PublishTweet(message, inReplyTo);
+        }
+
+        public IMessage PublishMessage(string message, IUser user)
+        {
+            return Message.PublishMessage(message, user);
+        }
+
+        public IMessage PublishMessage(string userToken, string userSecret, string message, IUser user)
+        {
+            SetUserCredentials(userToken, userSecret);
+            return Message.PublishMessage(message, user);
         }
     }
 }

@@ -1,12 +1,12 @@
 ﻿using Framework.Core;
 using Social.Domain.Entities;
 using Social.Infrastructure;
+using Social.Infrastructure.Twitter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Parameters;
 
@@ -21,10 +21,15 @@ namespace Social.Domain.DomainServices
     public class TwitterPullJobService : ServiceBase, ITwitterPullJobService
     {
         private ITwitterService _twitterService;
+        private ITwitterClient _twitterClient;
 
-        public TwitterPullJobService(ITwitterService twitterService)
+        public TwitterPullJobService(
+            ITwitterService twitterService,
+            ITwitterClient twitterClient
+            )
         {
             _twitterService = twitterService;
+            _twitterClient = twitterClient;
         }
 
         #region PullDirectMessages
@@ -32,7 +37,8 @@ namespace Social.Domain.DomainServices
         {
             int maxNumberOfMessagesRetrieve = 50;
             DateTime since = DateTime.UtcNow.AddDays(-1);
-            Auth.SetUserCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret, account.Token, account.TokenSecret);
+
+            _twitterClient.SetUserCredentials(account.Token, account.TokenSecret);
 
             var recivedMessages = PullReceivedDirectMessages(account, maxNumberOfMessagesRetrieve, since);
             var sentMessages = PullSentDirectMessages(account, maxNumberOfMessagesRetrieve, since);
@@ -76,12 +82,9 @@ namespace Social.Domain.DomainServices
                 var parameter = new MessagesReceivedParameters { MaxId = maxId, MaximumNumberOfMessagesToRetrieve = maxNumberOfMessagesRetrieve };
                 receivedDirectMessages = Tweetinvi.Message.GetLatestMessagesReceived(parameter);
 
-                if (receivedDirectMessages.Count() == 1)
+                if (receivedDirectMessages.Count() == 1 && receivedDirectMessages.First().Id == maxId)
                 {
-                    if (receivedDirectMessages.First().Id == maxId)
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
 
@@ -117,12 +120,9 @@ namespace Social.Domain.DomainServices
                 var parameter = new MessagesSentParameters { MaxId = maxId, MaximumNumberOfMessagesToRetrieve = maxNumberOfMessagesRetrieve };
                 sentDirectMessages = Tweetinvi.Message.GetLatestMessagesSent(parameter);
 
-                if (sentDirectMessages.Count() == 1)
+                if (sentDirectMessages.Count() == 1 && sentDirectMessages.First().Id == maxId)
                 {
-                    if (sentDirectMessages.First().Id == maxId)
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
             return messages;
@@ -134,7 +134,8 @@ namespace Social.Domain.DomainServices
         {
             int maxNumberOfTweetsRetrieve = 10;
             DateTime since = DateTime.UtcNow.AddDays(-1);
-            Auth.SetUserCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret, account.Token, account.TokenSecret);
+
+            _twitterClient.SetUserCredentials(account.Token, account.TokenSecret);
 
             var receivedTweets = PullMentionTimeLineTweets(account, maxNumberOfTweetsRetrieve, since);
             var sentTweets = new List<ITweet>();
@@ -153,7 +154,7 @@ namespace Social.Domain.DomainServices
         private IList<ITweet> PullUserTimeLineTweets(SocialAccount account, int maxNumberOfTweetsRetrieve, DateTime since)
         {
             var timeLineTweets = new List<ITweet>();
-            var tweets = Timeline.GetUserTimeline(long.Parse(account.SocialUser.OriginalId), maxNumberOfTweetsRetrieve);
+            var tweets = _twitterClient.GetUserTimeline(long.Parse(account.SocialUser.OriginalId), maxNumberOfTweetsRetrieve);
             while (tweets != null && tweets.Any())
             {
                 if (tweets.First().CreatedAt <= since)
@@ -176,15 +177,19 @@ namespace Social.Domain.DomainServices
                 }
 
                 var maxId = tweets.Last().Id;
-                var parameter = new UserTimelineParameters { MaxId = maxId, MaximumNumberOfTweetsToRetrieve = maxNumberOfTweetsRetrieve };
-                tweets = Timeline.GetUserTimeline(long.Parse(account.SocialUser.OriginalId), parameter);
+                tweets = _twitterClient.GetUserTimeline(long.Parse(account.SocialUser.OriginalId), maxNumberOfTweetsRetrieve, maxId);
+
+                if (tweets.Count() == 1 && tweets.First().Id == maxId)
+                {
+                    break;
+                }
             }
             return timeLineTweets;
         }
         private IList<ITweet> PullMentionTimeLineTweets(SocialAccount account, int maxNumberOfTweetsRetrieve, DateTime since)
         {
             var mentions = new List<ITweet>();
-            var tweets = Timeline.GetMentionsTimeline(maxNumberOfTweetsRetrieve);
+            var tweets = _twitterClient.GetMentionsTimeline(maxNumberOfTweetsRetrieve);
             while (tweets != null && tweets.Any())
             {
                 if (tweets.First().CreatedAt.ToUniversalTime() <= since)
@@ -207,15 +212,11 @@ namespace Social.Domain.DomainServices
                 }
 
                 var maxId = tweets.Last().Id;
-                var parameter = new MentionsTimelineParameters { MaxId = maxId, MaximumNumberOfTweetsToRetrieve = maxNumberOfTweetsRetrieve };
-                tweets = Timeline.GetMentionsTimeline(parameter);
+                tweets = _twitterClient.GetMentionsTimeline(maxNumberOfTweetsRetrieve, maxId);
 
-                if (tweets.Count() == 1)
+                if (tweets.Count() == 1 && tweets.First().Id == maxId)
                 {
-                    if (tweets.First().Id == maxId)
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
             return mentions;

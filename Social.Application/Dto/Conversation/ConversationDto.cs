@@ -42,6 +42,7 @@ namespace Social.Application.Dto
 
         public int LastIntegrationAccountId { get; set; }
         public string LastIntegrationAccountName { get; set; }
+        public string LastIntegrationAccountAvatar { get; set; }
 
         [Required]
         [MaxLength(200)]

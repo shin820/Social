@@ -21,7 +21,7 @@ namespace Social.Domain.DomainServices.Twitter
         private IMessageService _messageService;
         private ISocialUserService _socialUserService;
         private ISocialAccountService _socialAccountService;
-        private TweetTreeWalker _twitterTreeWalker;
+        private ITweetTreeWalker _twitterTreeWalker;
         private INotificationManager _notificationManager;
 
         public TwitterTweetService(
@@ -29,14 +29,15 @@ namespace Social.Domain.DomainServices.Twitter
             IMessageService messageService,
             ISocialUserService socialUserService,
             ISocialAccountService socialAccountService,
-            INotificationManager notificationManager
+            INotificationManager notificationManager,
+            ITweetTreeWalker twitterTreeWalker
             )
         {
             _conversationService = conversationService;
             _messageService = messageService;
             _socialUserService = socialUserService;
             _socialAccountService = socialAccountService;
-            _twitterTreeWalker = new TweetTreeWalker();
+            _twitterTreeWalker = twitterTreeWalker;
             _notificationManager = notificationManager;
         }
 

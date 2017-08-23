@@ -1,16 +1,19 @@
 ﻿using Social.Domain.Entities;
-using System;
+using Social.Infrastructure.Twitter;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tweetinvi;
 using Tweetinvi.Models;
 
 namespace Social.Domain.DomainServices.Twitter
 {
-    public class TweetTreeWalker
+    public class TweetTreeWalker : ITweetTreeWalker
     {
+        private ITwitterClient _twitterClient;
+        public TweetTreeWalker(ITwitterClient twitterClient)
+        {
+            _twitterClient = twitterClient;
+        }
+
         public List<ITweet> BuildTweetTree(ITweet currentTweet)
         {
             var tweets = new List<ITweet>();
@@ -30,7 +33,7 @@ namespace Social.Domain.DomainServices.Twitter
 
             if (currentTweet.InReplyToStatusId != null)
             {
-                ITweet inReplyToTweet = Tweet.GetTweet(currentTweet.InReplyToStatusId.Value);
+                ITweet inReplyToTweet = _twitterClient.GetTweet(currentTweet.InReplyToStatusId.Value);
                 if (inReplyToTweet == null)
                 {
                     return;

@@ -1,5 +1,6 @@
 ﻿using Social.Domain.DomainServices.Twitter;
 using Social.Infrastructure;
+using Social.Infrastructure.Twitter;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace Social.IntegrationTest.DomainServices.Twitter
         [Fact]
         public void ShouldOnlyWalk10LevelWhenBuildTweetTree()
         {
-            TweetTreeWalker walker = new TweetTreeWalker();
+            TweetTreeWalker walker = new TweetTreeWalker(new TwitterClient());
             Auth.SetCredentials(new TwitterCredentials(AppSettings.TwitterConsumerKey, AppSettings.TwitterConsumerSecret,
               "880620227460866048-E1XTzWOFE1xLfxYDor5I5oGMiVUVs86", "ii3mahfjH0qjU4wupnj3Du6JbWjwPuM2p8jHoUrcgpLYp"));
             //var tweet = Tweet.GetTweet(894838703922728960); 10 level

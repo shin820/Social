@@ -71,11 +71,11 @@ namespace Social.UnitTest.AppServices
             conversationService.Setup(t => t.ApplyKeyword(fakeConversationEntityList, It.IsAny<string>())).Returns(fakeConversationEntityList);
             conversationService.Setup(t => t.ApplySenderOrReceiverId(fakeConversationEntityList, It.IsAny<int?>())).Returns(fakeConversationEntityList);
             var messageService = new Mock<IMessageService>();
-            messageService.Setup(t => t.GetLastMessages(It.IsAny<int[]>())).Returns(
+            messageService.Setup(t => t.FindAllByConversationIds(It.IsAny<int[]>())).Returns(
              new List<Message> {
                  fakeConversationEntityList.First(t => t.Id == 1).Messages.FirstOrDefault(),
                  fakeConversationEntityList.First(t => t.Id == 2).Messages.FirstOrDefault()
-             }
+             }.AsQueryable()
             );
             ConversationAppService appSerice = new ConversationAppService(
                 conversationService.Object,
@@ -211,6 +211,8 @@ namespace Social.UnitTest.AppServices
         {
             var messageServiceMock = new Mock<IMessageService>();
             messageServiceMock.Setup(t => t.FindAll()).Returns(messages.AsQueryable());
+            messageServiceMock.Setup(t => t.FindAllByConversationId(It.IsAny<int>())).Returns(messages.AsQueryable());
+            messageServiceMock.Setup(t => t.FindAllByConversationIds(It.IsAny<int[]>())).Returns(messages.AsQueryable());
             return messageServiceMock.Object;
         }
 

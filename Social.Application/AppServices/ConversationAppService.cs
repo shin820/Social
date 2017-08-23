@@ -104,6 +104,7 @@ namespace Social.Application.AppServices
                     {
                         conversationDto.LastIntegrationAccountId = message.IntegrationAccountId;
                         conversationDto.LastIntegrationAccountName = message.IntegrationAccount.Name;
+                        conversationDto.LastIntegrationAccountAvatar = message.IntegrationAccount.Avatar;
                         break;
                     }
                 }
@@ -234,6 +235,7 @@ namespace Social.Application.AppServices
                     {
                         conversationDto.LastIntegrationAccountId = message.IntegrationAccountId;
                         conversationDto.LastIntegrationAccountName = message.IntegrationAccount.Name;
+                        conversationDto.LastIntegrationAccountAvatar = message.IntegrationAccount.Avatar;
                         break;
                     }
                 }
