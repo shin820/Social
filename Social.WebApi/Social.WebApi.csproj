@@ -382,6 +382,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Properties\PublishProfiles\Release.pubxml" />
+    <None Include="Properties\PublishProfiles\ReleaseViaFileSystem.pubxml" />
     <None Include="Scripts\jquery-3.1.1.intellisense.js" />
     <Content Include="obfuscar.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
