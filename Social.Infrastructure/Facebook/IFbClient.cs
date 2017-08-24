@@ -7,6 +7,7 @@ namespace Social.Infrastructure.Facebook
 {
     public interface IFbClient : ITransient
     {
+        Task<FbToken> GetApplicationToken();
         string GetAuthUrl(string redirectUri);
         FbComment GetComment(string token, string fbCommentId);
         Task<FbPagingData<FbConversation>> GetConversationsMessages(string pageId, string token);
@@ -17,6 +18,7 @@ namespace Social.Infrastructure.Facebook
         Task<FbPost> GetPost(string token, string fbPostId);
         Task<FbComment> GetPostComment(string commentId, string token, int limit = 100);
         Task<FbPagingData<FbPost>> GetTaggedVisitorPosts(string pageId, string token);
+        Task<FbUser> GetUserInfo(string fbUserId);
         Task<FbUser> GetUserInfo(string token, string fbUserId);
         string GetUserToken(string code, string redirectUri);
         Task<FbPagingData<FbPost>> GetVisitorPosts(string pageId, string token);

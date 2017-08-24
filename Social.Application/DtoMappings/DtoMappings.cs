@@ -71,7 +71,6 @@ namespace Social.Application
                 .ForMember(dest => dest.Avatar, src => src.MapFrom(x => x.SocialUser.Avatar));
             CreateMap<UpdateTwitterAccountDto, SocialAccount>();
 
-            CreateMap<FbUser, UserInfoDto>();
             CreateMap<Agent, AgentDto>();
             CreateMap<Department, DepartmentDto>();
         }

@@ -15,6 +15,23 @@ namespace Social.Infrastructure.Facebook
 {
     public class FbClient : IFbClient
     {
+        public async Task<FbToken> GetApplicationToken()
+        {
+            HttpClient client = new HttpClient();
+            string url =
+                string.Format(
+                    "https://graph.facebook.com/v2.9/oauth/access_token?client_id={0}&client_secret={1}&grant_type=client_credentials",
+                    AppSettings.FacebookClientId,
+                    AppSettings.FacebookClientSecret
+                    );
+
+            HttpResponseMessage response = await client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            var jsonRes = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<FbToken>(jsonRes);
+        }
+
+
         public async Task SubscribeApp(string pageId, string pageToken)
         {
             HttpClient client = new HttpClient();
@@ -117,6 +134,12 @@ namespace Social.Infrastructure.Facebook
             }
 
             return me;
+        }
+
+        public async Task<FbUser> GetUserInfo(string fbUserId)
+        {
+            FbToken token = await GetApplicationToken();
+            return await GetUserInfo(token.AccessToken, fbUserId);
         }
 
         public async Task<FbUser> GetUserInfo(string token, string fbUserId)

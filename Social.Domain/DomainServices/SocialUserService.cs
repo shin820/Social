@@ -69,7 +69,7 @@ namespace Social.Domain.DomainServices
 
         public override SocialUser Find(int id)
         {
-            return base.FindAll().Where(t => t.IsDeleted == false).FirstOrDefault();
+            return base.FindAll().Where(t => t.IsDeleted == false).FirstOrDefault(t => t.Id == id);
         }
 
         public SocialUser FindByOriginalId(string originalId, SocialUserSource source, SocialUserType type)

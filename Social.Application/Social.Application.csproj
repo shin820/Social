@@ -138,7 +138,7 @@
     <Compile Include="AppServices\FacebookAccountAppService.cs" />
     <Compile Include="AppServices\TwitterAccountAppService.cs" />
     <Compile Include="AppServices\TwitterAppService.cs" />
-    <Compile Include="AppServices\UserInfoAppService.cs" />
+    <Compile Include="AppServices\SocialUserAppService.cs" />
     <Compile Include="DtoMappings\ConversationMessageDtoMappings.cs" />
     <Compile Include="Dto\Agent\AgentDto.cs" />
     <Compile Include="Dto\ConversationMessage\BeQuotedTweetDto.cs" />
