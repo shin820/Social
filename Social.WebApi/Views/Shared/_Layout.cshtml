@@ -18,11 +18,11 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("应用程序名称", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("Social Web Api", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("主页", "Index", "Home", new { area = "" }, null)</li>
+                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, null)</li>
                     @*<li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, null)</li>*@
                     <li>@Html.ActionLink("API", "", "Swagger", new { area = "" }, null)</li>
                     <li>@Html.ActionLink("Facebook", "Index", "Facebook", new { area = "" }, null)</li>
@@ -36,7 +36,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - 我的 ASP.NET 应用程序</p>
+            <p>&copy; @DateTime.Now.Year - Comm100 - Social Web Api</p>
         </footer>
     </div>
 
