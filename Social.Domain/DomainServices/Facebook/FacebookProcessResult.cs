@@ -102,7 +102,7 @@ namespace Social.Domain.DomainServices.Facebook
                 {
                     await _notificationManager.NotifyNewFacebookMessage(siteId, newMessage.Id);
                 }
-                if (newMessage.Source == MessageSource.FacebookPostComment)
+                if (newMessage.Source == MessageSource.FacebookPostComment || newMessage.Source == MessageSource.FacebookPostReplyComment)
                 {
                     await _notificationManager.NotifyNewFacebookComment(siteId, newMessage.Id);
                 }

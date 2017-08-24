@@ -60,6 +60,11 @@ namespace Social.Domain.DomainServices.Facebook
             return MessageService.FindByOriginalId(source, originalId);
         }
 
+        protected Message GetMessage(MessageSource[] sources, string originalId)
+        {
+            return MessageService.FindByOriginalId(sources, originalId);
+        }
+
         protected async Task DeleteMessage(Message message)
         {
             await MessageService.DeleteAsync(message);

@@ -71,7 +71,7 @@ namespace Social.Application.AppServices
             }
             var postDto = Mapper.Map<FacebookPostMessageDto>(postMessage);
 
-            var allComments = messages.Where(t => t.Source == MessageSource.FacebookPostComment).Select(t => Mapper.Map<FacebookPostCommentMessageDto>(t)).ToList();
+            var allComments = messages.Where(t => t.Source == MessageSource.FacebookPostComment || t.Source == MessageSource.FacebookPostReplyComment).Select(t => Mapper.Map<FacebookPostCommentMessageDto>(t)).ToList();
             _agentService.FillAgentName(allComments.Cast<IHaveSendAgent>());
 
             postDto.Comments = allComments.Where(t => t.ParentId == postDto.Id).OrderBy(t => t.SendTime).ToList();

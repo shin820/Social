@@ -17,6 +17,7 @@ namespace Social.Domain.DomainServices
     public interface IMessageService : IDomainService<Message>
     {
         Message FindByOriginalId(MessageSource source, string originalId);
+        Message FindByOriginalId(MessageSource[] sources, string originalId);
         IQueryable<Message> FindAllByConversationId(int conversationId);
         IQueryable<Message> FindAllByConversationIds(int[] conversationIds);
         bool IsDuplicatedMessage(MessageSource messageSource, string originalId);
@@ -56,6 +57,16 @@ namespace Social.Domain.DomainServices
         public Message FindByOriginalId(MessageSource source, string originalId)
         {
             return FindAll().Where(t => t.OriginalId == originalId && t.Source == source).FirstOrDefault();
+        }
+
+        public Message FindByOriginalId(MessageSource[] sources, string originalId)
+        {
+            if (sources == null)
+            {
+                return null;
+            }
+
+            return FindAll().Where(t => t.OriginalId == originalId && sources.Contains(t.Source)).FirstOrDefault();
         }
 
         public IQueryable<Message> FindAllByConversationId(int conversationId)
@@ -191,6 +202,10 @@ namespace Social.Domain.DomainServices
                     OriginalLink = fbComment.permalink_url,
                     Source = MessageSource.FacebookPostComment
                 };
+                if (comment.ParentId != postMessage.Id)
+                {
+                    comment.Source = MessageSource.FacebookPostReplyComment;
+                }
                 Repository.Insert(comment);
                 CurrentUnitOfWork.SaveChanges();
 

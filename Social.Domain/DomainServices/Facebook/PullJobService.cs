@@ -391,6 +391,7 @@ namespace Social.Domain.DomainServices.Facebook
                         }
 
                         var message = _fbConverter.ConvertToMessage(replyComment);
+                        message.Source = MessageSource.FacebookPostReplyComment;
                         message.SenderId = sender.Id;
                         message.ReceiverId = parent.SenderId;
                         message.ParentId = parent.Id;
@@ -562,7 +563,7 @@ namespace Social.Domain.DomainServices.Facebook
             if (ReplyCommentsToBeCretaed.Any())
             {
                 var replyCommentIds = ReplyCommentsToBeCretaed.Select(t => t.id).ToList();
-                var existingReplyCommentIds = _messageService.FindAll().Where(t => t.Source == MessageSource.FacebookPostComment && replyCommentIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
+                var existingReplyCommentIds = _messageService.FindAll().Where(t => t.Source == MessageSource.FacebookPostReplyComment && replyCommentIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
                 ReplyCommentsToBeCretaed.RemoveAll(t => existingReplyCommentIds.Contains(t.id));
             }
             if (ConversationsToBeCreated.Any())
