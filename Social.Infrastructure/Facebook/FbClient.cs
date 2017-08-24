@@ -15,20 +15,52 @@ namespace Social.Infrastructure.Facebook
 {
     public class FbClient : IFbClient
     {
+        private static Tuple<FbToken, DateTime> _applicationTokenCache;
+
         public async Task<FbToken> GetApplicationToken()
         {
-            HttpClient client = new HttpClient();
-            string url =
-                string.Format(
-                    "https://graph.facebook.com/v2.9/oauth/access_token?client_id={0}&client_secret={1}&grant_type=client_credentials",
-                    AppSettings.FacebookClientId,
-                    AppSettings.FacebookClientSecret
-                    );
+            if (_applicationTokenCache != null && _applicationTokenCache.Item2 > DateTime.UtcNow)
+            {
+                return _applicationTokenCache.Item1;
+            }
 
-            HttpResponseMessage response = await client.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-            var jsonRes = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<FbToken>(jsonRes);
+            FacebookClient client = new FacebookClient();
+            FbToken fbToken = null;
+            try
+            {
+                dynamic result = client.Post("oauth/access_token", new
+                {
+                    client_id = AppSettings.FacebookClientId,
+                    client_secret = AppSettings.FacebookClientSecret,
+                    grant_type = "client_credentials",
+                });
+                fbToken = new FbToken
+                {
+                    AccessToken = result.access_token,
+                    Type = result.token_type,
+                    ExpiresIn = result.expires_in
+                };
+            }
+            catch (FacebookOAuthException ex)
+            {
+                throw SocialExceptions.FacebookOauthException(ex);
+            }
+
+            //HttpClient client = new HttpClient();
+            //string url =
+            //    string.Format(
+            //        "https://graph.facebook.com/v2.9/oauth/access_token?client_id={0}&client_secret={1}&grant_type=client_credentials",
+            //        AppSettings.FacebookClientId,
+            //        AppSettings.FacebookClientSecret
+            //        );
+
+            //HttpResponseMessage response = await client.GetAsync(url);
+            //response.EnsureSuccessStatusCode();
+            //var jsonRes = await response.Content.ReadAsStringAsync();
+            //var fbToken = JsonConvert.DeserializeObject<FbToken>(jsonRes);
+
+            _applicationTokenCache = new Tuple<FbToken, DateTime>(fbToken, DateTime.UtcNow.AddHours(1));
+            return fbToken;
         }
 
 
