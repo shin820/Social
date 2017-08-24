@@ -55,6 +55,7 @@ namespace Social.Application.AppServices
             if (user.Source == SocialUserSource.Facebook)
             {
                 FbUser facebookInfo = await _fbClient.GetUserInfo(user.OriginalId);
+                userInfoDto.Source = SocialUserSource.Facebook;
                 userInfoDto.Name = facebookInfo.name;
                 userInfoDto.Email = facebookInfo.email;
                 userInfoDto.Link = facebookInfo.link;
@@ -68,6 +69,7 @@ namespace Social.Application.AppServices
                 IUser twitterUserInfo = _twitterClient.GetUser(account.Token, account.TokenSecret, long.Parse(user.OriginalId));
                 if (twitterUserInfo != null)
                 {
+                    userInfoDto.Source = SocialUserSource.Twitter;
                     userInfoDto.Name = twitterUserInfo.Name;
                     userInfoDto.OriginalId = twitterUserInfo.Id.ToString();
                     userInfoDto.Avatar = twitterUserInfo.ProfileImageUrl;

@@ -1,4 +1,5 @@
 ﻿using Social.Domain.Entities;
+using Social.Infrastructure.Enum;
 using Social.Infrastructure.Facebook;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace Social.Application.Dto.UserInfo
     public class UserInfoDto
     {
         public int Id { get; set; }
+        public SocialUserSource Source { get; set; }
 
         public string OriginalId { get; set; }
         public string Name { get; set; }
