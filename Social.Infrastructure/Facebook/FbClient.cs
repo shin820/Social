@@ -414,7 +414,7 @@ namespace Social.Infrastructure.Facebook
             Checker.NotNullOrWhiteSpace(token, nameof(pageId));
             FacebookClient client = new FacebookClient(token);
 
-            long since = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
+            long since = DateTime.UtcNow.AddDays(-1).ToUnixTimeSeconds();
 
             string toFields = $"to{{id,name,pic,username,profile_type,link}}";
             string innnerCommentsFields = $"comments.since({since}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden}}";
@@ -430,7 +430,7 @@ namespace Social.Infrastructure.Facebook
             Checker.NotNullOrWhiteSpace(token, nameof(pageId));
             FacebookClient client = new FacebookClient(token);
 
-            long since = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
+            long since = DateTime.UtcNow.AddDays(-1).ToUnixTimeSeconds();
 
             string toFields = $"to{{id,name,pic,username,profile_type,link}}";
             string innnerCommentsFields = $"comments.since({since}){{id,parent,from,created_time,message,permalink_url,attachment,comment_count,is_hidden}}";
@@ -447,7 +447,7 @@ namespace Social.Infrastructure.Facebook
             Checker.NotNullOrWhiteSpace(token, nameof(pageId));
             FacebookClient client = new FacebookClient(token);
 
-            long since = DateTimeOffset.UtcNow.AddDays(-1).ToUnixTimeSeconds();
+            long since = DateTime.UtcNow.AddDays(-1).ToUnixTimeSeconds();
 
             string sharesFields = $"shares{{link,name,id}}";
             string messagesFields = $"messages.since({since}){{from,to,message,id,created_time,attachments,{sharesFields}}}";
