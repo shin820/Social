@@ -14,10 +14,10 @@
             <button id="btnStart">Start</button>
         </div>
         @*<div class="col-md-2">
-            <span>Conversation Id : <input id="txtConversationId" type="text" /></span>
-            <button id="btnJoinConversation">Join Conversation</button>
-            <button id="btnLeaveConversation">Leave Conversation</button>
-        </div>*@
+                <span>Conversation Id : <input id="txtConversationId" type="text" /></span>
+                <button id="btnJoinConversation">Join Conversation</button>
+                <button id="btnLeaveConversation">Leave Conversation</button>
+            </div>*@
         <div class="col-md-10">
             <div id="discussion"></div>
         </div>
@@ -31,6 +31,7 @@
     <script>
         $(function () {
 
+            $.connection.hub.url = 'http://192.168.0.154:30000/signalr';
             var hub = $.connection.notificationHub;
 
             $("#btnStart").click(function () {
