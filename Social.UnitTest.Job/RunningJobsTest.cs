@@ -108,19 +108,28 @@ namespace Social.UnitTest.Job
             Assert.Null(runningJob);
         }
 
-        //[Fact]
-        //public void ShouldStopTimeoutRunningJobs()
-        //{
-        //    // Arrange
-        //    RunningJobs runningJobs = new RunningJobs();
-        //    var scheduleManagerMock = new Mock<IScheduleJobManager>();
-        //    var siteSocialAccount = new SiteSocialAccount { SiteId = 10000, FacebookPageId = "123" };
-        //    Action<TriggerBuilder> configuerTriggerAction = t => { };
+        [Fact]
+        public void ShouldStopTimeoutRunningJobs()
+        {
+            // Arrange
+            RunningJobs runningJobs = new RunningJobs();
+            var scheduleManagerMock = new Mock<IScheduleJobManager>();
+            var siteSocialAccount = new SiteSocialAccount { SiteId = 10000, FacebookPageId = "123" };
+            Action<TriggerBuilder> configuerTriggerAction = t => { };
+            var schedulerMock = new Mock<IScheduler>();
+            schedulerMock.Setup(t => t.GetJobDetail(It.IsAny<JobKey>())).Returns(new Mock<IJobDetail>().Object);
 
-        //    // Act
-        //    runningJobs.Schedule<TestJob>(scheduleManagerMock.Object, siteSocialAccount, configuerTriggerAction);
-        //    var runningJob = runningJobs.Get<TestJob>(siteSocialAccount.SiteId, siteSocialAccount.FacebookPageId);
-        //}
+            // Act
+            runningJobs.Schedule<TestJob>(scheduleManagerMock.Object, siteSocialAccount, configuerTriggerAction);
+            var runningJob = runningJobs.Get<TestJob>(siteSocialAccount.SiteId, siteSocialAccount.FacebookPageId);
+            runningJob.LastScheduleTime = DateTime.UtcNow.AddSeconds(-301);
+            runningJobs.StopTimeoutJobs(schedulerMock.Object);
+
+            // Assert
+            schedulerMock.Verify(t => t.DeleteJob(It.Is<JobKey>(r => r.Name == "TestJob - SiteId(10000) - OriginalId(123)")));
+            Assert.False(runningJobs.IsRunning<TestJob>(10000, "123"));
+
+        }
 
         public class TestJob : JobBase
         {

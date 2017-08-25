@@ -172,6 +172,7 @@
     <Compile Include="DomainServices\FilterExpressions\SystemFiledExpression\TotalMessagesExpression.cs" />
     <Compile Include="DomainServices\FilterService.cs" />
     <Compile Include="DomainServices\MessageService.cs" />
+    <Compile Include="DomainServices\SiteSocialAccountService.cs" />
     <Compile Include="DomainServices\SocialAccountService.cs" />
     <Compile Include="DomainServices\SocialUserService.cs" />
     <Compile Include="DomainServices\Facebook\PullJobService.cs" />
