@@ -146,6 +146,7 @@
     <Compile Include="Jobs\Twitter\TwitterUserStreamJob.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RunningJob.cs" />
     <Compile Include="RunningJobs.cs" />
     <Compile Include="ScheduleJobManager.cs" />
     <Compile Include="SchedulerBootstrap.cs" />

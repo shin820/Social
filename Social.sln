@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Social.Infrastructure", "Social.Infrastructure\Social.Infrastructure.csproj", "{FE79D2DF-6B23-4278-9C84-FC1D6487C45B}"
 EndProject
@@ -56,6 +56,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "site-scripts", "site-script
 		SQL\site-scripts\15 Site_Add_t_Social_FilterCondition.sql = SQL\site-scripts\15 Site_Add_t_Social_FilterCondition.sql
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Social.UnitTest.Job", "Social.UnitTest.Job\Social.UnitTest.Job.csproj", "{B36E1963-631A-448C-83A6-4B6D5454F4C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,6 +104,10 @@ Global
 		{C4346B53-1A58-48C2-BC2C-C8AB7261BDD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4346B53-1A58-48C2-BC2C-C8AB7261BDD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4346B53-1A58-48C2-BC2C-C8AB7261BDD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B36E1963-631A-448C-83A6-4B6D5454F4C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B36E1963-631A-448C-83A6-4B6D5454F4C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B36E1963-631A-448C-83A6-4B6D5454F4C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B36E1963-631A-448C-83A6-4B6D5454F4C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -114,5 +120,9 @@ Global
 		{C4346B53-1A58-48C2-BC2C-C8AB7261BDD3} = {F2A2C673-AEE4-4DB3-92FC-79DAB018C043}
 		{1C16B363-5983-4B55-A523-3F0404C8E643} = {BB01AF05-CA41-4691-A2BA-8FDA942588BE}
 		{0AD65EAC-67BB-46C1-8383-4BA61D0F7197} = {BB01AF05-CA41-4691-A2BA-8FDA942588BE}
+		{B36E1963-631A-448C-83A6-4B6D5454F4C0} = {F2A2C673-AEE4-4DB3-92FC-79DAB018C043}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {30FD1E24-CB2F-4D2B-AF51-97754A54F2F7}
 	EndGlobalSection
 EndGlobal
