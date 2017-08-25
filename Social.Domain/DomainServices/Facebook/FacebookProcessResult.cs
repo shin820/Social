@@ -11,9 +11,9 @@ namespace Social.Domain.DomainServices.Facebook
 {
     public class FacebookProcessResult
     {
-        private IList<Conversation> _newConversations;
-        private IList<Conversation> _updatedConversations { get; set; }
-        private IList<Message> _newMessages { get; set; }
+        public IList<Conversation> NewConversations;
+        public IList<Conversation> UpdatedConversations { get; set; }
+        public IList<Message> NewMessages { get; set; }
 
         private INotificationManager _notificationManager { get; set; }
 
@@ -21,50 +21,50 @@ namespace Social.Domain.DomainServices.Facebook
             INotificationManager notificationManager
             )
         {
-            _newConversations = new List<Conversation>();
-            _updatedConversations = new List<Conversation>();
-            _newMessages = new List<Message>();
+            NewConversations = new List<Conversation>();
+            UpdatedConversations = new List<Conversation>();
+            NewMessages = new List<Message>();
             _notificationManager = notificationManager;
         }
 
         public void WithNewConversation(Conversation conversation)
         {
-            if (_newConversations.Any(t => t.Id == conversation.Id))
+            if (NewConversations.Any(t => t.Id == conversation.Id))
             {
                 return;
             }
 
-            _newConversations.Add(conversation);
+            NewConversations.Add(conversation);
         }
 
         public void WithUpdatedConversation(Conversation conversation)
         {
-            if (_newConversations.Any(t => t.Id == conversation.Id))
+            if (NewConversations.Any(t => t.Id == conversation.Id))
             {
                 return;
             }
 
-            if (_updatedConversations.Any(t => t.Id == conversation.Id))
+            if (UpdatedConversations.Any(t => t.Id == conversation.Id))
             {
                 return;
             }
 
-            _updatedConversations.Add(conversation);
+            UpdatedConversations.Add(conversation);
         }
 
         public void WithNewMessage(Message message)
         {
-            if (_newConversations.Any(t => t.Id == message.ConversationId))
+            if (NewConversations.Any(t => t.Id == message.ConversationId))
             {
                 return;
             }
 
-            if (_newMessages.Any(t => t.Id == message.Id))
+            if (NewMessages.Any(t => t.Id == message.Id))
             {
                 return;
             }
 
-            _newMessages.Add(message);
+            NewMessages.Add(message);
         }
 
         public async Task Notify(int siteId)
@@ -76,27 +76,27 @@ namespace Social.Domain.DomainServices.Facebook
 
         private async Task NotifyNewConversations(int siteId)
         {
-            foreach (var newConversation in _newConversations)
+            foreach (var newConversation in NewConversations)
             {
                 await _notificationManager.NotifyNewConversation(siteId, newConversation.Id);
             }
 
-            _newConversations.Clear();
+            NewConversations.Clear();
         }
 
         private async Task NotifyUpdateConversations(int siteId)
         {
-            foreach (var updatedConversation in _updatedConversations)
+            foreach (var updatedConversation in UpdatedConversations)
             {
                 await _notificationManager.NotifyUpdateConversation(siteId, updatedConversation.Id);
             }
 
-            _updatedConversations.Clear();
+            UpdatedConversations.Clear();
         }
 
         private async Task NotifyNewMessages(int siteId)
         {
-            foreach (var newMessage in _newMessages.OrderBy(t => t.Id))
+            foreach (var newMessage in NewMessages.OrderBy(t => t.Id))
             {
                 if (newMessage.Source == MessageSource.FacebookMessage)
                 {
@@ -108,7 +108,7 @@ namespace Social.Domain.DomainServices.Facebook
                 }
             }
 
-            _newMessages.Clear();
+            NewMessages.Clear();
         }
     }
 }
