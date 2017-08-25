@@ -81,6 +81,13 @@ namespace Social.Job
             return typeof(TJob).Name;
         }
 
+        public void Remove<TJob>(int siteId, string originalAccountId) where TJob : JobBase
+        {
+            string jobKey = GetJobKey<TJob>(siteId, originalAccountId);
+            RunningJob removedJob;
+            _runningJobs.TryRemove(jobKey, out removedJob);
+        }
+
         private class RunningJob
         {
             public string JobKey { get; set; }

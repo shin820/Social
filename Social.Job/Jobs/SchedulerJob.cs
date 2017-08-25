@@ -28,6 +28,11 @@ namespace Social.Job.Jobs
             _siteSocialAccountRepo = siteSocialAccountRepo;
         }
 
+        public static void RemoveRunningJob<TJob>(int siteId, string originalAccountId) where TJob : JobBase
+        {
+            RunningJobs.Remove<TJob>(siteId, originalAccountId);
+        }
+
         private async Task<List<SiteSocialAccount>> GetFacebookSiteAccounts()
         {
             List<SiteSocialAccount> accounts = new List<SiteSocialAccount>();
