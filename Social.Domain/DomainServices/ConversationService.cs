@@ -126,10 +126,10 @@ namespace Social.Domain.DomainServices
                 {
                     conversations = ApplyFilter(conversations, filter);
                 }
-                //else
-                //{
-                //    throw SocialExceptions.BadRequest($"filterId '{filterId}' not exists.");
-                //}
+                else
+                {
+                    throw SocialExceptions.BadRequest($"filterId '{filterId}' not exists.");
+                }
             }
 
             return conversations;
@@ -308,12 +308,16 @@ namespace Social.Domain.DomainServices
 
             if (conversation.AgentId != oldEntity.AgentId)
             {
-                WriteLog(conversation, ConversationLogType.ChangeAgentAssignee, $"Agent {agent} changed Agent Assignee from {_agentService.GetDiaplyName(oldEntity.AgentId)} to {_agentService.GetDiaplyName(conversation.AgentId)}.");
+                string oldAgentName = oldEntity.AgentId != null ? _agentService.GetDiaplyName(oldEntity.AgentId): "null";
+                string newAgentName = conversation.AgentId != null ? _agentService.GetDiaplyName(conversation.AgentId) : "null";
+                WriteLog(conversation, ConversationLogType.ChangeAgentAssignee, $"Agent {agent} changed Agent Assignee from {oldAgentName} to {newAgentName}");
             }
 
             if (conversation.DepartmentId != oldEntity.DepartmentId)
             {
-                WriteLog(conversation, ConversationLogType.ChangeDepartmentAssignee, $"Agent {agent} changed Department Assignee from {_departmentService.GetDisplayName(oldEntity.DepartmentId)} to {_departmentService.GetDisplayName(conversation.DepartmentId)}.");
+                string oldDepartmentName = oldEntity.DepartmentId != null ? _departmentService.GetDisplayName(oldEntity.DepartmentId) : "null";
+                string newDepartmentName = conversation.DepartmentId != null ? _departmentService.GetDisplayName(conversation.DepartmentId) : "null";
+                WriteLog(conversation, ConversationLogType.ChangeDepartmentAssignee, $"Agent {agent} changed Department Assignee from {oldDepartmentName} to {newDepartmentName}");
             }
 
             if (conversation.Note != oldEntity.Note)
