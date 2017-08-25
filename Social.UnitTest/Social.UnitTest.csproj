@@ -110,6 +110,7 @@
     <Compile Include="DomainServices\FilterExpressions\SystemFieldExpression\TimeToLastMessageExpressionTest.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFieldExpression\TotalMessagesExpressionTest.cs" />
     <Compile Include="DomainServices\FilterServiceTest.cs" />
+    <Compile Include="TestHelpers\FakeServices.cs" />
     <Compile Include="Infrastructure\LogicalExpression\LogicalExpressionBuilderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestBase.cs" />

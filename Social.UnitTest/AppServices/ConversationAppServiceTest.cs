@@ -77,11 +77,13 @@ namespace Social.UnitTest.AppServices
                  fakeConversationEntityList.First(t => t.Id == 2).Messages.FirstOrDefault()
              }.AsQueryable()
             );
+            var agentServiceMock = new Mock<IAgentService>();
+            var departmentServiceMock = new Mock<IDepartmentService>();
             ConversationAppService appSerice = new ConversationAppService(
                 conversationService.Object,
                 messageService.Object,
-                new Mock<IAgentService>().Object,
-                new Mock<IDepartmentService>().Object, null, null);
+                FakeServices.MakeAgentService(),
+                FakeServices.MakeDepartmentService(), null, null);
 
             // Act
             IList<ConversationDto> conversationDtoList = appSerice.Find(new ConversationSearchDto { Until = DateTime.UtcNow });
