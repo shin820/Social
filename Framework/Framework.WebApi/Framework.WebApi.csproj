@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="CastleDependencyResolver.cs" />
     <Compile Include="CastleDependencyScope.cs" />
+    <Compile Include="Filters\ApiAuthorizeAttribute.cs" />
     <Compile Include="Filters\ApiExceptionFilterAttribute.cs" />
     <Compile Include="Filters\InvalidParametersFilter.cs" />
     <Compile Include="Filters\UnitOfWorkFilter.cs" />

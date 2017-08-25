@@ -25,6 +25,14 @@ namespace Social.Domain.DomainServices
 
     public class SocialUserService : DomainService<SocialUser>, ISocialUserService
     {
+        private IFbClient _fbClient;
+
+        public SocialUserService(IFbClient fbClient)
+        {
+            _fbClient = fbClient;
+        }
+
+
         //public async Task<SocialUser> GetOrCreateSocialUser(int siteId, string token, string fbUserId, string fbUserEmail)
         //{
         //    var user = Repository.FindAll().Where(t => t.SiteId == siteId && t.OriginalId == fbUserId).FirstOrDefault();
@@ -61,7 +69,7 @@ namespace Social.Domain.DomainServices
 
         public override SocialUser Find(int id)
         {
-            return base.FindAll().Where(t => t.IsDeleted == false).FirstOrDefault();
+            return base.FindAll().Where(t => t.IsDeleted == false).FirstOrDefault(t => t.Id == id);
         }
 
         public SocialUser FindByOriginalId(string originalId, SocialUserSource source, SocialUserType type)
@@ -134,7 +142,7 @@ namespace Social.Domain.DomainServices
             var user = FindByOriginalId(fbUserId, SocialUserSource.Facebook);
             if (user == null)
             {
-                FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId);
+                FbUser fbUser = await _fbClient.GetUserInfo(token, fbUserId);
                 user = FindByOriginalId(fbUserId, SocialUserSource.Facebook);
                 if (user == null)
                 {

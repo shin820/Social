@@ -47,6 +47,11 @@ namespace Social.Domain.DomainServices.Facebook
             {
                 message.ParentId = parent.Id;
                 message.ReceiverId = parent.SenderId;
+                bool ifParentIsComment = parent.ParentId != null;
+                if (ifParentIsComment)
+                {
+                    message.Source = MessageSource.FacebookPostReplyComment;
+                }
             }
 
             message.ConversationId = conversation.Id;

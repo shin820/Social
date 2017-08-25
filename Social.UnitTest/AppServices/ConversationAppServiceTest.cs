@@ -71,11 +71,11 @@ namespace Social.UnitTest.AppServices
             conversationService.Setup(t => t.ApplyKeyword(fakeConversationEntityList, It.IsAny<string>())).Returns(fakeConversationEntityList);
             conversationService.Setup(t => t.ApplySenderOrReceiverId(fakeConversationEntityList, It.IsAny<int?>())).Returns(fakeConversationEntityList);
             var messageService = new Mock<IMessageService>();
-            messageService.Setup(t => t.GetLastMessages(It.IsAny<int[]>())).Returns(
+            messageService.Setup(t => t.FindAllByConversationIds(It.IsAny<int[]>())).Returns(
              new List<Message> {
                  fakeConversationEntityList.First(t => t.Id == 1).Messages.FirstOrDefault(),
                  fakeConversationEntityList.First(t => t.Id == 2).Messages.FirstOrDefault()
-             }
+             }.AsQueryable()
             );
             ConversationAppService appSerice = new ConversationAppService(
                 conversationService.Object,
@@ -211,6 +211,8 @@ namespace Social.UnitTest.AppServices
         {
             var messageServiceMock = new Mock<IMessageService>();
             messageServiceMock.Setup(t => t.FindAll()).Returns(messages.AsQueryable());
+            messageServiceMock.Setup(t => t.FindAllByConversationId(It.IsAny<int>())).Returns(messages.AsQueryable());
+            messageServiceMock.Setup(t => t.FindAllByConversationIds(It.IsAny<int[]>())).Returns(messages.AsQueryable());
             return messageServiceMock.Object;
         }
 
@@ -231,6 +233,7 @@ namespace Social.UnitTest.AppServices
             Assert.Equal(entity.LastMessageSentTime, dto.LastMessageSentTime);
             Assert.Equal(entity.Priority, dto.Priority);
             Assert.Equal(entity.Messages.First().Content, dto.LastMessage);
+            Assert.Equal(entity.Messages.First().Sender.Id, dto.LastIntegrationAccountId);
         }
 
         private Conversation MakeConversationEntity(int id)
@@ -247,7 +250,14 @@ namespace Social.UnitTest.AppServices
                 IfRead = true,
                 Messages = new List<Message>
                 {
-                    new Message{ConversationId=id,Content="Test Message Content"}
+                    new Message{
+                        ConversationId =id,
+                        Content ="Test Message Content",
+                        Sender =new SocialUser{
+                            Id =1,
+                            Type =SocialUserType.IntegrationAccount
+                        }
+                    }
                 },
                 LastMessageSenderId = 1,
                 LastMessageSentTime = DateTime.UtcNow,

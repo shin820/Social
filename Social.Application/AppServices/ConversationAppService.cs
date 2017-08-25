@@ -80,7 +80,7 @@ namespace Social.Application.AppServices
 
         private void FillFiledsForDtoList(IList<ConversationDto> conversationDtos)
         {
-            var lastMessages = _messageService.GetLastMessages(conversationDtos.Select(t => t.Id).ToArray());
+            var allMessages = _messageService.FindAllByConversationIds(conversationDtos.Select(t => t.Id).ToArray()).ToList();
             var agents = _agentService.Find(conversationDtos.Where(t => t.AgentId.HasValue).Select(t => t.AgentId.Value));
             var departments = _departmentService.Find(conversationDtos.Where(t => t.DepartmentId.HasValue).Select(t => t.DepartmentId.Value));
 
@@ -92,8 +92,22 @@ namespace Social.Application.AppServices
                 var department = departments?.FirstOrDefault(t => t.Id == conversationDto.DepartmentId);
                 conversationDto.DepartmentName = department?.Name;
 
-                var lastMessage = lastMessages?.FirstOrDefault(t => t.ConversationId == conversationDto.Id);
-                conversationDto.LastMessage = lastMessage?.Content;
+                var messages = allMessages.Where(t => t.ConversationId == conversationDto.Id).ToList();
+                if (messages.Any())
+                {
+                    conversationDto.LastMessage = messages.OrderByDescending(t => t.Id).First().Content;
+                }
+
+                foreach (var message in messages)
+                {
+                    if (message.IntegrationAccount != null)
+                    {
+                        conversationDto.LastIntegrationAccountId = message.IntegrationAccountId;
+                        conversationDto.LastIntegrationAccountName = message.IntegrationAccount.Name;
+                        conversationDto.LastIntegrationAccountAvatar = message.IntegrationAccount.Avatar;
+                        break;
+                    }
+                }
             }
         }
 
@@ -209,10 +223,22 @@ namespace Social.Application.AppServices
                 conversationDto.DepartmentName = department?.Name;
             }
 
-            var messages = _messageService.FindAll().Where(t => t.ConversationId == conversationDto.Id);
+            var messages = _messageService.FindAllByConversationId(conversationDto.Id);
             if (messages != null && messages.Any())
             {
-                conversationDto.LastMessage = messages.OrderByDescending(t => t.Id).First().Content;
+                var lastMessage = messages.OrderByDescending(t => t.Id).First();
+                conversationDto.LastMessage = lastMessage.Content;
+
+                foreach (var message in messages)
+                {
+                    if (message.IntegrationAccount != null)
+                    {
+                        conversationDto.LastIntegrationAccountId = message.IntegrationAccountId;
+                        conversationDto.LastIntegrationAccountName = message.IntegrationAccount.Name;
+                        conversationDto.LastIntegrationAccountAvatar = message.IntegrationAccount.Avatar;
+                        break;
+                    }
+                }
             }
         }
     }

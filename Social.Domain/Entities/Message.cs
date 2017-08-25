@@ -61,5 +61,41 @@ namespace Social.Domain.Entities
         public virtual SocialUser Receiver { get; set; }
 
         public virtual IList<Message> Children { get; set; }
+
+        public int IntegrationAccountId
+        {
+            get
+            {
+                if (Receiver != null && Receiver.IsIntegrationAccount)
+                {
+                    return Receiver.Id;
+                }
+
+                if (Sender.IsIntegrationAccount)
+                {
+                    return Sender.Id;
+                }
+
+                return 0;
+            }
+        }
+
+        public SocialUser IntegrationAccount
+        {
+            get
+            {
+                if (Receiver != null && Receiver.IsIntegrationAccount)
+                {
+                    return Receiver;
+                }
+
+                if (Sender.IsIntegrationAccount)
+                {
+                    return Sender;
+                }
+
+                return null;
+            }
+        }
     }
 }

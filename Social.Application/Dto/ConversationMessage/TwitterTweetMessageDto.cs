@@ -10,16 +10,23 @@ namespace Social.Application.Dto
 {
     public class TwitterTweetMessageDto : IHaveSendAgent
     {
+        public TwitterTweetMessageDto()
+        {
+            Attachments = new List<MessageAttachmentDto>();
+        }
+
         public int Id { get; set; }
         public string OriginalLink { get; set; }
         public MessageSource Source { get; set; }
         public int ConversationId { get; set; }
         public string UserAvatar { get; set; }
         public int UserId { get; set; }
+        public string UserLink { get; set; }
+        public SocialUserType UserType { get; set; }
         public string UserName { get; set; }
         public string UserScreenName { get; set; }
         public string UserEmail { get; set; }
-        public int? ParentId { get; set; } = -1;
+        public int? ParentId { get; set; }
         public string QuoteTweetId { get; set; }
         public string Content { get; set; }
         public DateTime SendTime { get; set; }

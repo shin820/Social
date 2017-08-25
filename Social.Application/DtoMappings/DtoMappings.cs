@@ -15,7 +15,8 @@ namespace Social.Application
         {
             CreateMap<Conversation, ConversationDto>()
                 .ForMember(dto => dto.LastMessageSenderName, opt => opt.MapFrom(s => s.LastMessageSender.Name))
-                .ForMember(dto => dto.LastMessageSenderAvatar, opt => opt.MapFrom(s => s.LastMessageSender.Avatar));
+                .ForMember(dto => dto.LastMessageSenderAvatar, opt => opt.MapFrom(s => s.LastMessageSender.Avatar))
+                .ForMember(dto => dto.LastMessageSenderUrl, opt => opt.MapFrom(s => s.LastMessageSender.OriginalLink));
             CreateMap<ConversationCreateDto, Conversation>();
             CreateMap<FilterCreateDto, Filter>();
             CreateMap<Filter, FilterListDto>();
@@ -70,7 +71,6 @@ namespace Social.Application
                 .ForMember(dest => dest.Avatar, src => src.MapFrom(x => x.SocialUser.Avatar));
             CreateMap<UpdateTwitterAccountDto, SocialAccount>();
 
-            CreateMap<FbUser, UserInfoDto>();
             CreateMap<Agent, AgentDto>();
             CreateMap<Department, DepartmentDto>();
         }

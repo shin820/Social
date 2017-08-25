@@ -17,13 +17,17 @@ namespace Social.Application
             CreateMap<Message, FacebookMessageDto>()
              .ForMember(dest => dest.UserAvatar, src => src.MapFrom(x => x.Sender.Avatar))
              .ForMember(dest => dest.UserId, src => src.MapFrom(x => x.SenderId))
+             .ForMember(dest => dest.UserType, src => src.MapFrom(x => x.Sender.Type))
              .ForMember(dest => dest.UserName, src => src.MapFrom(x => x.Sender.Name))
              .ForMember(dest => dest.UserScreenName, src => src.MapFrom(x => x.Sender.ScreenName))
-             .ForMember(dest => dest.UserEmail, src => src.MapFrom(x => x.Sender.Email));
+             .ForMember(dest => dest.UserEmail, src => src.MapFrom(x => x.Sender.Email))
+             .ForMember(dest => dest.UserLink, src => src.MapFrom(x => x.Sender.OriginalLink));
 
             CreateMap<Message, FacebookPostMessageDto>()
              .ForMember(dest => dest.UserAvatar, src => src.MapFrom(x => x.Sender.Avatar))
              .ForMember(dest => dest.UserId, src => src.MapFrom(x => x.SenderId))
+             .ForMember(dest => dest.UserLink, src => src.MapFrom(x => x.Sender.OriginalLink))
+             .ForMember(dest => dest.UserType, src => src.MapFrom(x => x.Sender.Type))
              .ForMember(dest => dest.UserName, src => src.MapFrom(x => x.Sender.Name))
              .ForMember(dest => dest.UserScreenName, src => src.MapFrom(x => x.Sender.ScreenName))
              .ForMember(dest => dest.UserEmail, src => src.MapFrom(x => x.Sender.Email))
@@ -32,6 +36,8 @@ namespace Social.Application
             CreateMap<Message, FacebookPostCommentMessageDto>()
              .ForMember(dest => dest.UserAvatar, src => src.MapFrom(x => x.Sender.Avatar))
              .ForMember(dest => dest.UserId, src => src.MapFrom(x => x.SenderId))
+             .ForMember(dest => dest.UserLink, src => src.MapFrom(x => x.Sender.OriginalLink))
+             .ForMember(dest => dest.UserType, src => src.MapFrom(x => x.Sender.Type))
              .ForMember(dest => dest.UserName, src => src.MapFrom(x => x.Sender.Name))
              .ForMember(dest => dest.UserScreenName, src => src.MapFrom(x => x.Sender.ScreenName))
              .ForMember(dest => dest.UserEmail, src => src.MapFrom(x => x.Sender.Email));
@@ -39,6 +45,8 @@ namespace Social.Application
             CreateMap<Message, TwitterDirectMessageDto>()
              .ForMember(dest => dest.UserAvatar, src => src.MapFrom(x => x.Sender.Avatar))
              .ForMember(dest => dest.UserId, src => src.MapFrom(x => x.SenderId))
+             .ForMember(dest => dest.UserLink, src => src.MapFrom(x => x.Sender.OriginalLink))
+             .ForMember(dest => dest.UserType, src => src.MapFrom(x => x.Sender.Type))
              .ForMember(dest => dest.UserName, src => src.MapFrom(x => x.Sender.Name))
              .ForMember(dest => dest.UserScreenName, src => src.MapFrom(x => x.Sender.ScreenName))
              .ForMember(dest => dest.UserEmail, src => src.MapFrom(x => x.Sender.Email));
@@ -46,12 +54,15 @@ namespace Social.Application
             CreateMap<Message, TwitterTweetMessageDto>()
              .ForMember(dest => dest.UserAvatar, src => src.MapFrom(x => x.Sender.Avatar))
              .ForMember(dest => dest.UserId, src => src.MapFrom(x => x.SenderId))
+             .ForMember(dest => dest.UserLink, src => src.MapFrom(x => x.Sender.OriginalLink))
+             .ForMember(dest => dest.UserType, src => src.MapFrom(x => x.Sender.Type))
              .ForMember(dest => dest.UserName, src => src.MapFrom(x => x.Sender.Name))
              .ForMember(dest => dest.UserScreenName, src => src.MapFrom(x => x.Sender.ScreenName))
              .ForMember(dest => dest.UserEmail, src => src.MapFrom(x => x.Sender.Email));
 
             CreateMap<Message, BeQuotedTweetDto>()
              .ForMember(dest => dest.UserAvatar, src => src.MapFrom(x => x.Sender.Avatar))
+             .ForMember(dest => dest.UserLink, src => src.MapFrom(x => x.Sender.OriginalLink))
              .ForMember(dest => dest.UserName, src => src.MapFrom(x => x.Sender.Name))
              .ForMember(dest => dest.UserScreenName, src => src.MapFrom(x => x.Sender.ScreenName));
 

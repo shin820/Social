@@ -14,6 +14,6 @@ namespace Social.Infrastructure.Facebook
         [JsonProperty("token_type")]
         public string Type { get; set; }
         [JsonProperty("expires_in")]
-        public long ExpiresIn { get; set; }
+        public long? ExpiresIn { get; set; }
     }
 }

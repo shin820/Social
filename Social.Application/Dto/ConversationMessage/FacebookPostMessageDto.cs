@@ -9,10 +9,18 @@ namespace Social.Application.Dto
 {
     public class FacebookPostMessageDto
     {
+        public FacebookPostMessageDto()
+        {
+            Comments = new List<FacebookPostCommentMessageDto>();
+            Attachments = new List<MessageAttachmentDto>();
+        }
+
         public int Id { get; set; }
         public MessageSource Source { get; set; }
         public string UserAvatar { get; set; }
         public int UserId { get; set; }
+        public string UserLink { get; set; }
+        public SocialUserType UserType { get; set; }
         public int ConversationId { get; set; }
         public string UserName { get; set; }
         public string UserEmail { get; set; }

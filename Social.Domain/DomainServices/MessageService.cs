@@ -17,26 +17,31 @@ namespace Social.Domain.DomainServices
     public interface IMessageService : IDomainService<Message>
     {
         Message FindByOriginalId(MessageSource source, string originalId);
+        Message FindByOriginalId(MessageSource[] sources, string originalId);
         IQueryable<Message> FindAllByConversationId(int conversationId);
+        IQueryable<Message> FindAllByConversationIds(int[] conversationIds);
         bool IsDuplicatedMessage(MessageSource messageSource, string originalId);
-        Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, string message);
-        Message ReplyTwitterDirectMessage(int conversationId, string message);
-        Message ReplyFacebookMessage(int conversationId, string content);
-        Message ReplyFacebookPostOrComment(int conversationId, int parentId, string content);
-        IList<Message> GetLastMessages(int[] conversationIds);
+        Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, string message, bool isCloseConversation = false);
+        Message ReplyTwitterDirectMessage(int conversationId, string message, bool isCloseConversation = false);
+        Message ReplyFacebookMessage(int conversationId, string content, bool isCloseConversation = false);
+        Message ReplyFacebookPostOrComment(int conversationId, int postOrCommentId, string content, bool isCloseConversation = false);
     }
 
     public class MessageService : DomainService<Message>, IMessageService
     {
         private ISocialAccountService _socialAccountService;
         private IConversationService _conversationService;
+        private IFbClient _fbClient;
+
         public MessageService(
             ISocialAccountService socialAccountService,
-            IConversationService conversationService
+            IConversationService conversationService,
+            IFbClient fbClient
             )
         {
             _socialAccountService = socialAccountService;
             _conversationService = conversationService;
+            _fbClient = fbClient;
         }
 
         public override IQueryable<Message> FindAll()
@@ -54,6 +59,16 @@ namespace Social.Domain.DomainServices
             return FindAll().Where(t => t.OriginalId == originalId && t.Source == source).FirstOrDefault();
         }
 
+        public Message FindByOriginalId(MessageSource[] sources, string originalId)
+        {
+            if (sources == null)
+            {
+                return null;
+            }
+
+            return FindAll().Where(t => t.OriginalId == originalId && sources.Contains(t.Source)).FirstOrDefault();
+        }
+
         public IQueryable<Message> FindAllByConversationId(int conversationId)
         {
             return FindAll()
@@ -61,6 +76,19 @@ namespace Social.Domain.DomainServices
                 .Include(t => t.Sender.SocialAccount)
                 .Include(t => t.Receiver.SocialAccount)
                 .Where(t => t.ConversationId == conversationId);
+        }
+
+        public IQueryable<Message> FindAllByConversationIds(int[] conversationIds)
+        {
+            if (conversationIds == null || !conversationIds.Any())
+            {
+                return new List<Message>().AsQueryable();
+            }
+
+            return FindAll()
+                .Include(t => t.Sender)
+                .Include(t => t.Receiver)
+                .Where(t => conversationIds.Contains(t.ConversationId));
         }
 
         private IQueryable<Message> FindAllInlcudeDeletedByConversationId(int conversationId)
@@ -72,7 +100,7 @@ namespace Social.Domain.DomainServices
                 .Where(t => t.ConversationId == conversationId);
         }
 
-        public Message ReplyFacebookMessage(int conversationId, string content)
+        public Message ReplyFacebookMessage(int conversationId, string content, bool isCloseConversation = false)
         {
             var conversation = _conversationService.CheckIfExists(conversationId);
             if (conversation.Source != ConversationSource.FacebookMessage)
@@ -92,7 +120,7 @@ namespace Social.Domain.DomainServices
                 .Select(t => t.Sender).FirstOrDefault();
 
             // publish message to facebook
-            string fbMessageId = FbClient.PublishMessage(socialAccount.Token, conversation.OriginalId, content);
+            string fbMessageId = _fbClient.PublishMessage(socialAccount.Token, conversation.OriginalId, content);
 
             // create message
             var message = new Message
@@ -110,7 +138,7 @@ namespace Social.Domain.DomainServices
             CurrentUnitOfWork.SaveChanges();
 
             // upadte conversation
-            conversation.Status = ConversationStatus.PendingExternal;
+            conversation.Status = isCloseConversation ? ConversationStatus.Closed : ConversationStatus.PendingExternal;
             conversation.LastMessageSenderId = message.SenderId;
             conversation.LastMessageSentTime = message.SendTime;
             conversation.LastRepliedAgentId = UserContext.UserId;
@@ -119,7 +147,7 @@ namespace Social.Domain.DomainServices
             return message;
         }
 
-        public Message ReplyFacebookPostOrComment(int conversationId, int parentId, string content)
+        public Message ReplyFacebookPostOrComment(int conversationId, int postOrCommentId, string content, bool isCloseConversation = false)
         {
             var conversation = _conversationService.CheckIfExists(conversationId);
             if (conversation.Source != ConversationSource.FacebookVisitorPost && conversation.Source != ConversationSource.FacebookWallPost)
@@ -128,13 +156,14 @@ namespace Social.Domain.DomainServices
             }
 
             var messages = FindAllInlcudeDeletedByConversationId(conversation.Id).ToList();
+            var postMessage = messages.FirstOrDefault(t => t.ParentId == null);
             SocialAccount socialAccount = GetSocialAccountsFromMessages(messages).FirstOrDefault();
             if (socialAccount == null)
             {
                 throw SocialExceptions.BadRequest("Facebook integration account can't be found from conversation.");
             }
 
-            var previousMessages = GetFacebookPreviousMessages(messages, parentId);
+            var previousMessages = GetFacebookPreviousMessages(messages, postOrCommentId);
             Message comment = null;
             foreach (var previousMessage in previousMessages)
             {
@@ -143,14 +172,21 @@ namespace Social.Domain.DomainServices
                     continue;
                 }
 
+                bool isReplyToReplyComment = previousMessage.ParentId != null && previousMessage.ParentId != postMessage.Id;
+                if (isReplyToReplyComment)
+                {
+                    //todo @current message user
+                    continue;
+                }
+
                 // publish comment
-                string fbCommentId = FbClient.PublishComment(socialAccount.Token, previousMessage.OriginalId, content);
+                string fbCommentId = _fbClient.PublishComment(socialAccount.Token, previousMessage.OriginalId, content);
                 if (string.IsNullOrWhiteSpace(fbCommentId))
                 {
                     continue;
                 }
 
-                var fbComment = FbClient.GetComment(socialAccount.Token, fbCommentId);
+                var fbComment = _fbClient.GetComment(socialAccount.Token, fbCommentId);
 
                 // add message
                 comment = new Message
@@ -166,11 +202,15 @@ namespace Social.Domain.DomainServices
                     OriginalLink = fbComment.permalink_url,
                     Source = MessageSource.FacebookPostComment
                 };
+                if (comment.ParentId != postMessage.Id)
+                {
+                    comment.Source = MessageSource.FacebookPostReplyComment;
+                }
                 Repository.Insert(comment);
                 CurrentUnitOfWork.SaveChanges();
 
                 // upadte conversation
-                conversation.Status = ConversationStatus.PendingExternal;
+                conversation.Status = isCloseConversation ? ConversationStatus.Closed : ConversationStatus.PendingExternal;
                 conversation.LastMessageSenderId = comment.SenderId;
                 conversation.LastMessageSentTime = comment.SendTime;
                 conversation.LastRepliedAgentId = UserContext.UserId;
@@ -187,7 +227,7 @@ namespace Social.Domain.DomainServices
             return comment;
         }
 
-        public Message ReplyTwitterDirectMessage(int conversationId, string message)
+        public Message ReplyTwitterDirectMessage(int conversationId, string message, bool isCloseConversation = false)
         {
             var twitterService = DependencyResolver.Resolve<ITwitterService>();
 
@@ -233,7 +273,7 @@ namespace Social.Domain.DomainServices
             CurrentUnitOfWork.SaveChanges();
 
             // upadte conversation
-            conversation.Status = ConversationStatus.PendingExternal;
+            conversation.Status = isCloseConversation ? ConversationStatus.Closed : ConversationStatus.PendingExternal;
             conversation.LastMessageSenderId = twitterAccount.Id;
             conversation.LastMessageSentTime = directMessage.SendTime;
             conversation.LastRepliedAgentId = UserContext.UserId;
@@ -242,7 +282,7 @@ namespace Social.Domain.DomainServices
             return directMessage;
         }
 
-        public Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, string content)
+        public Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, string content, bool isCloseConversation = false)
         {
             var twitterService = DependencyResolver.Resolve<ITwitterService>();
             Conversation conversation = _conversationService.CheckIfExists(conversationId);
@@ -295,7 +335,7 @@ namespace Social.Domain.DomainServices
                     CurrentUnitOfWork.SaveChanges();
 
                     // upadte conversation
-                    conversation.Status = ConversationStatus.PendingExternal;
+                    conversation.Status = isCloseConversation ? ConversationStatus.Closed : ConversationStatus.PendingExternal;
                     conversation.LastMessageSenderId = twitterAccount.Id;
                     conversation.LastMessageSentTime = replyMessage.SendTime;
                     conversation.LastRepliedAgentId = UserContext.UserId;
@@ -370,19 +410,6 @@ namespace Social.Domain.DomainServices
             }
 
             return previousMessages.OrderByDescending(t => t.SendTime).ToList();
-        }
-
-
-        public IList<Message> GetLastMessages(int[] conversationIds)
-        {
-            var lastMessageIds =
-                FindAll().Where(t => conversationIds.Contains(t.ConversationId))
-                .GroupBy(t => t.ConversationId)
-                 .Select(t => t.Max(m => m.Id))
-                 .ToList();
-
-            IList<Message> messages = FindAll().Where(t => lastMessageIds.Contains(t.Id)).ToList();
-            return messages;
         }
     }
 }

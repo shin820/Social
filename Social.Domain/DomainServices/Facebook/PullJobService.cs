@@ -34,25 +34,28 @@ namespace Social.Domain.DomainServices.Facebook
         private ISocialUserService _socialUserService;
         private INotificationManager _notificationManager;
         private FacebookConverter _fbConverter;
+        private IFbClient _fbClient;
 
         public PullJobService(
             IConversationService conversationService,
             IMessageService messageService,
             ISocialUserService socialUserService,
-            INotificationManager notificationManager
+            INotificationManager notificationManager,
+            IFbClient fbClient
             )
         {
             _conversationService = conversationService;
             _messageService = messageService;
             _socialUserService = socialUserService;
             _notificationManager = notificationManager;
+            _fbClient = fbClient;
             _fbConverter = new FacebookConverter();
         }
 
         public async Task PullVisitorPostsFromFeed(SocialAccount account)
         {
             _account = account;
-            var data = await FbClient.GetVisitorPosts(_account.SocialUser.OriginalId, _account.Token);
+            var data = await _fbClient.GetVisitorPosts(_account.SocialUser.OriginalId, _account.Token);
             await Init(data);
             RemoveDuplicated();
             var result = new FacebookProcessResult(_notificationManager);
@@ -70,7 +73,7 @@ namespace Social.Domain.DomainServices.Facebook
             }
 
             _account = account;
-            var data = await FbClient.GetTaggedVisitorPosts(_account.SocialUser.OriginalId, _account.Token);
+            var data = await _fbClient.GetTaggedVisitorPosts(_account.SocialUser.OriginalId, _account.Token);
             await Init(data);
             RemoveDuplicated();
             var result = new FacebookProcessResult(_notificationManager);
@@ -84,7 +87,7 @@ namespace Social.Domain.DomainServices.Facebook
         public async Task PullMessagesJob(SocialAccount account)
         {
             _account = account;
-            var data = await FbClient.GetConversationsMessages(_account.SocialUser.OriginalId, _account.Token);
+            var data = await _fbClient.GetConversationsMessages(_account.SocialUser.OriginalId, _account.Token);
             await InitForConversation(data);
             RemoveDuplicated();
             await AddConversations(ConversationsToBeCreated);
@@ -388,6 +391,7 @@ namespace Social.Domain.DomainServices.Facebook
                         }
 
                         var message = _fbConverter.ConvertToMessage(replyComment);
+                        message.Source = MessageSource.FacebookPostReplyComment;
                         message.SenderId = sender.Id;
                         message.ReceiverId = parent.SenderId;
                         message.ParentId = parent.Id;
@@ -559,7 +563,7 @@ namespace Social.Domain.DomainServices.Facebook
             if (ReplyCommentsToBeCretaed.Any())
             {
                 var replyCommentIds = ReplyCommentsToBeCretaed.Select(t => t.id).ToList();
-                var existingReplyCommentIds = _messageService.FindAll().Where(t => t.Source == MessageSource.FacebookPostComment && replyCommentIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
+                var existingReplyCommentIds = _messageService.FindAll().Where(t => t.Source == MessageSource.FacebookPostReplyComment && replyCommentIds.Contains(t.OriginalId)).Select(t => t.OriginalId).ToList();
                 ReplyCommentsToBeCretaed.RemoveAll(t => existingReplyCommentIds.Contains(t.id));
             }
             if (ConversationsToBeCreated.Any())

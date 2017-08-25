@@ -11,9 +11,11 @@ namespace Social.Application.Dto
     {
         [Required]
         [MaxLength(2000)]
-        public string message { get; set; }
+        public string Message { get; set; }
         [Required]
         [Range(0, int.MaxValue)]
-        public int twitterAccountId { get; set; }
+        public int TwitterAccountId { get; set; }
+
+        public bool IsCloseConversation { get; set; }
     }
 }

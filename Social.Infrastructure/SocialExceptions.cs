@@ -26,6 +26,11 @@ namespace Social.Infrastructure
             return new ExceptionWithCode(HttpStatusCode.BadRequest, 40000, msg);
         }
 
+        public static ExceptionWithCode SocialUserIdNotExists(int id)
+        {
+            return NotFound($"Social user id '{id}' not exists.");
+        }
+
         public static ExceptionWithCode ConversationIdNotExists(int id)
         {
             return NotFound($"Conversation id '{id}' not exists.");

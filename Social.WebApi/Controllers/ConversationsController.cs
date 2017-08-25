@@ -170,11 +170,12 @@ namespace Social.WebApi.Controllers
         /// reply message for facebook message.
         /// </summary>
         /// <param name="conversationId"></param>
+        /// <param name="dto"></param>
         /// <returns></returns>
         [Route("{conversationId}/facebook-messages")]
-        public FacebookMessageDto PostFacebookMessages(int conversationId, FacebookMessagesDto facebookMessagesDto)
+        public FacebookMessageDto PostFacebookMessages(int conversationId, FacebookMessagesDto dto)
         {
-            return _messageAppService.ReplyFacebookMessage(conversationId, facebookMessagesDto.message);
+            return _messageAppService.ReplyFacebookMessage(conversationId, dto.Message, dto.IsCloseConversation);
         }
 
         /// <summary>
@@ -192,11 +193,12 @@ namespace Social.WebApi.Controllers
         /// reply message for facebook post/comment.
         /// </summary>
         /// <param name="conversationId"></param>
+        /// <param name="dto"></param>
         /// <returns></returns>
         [Route("{conversationId}/facebook-post-messages")]
-        public FacebookPostCommentMessageDto PostFacebookPostMessages(int conversationId, FacebookPostMessagesDto facebookPostMessagesDto)
+        public FacebookPostCommentMessageDto PostFacebookPostMessages(int conversationId, FacebookPostMessagesDto dto)
         {
-            return _messageAppService.ReplyFacebookPostOrComment(conversationId, facebookPostMessagesDto.parenId, facebookPostMessagesDto.message);
+            return _messageAppService.ReplyFacebookPostOrComment(conversationId, dto.PostOrCommentId, dto.Message, dto.IsCloseConversation);
         }
 
         /// <summary>
@@ -214,12 +216,12 @@ namespace Social.WebApi.Controllers
         /// reply message for twitter direct message.
         /// </summary>
         /// <param name="conversationId"></param>
-        /// <param name="message"></param>
+        /// <param name="dto"></param>
         /// <returns></returns>
         [Route("{conversationId}/twitter-direct-messages")]
-        public TwitterDirectMessageDto PostTwitterDirectMessages(int conversationId, TwitterDirectMessagesDto twitterDirectMessagesDto)
+        public TwitterDirectMessageDto PostTwitterDirectMessages(int conversationId, TwitterDirectMessagesDto dto)
         {
-            return _messageAppService.ReplyTwitterDirectMessage(conversationId, twitterDirectMessagesDto.message);
+            return _messageAppService.ReplyTwitterDirectMessage(conversationId, dto.Message, dto.IsCloseConversation);
         }
 
         /// <summary>
@@ -237,13 +239,12 @@ namespace Social.WebApi.Controllers
         /// reply message for twitter tweet.
         /// </summary>
         /// <param name="conversationId"></param>
-        /// <param name="message"></param>
-        /// <param name="twitterAccountId"></param>
+        /// <param name="dto"></param>
         /// <returns></returns>
         [Route("{conversationId}/twitter-tweet-messages")]
-        public TwitterTweetMessageDto PostTwitterTweetMessages(int conversationId, TwitterTweetMessagesDto twitterTweetMessagesDto)
+        public TwitterTweetMessageDto PostTwitterTweetMessages(int conversationId, TwitterTweetMessagesDto dto)
         {
-            return _messageAppService.ReplyTwitterTweetMessage(conversationId, twitterTweetMessagesDto.twitterAccountId, twitterTweetMessagesDto.message);
+            return _messageAppService.ReplyTwitterTweetMessage(conversationId, dto.TwitterAccountId, dto.Message, dto.IsCloseConversation);
         }
     }
 }

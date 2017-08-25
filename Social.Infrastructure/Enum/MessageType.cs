@@ -13,6 +13,7 @@ namespace Social.Infrastructure.Enum
         FacebookPostComment = 3,
         TwitterTypicalTweet = 4,
         TwitterQuoteTweet = 5,
-        TwitterDirectMessage = 6
+        TwitterDirectMessage = 6,
+        FacebookPostReplyComment = 7
     }
 }

@@ -13,9 +13,58 @@ using System.Threading.Tasks;
 
 namespace Social.Infrastructure.Facebook
 {
-    public static class FbClient
+    public class FbClient : IFbClient
     {
-        public async static Task SubscribeApp(string pageId, string pageToken)
+        private static Tuple<FbToken, DateTime> _applicationTokenCache;
+
+        public async Task<FbToken> GetApplicationToken()
+        {
+            if (_applicationTokenCache != null && _applicationTokenCache.Item2 > DateTime.UtcNow)
+            {
+                return _applicationTokenCache.Item1;
+            }
+
+            FacebookClient client = new FacebookClient();
+            FbToken fbToken = null;
+            try
+            {
+                dynamic result = client.Post("oauth/access_token", new
+                {
+                    client_id = AppSettings.FacebookClientId,
+                    client_secret = AppSettings.FacebookClientSecret,
+                    grant_type = "client_credentials",
+                });
+                fbToken = new FbToken
+                {
+                    AccessToken = result.access_token,
+                    Type = result.token_type,
+                    ExpiresIn = result.expires_in
+                };
+            }
+            catch (FacebookOAuthException ex)
+            {
+                throw SocialExceptions.FacebookOauthException(ex);
+            }
+
+            //HttpClient client = new HttpClient();
+            //string url =
+            //    string.Format(
+            //        "https://graph.facebook.com/v2.9/oauth/access_token?client_id={0}&client_secret={1}&grant_type=client_credentials",
+            //        AppSettings.FacebookClientId,
+            //        AppSettings.FacebookClientSecret
+            //        );
+
+            //HttpResponseMessage response = await client.GetAsync(url);
+            //response.EnsureSuccessStatusCode();
+            //var jsonRes = await response.Content.ReadAsStringAsync();
+            //var fbToken = JsonConvert.DeserializeObject<FbToken>(jsonRes);
+
+            _applicationTokenCache = new Tuple<FbToken, DateTime>(fbToken, DateTime.UtcNow.AddHours(1));
+            return fbToken;
+        }
+
+
+        public async Task SubscribeApp(string pageId, string pageToken)
         {
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.PostAsync($"https://graph.facebook.com/v2.9/{pageId}/subscribed_apps?access_token={pageToken}", null);
@@ -23,7 +72,7 @@ namespace Social.Infrastructure.Facebook
             response.EnsureSuccessStatusCode();
         }
 
-        public async static Task UnSubscribeApp(string pageId, string pageToken)
+        public async Task UnSubscribeApp(string pageId, string pageToken)
         {
             FacebookClient client = new FacebookClient();
             try
@@ -36,7 +85,7 @@ namespace Social.Infrastructure.Facebook
             }
         }
 
-        public static string GetUserToken(string code, string redirectUri)
+        public string GetUserToken(string code, string redirectUri)
         {
             FacebookClient client = new FacebookClient();
             try
@@ -56,13 +105,13 @@ namespace Social.Infrastructure.Facebook
             }
         }
 
-        public static string GetAuthUrl(string redirectUri)
+        public string GetAuthUrl(string redirectUri)
         {
             return $"https://www.facebook.com/v2.9/dialog/oauth?client_id={AppSettings.FacebookClientId}&redirect_uri={redirectUri}&scope=manage_pages,publish_pages,pages_messaging,pages_messaging_phone_number,read_page_mailboxes,pages_show_list";
         }
 
 
-        public static async Task<IList<FbPage>> GetPages(string userToken)
+        public async Task<IList<FbPage>> GetPages(string userToken)
         {
             FacebookClient client = new FacebookClient(userToken);
             string url = $"/me/accounts?fields=id,name,category,access_token,picture,emails,link";
@@ -96,7 +145,7 @@ namespace Social.Infrastructure.Facebook
             return pages;
         }
 
-        public static async Task<FbUser> GetMe(string token)
+        public async Task<FbUser> GetMe(string token)
         {
             FacebookClient client = new FacebookClient(token);
             string url = "/me?fields=id,name,link,picture";
@@ -119,7 +168,13 @@ namespace Social.Infrastructure.Facebook
             return me;
         }
 
-        public static async Task<FbUser> GetUserInfo(string token, string fbUserId)
+        public async Task<FbUser> GetUserInfo(string fbUserId)
+        {
+            FbToken token = await GetApplicationToken();
+            return await GetUserInfo(token.AccessToken, fbUserId);
+        }
+
+        public async Task<FbUser> GetUserInfo(string token, string fbUserId)
         {
             FacebookClient client = new FacebookClient(token);
             string url = "/" + fbUserId + "?fields=id,name,link,picture";
@@ -156,7 +211,7 @@ namespace Social.Infrastructure.Facebook
             //}
         }
 
-        public static FbUser GetFacebookUserInfo(string token, string fbUserId)
+        public FbUser GetFacebookUserInfo(string token, string fbUserId)
         {
             FacebookClient client = new FacebookClient(token);
             string url = "/" + fbUserId + "?fields=id,name,link,picture";
@@ -192,7 +247,7 @@ namespace Social.Infrastructure.Facebook
             }
         }
 
-        public static string PublishComment(string token, string parentId, string message)
+        public string PublishComment(string token, string parentId, string message)
         {
             FacebookClient client = new FacebookClient(token);
             string url = $"/{parentId}/comments";
@@ -207,7 +262,7 @@ namespace Social.Infrastructure.Facebook
             }
         }
 
-        public static string PublishPost(string pageId, string token, string message)
+        public string PublishPost(string pageId, string token, string message)
         {
             FacebookClient client = new FacebookClient(token);
             string url = $"/{pageId}/feed";
@@ -222,7 +277,7 @@ namespace Social.Infrastructure.Facebook
             }
         }
 
-        public static string PublishMessage(string token, string fbConversationId, string message)
+        public string PublishMessage(string token, string fbConversationId, string message)
         {
             FacebookClient client = new FacebookClient(token);
             string url = $"/{fbConversationId}/messages";
@@ -230,7 +285,7 @@ namespace Social.Infrastructure.Facebook
             return result.id;
         }
 
-        public async static Task<IList<FbMessage>> GetMessagesFromConversationId(string token, string fbConversationId, int limit)
+        public async Task<IList<FbMessage>> GetMessagesFromConversationId(string token, string fbConversationId, int limit)
         {
             List<FbMessage> messages = new List<FbMessage>();
             Checker.NotNullOrWhiteSpace(token, nameof(token));
@@ -331,7 +386,7 @@ namespace Social.Infrastructure.Facebook
             return messages;
         }
 
-        public async static Task<FbPost> GetPost(string token, string fbPostId)
+        public async Task<FbPost> GetPost(string token, string fbPostId)
         {
             Checker.NotNullOrWhiteSpace(token, nameof(token));
             Checker.NotNullOrWhiteSpace(fbPostId, nameof(fbPostId));
@@ -342,7 +397,7 @@ namespace Social.Infrastructure.Facebook
             return await client.GetTaskAsync<FbPost>(url);
         }
 
-        public static FbComment GetComment(string token, string fbCommentId)
+        public FbComment GetComment(string token, string fbCommentId)
         {
             Checker.NotNullOrWhiteSpace(token, nameof(token));
             Checker.NotNullOrWhiteSpace(fbCommentId, nameof(fbCommentId));
@@ -353,7 +408,7 @@ namespace Social.Infrastructure.Facebook
             return client.Get<FbComment>(url);
         }
 
-        public async static Task<FbPagingData<FbPost>> GetVisitorPosts(string pageId, string token)
+        public async Task<FbPagingData<FbPost>> GetVisitorPosts(string pageId, string token)
         {
             Checker.NotNullOrWhiteSpace(token, nameof(token));
             Checker.NotNullOrWhiteSpace(token, nameof(pageId));
@@ -369,7 +424,7 @@ namespace Social.Infrastructure.Facebook
             return await client.GetTaskAsync<FbPagingData<FbPost>>(url);
         }
 
-        public async static Task<FbPagingData<FbPost>> GetTaggedVisitorPosts(string pageId, string token)
+        public async Task<FbPagingData<FbPost>> GetTaggedVisitorPosts(string pageId, string token)
         {
             Checker.NotNullOrWhiteSpace(token, nameof(token));
             Checker.NotNullOrWhiteSpace(token, nameof(pageId));
@@ -386,7 +441,7 @@ namespace Social.Infrastructure.Facebook
         }
 
 
-        public async static Task<FbPagingData<FbConversation>> GetConversationsMessages(string pageId, string token)
+        public async Task<FbPagingData<FbConversation>> GetConversationsMessages(string pageId, string token)
         {
             Checker.NotNullOrWhiteSpace(token, nameof(token));
             Checker.NotNullOrWhiteSpace(token, nameof(pageId));
@@ -405,16 +460,16 @@ namespace Social.Infrastructure.Facebook
 
             FbCursors FbCursors = new FbCursors
             {
-                before = fbConversations.paging != null ? fbConversations.paging.cursors.before : null, 
-                after = fbConversations.paging != null ? fbConversations.paging.cursors.after:null
+                before = fbConversations.paging != null ? fbConversations.paging.cursors.before : null,
+                after = fbConversations.paging != null ? fbConversations.paging.cursors.after : null
             };
             FbPaging FbPaging = new FbPaging
             {
                 cursors = FbCursors,
-                next = fbConversations.paging != null ? fbConversations.paging.next:null,
-                previous = fbConversations.paging != null ? fbConversations.paging.previous:null
+                next = fbConversations.paging != null ? fbConversations.paging.next : null,
+                previous = fbConversations.paging != null ? fbConversations.paging.previous : null
             };
-  
+
             PagingConversation.paging = FbPaging;
             foreach (var conversation in fbConversations.data)
             {
@@ -537,7 +592,7 @@ namespace Social.Infrastructure.Facebook
             return PagingConversation;
         }
 
-        public async static Task<FbComment> GetPostComment(string commentId, string token, int limit = 100)
+        public async Task<FbComment> GetPostComment(string commentId, string token, int limit = 100)
         {
             Checker.NotNullOrWhiteSpace(token, nameof(commentId));
             Checker.NotNullOrWhiteSpace(token, nameof(token));
@@ -548,7 +603,7 @@ namespace Social.Infrastructure.Facebook
             return await client.GetTaskAsync<FbComment>(url);
         }
 
-        public async static Task Process<T>(int siteId, string token, FbPagingData<T> fbPagingData, Func<int, string, T, Task> processFunc)
+        public async Task Process<T>(int siteId, string token, FbPagingData<T> fbPagingData, Func<int, string, T, Task> processFunc)
         {
             FacebookClient facebookClient = new FacebookClient(token);
             foreach (var data in fbPagingData.data)

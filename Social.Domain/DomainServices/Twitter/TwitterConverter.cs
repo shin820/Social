@@ -2,10 +2,7 @@
 using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tweetinvi.Models;
 using Tweetinvi.Models.Entities;
 
@@ -13,9 +10,9 @@ namespace Social.Domain.DomainServices.Twitter
 {
     public static class TwitterConverter
     {
-        public static Entities.Message ConvertToMessage(IMessage directMsg)
+        public static Message ConvertToMessage(IMessage directMsg)
         {
-            var message = new Entities.Message
+            var message = new Message
             {
                 Source = MessageSource.TwitterDirectMessage,
                 Content = directMsg.Text,
@@ -26,9 +23,9 @@ namespace Social.Domain.DomainServices.Twitter
             return message;
         }
 
-        public static Entities.Message ConvertToMessage(ITweet tweet)
+        public static Message ConvertToMessage(ITweet tweet)
         {
-            var message = new Entities.Message
+            var message = new Message
             {
                 Source = tweet.QuotedStatusId == null ? MessageSource.TwitterTypicalTweet : MessageSource.TwitterQuoteTweet,
                 OriginalId = tweet.IdStr,

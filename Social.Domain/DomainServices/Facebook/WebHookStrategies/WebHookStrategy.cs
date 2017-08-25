@@ -18,6 +18,7 @@ namespace Social.Domain.DomainServices.Facebook
         protected IMessageService MessageService { get; set; }
         protected INotificationManager NotificationManager { get; set; }
         protected FacebookConverter FacebookConverter { get; set; }
+        protected IFbClient FbClient { get; set; }
 
         public WebHookStrategy(IDependencyResolver dependencyResolver)
         {
@@ -25,6 +26,7 @@ namespace Social.Domain.DomainServices.Facebook
             SocialUserService = dependencyResolver.Resolve<ISocialUserService>();
             MessageService = dependencyResolver.Resolve<IMessageService>();
             NotificationManager = dependencyResolver.Resolve<INotificationManager>();
+            FbClient = dependencyResolver.Resolve<IFbClient>();
             FacebookConverter = new FacebookConverter();
         }
 
@@ -56,6 +58,11 @@ namespace Social.Domain.DomainServices.Facebook
         protected Message GetMessage(MessageSource source, string originalId)
         {
             return MessageService.FindByOriginalId(source, originalId);
+        }
+
+        protected Message GetMessage(MessageSource[] sources, string originalId)
+        {
+            return MessageService.FindByOriginalId(sources, originalId);
         }
 
         protected async Task DeleteMessage(Message message)

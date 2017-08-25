@@ -30,14 +30,17 @@ namespace Social.Application.AppServices
     {
         private ISocialAccountService _socialAccountService;
         private ISocialUserService _socialUserService;
+        private IFbClient _fbClient;
 
         public FacebookAccountAppService(
             ISocialAccountService socialAccountService,
-            ISocialUserService socialUserService
+            ISocialUserService socialUserService,
+            IFbClient fbClient
             )
         {
             _socialAccountService = socialAccountService;
             _socialUserService = socialUserService;
+            _fbClient = fbClient;
         }
 
         public IList<FacebookPageListDto> GetPages()
@@ -47,13 +50,13 @@ namespace Social.Application.AppServices
 
         public async Task<PendingAddFacebookPagesDto> GetPendingAddPagesAsync(string code, string redirectUri)
         {
-            string userToken = FbClient.GetUserToken(code, redirectUri);
-            FbUser me = await FbClient.GetMe(userToken);
-            IList<FbPage> pages = await FbClient.GetPages(userToken);
+            string userToken = _fbClient.GetUserToken(code, redirectUri);
+            FbUser me = await _fbClient.GetMe(userToken);
+            IList<FbPage> pages = await _fbClient.GetPages(userToken);
             List<string> pageIds = pages.Select(t => t.Id).ToList();
             foreach (var page in pages)
             {
-                FbUser fbUser = await FbClient.GetUserInfo(userToken, page.Id);
+                FbUser fbUser = await _fbClient.GetUserInfo(userToken, page.Id);
                 page.Avatar = fbUser.pic;
             }
             var facebookAccounts = _socialAccountService.FindAll()
@@ -113,7 +116,7 @@ namespace Social.Application.AppServices
                 await _socialAccountService.InsertSocialAccountInGeneralDb(socialAccount);
             }
 
-            await FbClient.SubscribeApp(dto.FacebookId, dto.AccessToken);
+            await _fbClient.SubscribeApp(dto.FacebookId, dto.AccessToken);
 
             socialAccount = _socialAccountService.Find(socialAccount.Id);
             return Mapper.Map<FacebookPageDto>(socialAccount);
@@ -128,7 +131,7 @@ namespace Social.Application.AppServices
             }
 
             await _socialAccountService.DeleteAsync(entity);
-            await FbClient.UnSubscribeApp(entity.SocialUser.OriginalId, entity.Token);
+            await _fbClient.UnSubscribeApp(entity.SocialUser.OriginalId, entity.Token);
         }
 
         public FacebookPageDto UpdatePage(int id, UpdateFacebookPageDto dto)
