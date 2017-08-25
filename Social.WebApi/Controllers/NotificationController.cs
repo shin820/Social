@@ -68,7 +68,7 @@ namespace Social.WebApi.Controllers
             var dto = _messageAppService.GetFacebookPostCommentMessage(messageId);
             if (dto != null)
             {
-                _hub.Clients.Group(dto.ConversationId.ToString()).facebookCommentCreated(dto);
+                _hub.Clients.Group(Request.GetSiteId().ToString()).facebookCommentCreated(dto);
             }
             return Ok();
         }
@@ -80,7 +80,7 @@ namespace Social.WebApi.Controllers
             var dto = _messageAppService.GetFacebookDirectMessage(messageId);
             if (dto != null)
             {
-                _hub.Clients.Group(dto.ConversationId.ToString()).facebookMessageCreated(dto);
+                _hub.Clients.Group(Request.GetSiteId().ToString()).facebookMessageCreated(dto);
             }
             return Ok();
         }
@@ -92,7 +92,7 @@ namespace Social.WebApi.Controllers
             var dto = _messageAppService.GetTwitterTweetMessage(messageId);
             if (dto != null)
             {
-                _hub.Clients.Group(dto.ConversationId.ToString()).twitterTweetCreated(dto);
+                _hub.Clients.Group(Request.GetSiteId().ToString()).twitterTweetCreated(dto);
             }
             return Ok();
         }
@@ -104,7 +104,7 @@ namespace Social.WebApi.Controllers
             var dto = _messageAppService.GetTwitterDirectMessage(messageId);
             if (dto != null)
             {
-                _hub.Clients.Group(dto.ConversationId.ToString()).twitterDirectMessageCreated(dto);
+                _hub.Clients.Group(Request.GetSiteId().ToString()).twitterDirectMessageCreated(dto);
             }
             return Ok();
         }
