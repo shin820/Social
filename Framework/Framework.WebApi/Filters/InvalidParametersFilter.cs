@@ -1,5 +1,4 @@
 ﻿using Framework.Core;
-using Social.Infrastructure;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -38,7 +37,7 @@ namespace Framework.WebApi.Filters
             }
             else
             {
-                throw SocialExceptions.BadRequest($"Parameter '{invliadParamterKeys.FirstOrDefault()}' is required or invalid.");
+                throw new ExceptionWithCode(40000, $"Parameter '{invliadParamterKeys.FirstOrDefault()}' is required or invalid.");
             }
         }
 
@@ -48,15 +47,15 @@ namespace Framework.WebApi.Filters
             // If the list of required parameters is null or containst no parameters 
             // then there is nothing to validate.  
             // Return true.
-            if ((requiredParameters == null || requiredParameters.Count == 0) &&(maxLengthDic == null || maxLengthDic.Count == 0) && (rangeDic == null || rangeDic.Count == 0))
+            if ((requiredParameters == null || requiredParameters.Count == 0) && (maxLengthDic == null || maxLengthDic.Count == 0) && (rangeDic == null || rangeDic.Count == 0))
             {
                 return new List<string>();
             }
 
-             if(!(requiredParameters == null || requiredParameters.Count == 0))
+            if (!(requiredParameters == null || requiredParameters.Count == 0))
             {
                 // Attempt to find at least one required parameter that is null.
-                invalidParameterKeys = 
+                invalidParameterKeys =
                     actionContext
                     .ActionArguments
                     .Where(a => requiredParameters.Contains(a.Key) && (a.Value == null || isEmpty(a.Value))).Select(a => a.Key).ToList();
@@ -65,7 +64,7 @@ namespace Framework.WebApi.Filters
                 // Otherwise, return true.
             }
 
-             if(!(maxLengthDic == null || maxLengthDic.Count == 0))
+            if (!(maxLengthDic == null || maxLengthDic.Count == 0))
             {
                 foreach (var dic in maxLengthDic)
                 {
@@ -131,17 +130,17 @@ namespace Framework.WebApi.Filters
             return result;
         }
 
-        private Dictionary<string, object[]> GetParametersAndValues(HttpActionContext actionContext,string AttributeType)
+        private Dictionary<string, object[]> GetParametersAndValues(HttpActionContext actionContext, string AttributeType)
         {
             Dictionary<string, object[]> dic = new Dictionary<string, object[]>();
 
-            { 
+            {
                 if (AttributeType == "MaxLengthAttribute")
                 {
                     var Parameters = actionContext
                     .ActionDescriptor
                     .GetParameters()
-                    .Where(p =>  p.GetCustomAttributes<MaxLengthAttribute> ().Any());
+                    .Where(p => p.GetCustomAttributes<MaxLengthAttribute>().Any());
                     foreach (var Parameter in Parameters)
                     {
                         var b = Parameter.GetCustomAttributes<MaxLengthAttribute>().FirstOrDefault();
@@ -170,5 +169,5 @@ namespace Framework.WebApi.Filters
 
             return dic;
         }
-        }
+    }
 }
