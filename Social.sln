@@ -29,7 +29,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework.Core.UnitTest", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQL", "SQL", "{BB01AF05-CA41-4691-A2BA-8FDA942588BE}"
 	ProjectSection(SolutionItems) = preProject
-		SQL\AddData.sql = SQL\AddData.sql
+		SQL\Site200030_100014500.sql = SQL\Site200030_100014500.sql
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "general-scripts", "general-scripts", "{1C16B363-5983-4B55-A523-3F0404C8E643}"
