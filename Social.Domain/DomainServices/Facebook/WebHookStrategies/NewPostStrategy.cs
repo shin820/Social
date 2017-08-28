@@ -28,11 +28,7 @@ namespace Social.Domain.DomainServices.Facebook
                 && !string.IsNullOrWhiteSpace(change.Value.Link)
                 && change.Value.IsPublished;
 
-            bool isWallPost = change.Field == "feed"
-                && change.Value.PostId != null
-                && change.Value.Item == "status"
-                && change.Value.Verb == "add"
-                && change.Value.IsPublished;
+            bool isWallPost = IsWallPost(change);
 
             return isTextPost || isPhotOrVideoPost || isWallPost;
         }
