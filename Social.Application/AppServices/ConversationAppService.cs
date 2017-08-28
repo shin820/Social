@@ -4,6 +4,7 @@ using Framework.Core;
 using Social.Application.Dto;
 using Social.Domain.DomainServices;
 using Social.Domain.Entities;
+using Social.Domain.Entities.General;
 using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
@@ -81,33 +82,13 @@ namespace Social.Application.AppServices
         private void FillFiledsForDtoList(IList<ConversationDto> conversationDtos)
         {
             var allMessages = _messageService.FindAllByConversationIds(conversationDtos.Select(t => t.Id).ToArray()).ToList();
-            var agents = _agentService.Find(conversationDtos.Where(t => t.AgentId.HasValue).Select(t => t.AgentId.Value));
-            var departments = _departmentService.Find(conversationDtos.Where(t => t.DepartmentId.HasValue).Select(t => t.DepartmentId.Value));
+            var agents = _agentService.Find(conversationDtos.Where(t => t.AgentId.HasValue).Select(t => t.AgentId.Value)).ToList();
+            var departments = _departmentService.Find(conversationDtos.Where(t => t.DepartmentId.HasValue).Select(t => t.DepartmentId.Value)).ToList();
 
             foreach (var conversationDto in conversationDtos)
             {
-                var agent = agents?.FirstOrDefault(t => t.Id == conversationDto.AgentId);
-                conversationDto.AgentName = agent?.Name;
-
-                var department = departments?.FirstOrDefault(t => t.Id == conversationDto.DepartmentId);
-                conversationDto.DepartmentName = department?.Name;
-
                 var messages = allMessages.Where(t => t.ConversationId == conversationDto.Id).ToList();
-                if (messages.Any())
-                {
-                    conversationDto.LastMessage = messages.OrderByDescending(t => t.Id).First().Content;
-                }
-
-                foreach (var message in messages)
-                {
-                    if (message.IntegrationAccount != null)
-                    {
-                        conversationDto.LastIntegrationAccountId = message.IntegrationAccountId;
-                        conversationDto.LastIntegrationAccountName = message.IntegrationAccount.Name;
-                        conversationDto.LastIntegrationAccountAvatar = message.IntegrationAccount.Avatar;
-                        break;
-                    }
-                }
+                FillFields(conversationDto, agents, departments, messages);
             }
         }
 
@@ -211,31 +192,64 @@ namespace Social.Application.AppServices
 
         private void FillFields(ConversationDto conversationDto)
         {
+            List<Agent> agents = new List<Agent>();
             if (conversationDto.AgentId.HasValue)
             {
                 var agent = _agentService.Find(conversationDto.AgentId.Value);
-                conversationDto.AgentName = agent?.Name;
+                if (agent != null)
+                {
+                    agents.Add(agent);
+                }
             }
 
+            List<Department> departments = new List<Department>();
             if (conversationDto.DepartmentId.HasValue)
             {
                 var department = _departmentService.Find(conversationDto.DepartmentId.Value);
-                conversationDto.DepartmentName = department?.Name;
+                if (department != null)
+                {
+                    departments.Add(department);
+                }
             }
 
-            var messages = _messageService.FindAllByConversationId(conversationDto.Id);
+            var messages = _messageService
+                .FindAllByConversationId(conversationDto.Id).ToList();
+
+            FillFields(conversationDto, agents, departments, messages);
+        }
+
+        private void FillFields(ConversationDto dto, IList<Agent> agents, IList<Department> departments, IList<Message> messages)
+        {
+            if (dto == null)
+            {
+                return;
+            }
+
+            if (dto.AgentId.HasValue && agents != null && agents.Any())
+            {
+                var agent = _agentService.Find(dto.AgentId.Value);
+                dto.AgentName = agent?.Name;
+            }
+
+            if (dto.DepartmentId.HasValue && departments != null && departments.Any())
+            {
+                var department = _departmentService.Find(dto.DepartmentId.Value);
+                dto.DepartmentName = department?.Name;
+            }
+
             if (messages != null && messages.Any())
             {
-                var lastMessage = messages.OrderByDescending(t => t.Id).First();
-                conversationDto.LastMessage = lastMessage.Content;
+                messages = messages.OrderByDescending(t => t.Id).ToList();
+                dto.LastMessage = messages.First().Content;
+                dto.OriginalLink = messages.Last().OriginalLink;
 
                 foreach (var message in messages)
                 {
                     if (message.IntegrationAccount != null)
                     {
-                        conversationDto.LastIntegrationAccountId = message.IntegrationAccountId;
-                        conversationDto.LastIntegrationAccountName = message.IntegrationAccount.Name;
-                        conversationDto.LastIntegrationAccountAvatar = message.IntegrationAccount.Avatar;
+                        dto.LastIntegrationAccountId = message.IntegrationAccountId;
+                        dto.LastIntegrationAccountName = message.IntegrationAccount.Name;
+                        dto.LastIntegrationAccountAvatar = message.IntegrationAccount.Avatar;
                         break;
                     }
                 }

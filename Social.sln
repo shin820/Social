@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Social.Infrastructure", "Social.Infrastructure\Social.Infrastructure.csproj", "{FE79D2DF-6B23-4278-9C84-FC1D6487C45B}"
 EndProject
@@ -114,5 +114,8 @@ Global
 		{C4346B53-1A58-48C2-BC2C-C8AB7261BDD3} = {F2A2C673-AEE4-4DB3-92FC-79DAB018C043}
 		{1C16B363-5983-4B55-A523-3F0404C8E643} = {BB01AF05-CA41-4691-A2BA-8FDA942588BE}
 		{0AD65EAC-67BB-46C1-8383-4BA61D0F7197} = {BB01AF05-CA41-4691-A2BA-8FDA942588BE}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {30FD1E24-CB2F-4D2B-AF51-97754A54F2F7}
 	EndGlobalSection
 EndGlobal

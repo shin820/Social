@@ -88,7 +88,7 @@ namespace Social.Domain.DomainServices.Facebook
             await ConversationService.UpdateAsync(conversation);
         }
 
-        protected async Task AddConversation(SocialAccount socialAccount, Conversation conversation)
+        protected async Task<Conversation> AddConversation(SocialAccount socialAccount, Conversation conversation)
         {
             if (socialAccount.ConversationDepartmentId.HasValue)
             {
@@ -102,7 +102,7 @@ namespace Social.Domain.DomainServices.Facebook
                 conversation.Priority = socialAccount.ConversationPriority ?? ConversationPriority.Normal;
             }
 
-            await ConversationService.InsertAsync(conversation);
+           return await ConversationService.InsertAsync(conversation);
         }
 
         protected async Task DeleteConversation(Conversation conversation)

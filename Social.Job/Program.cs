@@ -38,10 +38,10 @@ namespace Social.Job
                     action.OnCrashOnly();
 
                 });
-                x.OnException(ex =>
-                {
-                    SchedulerLogger.GetLogger().Error(ex);
-                });
+                //x.OnException(ex =>
+                //{
+                //    SchedulerLogger.GetLogger().Error(ex);
+                //});
                 x.UseLog4Net();
             });
         }

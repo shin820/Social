@@ -17,6 +17,8 @@ namespace Social.Application.Dto
 
         public string OriginalId { get; set; }
 
+        public string OriginalLink { get; set; }
+
         public bool IfRead { get; set; }
 
         public DateTime LastMessageSentTime { get; set; }

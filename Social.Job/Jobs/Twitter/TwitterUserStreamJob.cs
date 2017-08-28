@@ -71,7 +71,7 @@ namespace Social.Job.Jobs
             };
 
             await stream.StartStreamAsync();
-            Console.Read();
+            SchedulerJob.RemoveRunningJob<TwitterUserStreamJob>(socialAccount.SiteId, socialAccount.SocialUser.OriginalId);
         }
     }
 }

@@ -160,7 +160,7 @@ namespace Social.Application.AppServices
 
         public TwitterTweetMessageDto ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, string messageContent, bool isCloseConversation = false)
         {
-            Message message = _messageService.ReplyTwitterTweetMessage(conversationId, tweetAccountId, messageContent);
+            Message message = _messageService.ReplyTwitterTweetMessage(conversationId, tweetAccountId, messageContent, isCloseConversation);
             var dto = Mapper.Map<TwitterTweetMessageDto>(message);
             dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
             return dto;
@@ -168,7 +168,7 @@ namespace Social.Application.AppServices
 
         public TwitterDirectMessageDto ReplyTwitterDirectMessage(int conversationId, string messageContent, bool isCloseConversation = false)
         {
-            Message message = _messageService.ReplyTwitterDirectMessage(conversationId, messageContent);
+            Message message = _messageService.ReplyTwitterDirectMessage(conversationId, messageContent, isCloseConversation);
             var dto = Mapper.Map<TwitterDirectMessageDto>(message);
             dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
             return dto;
@@ -176,7 +176,7 @@ namespace Social.Application.AppServices
 
         public FacebookMessageDto ReplyFacebookMessage(int conversationId, string content, bool isCloseConversation = false)
         {
-            Message message = _messageService.ReplyFacebookMessage(conversationId, content);
+            Message message = _messageService.ReplyFacebookMessage(conversationId, content, isCloseConversation);
             var dto = Mapper.Map<FacebookMessageDto>(message);
             dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
             return dto;
@@ -184,7 +184,7 @@ namespace Social.Application.AppServices
 
         public FacebookPostCommentMessageDto ReplyFacebookPostOrComment(int conversationId, int postOrCommentId, string content, bool isCloseConversation = false)
         {
-            Message message = _messageService.ReplyFacebookPostOrComment(conversationId, postOrCommentId, content);
+            Message message = _messageService.ReplyFacebookPostOrComment(conversationId, postOrCommentId, content, isCloseConversation);
             var dto = Mapper.Map<FacebookPostCommentMessageDto>(message);
             dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
             return dto;

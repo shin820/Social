@@ -12,6 +12,7 @@ using Microsoft.Owin.Extensions;
 using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
 using Social.WebApi.Core;
+using Microsoft.Owin.Cors;
 
 [assembly: OwinStartup(typeof(Startup))]
 
@@ -37,11 +38,35 @@ namespace Social.WebApi.App_Start
             settings.ContractResolver = new SignalRContractResolver();
             var serializer = JsonSerializer.Create(settings);
             GlobalHost.DependencyResolver.Register(typeof(JsonSerializer), () => serializer);
-            var hubConfiguration = new HubConfiguration();
-            hubConfiguration.EnableDetailedErrors = true;
-            app.MapSignalR(hubConfiguration);
+
+            //var hubConfiguration = new HubConfiguration();
+            //hubConfiguration.EnableDetailedErrors = true;
+            //app.MapSignalR(hubConfiguration);
+
+            // Branch the pipeline here for requests that start with "/signalr"
+            app.Map("/signalr", map =>
+            {
+                // Setup the CORS middleware to run before SignalR.
+                // By default this will allow all origins. You can 
+                // configure the set of origins and/or http verbs by
+                // providing a cors options with a different policy.
+                map.UseCors(CorsOptions.AllowAll);
+                var hubConfiguration = new HubConfiguration
+                {
+                    // You can enable JSONP by uncommenting line below.
+                    // JSONP requests are insecure but some older browsers (and some
+                    // versions of IE) require JSONP to work cross domain
+                    // EnableJSONP = true
+                };
+                // Run the SignalR pipeline. We're not using MapSignalR
+                // since this branch already runs under the "/signalr"
+                // path.
+                map.RunSignalR(hubConfiguration);
+            });
 
             app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
+
+
 
             app.Use((context, next) =>
             {

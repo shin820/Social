@@ -9,6 +9,7 @@ using Social.Domain;
 using Social.Domain.Entities;
 using Social.Infrastructure;
 using Social.Domain.Core;
+using Social.Domain.DomainServices;
 
 namespace Social.Job.Jobs
 {
@@ -17,62 +18,45 @@ namespace Social.Job.Jobs
         private static RunningJobs RunningJobs = new RunningJobs();
 
         private IScheduleJobManager _scheduleJobManager;
-        private IRepository<GeneralDataContext, SiteSocialAccount> _siteSocialAccountRepo;
+        private ISiteSocialAccountService _siteSocialAccountService;
 
         public SchedulerJob(
             IScheduleJobManager schedulerJobManager,
-            IRepository<GeneralDataContext, SiteSocialAccount> siteSocialAccountRepo
+            ISiteSocialAccountService siteSocialAccountService
             )
         {
             _scheduleJobManager = schedulerJobManager;
-            _siteSocialAccountRepo = siteSocialAccountRepo;
+            _siteSocialAccountService = siteSocialAccountService;
         }
 
-        private async Task<List<SiteSocialAccount>> GetFacebookSiteAccounts()
+        public static void RemoveRunningJob<TJob>(int siteId, string originalAccountId) where TJob : JobBase
         {
-            List<SiteSocialAccount> accounts = new List<SiteSocialAccount>();
-
-            await UnitOfWorkManager.RunWithoutTransaction(null, () =>
-             {
-                 return Task.Run(() =>
-                      accounts = _siteSocialAccountRepo.FindAll().Where(t => t.FacebookPageId != null).ToList()
-                     );
-             });
-
-            return accounts;
-        }
-
-        private async Task<List<SiteSocialAccount>> GetTwitterSiteAccounts()
-        {
-            List<SiteSocialAccount> accounts = new List<SiteSocialAccount>();
-
-            await UnitOfWorkManager.RunWithoutTransaction(null, () =>
-                {
-                    return Task.Run(() =>
-                     accounts = _siteSocialAccountRepo.FindAll().Where(t => t.TwitterUserId != null).ToList()
-                    );
-                });
-
-            return accounts;
+            RunningJobs.Remove<TJob>(siteId, originalAccountId);
         }
 
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
-            List<SiteSocialAccount> facebookAccounts = await GetFacebookSiteAccounts();
-            List<SiteSocialAccount> twitterAccounts = await GetTwitterSiteAccounts();
+            List<SiteSocialAccount> facebookAccounts = await _siteSocialAccountService.GetFacebookSiteAccountsAsync();
+            List<SiteSocialAccount> twitterAccounts = await _siteSocialAccountService.GetTwitterSiteAccountsAsync();
 
-            foreach (var facebookAccount in facebookAccounts)
+            if (facebookAccounts != null && facebookAccounts.Any())
             {
-                RunningJobs.Schedule<PullTaggedVisitorPostsJob>(_scheduleJobManager, facebookAccount, CronTrigger(AppSettings.FacebookPullTaggedVisitorPostsJobCronExpression));
-                RunningJobs.Schedule<PullVisitorPostsFromFeedJob>(_scheduleJobManager, facebookAccount, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
-                RunningJobs.Schedule<PullMessagesJob>(_scheduleJobManager, facebookAccount, CronTrigger(AppSettings.FacebookPullMessagesJobCronExpression));
+                foreach (var facebookAccount in facebookAccounts)
+                {
+                    RunningJobs.Schedule<PullTaggedVisitorPostsJob>(_scheduleJobManager, facebookAccount, CronTrigger(AppSettings.FacebookPullTaggedVisitorPostsJobCronExpression));
+                    RunningJobs.Schedule<PullVisitorPostsFromFeedJob>(_scheduleJobManager, facebookAccount, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
+                    RunningJobs.Schedule<PullMessagesJob>(_scheduleJobManager, facebookAccount, CronTrigger(AppSettings.FacebookPullMessagesJobCronExpression));
+                }
             }
 
-            foreach (var twitterAccount in twitterAccounts)
+            if (twitterAccounts != null && twitterAccounts.Any())
             {
-                RunningJobs.Schedule<TwitterUserStreamJob>(_scheduleJobManager, twitterAccount, StartNowTrigger());
-                RunningJobs.Schedule<TwitterPullDirectMessagesJob>(_scheduleJobManager, twitterAccount, CronTrigger(AppSettings.TwitterPullDirectMessagesJobCronExpression));
-                RunningJobs.Schedule<TwitterPullTweetsJob>(_scheduleJobManager, twitterAccount, CronTrigger(AppSettings.TwitterPullTweetsJobCronExpression));
+                foreach (var twitterAccount in twitterAccounts)
+                {
+                    RunningJobs.Schedule<TwitterUserStreamJob>(_scheduleJobManager, twitterAccount, StartNowTrigger());
+                    RunningJobs.Schedule<TwitterPullDirectMessagesJob>(_scheduleJobManager, twitterAccount, CronTrigger(AppSettings.TwitterPullDirectMessagesJobCronExpression));
+                    RunningJobs.Schedule<TwitterPullTweetsJob>(_scheduleJobManager, twitterAccount, CronTrigger(AppSettings.TwitterPullTweetsJobCronExpression));
+                }
             }
 
             RunningJobs.StopTimeoutJobs(context.Scheduler);
