@@ -81,6 +81,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppServices\ConversationAppServiceTest.cs" />
+    <Compile Include="AppServices\ConversationFieldAppServiceTest.cs" />
+    <Compile Include="AppServices\ConversationMessageAppServiceTest.cs" />
     <Compile Include="DomainServices\ConversationFieldServiceTest.cs" />
     <Compile Include="DomainServices\ConversationServiceTest.cs" />
     <Compile Include="DomainServices\Facebook\FacebookConverterTest.cs" />

@@ -16,6 +16,10 @@ namespace Social.UnitTest.AppServices
 {
     public class ConversationAppServiceTest : TestBase
     {
+        public ConversationAppServiceTest()
+        {
+
+        }
         [Fact]
         public void ShouldGetDtoById()
         {
@@ -236,7 +240,7 @@ namespace Social.UnitTest.AppServices
             Assert.Equal(entity.Messages.First().Sender.Id, dto.LastIntegrationAccountId);
         }
 
-        private Conversation MakeConversationEntity(int id)
+        public Conversation MakeConversationEntity(int id)
         {
             return new Conversation
             {
