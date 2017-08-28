@@ -92,7 +92,7 @@ namespace Social.UnitTest.DomainServices.Facebook.WebHookStrategies
         }
 
         [Fact]
-        public void ShouldNotMatch()
+        public void ShouldNotMatchStrategy()
         {
             // Arrange
             var dependencyResolverMock = new Mock<IDependencyResolver>();

@@ -102,6 +102,7 @@
     <Compile Include="DomainServices\ConversationServiceTest.cs" />
     <Compile Include="DomainServices\Facebook\FacebookConverterTest.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\NewMessageStrategyTest.cs" />
+    <Compile Include="DomainServices\Facebook\WebHookStrategies\NewCommentStrategyTest.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\NewPostStrategyTest.cs" />
     <Compile Include="DomainServices\FilterExpressions\DateTimeExpressionTest.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFieldExpression\AgentAssigneeExpressionTest.cs" />
