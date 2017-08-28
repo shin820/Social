@@ -11,7 +11,7 @@ namespace Social.Domain.DomainServices.Facebook
 {
     public class FacebookProcessResult
     {
-        public IList<Conversation> NewConversations;
+        public IList<Conversation> NewConversations { get; set; }
         public IList<Conversation> UpdatedConversations { get; set; }
         public IList<Message> NewMessages { get; set; }
 
