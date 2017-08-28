@@ -209,6 +209,43 @@ namespace Social.UnitTest.DomainServices.Facebook.WebHookStrategies
         }
 
         [Fact]
+        public async Task ShouldNotifyNewConversation()
+        {
+            // Arrange
+            var fbHookChange = new FbHookChange
+            {
+                Field = "feed",
+                Value = new FbHookChangeValue
+                {
+                    Item = "post",
+                    PostId = "post_1",
+                    Verb = "add"
+                }
+            };
+            var fbPost = new FbPost
+            {
+                id = "post_1",
+                from = new FbUser { id = "user_1", name = "test_sender" },
+                created_time = DateTime.UtcNow,
+                message = "Test_Message"
+            };
+            var sender = new SocialUser { Id = 1, OriginalId = "user_1" };
+
+            var dependencyResolverMock = MockDependencyResolver(fbHookChange, fbPost, sender);
+            var strategy = new NewPostStrategy(dependencyResolverMock.Object);
+            strategy.UnitOfWorkManager = MockUnitOfWorkManager().Object;
+            var socialAccount = new SocialAccount { Id = 888, Token = "token", IfConvertVisitorPostToConversation = true };
+
+            // Act
+            var processResult = await strategy.Process(socialAccount, fbHookChange);
+
+            // Assert
+            Assert.Equal(1, processResult.NewConversations.Count());
+            Assert.Equal(0, processResult.UpdatedConversations.Count());
+            Assert.Equal(0, processResult.NewMessages.Count());
+        }
+
+        [Fact]
         public async Task ShouldCreateConversationForVisitorPost()
         {
             // Arrange
