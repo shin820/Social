@@ -27,6 +27,7 @@ namespace Social.Domain.DomainServices.Facebook
             UpdatedConversations = new List<Conversation>();
             NewMessages = new List<Message>();
             DeletedConversations = new List<Conversation>();
+            DeletedMessages = new List<Message>();
             _notificationManager = notificationManager;
         }
 
