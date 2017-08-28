@@ -13,6 +13,7 @@ using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
 using Social.WebApi.Core;
 using Microsoft.Owin.Cors;
+using Framework.Core.Json;
 
 [assembly: OwinStartup(typeof(Startup))]
 
@@ -37,6 +38,7 @@ namespace Social.WebApi.App_Start
             var settings = new JsonSerializerSettings();
             settings.ContractResolver = new SignalRContractResolver();
             var serializer = JsonSerializer.Create(settings);
+            serializer.Converters.Add(new UnitDateTimeConverter());
             GlobalHost.DependencyResolver.Register(typeof(JsonSerializer), () => serializer);
 
             //var hubConfiguration = new HubConfiguration();
