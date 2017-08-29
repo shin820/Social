@@ -103,7 +103,9 @@
     <Compile Include="DomainServices\ConversationFieldServiceTest.cs" />
     <Compile Include="DomainServices\ConversationServiceTest.cs" />
     <Compile Include="DomainServices\Facebook\FacebookConverterTest.cs" />
-    <Compile Include="DomainServices\Facebook\PubJobServiceTest_PullTaggedVisitorPost.cs" />
+    <Compile Include="DomainServices\Facebook\PullJobServiceTestBase.cs" />
+    <Compile Include="DomainServices\Facebook\PullJobServiceTest_PullTaggedVisitorPost.cs" />
+    <Compile Include="DomainServices\Facebook\PullJobServiceTest_PullVisitorPostsFromFeed.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\NewMessageStrategyTest.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\NewCommentStrategyTest.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\NewPostStrategyTest.cs" />

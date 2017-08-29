@@ -16,7 +16,7 @@ namespace Social.Domain.DomainServices.Facebook
     public interface IPullJobService : ITransient
     {
         Task<FacebookProcessResult> PullTaggedVisitorPosts(SocialAccount account);
-        Task PullVisitorPostsFromFeed(SocialAccount account);
+        Task<FacebookProcessResult> PullVisitorPostsFromFeed(SocialAccount account);
         Task PullMessagesJob(SocialAccount account);
     }
 
@@ -52,17 +52,19 @@ namespace Social.Domain.DomainServices.Facebook
             _fbConverter = new FacebookConverter();
         }
 
-        public async Task PullVisitorPostsFromFeed(SocialAccount account)
+        public async Task<FacebookProcessResult> PullVisitorPostsFromFeed(SocialAccount account)
         {
+            var result = new FacebookProcessResult(_notificationManager);
+
             _account = account;
             var data = await _fbClient.GetVisitorPosts(_account.SocialUser.OriginalId, _account.Token);
             await Init(data);
             RemoveDuplicated();
-            var result = new FacebookProcessResult(_notificationManager);
             await AddPosts(result, PostsToBeCreated);
             await AddComments(result, CommentsToBeCreated);
             await AddReplyComments(result, ReplyCommentsToBeCretaed);
-            Clear();
+
+            return result;
         }
 
         public async Task<FacebookProcessResult> PullTaggedVisitorPosts(SocialAccount account)
@@ -509,8 +511,7 @@ namespace Social.Domain.DomainServices.Facebook
 
                     if (comments.paging?.next != null)
                     {
-                        FacebookClient client = new FacebookClient();
-                        comments = await client.GetTaskAsync<FbPagingData<FbComment>>(comments.paging.next);
+                        comments = await _fbClient.GetPagingData<FbComment>(comments.paging.next);
                     }
                     else
                     {
@@ -532,8 +533,7 @@ namespace Social.Domain.DomainServices.Facebook
 
                     if (replyComments.paging?.next != null)
                     {
-                        FacebookClient client = new FacebookClient();
-                        replyComments = await client.GetTaskAsync<FbPagingData<FbComment>>(replyComments.paging.next);
+                        replyComments = await _fbClient.GetPagingData<FbComment>(replyComments.paging.next);
                     }
                     else
                     {

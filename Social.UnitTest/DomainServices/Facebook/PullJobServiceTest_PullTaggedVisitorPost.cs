@@ -17,7 +17,7 @@ using Xunit;
 
 namespace Social.UnitTest.DomainServices.Facebook
 {
-    public class PubJobServiceTest_PullTaggedVisitorPost
+    public class PullJobServiceTest_PullTaggedVisitorPost : PullJobServiceTestBase
     {
         [Fact]
         public async Task ShouldPullTaggedVisitorPostFromFacebook()
@@ -75,6 +75,7 @@ namespace Social.UnitTest.DomainServices.Facebook
             Assert.Equal(ConversationStatus.New, conversation.Status);
             var message = conversation.Messages.First();
             Assert.Equal("test_content", message.Content);
+            Assert.Equal(MessageSource.FacebookPost, message.Source);
             Assert.Equal(1, message.SenderId);
             Assert.Equal(888, message.ReceiverId);
             Assert.Equal(new DateTime(2000, 1, 1, 1, 1, 1, DateTimeKind.Utc), message.SendTime);
@@ -347,6 +348,7 @@ namespace Social.UnitTest.DomainServices.Facebook
             Assert.Equal(1, processResult.NewMessages.Count());
             var message = processResult.NewMessages.First();
             Assert.Equal("test_comment_content1", message.Content);
+            Assert.Equal(MessageSource.FacebookPostComment, message.Source);
             Assert.Equal(1, message.SenderId);
             Assert.Equal(1, message.ConversationId);
             Assert.Equal(777, message.ReceiverId);
@@ -419,88 +421,153 @@ namespace Social.UnitTest.DomainServices.Facebook
             Assert.Equal(0, processResult.NewMessages.Count());
         }
 
-        private FbPagingData<FbPost> MakeSinglePostPagingData()
+        [Fact]
+        public async Task ShouldCreateMessageForNexPageComments()
         {
-            return new FbPagingData<FbPost>
-            {
-                data = new List<FbPost>
-                {
-                    new FbPost{
-                        id ="post_1",
-                        from = new FbUser{id="user_1"},
-                        created_time =new DateTime(2000,1,1,1,1,1,DateTimeKind.Utc),
-                        message="test_content"
-                        }
-                }
-            };
+            // Arrange
+            var account = MakeSocialAccount();
+            var conversationServiceMock = new Mock<IConversationService>();
+            var existingConversations = new List<Conversation>();
+            existingConversations.Add(new Conversation { Id = 1, OriginalId = "post_1" });
+            conversationServiceMock.Setup(t => t.FindAll()).Returns(existingConversations.AsQueryable());
+            var messageServiceMock = new Mock<IMessageService>();
+            var existingMessages = new List<Message>();
+            existingMessages.Add(new Message { Id = 1, ConversationId = 1, OriginalId = "post_1", SenderId = 777 });
+            messageServiceMock.Setup(t => t.FindAll()).Returns(existingMessages.AsQueryable());
+
+            var socialUserServiceMock = MockSocialUserService(account);
+            var postWithComments = MakePostWithCommentsPaingData();
+            postWithComments.data.First().comments.paging =
+                new FbPaging { next = "http://api.facebook.com/next-page-comment/121123" };
+            var fbClientMock = MockFbClient(account.SocialUser.OriginalId, account.Token, postWithComments);
+
+            var dependencyResolver = new DependencyResolverBuilder()
+                .WithConversationService(conversationServiceMock.Object)
+                .WithMessageService(messageServiceMock.Object)
+                .WithSocialUserService(socialUserServiceMock.Object)
+                .WithFacebookClient(fbClientMock.Object)
+                .Build();
+
+            var pullJobService = dependencyResolver.Resolve<PullJobService>();
+
+            // Act
+            FacebookProcessResult processResult = await pullJobService.PullTaggedVisitorPosts(account);
+
+            // Assert
+            fbClientMock.Verify(t => t.GetPagingData<FbComment>("http://api.facebook.com/next-page-comment/121123"));
         }
 
-        private FbPagingData<FbPost> MakePostWithCommentsPaingData()
+        [Fact]
+        public async Task ShouldCreateMessageForReplyComments()
         {
-            return new FbPagingData<FbPost>
-            {
-                data = new List<FbPost>
-                {
-                    new FbPost{
-                        id ="post_1",
-                        from = new FbUser{id="user_1"},
-                        created_time = new DateTime(2000,1,1,1,1,1,DateTimeKind.Utc),
-                        message="test_post_content",
-                        comments=new FbPagingData<FbComment>
-                        {
-                            data=new List<FbComment>
-                            {
-                                new FbComment
-                                {
-                                    id="comment_1",
-                                    PostId="post_1",
-                                    from = new FbUser{id="user_1"},
-                                    message = "test_comment_content1",
-                                    created_time = new DateTime(2000,1,2,1,1,1,DateTimeKind.Utc)
-                                }
-                            }
-                        }
-                    }
-                }
-            };
+            // Arrange
+            var account = MakeSocialAccount();
+            var conversationServiceMock = new Mock<IConversationService>();
+            var existingConversations = new List<Conversation>();
+            existingConversations.Add(new Conversation { Id = 1, OriginalId = "post_1" });
+            conversationServiceMock.Setup(t => t.FindAll()).Returns(existingConversations.AsQueryable());
+            var messageServiceMock = new Mock<IMessageService>();
+            var existingMessages = new List<Message>();
+            existingMessages.Add(new Message { Id = 1, ConversationId = 1, OriginalId = "post_1", SenderId = 777, Source = MessageSource.FacebookPost });
+            existingMessages.Add(new Message { Id = 2, ConversationId = 1, OriginalId = "comment_1", SenderId = 777, ParentId = 1, Source = MessageSource.FacebookPostComment });
+            messageServiceMock.Setup(t => t.FindAll()).Returns(existingMessages.AsQueryable());
+
+            var socialUserServiceMock = MockSocialUserService(account);
+            var postWithReplyComments = MakePostWithReplyCommentsPaingData();
+            var fbClientMock = MockFbClient(account.SocialUser.OriginalId, account.Token, postWithReplyComments);
+
+            var dependencyResolver = new DependencyResolverBuilder()
+                .WithConversationService(conversationServiceMock.Object)
+                .WithMessageService(messageServiceMock.Object)
+                .WithSocialUserService(socialUserServiceMock.Object)
+                .WithFacebookClient(fbClientMock.Object)
+                .Build();
+
+            var pullJobService = dependencyResolver.Resolve<PullJobService>();
+
+            // Act
+            FacebookProcessResult processResult = await pullJobService.PullTaggedVisitorPosts(account);
+
+            // Assert
+            Assert.Equal(1, processResult.NewMessages.Count());
+            var message = processResult.NewMessages.First();
+            Assert.Equal("test_reply_comment_content1", message.Content);
+            Assert.Equal(MessageSource.FacebookPostReplyComment, message.Source);
+            Assert.Equal(1, message.SenderId);
+            Assert.Equal(1, message.ConversationId);
+            Assert.Equal(777, message.ReceiverId);
+            Assert.Equal(new DateTime(2000, 1, 2, 1, 1, 1, DateTimeKind.Utc), message.SendTime);
         }
 
-        private Mock<ISocialUserService> MockSocialUserService(SocialAccount account)
+        [Fact]
+        public async Task ShouldCreateMessageForNextPageReplyComments()
         {
-            var socialUserServiceMock = new Mock<ISocialUserService>();
-            socialUserServiceMock
-                .Setup(t => t.GetOrCreateSocialUsers(account.Token, It.IsAny<List<FbUser>>()))
-                .ReturnsAsync(
-                    new List<SocialUser> {
-                        new SocialUser { Id = 1, OriginalId = "user_1" }
-                    }
-                );
+            // Arrange
+            var account = MakeSocialAccount();
+            var conversationServiceMock = new Mock<IConversationService>();
+            var existingConversations = new List<Conversation>();
+            existingConversations.Add(new Conversation { Id = 1, OriginalId = "post_1" });
+            conversationServiceMock.Setup(t => t.FindAll()).Returns(existingConversations.AsQueryable());
+            var messageServiceMock = new Mock<IMessageService>();
+            var existingMessages = new List<Message>();
+            existingMessages.Add(new Message { Id = 1, ConversationId = 1, OriginalId = "post_1", SenderId = 777, Source = MessageSource.FacebookPost });
+            existingMessages.Add(new Message { Id = 2, ConversationId = 1, OriginalId = "comment_1", SenderId = 777, ParentId = 1, Source = MessageSource.FacebookPostComment });
+            messageServiceMock.Setup(t => t.FindAll()).Returns(existingMessages.AsQueryable());
 
-            return socialUserServiceMock;
+            var socialUserServiceMock = MockSocialUserService(account);
+            var postWithReplyComments = MakePostWithReplyCommentsPaingData();
+            postWithReplyComments.data.First().comments.data.First().comments.paging
+                = new FbPaging { next = "http://api.facebook.com/next-page-reply-comment/121123" };
+            var fbClientMock = MockFbClient(account.SocialUser.OriginalId, account.Token, postWithReplyComments);
+
+            var dependencyResolver = new DependencyResolverBuilder()
+                .WithConversationService(conversationServiceMock.Object)
+                .WithMessageService(messageServiceMock.Object)
+                .WithSocialUserService(socialUserServiceMock.Object)
+                .WithFacebookClient(fbClientMock.Object)
+                .Build();
+
+            var pullJobService = dependencyResolver.Resolve<PullJobService>();
+
+            // Act
+            FacebookProcessResult processResult = await pullJobService.PullTaggedVisitorPosts(account);
+
+            // Assert
+            fbClientMock.Verify(t => t.GetPagingData<FbComment>("http://api.facebook.com/next-page-reply-comment/121123"));
         }
 
-        private Mock<IFbClient> MockFbClient(string pageId, string token, FbPagingData<FbPost> data)
+        [Fact]
+        public async Task ShouldNotCreateMessageForReplyCommentsIfConversationNotExists()
         {
-            var fbClient = new Mock<IFbClient>();
-            fbClient.Setup(t => t.GetTaggedVisitorPosts(pageId, token)).ReturnsAsync(data);
-            return fbClient;
-        }
+            // Arrange
+            var account = MakeSocialAccount();
+            var conversationServiceMock = new Mock<IConversationService>();
+            var existingConversations = new List<Conversation>(); // make sure conversation not exists.
+            conversationServiceMock.Setup(t => t.FindAll()).Returns(existingConversations.AsQueryable());
+            var messageServiceMock = new Mock<IMessageService>();
+            var existingMessages = new List<Message>();
+            existingMessages.Add(new Message { Id = 1, ConversationId = 1, OriginalId = "post_1", SenderId = 777, Source = MessageSource.FacebookPost });
+            existingMessages.Add(new Message { Id = 2, ConversationId = 1, OriginalId = "comment_1", SenderId = 777, ParentId = 1, Source = MessageSource.FacebookPostComment });
+            messageServiceMock.Setup(t => t.FindAll()).Returns(existingMessages.AsQueryable());
 
-        private SocialAccount MakeSocialAccount()
-        {
-            return new SocialAccount
-            {
-                Id = 888,
-                Token = "test_token",
-                SocialUser = new SocialUser
-                {
-                    Id = 888,
-                    Source = SocialUserSource.Facebook,
-                    Type = SocialUserType.IntegrationAccount,
-                    OriginalId = "test_page_id"
-                },
-                IfConvertVisitorPostToConversation = true
-            };
+            var socialUserServiceMock = MockSocialUserService(account);
+            var postWithReplyComments = MakePostWithReplyCommentsPaingData();
+            var fbClientMock = MockFbClient(account.SocialUser.OriginalId, account.Token, postWithReplyComments);
+
+            var dependencyResolver = new DependencyResolverBuilder()
+                .WithConversationService(conversationServiceMock.Object)
+                .WithMessageService(messageServiceMock.Object)
+                .WithSocialUserService(socialUserServiceMock.Object)
+                .WithFacebookClient(fbClientMock.Object)
+                .Build();
+
+            var pullJobService = dependencyResolver.Resolve<PullJobService>();
+
+            // Act
+            FacebookProcessResult processResult = await pullJobService.PullTaggedVisitorPosts(account);
+
+            // Assert
+            Assert.Equal(0, processResult.NewMessages.Count());
         }
     }
 }
