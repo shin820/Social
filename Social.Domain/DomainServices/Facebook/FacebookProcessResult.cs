@@ -94,8 +94,6 @@ namespace Social.Domain.DomainServices.Facebook
             {
                 await _notificationManager.NotifyNewConversation(siteId, newConversation.Id);
             }
-
-            NewConversations.Clear();
         }
 
         private async Task NotifyUpdateConversations(int siteId)
@@ -104,8 +102,6 @@ namespace Social.Domain.DomainServices.Facebook
             {
                 await _notificationManager.NotifyUpdateConversation(siteId, updatedConversation.Id);
             }
-
-            UpdatedConversations.Clear();
         }
 
         private async Task NotifyNewMessages(int siteId)
@@ -121,8 +117,6 @@ namespace Social.Domain.DomainServices.Facebook
                     await _notificationManager.NotifyNewFacebookComment(siteId, newMessage.Id);
                 }
             }
-
-            NewMessages.Clear();
         }
     }
 }

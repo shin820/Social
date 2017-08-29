@@ -7,6 +7,7 @@ namespace Social.Infrastructure.Facebook
 {
     public interface IFbClient : ITransient
     {
+        Task<FbPagingData<T>> GetPagingData<T>(string url);
         Task<FbToken> GetApplicationToken();
         string GetAuthUrl(string redirectUri);
         FbComment GetComment(string token, string fbCommentId);
