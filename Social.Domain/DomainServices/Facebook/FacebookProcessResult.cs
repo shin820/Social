@@ -11,9 +11,11 @@ namespace Social.Domain.DomainServices.Facebook
 {
     public class FacebookProcessResult
     {
-        public IList<Conversation> NewConversations;
+        public IList<Conversation> NewConversations { get; set; }
         public IList<Conversation> UpdatedConversations { get; set; }
         public IList<Message> NewMessages { get; set; }
+        public IList<Conversation> DeletedConversations { get; set; }
+        public IList<Message> DeletedMessages { get; set; }
 
         private INotificationManager _notificationManager { get; set; }
 
@@ -24,6 +26,8 @@ namespace Social.Domain.DomainServices.Facebook
             NewConversations = new List<Conversation>();
             UpdatedConversations = new List<Conversation>();
             NewMessages = new List<Message>();
+            DeletedConversations = new List<Conversation>();
+            DeletedMessages = new List<Message>();
             _notificationManager = notificationManager;
         }
 
@@ -52,6 +56,11 @@ namespace Social.Domain.DomainServices.Facebook
             UpdatedConversations.Add(conversation);
         }
 
+        public void WithDeletedConversation(Conversation conversation)
+        {
+            DeletedConversations.Add(conversation);
+        }
+
         public void WithNewMessage(Message message)
         {
             if (NewConversations.Any(t => t.Id == message.ConversationId))
@@ -67,6 +76,11 @@ namespace Social.Domain.DomainServices.Facebook
             NewMessages.Add(message);
         }
 
+        public void WithDeletedMessage(Message message)
+        {
+            DeletedMessages.Add(message);
+        }
+
         public async Task Notify(int siteId)
         {
             await NotifyNewConversations(siteId);
@@ -80,8 +94,6 @@ namespace Social.Domain.DomainServices.Facebook
             {
                 await _notificationManager.NotifyNewConversation(siteId, newConversation.Id);
             }
-
-            NewConversations.Clear();
         }
 
         private async Task NotifyUpdateConversations(int siteId)
@@ -90,8 +102,6 @@ namespace Social.Domain.DomainServices.Facebook
             {
                 await _notificationManager.NotifyUpdateConversation(siteId, updatedConversation.Id);
             }
-
-            UpdatedConversations.Clear();
         }
 
         private async Task NotifyNewMessages(int siteId)
@@ -107,8 +117,6 @@ namespace Social.Domain.DomainServices.Facebook
                     await _notificationManager.NotifyNewFacebookComment(siteId, newMessage.Id);
                 }
             }
-
-            NewMessages.Clear();
         }
     }
 }

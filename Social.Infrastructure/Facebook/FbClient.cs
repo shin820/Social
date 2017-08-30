@@ -111,6 +111,12 @@ namespace Social.Infrastructure.Facebook
         }
 
 
+        public async Task<FbPagingData<T>> GetPagingData<T>(string url)
+        {
+            FacebookClient client = new FacebookClient();
+            return await client.GetTaskAsync<FbPagingData<T>>(url);
+        }
+
         public async Task<IList<FbPage>> GetPages(string userToken)
         {
             FacebookClient client = new FacebookClient(userToken);

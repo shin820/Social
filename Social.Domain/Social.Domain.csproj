@@ -149,7 +149,7 @@
     <Compile Include="DomainServices\Facebook\WebHookStrategies\IWebHookSrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\IWebHookStrategyFactory.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\NewMessageStrategy.cs" />
-    <Compile Include="DomainServices\Facebook\WebHookStrategies\NewPostCommentStrategy.cs" />
+    <Compile Include="DomainServices\Facebook\WebHookStrategies\NewCommentStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\NewPostStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\RemovePostCommentStrategy.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\RemoveVisitorPostStrategy.cs" />

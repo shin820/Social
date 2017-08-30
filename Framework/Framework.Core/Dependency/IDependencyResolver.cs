@@ -36,5 +36,11 @@ namespace Framework.Core
         bool IsRegistered(Type type);
 
         bool IsRegistered<T>();
+
+        void RegisterTransient<TService>(TService instance) where TService : class;
+
+        void RegisterTransient<TService, TImpl>() where TService : class where TImpl : TService;
+
+        void RegisterTransient<TService>() where TService : class;
     }
 }

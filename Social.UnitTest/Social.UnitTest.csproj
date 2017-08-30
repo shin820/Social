@@ -80,6 +80,7 @@
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
     </Reference>
+    <Reference Include="System.Transactions" />
     <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <HintPath>..\packages\xunit.abstractions.2.0.0\lib\net35\xunit.abstractions.dll</HintPath>
       <Private>True</Private>
@@ -98,11 +99,19 @@
     <Compile Include="AppServices\ConversationAppServiceTest.cs" />
     <Compile Include="AppServices\ConversationFieldAppServiceTest.cs" />
     <Compile Include="AppServices\ConversationMessageAppServiceTest.cs" />
+    <Compile Include="DependencyResolverBuilder.cs" />
     <Compile Include="AppServices\FacebookAccountAppServiceTest.cs" />
     <Compile Include="DomainServices\ConversationFieldServiceTest.cs" />
     <Compile Include="DomainServices\ConversationServiceTest.cs" />
     <Compile Include="DomainServices\Facebook\FacebookConverterTest.cs" />
+    <Compile Include="DomainServices\Facebook\PullJobServiceTestBase.cs" />
+    <Compile Include="DomainServices\Facebook\PullJobServiceTest_PullTaggedVisitorPost.cs" />
+    <Compile Include="DomainServices\Facebook\PullJobServiceTest_PullVisitorPostsFromFeed.cs" />
     <Compile Include="DomainServices\Facebook\WebHookStrategies\NewMessageStrategyTest.cs" />
+    <Compile Include="DomainServices\Facebook\WebHookStrategies\NewCommentStrategyTest.cs" />
+    <Compile Include="DomainServices\Facebook\WebHookStrategies\NewPostStrategyTest.cs" />
+    <Compile Include="DomainServices\Facebook\WebHookStrategies\RemovePostCommentStrategyTest.cs" />
+    <Compile Include="DomainServices\Facebook\WebHookStrategies\RemoveVisitorPostStrategyTest.cs" />
     <Compile Include="DomainServices\FilterExpressions\DateTimeExpressionTest.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFieldExpression\AgentAssigneeExpressionTest.cs" />
     <Compile Include="DomainServices\FilterExpressions\SystemFieldExpression\AgentAssigneeStatusExpressionTest.cs" />

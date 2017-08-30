@@ -21,13 +21,15 @@ namespace Social.Domain.DomainServices.Facebook
 
         public async override Task<FacebookProcessResult> Process(SocialAccount socialAccount, FbHookChange data)
         {
+            var result = new FacebookProcessResult(NotificationManager);
             var conversation = GetConversation(data.Value.PostId);
             if (conversation != null)
             {
                 await DeleteConversation(conversation);
+                result.WithDeletedConversation(conversation);
             }
 
-            return new FacebookProcessResult(NotificationManager);
+            return result;
         }
     }
 }

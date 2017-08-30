@@ -37,6 +37,24 @@ namespace Framework.Core
                 );
         }
 
+        public void RegisterTransient<TService, TImpl>()
+            where TService : class
+            where TImpl : TService
+        {
+            IocContainer.Register(Component.For<TService>().ImplementedBy<TImpl>().LifestyleTransient());
+        }
+
+        public void RegisterTransient<TService>() where TService : class
+        {
+            IocContainer.Register(Component.For<TService>().LifestyleTransient());
+        }
+
+        public void RegisterTransient<TService>(TService instance)
+            where TService : class
+        {
+            IocContainer.Register(Component.For<TService>().Instance(instance).LifestyleTransient());
+        }
+
         public void Install(params IWindsorInstaller[] installers)
         {
             IocContainer.Install(installers);

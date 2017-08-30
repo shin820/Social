@@ -30,7 +30,6 @@ BEGIN
 				[Size] [bigint] NOT NULL,
 				[Url] [nvarchar](500) NULL,
 				[PreviewUrl] [nvarchar](500) NULL,
-				[SiteId] [int] NOT NULL,
 			 CONSTRAINT [PK_t_Social_MessageAttachment'+@siteIdStr+'] PRIMARY KEY CLUSTERED 
 			(
 				[Id] ASC
