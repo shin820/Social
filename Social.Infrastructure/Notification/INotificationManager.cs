@@ -1,4 +1,5 @@
 ﻿using Framework.Core;
+using System;
 using System.Threading.Tasks;
 
 namespace Social.Infrastructure

@@ -11,6 +11,7 @@ namespace Social.Infrastructure.Enum
         Image = 1,
         AnimatedImage = 2,
         Video = 3,
-        File = 4
+        File = 4,
+        Audio = 5
     }
 }

@@ -19,12 +19,14 @@ namespace Social.Application.AppServices
     public interface IFilterAppService
     {
         List<FilterListDto> FindAll();
+        FilterListDto FindSummary(int id);
         List<FilterManageDto> FindManageFilters();
         FilterDetailsDto Find(int id);
         FilterDetailsDto Insert(FilterCreateDto createDto);
         void Delete(int id);
         FilterDetailsDto Update(int id, FilterUpdateDto updateDto);
         List<FilterManageDto> Sorting(IList<FilterSortDto> dtoList);
+        bool HasConversation(int filterId, int conversationId);
     }
 
 
@@ -60,6 +62,21 @@ namespace Social.Application.AppServices
             return filterDtoes;
         }
 
+        public FilterListDto FindSummary(int id)
+        {
+            var filter = _domainService.Find(id);
+            if (filter == null)
+            {
+                throw SocialExceptions.FilterNotExists(id);
+            }
+
+            var dto = Mapper.Map<FilterListDto>(filter);
+            dto.ConversationNum = _domainService.GetConversationNum(filter);
+            dto.CreatedByName = _agentService.GetDiaplyName(dto.CreatedBy);
+
+            return dto;
+        }
+
         public FilterDetailsDto Find(int id)
         {
             var filter = _domainService.Find(id);
@@ -68,8 +85,18 @@ namespace Social.Application.AppServices
                 throw SocialExceptions.FilterNotExists(id);
             }
             var filterDto = Mapper.Map<FilterDetailsDto>(filter);
-            filterDto.CreatedByName = _domainService.GetCreatedByName(filter);
+            filterDto.CreatedByName = _agentService.GetDiaplyName(filterDto.CreatedBy);
             return filterDto;
+        }
+
+        public bool HasConversation(int filterId, int conversationId)
+        {
+            var filter = _domainService.Find(filterId);
+            if (filter == null)
+            {
+                throw SocialExceptions.FilterNotExists(filterId);
+            }
+            return _domainService.HasConversation(filter, conversationId);
         }
 
         public FilterDetailsDto Insert(FilterCreateDto createDto)
@@ -87,7 +114,7 @@ namespace Social.Application.AppServices
             _notificationManager.NotifyNewPublicFilter(filter.SiteId, filter.Id);
 
             var filterDto = Mapper.Map<FilterDetailsDto>(filter);
-            List <FilterDetailsDto> filterDtos = new List<FilterDetailsDto>();
+            List<FilterDetailsDto> filterDtos = new List<FilterDetailsDto>();
             filterDtos.Add(filterDto);
             _agentService.FillCreatedByName(filterDtos);
             return filterDto;
@@ -101,7 +128,7 @@ namespace Social.Application.AppServices
                 throw SocialExceptions.FilterNotExists(id);
             }
             _domainService.Delete(id);
-            _notificationManager.NotifyNewPublicFilter(filter.SiteId, filter.Id);
+            _notificationManager.NotifyDeletePublicFilter(filter.SiteId, filter.Id);
         }
 
         public FilterDetailsDto Update(int id, FilterUpdateDto updateDto)
@@ -117,7 +144,7 @@ namespace Social.Application.AppServices
             _domainService.UpdateFilter(updateFilter, Mapper.Map<List<FilterConditionCreateDto>, List<FilterCondition>>(updateDto.Conditions.ToList()).ToArray());
             CurrentUnitOfWork.SaveChanges();
 
-            _notificationManager.NotifyNewPublicFilter(updateFilter.SiteId, updateFilter.Id);
+            _notificationManager.NotifyUpdatePublicFilter(updateFilter.SiteId, updateFilter.Id);
             var filterDto = Mapper.Map<FilterDetailsDto>(updateFilter);
             List<FilterDetailsDto> filterDtos = new List<FilterDetailsDto>();
             filterDtos.Add(filterDto);

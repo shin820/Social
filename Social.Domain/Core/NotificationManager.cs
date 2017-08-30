@@ -9,6 +9,8 @@ namespace Social.Infrastructure.Core
 {
     public class NotificationManager : INotificationManager
     {
+        private TimeSpan _delayTimeSpan = TimeSpan.Zero;
+
         public async Task NotifyNewConversation(int siteId, int conversationId)
         {
             await GetAsync($"/api/notifications/conversation-created?siteId={siteId}&conversationId={conversationId}");

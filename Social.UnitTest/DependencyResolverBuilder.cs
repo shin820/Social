@@ -11,6 +11,7 @@ using Framework.Core.UnitOfWork;
 using System.Transactions;
 using Framework.Core;
 using Social.Domain.DomainServices.Facebook;
+using Social.Domain.DomainServices.Twitter;
 
 namespace Social.UnitTest
 {
@@ -66,11 +67,12 @@ namespace Social.UnitTest
             dependencyResolver.RegisterTransient(_userContext);
 
             dependencyResolver.RegisterTransient<PullJobService>();
+            dependencyResolver.RegisterTransient<TwitterDirectMessageService>();
 
             return dependencyResolver;
         }
 
-        private Mock<IUnitOfWorkManager> MockUnitOfWorkManager()
+        public static Mock<IUnitOfWorkManager> MockUnitOfWorkManager()
         {
             var uowMock = new Mock<IUnitOfWork>();
             var uowManagerMock = new Mock<IUnitOfWorkManager>();

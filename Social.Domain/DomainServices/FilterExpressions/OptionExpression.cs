@@ -14,7 +14,7 @@ namespace Social.Domain.DomainServices
         private string _propertyName;
         private string _FieldName;
 
-        public OptionExpression(string FieldName ,string propertyName)
+        public OptionExpression(string FieldName, string propertyName)
         {
             _FieldName = FieldName;
             _propertyName = propertyName;
@@ -22,6 +22,11 @@ namespace Social.Domain.DomainServices
 
         public virtual bool IsMatch(FilterCondition condition)
         {
+            if (condition == null || condition.Field == null)
+            {
+                return false;
+            }
+
             return condition.Field.DataType == FieldDataType.Option && condition.Field.Name == _FieldName;
         }
 

@@ -20,6 +20,11 @@ namespace Social.Domain.DomainServices.FilterExpressions
 
         public virtual bool IsMatch(FilterCondition condition)
         {
+            if (condition == null || condition.Field == null)
+            {
+                return false;
+            }
+
             return condition.Field.DataType == FieldDataType.String && condition.Field.Name == _propertyName;
         }
 

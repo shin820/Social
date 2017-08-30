@@ -19,9 +19,9 @@ namespace Social.Domain
         void UpdateFilter(Filter filter, FilterCondition[] contiditons);
         void DeleteConditons(Filter updateFilter);
         int GetConversationNum(Filter filter);
-        string GetCreatedByName(Filter filter);
         void CheckFieldIdExist(List<FilterCondition> filterConditons);
         void CheckFieldValue(List<FilterCondition> filterConditons);
+        bool HasConversation(Filter filter, int conversationId);
     }
     public class FilterService : DomainService<Filter>, IFilterService
     {
@@ -72,19 +72,14 @@ namespace Social.Domain
 
         }
 
+        public bool HasConversation(Filter filter, int conversationId)
+        {
+            return _conversation.FindAll(filter).Where(t => t.Id == conversationId).Any();
+        }
+
         public int GetConversationNum(Filter filter)
         {
             return _conversation.FindAll(filter).Count();
-        }
-
-        public string GetCreatedByName(Filter filter)
-        {
-            if (_userRepo.Find(filter.CreatedBy) != null)
-            {
-                return _userRepo.Find(filter.CreatedBy).Name;
-            }
-            else
-                return null;
         }
 
         public void CheckFieldIdExist(List<FilterCondition> filterConditons)

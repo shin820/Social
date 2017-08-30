@@ -35,7 +35,14 @@ namespace Social.Domain.DomainServices.Twitter
         public async Task<TwitterProcessResult> ProcessDirectMessage(SocialAccount account, IMessage directMsg)
         {
             TwitterProcessResult result = new TwitterProcessResult(_notificationManager);
-            if (_messageService.IsDuplicatedMessage(MessageSource.TwitterDirectMessage, directMsg.Id.ToString()))
+
+            if (!account.IfConvertMessageToConversation)
+            {
+                return result;
+            }
+
+            bool isDuplicated = _messageService.IsDuplicatedMessage(MessageSource.TwitterDirectMessage, directMsg.Id.ToString());
+            if (isDuplicated)
             {
                 return result;
             }

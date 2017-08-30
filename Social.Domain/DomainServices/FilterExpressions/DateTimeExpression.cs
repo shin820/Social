@@ -58,6 +58,11 @@ namespace Social.Domain.DomainServices.FilterExpressions
 
         public bool IsMatch(FilterCondition condition)
         {
+            if (condition == null || condition.Field == null)
+            {
+                return false;
+            }
+
             return condition.Field.DataType == FieldDataType.DateTime && condition.Field.Name == _propertyName;
         }
 

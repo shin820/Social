@@ -133,11 +133,17 @@ namespace Social.Application.AppServices
             {
                 throw SocialExceptions.ConversationIdNotExists(id);
             }
-            Mapper.Map(updateDto, conversation);
-            _conversationService.Update(conversation);
+
+            ConversationDto conversationDto;
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                Mapper.Map(updateDto, conversation);
+                _conversationService.Update(conversation);
+                conversationDto = Mapper.Map<ConversationDto>(conversation);
+                FillFields(conversationDto);
+                uow.Complete();
+            }
             _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), id);
-            var conversationDto = Mapper.Map<ConversationDto>(conversation);
-            FillFields(conversationDto);
             return conversationDto;
         }
 
@@ -152,41 +158,71 @@ namespace Social.Application.AppServices
 
         public ConversationDto Take(int conversationId)
         {
-            var entity = _conversationService.Take(conversationId);
-            var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(conversationDto);
+            ConversationDto conversationDto;
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                var entity = _conversationService.Take(conversationId);
+
+                conversationDto = Mapper.Map<ConversationDto>(entity);
+                FillFields(conversationDto);
+            }
+            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
             return conversationDto;
         }
 
         public ConversationDto Close(int conversationId)
         {
-            var entity = _conversationService.Close(conversationId);
-            var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(conversationDto);
+            ConversationDto conversationDto;
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                var entity = _conversationService.Close(conversationId);
+
+                conversationDto = Mapper.Map<ConversationDto>(entity);
+                FillFields(conversationDto);
+            }
+            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
             return conversationDto;
         }
 
         public ConversationDto Reopen(int conversationId)
         {
-            var entity = _conversationService.Reopen(conversationId);
-            var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(conversationDto);
+            ConversationDto conversationDto;
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                var entity = _conversationService.Reopen(conversationId);
+
+                conversationDto = Mapper.Map<ConversationDto>(entity);
+                FillFields(conversationDto);
+            }
+            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
             return conversationDto;
         }
 
         public ConversationDto MarkAsRead(int conversationId)
         {
-            var entity = _conversationService.MarkAsRead(conversationId);
-            var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(conversationDto);
+            ConversationDto conversationDto;
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                var entity = _conversationService.MarkAsRead(conversationId);
+
+                conversationDto = Mapper.Map<ConversationDto>(entity);
+                FillFields(conversationDto);
+            }
+            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
             return conversationDto;
         }
 
         public ConversationDto MarkAsUnRead(int conversationId)
         {
-            var entity = _conversationService.MarkAsUnRead(conversationId);
-            var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(conversationDto);
+            ConversationDto conversationDto;
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                var entity = _conversationService.MarkAsUnRead(conversationId);
+
+                conversationDto = Mapper.Map<ConversationDto>(entity);
+                FillFields(conversationDto);
+            }
+            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
             return conversationDto;
         }
 
@@ -243,15 +279,20 @@ namespace Social.Application.AppServices
                 dto.LastMessage = messages.First().Content;
                 dto.OriginalLink = messages.Last().OriginalLink;
 
-                foreach (var message in messages)
+                var lastMessageSendByCustomer = messages.FirstOrDefault(t => t.Sender.IsCustomer);
+                if (lastMessageSendByCustomer != null)
                 {
-                    if (message.IntegrationAccount != null)
-                    {
-                        dto.LastIntegrationAccountId = message.IntegrationAccountId;
-                        dto.LastIntegrationAccountName = message.IntegrationAccount.Name;
-                        dto.LastIntegrationAccountAvatar = message.IntegrationAccount.Avatar;
-                        break;
-                    }
+                    dto.CustomerId = lastMessageSendByCustomer.SenderId;
+                    dto.CustomerName = lastMessageSendByCustomer.Sender.ScreenNameOrNormalName;
+                    dto.CustomerAvatar = lastMessageSendByCustomer.Sender.Avatar;
+                }
+
+                var lastMessageByIntegrationAccount = messages.FirstOrDefault(t => t.IntegrationAccount != null);
+                if (lastMessageByIntegrationAccount != null)
+                {
+                    dto.LastIntegrationAccountId = lastMessageByIntegrationAccount.IntegrationAccountId;
+                    dto.LastIntegrationAccountName = lastMessageByIntegrationAccount.IntegrationAccount.ScreenNameOrNormalName;
+                    dto.LastIntegrationAccountAvatar = lastMessageByIntegrationAccount.IntegrationAccount.Avatar;
                 }
             }
         }
