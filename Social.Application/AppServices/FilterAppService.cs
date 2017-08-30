@@ -26,6 +26,7 @@ namespace Social.Application.AppServices
         void Delete(int id);
         FilterDetailsDto Update(int id, FilterUpdateDto updateDto);
         List<FilterManageDto> Sorting(IList<FilterSortDto> dtoList);
+        bool HasConversation(int filterId, int conversationId);
     }
 
 
@@ -86,6 +87,16 @@ namespace Social.Application.AppServices
             var filterDto = Mapper.Map<FilterDetailsDto>(filter);
             filterDto.CreatedByName = _agentService.GetDiaplyName(filterDto.CreatedBy);
             return filterDto;
+        }
+
+        public bool HasConversation(int filterId, int conversationId)
+        {
+            var filter = _domainService.Find(filterId);
+            if (filter == null)
+            {
+                throw SocialExceptions.FilterNotExists(filterId);
+            }
+            return _domainService.HasConversation(filter, conversationId);
         }
 
         public FilterDetailsDto Insert(FilterCreateDto createDto)

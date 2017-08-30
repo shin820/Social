@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
@@ -69,6 +70,19 @@ namespace Social.WebApi.Controllers
         public FilterDetailsDto GetFilter(int id)
         {
             return _appService.Find(id);
+        }
+
+        /// <summary>
+        /// use this api to decide if conversation belong to a specified filter.
+        /// </summary>
+        /// <param name="filterId"></param>
+        /// <param name="conversationId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{filterId}/conversations/{conversationId}")]
+        public bool HasConversation(int filterId, int conversationId)
+        {
+            return _appService.HasConversation(filterId, conversationId);
         }
 
         /// <summary>

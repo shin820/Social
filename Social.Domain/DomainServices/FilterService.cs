@@ -21,6 +21,7 @@ namespace Social.Domain
         int GetConversationNum(Filter filter);
         void CheckFieldIdExist(List<FilterCondition> filterConditons);
         void CheckFieldValue(List<FilterCondition> filterConditons);
+        bool HasConversation(Filter filter, int conversationId);
     }
     public class FilterService : DomainService<Filter>, IFilterService
     {
@@ -69,6 +70,11 @@ namespace Social.Domain
             }
             _filterRepo.Update(filter);
 
+        }
+
+        public bool HasConversation(Filter filter, int conversationId)
+        {
+            return _conversation.FindAll(filter).Where(t => t.Id == conversationId).Any();
         }
 
         public int GetConversationNum(Filter filter)
