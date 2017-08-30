@@ -41,6 +41,16 @@ namespace Social.WebApi.Controllers
         }
 
         /// <summary>
+        /// Get filter summary info.
+        /// </summary>
+        /// <returns></returns>
+        [Route("{id}/summary")]
+        public FilterListDto GetFilterSummary(int id)
+        {
+            return _appService.FindSummary(id);
+        }
+
+        /// <summary>
         /// Get filter list for manging filters.
         /// </summary>
         /// <returns></returns>
