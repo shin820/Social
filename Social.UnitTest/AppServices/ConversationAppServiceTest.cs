@@ -5,6 +5,7 @@ using Social.Application.AppServices;
 using Social.Application.Dto;
 using Social.Domain.DomainServices;
 using Social.Domain.Entities;
+using Social.Domain.Entities.General;
 using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
@@ -81,8 +82,6 @@ namespace Social.UnitTest.AppServices
                  fakeConversationEntityList.First(t => t.Id == 2).Messages.FirstOrDefault()
              }.AsQueryable()
             );
-            var agentServiceMock = new Mock<IAgentService>();
-            var departmentServiceMock = new Mock<IDepartmentService>();
             ConversationAppService appSerice = new ConversationAppService(
                 conversationService.Object,
                 messageService.Object,
@@ -90,7 +89,7 @@ namespace Social.UnitTest.AppServices
                 FakeServices.MakeDepartmentService(), null, null);
 
             // Act
-            IList<ConversationDto> conversationDtoList = appSerice.Find(new ConversationSearchDto { Until = DateTime.UtcNow });
+            IList<ConversationDto> conversationDtoList = appSerice.Find(new ConversationSearchDto {});
 
             // Assert
             Assert.True(conversationDtoList.Any());
@@ -204,13 +203,120 @@ namespace Social.UnitTest.AppServices
             // Arrange
             var conversationService = new Mock<IConversationService>();
             conversationService.Setup(t => t.Find(1)).Returns<Conversation>(null);
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, null, null, null, null);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, null,null, null, null);
 
             // Act
             Action action = () => { appSerice.Delete(1); };
 
             // Assert
             Assert.Throws<ExceptionWithCode>(action);
+        }
+
+        [Fact]
+        public void ShouldGetLogs()
+        {
+            // Arrange
+            var logService = new Mock<IDomainService<ConversationLog>>();
+            logService.Setup(t => t.FindAll()).Returns(new List<ConversationLog>
+            {
+                new ConversationLog{ConversationId = 1}
+            }.AsQueryable());
+            ConversationAppService appSerice = new ConversationAppService(null, null, null, null, logService.Object, null);
+
+            // Act
+            IList<ConversationLogDto> conversationLogDtos = appSerice.GetLogs(1);
+
+            // Assert
+            Assert.True(conversationLogDtos.Any());
+        }
+
+        [Fact]
+        public void ShouldTakeConversationDto()
+        {
+            // Arrange
+            var fakeConversationEntity = MakeConversationEntity(1);
+            var messageService = MakeFakeMessageService(fakeConversationEntity.Messages);
+            var conversationService = new Mock<IConversationService>();
+            var agentService = new Mock<IAgentService>();
+            var departmentService = new Mock<IDepartmentService>();
+            conversationService.Setup(t => t.Take(1)).Returns(new Conversation { Id =1,AgentId = 1,DepartmentId = 1});
+            agentService.Setup(t => t.Find(1)).Returns(new Agent { Id = 1, Name = "a" });
+            departmentService.Setup(t => t.Find(1)).Returns(new Department{ Id = 1, Name = "b" });
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService,  agentService.Object, departmentService.Object, null, null);
+
+            // Act
+            ConversationDto conversationLogDtos = appSerice.Take(1);
+
+            // Assert
+            Assert.NotNull(conversationLogDtos);
+        }
+
+        [Fact]
+        public void ShouldCloseConversationDto()
+        {
+            // Arrange
+            var fakeConversationEntity = MakeConversationEntity(1);
+            var messageService = MakeFakeMessageService(fakeConversationEntity.Messages);
+            var conversationService = new Mock<IConversationService>();
+            conversationService.Setup(t => t.Close(1)).Returns(new Conversation { Id = 1 });
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService, null, null, null, null);
+
+            // Act
+            ConversationDto conversationLogDtos = appSerice.Close(1);
+
+            // Assert
+            Assert.NotNull(conversationLogDtos);
+        }
+
+        [Fact]
+        public void ShouldReopenConversationDto()
+        {
+            // Arrange
+            var fakeConversationEntity = MakeConversationEntity(1);
+            var messageService = MakeFakeMessageService(fakeConversationEntity.Messages);
+            var conversationService = new Mock<IConversationService>();
+            conversationService.Setup(t => t.Reopen(1)).Returns(new Conversation { Id = 1 });
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService, null, null, null, null);
+
+            // Act
+            ConversationDto conversationLogDtos = appSerice.Reopen(1);
+
+            // Assert
+            Assert.NotNull(conversationLogDtos);
+        }
+
+        [Fact]
+        public void ShouldMarkAsReadConversationDto()
+        {
+            // Arrange
+            var fakeConversationEntity = MakeConversationEntity(1);
+            var messageService = MakeFakeMessageService(fakeConversationEntity.Messages);
+            var conversationService = new Mock<IConversationService>();
+            conversationService.Setup(t => t.MarkAsRead(1)).Returns(new Conversation { Id = 1 });
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService, null, null, null, null);
+
+            // Act
+            ConversationDto conversationLogDtos = appSerice.MarkAsRead(1);
+
+            // Assert
+            Assert.NotNull(conversationLogDtos);
+        }
+
+        [Fact]
+        public void ShouldMarkAsUnReadConversationDto()
+        {
+            // Arrange
+            var fakeConversationEntity = MakeConversationEntity(1);
+            var messageService = MakeFakeMessageService(fakeConversationEntity.Messages);
+            var conversationService = new Mock<IConversationService>();
+            conversationService.Setup(t => t.MarkAsUnRead(1)).Returns(new Conversation { Id = 1 });
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService, null, null, null, null);
+
+            // Act
+            ConversationDto conversationLogDtos = appSerice.MarkAsUnRead(1);
+
+            // Assert
+            Assert.NotNull(conversationLogDtos);
         }
 
         private IMessageService MakeFakeMessageService(IList<Message> messages)

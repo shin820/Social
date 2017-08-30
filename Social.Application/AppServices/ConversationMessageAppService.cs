@@ -152,7 +152,8 @@ namespace Social.Application.AppServices
             var quoteTweetMessage = _twitterService.GetTweetMessage(socialAccount, long.Parse(messageDtoWithQuote.QuoteTweetId));
             if (quoteTweetMessage != null)
             {
-                messageDtoWithQuote.QuoteTweet = Mapper.Map<BeQuotedTweetDto>(quoteTweetMessage);
+                result.Find(t => t.Id == messageDtoWithQuote.Id).QuoteTweet = Mapper.Map<BeQuotedTweetDto>(quoteTweetMessage);
+              //  messageDtoWithQuote.QuoteTweet = Mapper.Map<BeQuotedTweetDto>(quoteTweetMessage);
             }
 
             return result;
