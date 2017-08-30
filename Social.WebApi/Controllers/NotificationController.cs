@@ -66,7 +66,10 @@ namespace Social.WebApi.Controllers
             if (oldMaxLogId.HasValue && oldMaxLogId > 0)
             {
                 var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxLogId.Value);
-                _hub.Clients.Group(Request.GetSiteId().ToString()).conversationLogCreated(dtoList);
+                if (dtoList != null && dtoList.Any())
+                {
+                    _hub.Clients.Group(Request.GetSiteId().ToString()).conversationLogCreated(dtoList);
+                }
             }
 
             return Ok();
