@@ -1,10 +1,12 @@
 ﻿using Framework.Core;
+using System;
 using System.Threading.Tasks;
 
 namespace Social.Infrastructure
 {
     public interface INotificationManager : ITransient
     {
+        void SetDelayTimeSpan(TimeSpan delayTimeSpan);
         Task NotifyNewConversation(int siteId, int conversationId);
         Task NotifyNewFacebookComment(int siteId, int messageId);
         Task NotifyNewFacebookMessage(int siteId, int messageId);

@@ -9,6 +9,13 @@ namespace Social.Infrastructure.Core
 {
     public class NotificationManager : INotificationManager
     {
+        private TimeSpan _delayTimeSpan = TimeSpan.Zero;
+
+        public void SetDelayTimeSpan(TimeSpan delayTimeSpan)
+        {
+            _delayTimeSpan = delayTimeSpan;
+        }
+
         public async Task NotifyNewConversation(int siteId, int conversationId)
         {
             await GetAsync($"/api/notifications/conversation-created?siteId={siteId}&conversationId={conversationId}");
@@ -56,6 +63,11 @@ namespace Social.Infrastructure.Core
 
         public async Task GetAsync(string url)
         {
+            if (_delayTimeSpan != TimeSpan.Zero)
+            {
+                await Task.Delay(_delayTimeSpan);
+            }
+
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri(AppSettings.NotificationApiBaseAddress);
             var response = await client.GetAsync(url);

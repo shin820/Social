@@ -57,6 +57,10 @@ namespace Social.Application.AppServices
             _departmentService = departmentService;
             _logService = logService;
             _notificationManager = notificationManager;
+            if (_notificationManager != null)
+            {
+                _notificationManager.SetDelayTimeSpan(TimeSpan.FromMilliseconds(500));
+            }
         }
 
         public IList<ConversationDto> Find(ConversationSearchDto dto)
