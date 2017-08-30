@@ -89,7 +89,7 @@ namespace Social.UnitTest.AppServices
                 FakeServices.MakeDepartmentService(), null, null);
 
             // Act
-            IList<ConversationDto> conversationDtoList = appSerice.Find(new ConversationSearchDto {});
+            IList<ConversationDto> conversationDtoList = appSerice.Find(new ConversationSearchDto { });
 
             // Assert
             Assert.True(conversationDtoList.Any());
@@ -203,7 +203,7 @@ namespace Social.UnitTest.AppServices
             // Arrange
             var conversationService = new Mock<IConversationService>();
             conversationService.Setup(t => t.Find(1)).Returns<Conversation>(null);
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, null,null, null, null);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, null, null, null, null);
 
             // Act
             Action action = () => { appSerice.Delete(1); };
@@ -239,16 +239,19 @@ namespace Social.UnitTest.AppServices
             var conversationService = new Mock<IConversationService>();
             var agentService = new Mock<IAgentService>();
             var departmentService = new Mock<IDepartmentService>();
-            conversationService.Setup(t => t.Take(1)).Returns(new Conversation { Id =1,AgentId = 1,DepartmentId = 1});
+            var notificationManagerMock = new Mock<INotificationManager>();
+            conversationService.Setup(t => t.Take(1)).Returns(new Conversation { Id = 1, AgentId = 1, DepartmentId = 1 });
             agentService.Setup(t => t.Find(1)).Returns(new Agent { Id = 1, Name = "a" });
-            departmentService.Setup(t => t.Find(1)).Returns(new Department{ Id = 1, Name = "b" });
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService,  agentService.Object, departmentService.Object, null, null);
+            departmentService.Setup(t => t.Find(1)).Returns(new Department { Id = 1, Name = "b" });
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService, agentService.Object, departmentService.Object, null, notificationManagerMock.Object);
+            appSerice.UnitOfWorkManager = DependencyResolverBuilder.MockUnitOfWorkManager().Object;
 
             // Act
             ConversationDto conversationLogDtos = appSerice.Take(1);
 
             // Assert
             Assert.NotNull(conversationLogDtos);
+            notificationManagerMock.Verify(t => t.NotifyUpdateConversation(It.IsAny<int>(), 1));
         }
 
         [Fact]
@@ -258,14 +261,17 @@ namespace Social.UnitTest.AppServices
             var fakeConversationEntity = MakeConversationEntity(1);
             var messageService = MakeFakeMessageService(fakeConversationEntity.Messages);
             var conversationService = new Mock<IConversationService>();
+            var notificationServiceMock = new Mock<INotificationManager>();
             conversationService.Setup(t => t.Close(1)).Returns(new Conversation { Id = 1 });
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService, null, null, null, null);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService, null, null, null, notificationServiceMock.Object);
+            appSerice.UnitOfWorkManager = DependencyResolverBuilder.MockUnitOfWorkManager().Object;
 
             // Act
             ConversationDto conversationLogDtos = appSerice.Close(1);
 
             // Assert
             Assert.NotNull(conversationLogDtos);
+            notificationServiceMock.Verify(t => t.NotifyUpdateConversation(It.IsAny<int>(), 1));
         }
 
         [Fact]
@@ -275,14 +281,17 @@ namespace Social.UnitTest.AppServices
             var fakeConversationEntity = MakeConversationEntity(1);
             var messageService = MakeFakeMessageService(fakeConversationEntity.Messages);
             var conversationService = new Mock<IConversationService>();
+            var notificationServiceMock = new Mock<INotificationManager>();
             conversationService.Setup(t => t.Reopen(1)).Returns(new Conversation { Id = 1 });
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService, null, null, null, null);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService, null, null, null, notificationServiceMock.Object);
+            appSerice.UnitOfWorkManager = DependencyResolverBuilder.MockUnitOfWorkManager().Object;
 
             // Act
             ConversationDto conversationLogDtos = appSerice.Reopen(1);
 
             // Assert
             Assert.NotNull(conversationLogDtos);
+            notificationServiceMock.Verify(t => t.NotifyUpdateConversation(It.IsAny<int>(), 1));
         }
 
         [Fact]
@@ -292,14 +301,17 @@ namespace Social.UnitTest.AppServices
             var fakeConversationEntity = MakeConversationEntity(1);
             var messageService = MakeFakeMessageService(fakeConversationEntity.Messages);
             var conversationService = new Mock<IConversationService>();
+            var notificationServiceMock = new Mock<INotificationManager>();
             conversationService.Setup(t => t.MarkAsRead(1)).Returns(new Conversation { Id = 1 });
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService, null, null, null, null);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService, null, null, null, notificationServiceMock.Object);
+            appSerice.UnitOfWorkManager = DependencyResolverBuilder.MockUnitOfWorkManager().Object;
 
             // Act
             ConversationDto conversationLogDtos = appSerice.MarkAsRead(1);
 
             // Assert
             Assert.NotNull(conversationLogDtos);
+            notificationServiceMock.Verify(t => t.NotifyUpdateConversation(It.IsAny<int>(), 1));
         }
 
         [Fact]
@@ -309,14 +321,17 @@ namespace Social.UnitTest.AppServices
             var fakeConversationEntity = MakeConversationEntity(1);
             var messageService = MakeFakeMessageService(fakeConversationEntity.Messages);
             var conversationService = new Mock<IConversationService>();
+            var notificationServiceMock = new Mock<INotificationManager>();
             conversationService.Setup(t => t.MarkAsUnRead(1)).Returns(new Conversation { Id = 1 });
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService, null, null, null, null);
+            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService, null, null, null, notificationServiceMock.Object);
+            appSerice.UnitOfWorkManager = DependencyResolverBuilder.MockUnitOfWorkManager().Object;
 
             // Act
             ConversationDto conversationLogDtos = appSerice.MarkAsUnRead(1);
 
             // Assert
             Assert.NotNull(conversationLogDtos);
+            notificationServiceMock.Verify(t => t.NotifyUpdateConversation(It.IsAny<int>(), 1));
         }
 
         private IMessageService MakeFakeMessageService(IList<Message> messages)
