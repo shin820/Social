@@ -57,10 +57,6 @@ namespace Social.Application.AppServices
             _departmentService = departmentService;
             _logService = logService;
             _notificationManager = notificationManager;
-            if (_notificationManager != null)
-            {
-                _notificationManager.SetDelayTimeSpan(TimeSpan.FromMilliseconds(500));
-            }
         }
 
         public IList<ConversationDto> Find(ConversationSearchDto dto)
@@ -137,11 +133,17 @@ namespace Social.Application.AppServices
             {
                 throw SocialExceptions.ConversationIdNotExists(id);
             }
-            Mapper.Map(updateDto, conversation);
-            _conversationService.Update(conversation);
+
+            ConversationDto conversationDto;
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                Mapper.Map(updateDto, conversation);
+                _conversationService.Update(conversation);
+                conversationDto = Mapper.Map<ConversationDto>(conversation);
+                FillFields(conversationDto);
+                uow.Complete();
+            }
             _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), id);
-            var conversationDto = Mapper.Map<ConversationDto>(conversation);
-            FillFields(conversationDto);
             return conversationDto;
         }
 
@@ -156,46 +158,71 @@ namespace Social.Application.AppServices
 
         public ConversationDto Take(int conversationId)
         {
-            var entity = _conversationService.Take(conversationId);
+            ConversationDto conversationDto;
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                var entity = _conversationService.Take(conversationId);
+
+                conversationDto = Mapper.Map<ConversationDto>(entity);
+                FillFields(conversationDto);
+            }
             _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
-            var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(conversationDto);
             return conversationDto;
         }
 
         public ConversationDto Close(int conversationId)
         {
-            var entity = _conversationService.Close(conversationId);
+            ConversationDto conversationDto;
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                var entity = _conversationService.Close(conversationId);
+
+                conversationDto = Mapper.Map<ConversationDto>(entity);
+                FillFields(conversationDto);
+            }
             _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
-            var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(conversationDto);
             return conversationDto;
         }
 
         public ConversationDto Reopen(int conversationId)
         {
-            var entity = _conversationService.Reopen(conversationId);
+            ConversationDto conversationDto;
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                var entity = _conversationService.Reopen(conversationId);
+
+                conversationDto = Mapper.Map<ConversationDto>(entity);
+                FillFields(conversationDto);
+            }
             _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
-            var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(conversationDto);
             return conversationDto;
         }
 
         public ConversationDto MarkAsRead(int conversationId)
         {
-            var entity = _conversationService.MarkAsRead(conversationId);
+            ConversationDto conversationDto;
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                var entity = _conversationService.MarkAsRead(conversationId);
+
+                conversationDto = Mapper.Map<ConversationDto>(entity);
+                FillFields(conversationDto);
+            }
             _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
-            var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(conversationDto);
             return conversationDto;
         }
 
         public ConversationDto MarkAsUnRead(int conversationId)
         {
-            var entity = _conversationService.MarkAsUnRead(conversationId);
+            ConversationDto conversationDto;
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                var entity = _conversationService.MarkAsUnRead(conversationId);
+
+                conversationDto = Mapper.Map<ConversationDto>(entity);
+                FillFields(conversationDto);
+            }
             _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
-            var conversationDto = Mapper.Map<ConversationDto>(entity);
-            FillFields(conversationDto);
             return conversationDto;
         }
 
