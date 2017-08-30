@@ -1,8 +1,12 @@
 ﻿using Framework.WebApi;
 using Microsoft.AspNet.SignalR;
 using Social.Application.AppServices;
+using Social.Application.Dto;
 using Social.WebApi.Hubs;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web.Http;
 
 namespace Social.WebApi.Controllers
@@ -58,6 +62,19 @@ namespace Social.WebApi.Controllers
             {
                 _hub.Clients.Group(Request.GetSiteId().ToString()).conversationUpdated(dto);
             }
+            return Ok();
+        }
+
+        [Route("conversation-log-created")]
+        [HttpPost]
+        public IHttpActionResult ConversationLogCreated(int conversationId, int oldMaxlogId)
+        {
+            var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxlogId);
+            if (dtoList != null && dtoList.Any())
+            {
+                _hub.Clients.Group(Request.GetSiteId().ToString()).conversationLogCreated(dtoList);
+            }
+
             return Ok();
         }
 

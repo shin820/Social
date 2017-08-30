@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,7 +17,7 @@ namespace Social.Infrastructure.Core
             await GetAsync($"/api/notifications/conversation-created?siteId={siteId}&conversationId={conversationId}");
         }
 
-        public async Task NotifyUpdateConversation(int siteId, int conversationId)
+        public async Task NotifyUpdateConversation(int siteId, int conversationId, int? oldMaxLogId)
         {
             await GetAsync($"/api/notifications/conversation-updated?siteId={siteId}&conversationId={conversationId}");
         }
@@ -61,6 +62,18 @@ namespace Social.Infrastructure.Core
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri(AppSettings.NotificationApiBaseAddress);
             var response = await client.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                string msg = await response.Content.ReadAsStringAsync();
+                Logger.Error(msg, null);
+            }
+        }
+
+        public async Task PostAsync<T>(string url, T value)
+        {
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri(AppSettings.NotificationApiBaseAddress);
+            var response = await client.PostAsync<T>(url, value, new JsonMediaTypeFormatter());
             if (!response.IsSuccessStatusCode)
             {
                 string msg = await response.Content.ReadAsStringAsync();

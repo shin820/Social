@@ -26,11 +26,11 @@ namespace Social.Domain.DomainServices
         IQueryable<Conversation> ApplySenderOrReceiverId(IQueryable<Conversation> conversations, int? userId);
         Conversation CheckIfExists(int id);
         Conversation GetUnClosedConversation(string originalId);
-        Conversation Take(int conversationId);
-        Conversation Close(int conversationId);
-        Conversation Reopen(int conversationId);
-        Conversation MarkAsRead(int conversationId);
-        Conversation MarkAsUnRead(int conversationId);
+        Conversation Take(Conversation entity);
+        Conversation Close(Conversation entity);
+        Conversation Reopen(Conversation entity);
+        Conversation MarkAsRead(Conversation entity);
+        Conversation MarkAsUnRead(Conversation entity);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -201,70 +201,40 @@ namespace Social.Domain.DomainServices
             base.Update(entity);
         }
 
-        public Conversation Take(int conversationId)
+        public Conversation Take(Conversation entity)
         {
-            var entity = this.Find(conversationId);
-            if (entity == null)
-            {
-                throw SocialExceptions.ConversationIdNotExists(conversationId);
-            }
-
             entity.AgentId = UserContext.UserId;
             this.Update(entity);
 
             return entity;
         }
 
-        public Conversation Close(int conversationId)
+        public Conversation Close(Conversation entity)
         {
-            var entity = this.Find(conversationId);
-            if (entity == null)
-            {
-                throw SocialExceptions.ConversationIdNotExists(conversationId);
-            }
-
             entity.Status = ConversationStatus.Closed;
             this.Update(entity);
 
             return entity;
         }
 
-        public Conversation Reopen(int conversationId)
+        public Conversation Reopen(Conversation entity)
         {
-            var entity = this.Find(conversationId);
-            if (entity == null)
-            {
-                throw SocialExceptions.ConversationIdNotExists(conversationId);
-            }
-
             entity.Status = ConversationStatus.PendingInternal;
             this.Update(entity);
 
             return entity;
         }
 
-        public Conversation MarkAsRead(int conversationId)
+        public Conversation MarkAsRead(Conversation entity)
         {
-            var entity = this.Find(conversationId);
-            if (entity == null)
-            {
-                throw SocialExceptions.ConversationIdNotExists(conversationId);
-            }
-
             entity.IfRead = true;
             this.Update(entity);
 
             return entity;
         }
 
-        public Conversation MarkAsUnRead(int conversationId)
+        public Conversation MarkAsUnRead(Conversation entity)
         {
-            var entity = this.Find(conversationId);
-            if (entity == null)
-            {
-                throw SocialExceptions.ConversationIdNotExists(conversationId);
-            }
-
             entity.IfRead = false;
             this.Update(entity);
 
@@ -308,7 +278,7 @@ namespace Social.Domain.DomainServices
 
             if (conversation.AgentId != oldEntity.AgentId)
             {
-                string oldAgentName = oldEntity.AgentId != null ? _agentService.GetDiaplyName(oldEntity.AgentId): "null";
+                string oldAgentName = oldEntity.AgentId != null ? _agentService.GetDiaplyName(oldEntity.AgentId) : "null";
                 string newAgentName = conversation.AgentId != null ? _agentService.GetDiaplyName(conversation.AgentId) : "null";
                 WriteLog(conversation, ConversationLogType.ChangeAgentAssignee, $"Agent {agent} changed Agent Assignee from {oldAgentName} to {newAgentName}");
             }

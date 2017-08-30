@@ -23,13 +23,14 @@ namespace Social.Application.AppServices
         IList<ConversationDto> Find(ConversationSearchDto searchDto);
         ConversationDto Insert(ConversationCreateDto createDto);
         void Delete(int id);
-        ConversationDto Update(int id, ConversationUpdateDto updateDto);
+        Task<ConversationDto> UpdateAsync(int id, ConversationUpdateDto updateDto);
         IList<ConversationLogDto> GetLogs(int converationId);
-        ConversationDto Take(int conversationId);
-        ConversationDto Close(int conversationId);
-        ConversationDto Reopen(int conversationId);
-        ConversationDto MarkAsRead(int conversationId);
-        ConversationDto MarkAsUnRead(int conversationId);
+        IList<ConversationLogDto> GetNewLogs(int conversationId, int oldMaxLogId);
+        Task<ConversationDto> TakeAsync(int conversationId);
+        Task<ConversationDto> CloseAsync(int conversationId);
+        Task<ConversationDto> ReopenAsync(int conversationId);
+        Task<ConversationDto> MarkAsReadAsync(int conversationId);
+        Task<ConversationDto> MarkAsUnReadAsync(int conversationId);
     }
 
     public class ConversationAppService : AppService, IConversationAppService
@@ -126,9 +127,10 @@ namespace Social.Application.AppServices
             _conversationService.Delete(conversation);
         }
 
-        public ConversationDto Update(int id, ConversationUpdateDto updateDto)
+        public async Task<ConversationDto> UpdateAsync(int id, ConversationUpdateDto updateDto)
         {
             ConversationDto conversationDto;
+            int oldMaxLogId;
             using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
             {
                 Conversation conversation = _conversationService.Find(id);
@@ -136,13 +138,14 @@ namespace Social.Application.AppServices
                 {
                     throw SocialExceptions.ConversationIdNotExists(id);
                 }
+                oldMaxLogId = conversation.Logs.Max(t => t.Id);
                 Mapper.Map(updateDto, conversation);
                 _conversationService.Update(conversation);
                 conversationDto = Mapper.Map<ConversationDto>(conversation);
                 FillFields(conversationDto);
                 uow.Complete();
             }
-            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), id);
+            await _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), id, oldMaxLogId);
             return conversationDto;
         }
 
@@ -155,73 +158,56 @@ namespace Social.Application.AppServices
                 .ToList();
         }
 
-        public ConversationDto Take(int conversationId)
+        public IList<ConversationLogDto> GetNewLogs(int conversationId, int oldMaxLogId)
         {
-            ConversationDto conversationDto;
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
-            {
-                var entity = _conversationService.Take(conversationId);
-
-                conversationDto = Mapper.Map<ConversationDto>(entity);
-                FillFields(conversationDto);
-            }
-            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
-            return conversationDto;
+            return _logService.FindAll().Where(t => t.ConversationId == conversationId && t.Id > oldMaxLogId)
+                .ProjectTo<ConversationLogDto>()
+                .ToList();
         }
 
-        public ConversationDto Close(int conversationId)
+        public async Task<ConversationDto> TakeAsync(int conversationId)
         {
-            ConversationDto conversationDto;
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
-            {
-                var entity = _conversationService.Close(conversationId);
-
-                conversationDto = Mapper.Map<ConversationDto>(entity);
-                FillFields(conversationDto);
-            }
-            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
-            return conversationDto;
+            return await UpdateConversation(conversationId, _conversationService.Take);
         }
 
-        public ConversationDto Reopen(int conversationId)
+        public async Task<ConversationDto> CloseAsync(int conversationId)
         {
-            ConversationDto conversationDto;
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
-            {
-                var entity = _conversationService.Reopen(conversationId);
-
-                conversationDto = Mapper.Map<ConversationDto>(entity);
-                FillFields(conversationDto);
-            }
-            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
-            return conversationDto;
+            return await UpdateConversation(conversationId, _conversationService.Close);
         }
 
-        public ConversationDto MarkAsRead(int conversationId)
+        public async Task<ConversationDto> ReopenAsync(int conversationId)
         {
-            ConversationDto conversationDto;
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
-            {
-                var entity = _conversationService.MarkAsRead(conversationId);
-
-                conversationDto = Mapper.Map<ConversationDto>(entity);
-                FillFields(conversationDto);
-            }
-            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
-            return conversationDto;
+            return await UpdateConversation(conversationId, _conversationService.Reopen);
         }
 
-        public ConversationDto MarkAsUnRead(int conversationId)
+        public async Task<ConversationDto> MarkAsReadAsync(int conversationId)
         {
+            return await UpdateConversation(conversationId, _conversationService.MarkAsRead);
+        }
+
+        public async Task<ConversationDto> MarkAsUnReadAsync(int conversationId)
+        {
+            return await UpdateConversation(conversationId, _conversationService.MarkAsUnRead);
+        }
+
+        private async Task<ConversationDto> UpdateConversation(int conversationId, Func<Conversation, Conversation> updateFunc)
+        {
+            int maxLogId;
             ConversationDto conversationDto;
             using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
             {
-                var entity = _conversationService.MarkAsUnRead(conversationId);
+                var conversation = _conversationService.Find(conversationId);
+                if (conversation == null)
+                {
+                    throw SocialExceptions.ConversationIdNotExists(conversationId);
+                }
+                maxLogId = conversation.Logs.Max(t => t.Id);
+                var entity = updateFunc(conversation);
 
                 conversationDto = Mapper.Map<ConversationDto>(entity);
                 FillFields(conversationDto);
             }
-            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
+            await _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId, maxLogId);
             return conversationDto;
         }
 
