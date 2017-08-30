@@ -26,7 +26,6 @@ namespace Social.Application.Dto
         public int LastMessageSenderId { get; set; }
 
         public string LastMessageSenderName { get; set; }
-
         public string LastMessageSenderAvatar { get; set; }
         public string LastMessageSenderUrl { get; set; }
 
@@ -45,6 +44,10 @@ namespace Social.Application.Dto
         public int LastIntegrationAccountId { get; set; }
         public string LastIntegrationAccountName { get; set; }
         public string LastIntegrationAccountAvatar { get; set; }
+
+        public int CustomerId { get; set; }
+        public string CustomerName { get; set; }
+        public string CustomerAvatar { get; set; }
 
         [Required]
         [MaxLength(200)]

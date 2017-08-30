@@ -37,6 +37,14 @@ namespace Social.Domain.Entities
         [MaxLength(200)]
         public string ScreenName { get; set; }
 
+        public string ScreenNameOrNormalName
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(ScreenName) ? ScreenName : Name;
+            }
+        }
+
         [MaxLength(200)]
         public string Email { get; set; }
 
@@ -48,5 +56,6 @@ namespace Social.Domain.Entities
         public virtual SocialAccount SocialAccount { get; set; }
 
         public bool IsIntegrationAccount { get { return Type == SocialUserType.IntegrationAccount; } }
+        public bool IsCustomer { get { return Type == SocialUserType.Customer; } }
     }
 }

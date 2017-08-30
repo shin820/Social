@@ -243,15 +243,20 @@ namespace Social.Application.AppServices
                 dto.LastMessage = messages.First().Content;
                 dto.OriginalLink = messages.Last().OriginalLink;
 
-                foreach (var message in messages)
+                var lastMessageSendByCustomer = messages.FirstOrDefault(t => t.Sender.IsCustomer);
+                if (lastMessageSendByCustomer != null)
                 {
-                    if (message.IntegrationAccount != null)
-                    {
-                        dto.LastIntegrationAccountId = message.IntegrationAccountId;
-                        dto.LastIntegrationAccountName = message.IntegrationAccount.Name;
-                        dto.LastIntegrationAccountAvatar = message.IntegrationAccount.Avatar;
-                        break;
-                    }
+                    dto.CustomerId = lastMessageSendByCustomer.SenderId;
+                    dto.CustomerName = lastMessageSendByCustomer.Sender.ScreenNameOrNormalName;
+                    dto.CustomerAvatar = lastMessageSendByCustomer.Sender.Avatar;
+                }
+
+                var lastMessageByIntegrationAccount = messages.FirstOrDefault(t => t.IntegrationAccount != null);
+                if (lastMessageByIntegrationAccount != null)
+                {
+                    dto.LastIntegrationAccountId = lastMessageByIntegrationAccount.IntegrationAccountId;
+                    dto.LastIntegrationAccountName = lastMessageByIntegrationAccount.IntegrationAccount.ScreenNameOrNormalName;
+                    dto.LastIntegrationAccountAvatar = lastMessageByIntegrationAccount.IntegrationAccount.Avatar;
                 }
             }
         }
