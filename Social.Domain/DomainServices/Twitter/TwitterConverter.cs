@@ -51,6 +51,7 @@ namespace Social.Domain.DomainServices.Twitter
 
         private static MessageAttachment ConvertToMessageAttachment(IMediaEntity media)
         {
+            var messageAttachment = new MessageAttachment { };
             MessageAttachmentType type = MessageAttachmentType.File;
             if (media.MediaType == "animated_gif")
             {
@@ -64,7 +65,15 @@ namespace Social.Domain.DomainServices.Twitter
             {
                 type = MessageAttachmentType.Video;
             }
-
+            messageAttachment = new MessageAttachment
+            {
+                Type = type,
+                Url = media.MediaURL,
+                PreviewUrl = media.MediaURL,
+                MimeType = new Uri(media.MediaURL).GetMimeType(),
+                OriginalId = media.IdStr,
+                OriginalLink = media.URL
+            };
             if (media.VideoDetails != null && media.VideoDetails.Variants.Any())
             {
                 var video = media.VideoDetails.Variants.FirstOrDefault(t => t.Bitrate > 0);
@@ -73,7 +82,7 @@ namespace Social.Domain.DomainServices.Twitter
                     video = media.VideoDetails.Variants.FirstOrDefault();
                 }
 
-                return new MessageAttachment
+                messageAttachment = new MessageAttachment
                 {
                     Type = type,
                     Url = video.URL,
@@ -83,17 +92,7 @@ namespace Social.Domain.DomainServices.Twitter
                     OriginalLink = media.URL
                 };
             }
-
-            var messageAttachment = new MessageAttachment
-            {
-                Type = type,
-                Url = media.MediaURL,
-                PreviewUrl = media.MediaURL,
-                MimeType = new Uri(media.MediaURL).GetMimeType(),
-                OriginalId = media.IdStr,
-                OriginalLink = media.URL
-            };
-
+                       
             NormarlizeAttachmentType(messageAttachment);
 
             return messageAttachment;
