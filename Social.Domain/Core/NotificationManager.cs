@@ -19,7 +19,7 @@ namespace Social.Infrastructure.Core
 
         public async Task NotifyUpdateConversation(int siteId, int conversationId, int? oldMaxLogId)
         {
-            await GetAsync($"/api/notifications/conversation-updated?siteId={siteId}&conversationId={conversationId}");
+            await GetAsync($"/api/notifications/conversation-updated?siteId={siteId}&conversationId={conversationId}&oldMaxLogId={oldMaxLogId}");
         }
 
         public async Task NotifyNewFacebookComment(int siteId, int messageId)

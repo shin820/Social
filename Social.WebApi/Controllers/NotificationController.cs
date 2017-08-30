@@ -66,10 +66,10 @@ namespace Social.WebApi.Controllers
         }
 
         [Route("conversation-log-created")]
-        [HttpPost]
-        public IHttpActionResult ConversationLogCreated(int conversationId, int oldMaxlogId)
+        [HttpGet]
+        public IHttpActionResult ConversationLogCreated(int conversationId, int oldMaxLogId)
         {
-            var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxlogId);
+            var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxLogId);
             if (dtoList != null && dtoList.Any())
             {
                 _hub.Clients.Group(Request.GetSiteId().ToString()).conversationLogCreated(dtoList);
