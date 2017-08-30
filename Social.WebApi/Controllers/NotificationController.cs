@@ -55,23 +55,17 @@ namespace Social.WebApi.Controllers
 
         [Route("conversation-updated")]
         [HttpGet]
-        public IHttpActionResult ConversationUpdated(int conversationId)
+        public IHttpActionResult ConversationUpdated(int conversationId, int? oldMaxLogId = null)
         {
             var dto = _conversationAppService.Find(conversationId);
             if (dto != null)
             {
                 _hub.Clients.Group(Request.GetSiteId().ToString()).conversationUpdated(dto);
             }
-            return Ok();
-        }
 
-        [Route("conversation-log-created")]
-        [HttpGet]
-        public IHttpActionResult ConversationLogCreated(int conversationId, int oldMaxLogId)
-        {
-            var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxLogId);
-            if (dtoList != null && dtoList.Any())
+            if (oldMaxLogId.HasValue && oldMaxLogId > 0)
             {
+                var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxLogId.Value);
                 _hub.Clients.Group(Request.GetSiteId().ToString()).conversationLogCreated(dtoList);
             }
 

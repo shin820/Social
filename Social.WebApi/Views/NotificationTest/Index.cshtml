@@ -60,9 +60,9 @@
                 });
             });
 
-            hub.client.conversationLogCreated = function (log) {
-                console.log(log);
-                $('#discussion').append("<p>" + htmlEncode("Log Created : " + log.id) + "</p > ");
+            hub.client.conversationLogCreated = function (logs) {
+                console.log(logs);
+                $('#discussion').append("<p>" + htmlEncode("Log Created") + "</p > ");
             }
 
             hub.client.conversationCreated = function (conversation) {
