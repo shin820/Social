@@ -153,6 +153,7 @@ namespace Social.Application.AppServices
         public ConversationDto Take(int conversationId)
         {
             var entity = _conversationService.Take(conversationId);
+            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
             FillFields(conversationDto);
             return conversationDto;
@@ -161,6 +162,7 @@ namespace Social.Application.AppServices
         public ConversationDto Close(int conversationId)
         {
             var entity = _conversationService.Close(conversationId);
+            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
             FillFields(conversationDto);
             return conversationDto;
@@ -169,6 +171,7 @@ namespace Social.Application.AppServices
         public ConversationDto Reopen(int conversationId)
         {
             var entity = _conversationService.Reopen(conversationId);
+            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
             FillFields(conversationDto);
             return conversationDto;
@@ -177,6 +180,7 @@ namespace Social.Application.AppServices
         public ConversationDto MarkAsRead(int conversationId)
         {
             var entity = _conversationService.MarkAsRead(conversationId);
+            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
             FillFields(conversationDto);
             return conversationDto;
@@ -185,6 +189,7 @@ namespace Social.Application.AppServices
         public ConversationDto MarkAsUnRead(int conversationId)
         {
             var entity = _conversationService.MarkAsUnRead(conversationId);
+            _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId);
             var conversationDto = Mapper.Map<ConversationDto>(entity);
             FillFields(conversationDto);
             return conversationDto;
