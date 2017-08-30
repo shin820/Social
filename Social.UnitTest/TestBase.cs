@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Social.UnitTest
 {
@@ -21,6 +22,7 @@ namespace Social.UnitTest
             var uowManager = new Mock<IUnitOfWorkManager>();
             var uow = new Mock<IUnitOfWork>();
             uowManager.Setup(t => t.Current).Returns(uow.Object);
+            uowManager.Setup(t => t.Begin(It.IsAny<TransactionScopeOption>())).Returns(uow.Object);
 
             return uowManager.Object;
         }
