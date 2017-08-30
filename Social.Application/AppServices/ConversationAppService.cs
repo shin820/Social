@@ -128,15 +128,14 @@ namespace Social.Application.AppServices
 
         public ConversationDto Update(int id, ConversationUpdateDto updateDto)
         {
-            Conversation conversation = _conversationService.Find(id);
-            if (conversation == null)
-            {
-                throw SocialExceptions.ConversationIdNotExists(id);
-            }
-
             ConversationDto conversationDto;
             using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
             {
+                Conversation conversation = _conversationService.Find(id);
+                if (conversation == null)
+                {
+                    throw SocialExceptions.ConversationIdNotExists(id);
+                }
                 Mapper.Map(updateDto, conversation);
                 _conversationService.Update(conversation);
                 conversationDto = Mapper.Map<ConversationDto>(conversation);
