@@ -1,8 +1,12 @@
 ﻿using Framework.WebApi;
 using Microsoft.AspNet.SignalR;
 using Social.Application.AppServices;
+using Social.Application.Dto;
 using Social.WebApi.Hubs;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Web.Http;
 
 namespace Social.WebApi.Controllers
@@ -51,13 +55,23 @@ namespace Social.WebApi.Controllers
 
         [Route("conversation-updated")]
         [HttpGet]
-        public IHttpActionResult ConversationUpdated(int conversationId)
+        public IHttpActionResult ConversationUpdated(int conversationId, int? oldMaxLogId = null)
         {
             var dto = _conversationAppService.Find(conversationId);
             if (dto != null)
             {
                 _hub.Clients.Group(Request.GetSiteId().ToString()).conversationUpdated(dto);
             }
+
+            if (oldMaxLogId.HasValue && oldMaxLogId > 0)
+            {
+                var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxLogId.Value);
+                if (dtoList != null && dtoList.Any())
+                {
+                    _hub.Clients.Group(Request.GetSiteId().ToString()).conversationLogCreated(dtoList);
+                }
+            }
+
             return Ok();
         }
 

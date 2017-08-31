@@ -3,6 +3,7 @@ using Social.Application.Dto;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.Description;
 
@@ -78,10 +79,10 @@ namespace Social.WebApi.Controllers
         /// <param name="createDto"></param>
         /// <returns></returns>
         [Route("{id}")]
-        public ConversationDto PutConversation(int id, ConversationUpdateDto createDto)
+        public async Task<ConversationDto> PutConversation(int id, ConversationUpdateDto createDto)
         {
             createDto = createDto ?? new ConversationUpdateDto();
-            return _conversationAppService.Update(id, createDto);
+            return await _conversationAppService.UpdateAsync(id, createDto);
         }
 
         /// <summary>
@@ -91,9 +92,9 @@ namespace Social.WebApi.Controllers
         /// <returns></returns>
         [Route("{id}/take")]
         [HttpPut]
-        public ConversationDto TakeConversation(int id)
+        public async Task<ConversationDto> TakeConversation(int id)
         {
-            return _conversationAppService.Take(id);
+            return await _conversationAppService.TakeAsync(id);
         }
 
         /// <summary>
@@ -103,9 +104,9 @@ namespace Social.WebApi.Controllers
         /// <returns></returns>
         [Route("{id}/reopen")]
         [HttpPut]
-        public ConversationDto ReopenConversation(int id)
+        public async Task<ConversationDto> ReopenConversation(int id)
         {
-            return _conversationAppService.Reopen(id);
+            return await _conversationAppService.ReopenAsync(id);
         }
 
         /// <summary>
@@ -115,9 +116,9 @@ namespace Social.WebApi.Controllers
         /// <returns></returns>
         [Route("{id}/close")]
         [HttpPut]
-        public ConversationDto CloseConversation(int id)
+        public async Task<ConversationDto> CloseConversation(int id)
         {
-            return _conversationAppService.Close(id);
+            return await _conversationAppService.CloseAsync(id);
         }
 
         /// <summary>
@@ -127,9 +128,9 @@ namespace Social.WebApi.Controllers
         /// <returns></returns>
         [Route("{id}/mark-as-read")]
         [HttpPut]
-        public ConversationDto MarkAsRead(int id)
+        public async Task<ConversationDto> MarkAsRead(int id)
         {
-            return _conversationAppService.MarkAsRead(id);
+            return await _conversationAppService.MarkAsReadAsync(id);
         }
 
         /// <summary>
@@ -139,9 +140,9 @@ namespace Social.WebApi.Controllers
         /// <returns></returns>
         [Route("{id}/mark-as-unread")]
         [HttpPut]
-        public ConversationDto MarkAsUnRead(int id)
+        public async Task<ConversationDto> MarkAsUnRead(int id)
         {
-            return _conversationAppService.MarkAsUnRead(id);
+            return await _conversationAppService.MarkAsUnReadAsync(id);
         }
 
         /// <summary>

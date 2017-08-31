@@ -60,6 +60,11 @@
                 });
             });
 
+            hub.client.conversationLogCreated = function (logs) {
+                console.log(logs);
+                $('#discussion').append("<p>" + htmlEncode("Log Created") + "</p > ");
+            }
+
             hub.client.conversationCreated = function (conversation) {
                 console.log(conversation);
                 $('#discussion').append("<p>" + htmlEncode("Conversation Created : " + conversation.id) + "</p > ");
