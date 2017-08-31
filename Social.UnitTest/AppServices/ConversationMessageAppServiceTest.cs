@@ -66,7 +66,7 @@ namespace Social.UnitTest.AppServices
             ConversationAppServiceTest conversationAppServiceTest = new ConversationAppServiceTest();
 
             messageService.Setup(t => t.Find(1)).Returns(MakeMessageEntity(1, MessageSource.FacebookMessage,null, null));
-            agentService.Setup(t => t.GetDiaplyName(1)).Returns("a");
+            agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
             //Act
             FacebookMessageDto facebookMessageDto = conversationMessageAppService.GetFacebookDirectMessage(1);
             //Assert
@@ -149,7 +149,7 @@ namespace Social.UnitTest.AppServices
             var messageService = new Mock<IMessageService>();
 
             messageService.Setup(t => t.Find(1)).Returns(MakeMessageEntity(1,MessageSource.FacebookPost,null, null));
-            agentService.Setup(t => t.GetDiaplyName(1)).Returns("a");
+            agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
             ConversationMessageAppService conversationMessageAppService = new ConversationMessageAppService(null,
               agentService.Object, messageService.Object, null, null);
 
@@ -210,7 +210,7 @@ namespace Social.UnitTest.AppServices
             var messageService = new Mock<IMessageService>();
 
             messageService.Setup(t => t.Find(1)).Returns(MakeMessageEntity(1, MessageSource.TwitterDirectMessage, null, null));
-            agentService.Setup(t => t.GetDiaplyName(1)).Returns("a");
+            agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
             ConversationMessageAppService conversationMessageAppService = new ConversationMessageAppService(null,
               agentService.Object, messageService.Object, null, null);
 
@@ -335,7 +335,7 @@ namespace Social.UnitTest.AppServices
             var messageService = new Mock<IMessageService>();
 
             messageService.Setup(t => t.Find(1)).Returns(MakeMessageEntity(1, MessageSource.TwitterTypicalTweet, null, null));
-            agentService.Setup(t => t.GetDiaplyName(1)).Returns("a");
+            agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
             ConversationMessageAppService conversationMessageAppService = new ConversationMessageAppService(null,
               agentService.Object, messageService.Object, null, null);
 
@@ -355,7 +355,7 @@ namespace Social.UnitTest.AppServices
             var messageService = new Mock<IMessageService>();
 
             messageService.Setup(t => t.ReplyTwitterTweetMessage(1,1,"123",false)).Returns(MakeMessageEntity(1, MessageSource.TwitterTypicalTweet, null, null));
-            agentService.Setup(t => t.GetDiaplyName(1)).Returns("a");
+            agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
             ConversationMessageAppService conversationMessageAppService = new ConversationMessageAppService(null,
               agentService.Object, messageService.Object, null, null);
 
@@ -375,7 +375,7 @@ namespace Social.UnitTest.AppServices
             var messageService = new Mock<IMessageService>();
 
             messageService.Setup(t => t.ReplyTwitterDirectMessage(1, "123", false)).Returns(MakeMessageEntity(1, MessageSource.TwitterTypicalTweet, null, null));
-            agentService.Setup(t => t.GetDiaplyName(1)).Returns("a");
+            agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
             ConversationMessageAppService conversationMessageAppService = new ConversationMessageAppService(null,
               agentService.Object, messageService.Object, null, null);
 
@@ -395,7 +395,7 @@ namespace Social.UnitTest.AppServices
             var messageService = new Mock<IMessageService>();
 
             messageService.Setup(t => t.ReplyFacebookMessage(1, "123", false)).Returns(MakeMessageEntity(1, MessageSource.FacebookMessage, null, null));
-            agentService.Setup(t => t.GetDiaplyName(1)).Returns("a");
+            agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
             ConversationMessageAppService conversationMessageAppService = new ConversationMessageAppService(null,
               agentService.Object, messageService.Object, null, null);
 
@@ -415,7 +415,7 @@ namespace Social.UnitTest.AppServices
             var messageService = new Mock<IMessageService>();
 
             messageService.Setup(t => t.ReplyFacebookPostOrComment(1,1, "123", false)).Returns(MakeMessageEntity(1, MessageSource.FacebookPostReplyComment, null, null));
-            agentService.Setup(t => t.GetDiaplyName(1)).Returns("a");
+            agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
             ConversationMessageAppService conversationMessageAppService = new ConversationMessageAppService(null,
               agentService.Object, messageService.Object, null, null);
 

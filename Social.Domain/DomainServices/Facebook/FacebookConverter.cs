@@ -155,6 +155,11 @@ namespace Social.Domain.DomainServices.Facebook
                 {
                     attachment.Type = MessageAttachmentType.Video;
                 }
+
+                if (attachment.MimeType.StartsWith("audio/", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    attachment.Type = MessageAttachmentType.Audio;
+                }
             }
         }
     }

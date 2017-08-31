@@ -72,7 +72,7 @@ namespace Social.Application.AppServices
 
             var dto = Mapper.Map<FilterListDto>(filter);
             dto.ConversationNum = _domainService.GetConversationNum(filter);
-            dto.CreatedByName = _agentService.GetDiaplyName(dto.CreatedBy);
+            dto.CreatedByName = _agentService.GetDisplayName(dto.CreatedBy);
 
             return dto;
         }
@@ -85,7 +85,7 @@ namespace Social.Application.AppServices
                 throw SocialExceptions.FilterNotExists(id);
             }
             var filterDto = Mapper.Map<FilterDetailsDto>(filter);
-            filterDto.CreatedByName = _agentService.GetDiaplyName(filterDto.CreatedBy);
+            filterDto.CreatedByName = _agentService.GetDisplayName(filterDto.CreatedBy);
             return filterDto;
         }
 
@@ -159,7 +159,7 @@ namespace Social.Application.AppServices
             foreach (var filter in filters)
             {
                 var filterDto = Mapper.Map<FilterManageDto>(filter);
-                filterDto.CreatedByName = _agentService.GetDiaplyName(filter.CreatedBy);
+                filterDto.CreatedByName = _agentService.GetDisplayName(filter.CreatedBy);
                 filterDtos.Add(filterDto);
             }
             return filterDtos;
@@ -183,7 +183,7 @@ namespace Social.Application.AppServices
             foreach (var filter in filters)
             {
                 var filterDto = Mapper.Map<FilterManageDto>(filter);
-                filterDto.CreatedByName = _agentService.GetDiaplyName(filter.CreatedBy);
+                filterDto.CreatedByName = _agentService.GetDisplayName(filter.CreatedBy);
                 filterDtos.Add(filterDto);
             }
             return filterDtos;

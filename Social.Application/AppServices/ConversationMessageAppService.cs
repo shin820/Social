@@ -163,7 +163,7 @@ namespace Social.Application.AppServices
         {
             Message message = _messageService.ReplyTwitterTweetMessage(conversationId, tweetAccountId, messageContent, isCloseConversation);
             var dto = Mapper.Map<TwitterTweetMessageDto>(message);
-            dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
+            dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
             return dto;
         }
 
@@ -171,7 +171,7 @@ namespace Social.Application.AppServices
         {
             Message message = _messageService.ReplyTwitterDirectMessage(conversationId, messageContent, isCloseConversation);
             var dto = Mapper.Map<TwitterDirectMessageDto>(message);
-            dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
+            dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
             return dto;
         }
 
@@ -179,7 +179,7 @@ namespace Social.Application.AppServices
         {
             Message message = _messageService.ReplyFacebookMessage(conversationId, content, isCloseConversation);
             var dto = Mapper.Map<FacebookMessageDto>(message);
-            dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
+            dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
             return dto;
         }
 
@@ -187,7 +187,7 @@ namespace Social.Application.AppServices
         {
             Message message = _messageService.ReplyFacebookPostOrComment(conversationId, postOrCommentId, content, isCloseConversation);
             var dto = Mapper.Map<FacebookPostCommentMessageDto>(message);
-            dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
+            dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
             return dto;
         }
 
@@ -195,7 +195,7 @@ namespace Social.Application.AppServices
         {
             var message = _messageService.Find(messageId);
             var dto = Mapper.Map<FacebookMessageDto>(message);
-            dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
+            dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
             return dto;
         }
 
@@ -203,7 +203,7 @@ namespace Social.Application.AppServices
         {
             var message = _messageService.Find(messageId);
             var dto = Mapper.Map<FacebookPostCommentMessageDto>(message);
-            dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
+            dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
             return dto;
         }
 
@@ -211,7 +211,7 @@ namespace Social.Application.AppServices
         {
             var message = _messageService.Find(messageId);
             var dto = Mapper.Map<TwitterDirectMessageDto>(message);
-            dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
+            dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
             return dto;
         }
 
@@ -219,7 +219,7 @@ namespace Social.Application.AppServices
         {
             var message = _messageService.Find(messageId);
             var dto = Mapper.Map<TwitterTweetMessageDto>(message);
-            dto.SendAgentName = _agentService.GetDiaplyName(dto.SendAgentId);
+            dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
             return dto;
         }
     }

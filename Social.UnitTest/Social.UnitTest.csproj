@@ -126,6 +126,7 @@
     <Compile Include="AppServices\ConversationAppServiceTest.cs" />
     <Compile Include="AppServices\ConversationFieldAppServiceTest.cs" />
     <Compile Include="AppServices\ConversationMessageAppServiceTest.cs" />
+    <Compile Include="AppServices\FilterAppServiceTest.cs" />
     <Compile Include="DependencyResolverBuilder.cs" />
     <Compile Include="AppServices\FacebookAccountAppServiceTest.cs" />
     <Compile Include="DomainServices\ConversationFieldServiceTest.cs" />

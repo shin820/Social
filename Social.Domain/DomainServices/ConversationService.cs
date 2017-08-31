@@ -294,7 +294,7 @@ namespace Social.Domain.DomainServices
                 return;
             }
 
-            string agent = _agentService.GetDiaplyName(UserContext.UserId);
+            string agent = _agentService.GetDisplayName(UserContext.UserId);
 
             if (conversation.Priority != oldEntity.Priority)
             {
@@ -308,8 +308,8 @@ namespace Social.Domain.DomainServices
 
             if (conversation.AgentId != oldEntity.AgentId)
             {
-                string oldAgentName = oldEntity.AgentId != null ? _agentService.GetDiaplyName(oldEntity.AgentId): "null";
-                string newAgentName = conversation.AgentId != null ? _agentService.GetDiaplyName(conversation.AgentId) : "null";
+                string oldAgentName = oldEntity.AgentId != null ? _agentService.GetDisplayName(oldEntity.AgentId): "null";
+                string newAgentName = conversation.AgentId != null ? _agentService.GetDisplayName(conversation.AgentId) : "null";
                 WriteLog(conversation, ConversationLogType.ChangeAgentAssignee, $"Agent {agent} changed Agent Assignee from {oldAgentName} to {newAgentName}");
             }
 

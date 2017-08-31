@@ -11,7 +11,7 @@ namespace Social.Domain.DomainServices
 {
     public interface IAgentService
     {
-        string GetDiaplyName(int? id);
+        string GetDisplayName(int? id);
         void FillAgentName(IEnumerable<IHaveSendAgent> list);
         void FillCreatedByName(IEnumerable<IHaveCreatedBy> list);
         int[] GetMatchedStatusAgents(int status);
@@ -56,7 +56,7 @@ namespace Social.Domain.DomainServices
             return FindAll().Where(t => ids.Contains(t.Id)).ToList();
         }
 
-        public string GetDiaplyName(int? id)
+        public string GetDisplayName(int? id)
         {
             if (id == null)
             {
