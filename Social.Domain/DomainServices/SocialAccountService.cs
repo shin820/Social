@@ -1,13 +1,11 @@
 ﻿using Framework.Core;
-using Social.Domain.Core;
 using Social.Domain.Entities;
+using Social.Domain.Repositories;
 using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 
@@ -24,11 +22,11 @@ namespace Social.Domain.DomainServices
 
     public class SocialAccountService : DomainService<SocialAccount>, ISocialAccountService
     {
-        IRepository<GeneralDataContext, SiteSocialAccount> _siteSocialAccountRepo;
+        ISiteSocialAccountRepository _siteSocialAccountRepo;
         IRepository<SocialUser> _socialUserRepo;
 
         public SocialAccountService(
-            IRepository<GeneralDataContext, SiteSocialAccount> siteSocialAccountRepo,
+            ISiteSocialAccountRepository siteSocialAccountRepo,
             IRepository<SocialUser> socialUserRepo
             )
         {

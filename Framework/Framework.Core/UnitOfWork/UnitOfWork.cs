@@ -240,6 +240,11 @@ namespace Framework.Core.UnitOfWork
             });
         }
 
+        public IDisposable UseGeneralDB()
+        {
+            return SetSiteId(null);
+        }
+
         public int? GetSiteId()
         {
             return _siteId;

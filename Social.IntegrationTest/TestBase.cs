@@ -1,16 +1,13 @@
 ﻿using Framework.Core;
 using Framework.Core.UnitOfWork;
 using Social.Application;
-using Social.Domain;
 using Social.Domain.Core;
 using Social.Domain.Entities;
+using Social.Domain.Repositories;
 using Social.Infrastructure.Enum;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Transactions;
 
 namespace Social.IntegrationTest
@@ -82,7 +79,7 @@ namespace Social.IntegrationTest
             {
                 using (CurrentUnitOfWork.SetSiteId(null))
                 {
-                    var siteSocialAccountRepo = DependencyResolver.Resolve<IRepository<GeneralDataContext, SiteSocialAccount>>();
+                    var siteSocialAccountRepo = DependencyResolver.Resolve<ISiteSocialAccountRepository>();
                     siteSocialAccountRepo.Insert(new SiteSocialAccount
                     {
                         TwitterUserId = testUserId,
@@ -136,7 +133,7 @@ namespace Social.IntegrationTest
             {
                 using (CurrentUnitOfWork.SetSiteId(null))
                 {
-                    var siteSocialAccountRepo = DependencyResolver.Resolve<IRepository<GeneralDataContext, SiteSocialAccount>>();
+                    var siteSocialAccountRepo = DependencyResolver.Resolve<ISiteSocialAccountRepository>();
                     siteSocialAccountRepo.Insert(new SiteSocialAccount
                     {
                         FacebookPageId = testPageId,

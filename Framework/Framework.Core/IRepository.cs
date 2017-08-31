@@ -6,13 +6,19 @@ using System.Threading.Tasks;
 
 namespace Framework.Core
 {
-    public interface IRepository<TDbContext, TEntity> : IRepository<TEntity>
+    public interface IRepository<TDbContext, TEntity, TKey> : IRepository<TEntity, TKey>
         where TDbContext : DbContext
-        where TEntity : Entity
+        where TEntity : Entity<TKey>
     {
     }
 
-    public interface IRepository<TEntity> where TEntity : Entity
+    public interface IRepository<TEntity> : IRepository<TEntity, int>
+        where TEntity : Entity<int>
+    {
+    }
+
+    public interface IRepository<TEntity, TKey>
+        where TEntity : Entity<TKey>
     {
         void Delete(int id);
         Task DeleteAsync(int id);
