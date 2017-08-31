@@ -206,6 +206,7 @@ namespace Social.Application.AppServices
 
                 conversationDto = Mapper.Map<ConversationDto>(entity);
                 FillFields(conversationDto);
+                uow.Complete();
             }
             await _notificationManager.NotifyUpdateConversation(CurrentUnitOfWork.GetSiteId().GetValueOrDefault(), conversationId, maxLogId);
             return conversationDto;
