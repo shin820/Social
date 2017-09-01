@@ -138,7 +138,7 @@ namespace Social.Application.AppServices
                 {
                     throw SocialExceptions.ConversationIdNotExists(id);
                 }
-                oldMaxLogId = conversation.Logs.Max(t => t.Id);
+                oldMaxLogId = conversation.Logs.Select(t => t.Id).DefaultIfEmpty().Max();
                 Mapper.Map(updateDto, conversation);
                 _conversationService.Update(conversation);
                 conversationDto = Mapper.Map<ConversationDto>(conversation);
@@ -201,7 +201,7 @@ namespace Social.Application.AppServices
                 {
                     throw SocialExceptions.ConversationIdNotExists(conversationId);
                 }
-                maxLogId = conversation.Logs.Max(t => t.Id);
+                maxLogId = conversation.Logs.Select(t => t.Id).DefaultIfEmpty().Max();
                 var entity = updateFunc(conversation);
 
                 conversationDto = Mapper.Map<ConversationDto>(entity);

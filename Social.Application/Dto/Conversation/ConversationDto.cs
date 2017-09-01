@@ -13,6 +13,11 @@ namespace Social.Application.Dto
     {
         public int Id { get; set; }
 
+        public string Num
+        {
+            get { return "S" + Id; }
+        }
+
         public ConversationSource Source { get; set; }
 
         public string OriginalId { get; set; }
