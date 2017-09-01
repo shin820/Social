@@ -1,15 +1,10 @@
-﻿using Facebook;
-using Framework.Core;
-using Social.Domain.Core;
-using Social.Domain.DomainServices.Facebook;
+﻿using Framework.Core;
 using Social.Domain.Entities;
+using Social.Domain.Repositories;
 using Social.Infrastructure.Enum;
 using Social.Infrastructure.Facebook;
-using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 
@@ -24,12 +19,12 @@ namespace Social.Domain.DomainServices.Facebook
     {
         private ISocialAccountService _socialAccountService;
         private IConversationStrategyFactory _strategyFactory;
-        private IRepository<GeneralDataContext, SiteSocialAccount> _siteSocialAccountRepo;
+        private ISiteSocialAccountRepository _siteSocialAccountRepo;
 
         public WebHookService(
             ISocialAccountService socialAccountService,
             IConversationStrategyFactory strategyFactory,
-            IRepository<GeneralDataContext, SiteSocialAccount> siteSocialAccountRepo
+            ISiteSocialAccountRepository siteSocialAccountRepo
             )
         {
             _socialAccountService = socialAccountService;

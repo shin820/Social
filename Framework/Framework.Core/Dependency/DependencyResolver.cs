@@ -26,7 +26,7 @@ namespace Framework.Core
 
                 Component.For(typeof(IDomainService<>)).ImplementedBy(typeof(DomainService<>)).LifestyleTransient(),
                 Component.For(typeof(IRepository<,>)).ImplementedBy(typeof(EfRepository<,>)).LifestyleTransient(),
-
+                Component.For(typeof(IRepository<,,>)).ImplementedBy(typeof(EfRepository<,,>)).LifestyleTransient(),
                 Component.For<IUnitOfWorkManager>().ImplementedBy<UnitOfWorkManager>().LifestyleTransient(),
                 Component.For<IUnitOfWork>().ImplementedBy<UnitOfWork.UnitOfWork>().LifestyleTransient(),
                 Component.For<ITransactionStrategy>().ImplementedBy<TransactionStrategy>().LifestyleTransient(),
@@ -78,6 +78,11 @@ namespace Framework.Core
                   .LifestyleTransient(),
                Classes.FromAssembly(assembly)
                   .BasedOn(typeof(EfRepository<,>))
+                  .WithServiceAllInterfaces()
+                  .Configure(configurer => configurer.Named(Guid.NewGuid().ToString())) //this is not a good idea, but we have to add these code to make container works fine with Obfuscator.
+                  .LifestyleTransient(),
+               Classes.FromAssembly(assembly)
+                  .BasedOn(typeof(EfRepository<,,>))
                   .WithServiceAllInterfaces()
                   .Configure(configurer => configurer.Named(Guid.NewGuid().ToString())) //this is not a good idea, but we have to add these code to make container works fine with Obfuscator.
                   .LifestyleTransient()

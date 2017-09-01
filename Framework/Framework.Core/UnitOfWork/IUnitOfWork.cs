@@ -23,6 +23,7 @@ namespace Framework.Core.UnitOfWork
         event EventHandler Disposed;
 
         IDisposable SetSiteId(int? siteId);
+        IDisposable UseGeneralDB();
         int? GetSiteId();
     }
 }

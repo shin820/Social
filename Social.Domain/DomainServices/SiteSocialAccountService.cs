@@ -1,10 +1,8 @@
 ﻿using Framework.Core;
-using Social.Domain.Core;
 using Social.Domain.Entities;
-using System;
+using Social.Domain.Repositories;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Social.Domain.DomainServices
@@ -17,9 +15,9 @@ namespace Social.Domain.DomainServices
 
     public class SiteSocialAccountService : ServiceBase, ISiteSocialAccountService
     {
-        private IRepository<GeneralDataContext, SiteSocialAccount> _siteSocialAccountRepo;
+        private ISiteSocialAccountRepository _siteSocialAccountRepo;
 
-        public SiteSocialAccountService(IRepository<GeneralDataContext, SiteSocialAccount> siteSocialAccountRepo)
+        public SiteSocialAccountService(ISiteSocialAccountRepository siteSocialAccountRepo)
         {
             _siteSocialAccountRepo = siteSocialAccountRepo;
         }

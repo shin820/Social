@@ -8,8 +8,14 @@ using Framework.Core;
 
 namespace Framework.Core.EntityFramework
 {
-    public class EfRepository<TDbContext, TEntity> : ServiceBase, IRepository<TEntity>, IRepository<TDbContext, TEntity>
-        where TEntity : Entity
+    public class EfRepository<TDbContext, TEntity> : EfRepository<TDbContext, TEntity, int>
+        where TEntity : Entity<int>
+        where TDbContext : DbContext
+    {
+    }
+
+    public class EfRepository<TDbContext, TEntity, TKey> : ServiceBase, IRepository<TDbContext, TEntity, TKey>
+        where TEntity : Entity<TKey>
         where TDbContext : DbContext
     {
         protected IDbSet<TEntity> DataSet
