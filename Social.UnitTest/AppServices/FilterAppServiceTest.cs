@@ -175,7 +175,7 @@ namespace Social.UnitTest.AppServices
             //Act
             filterAppService.Delete(1);
             //Assert
-            domainService.Verify(t => t.Delete(It.Is<int>(r => r ==1)));
+            domainService.Verify(t => t.Delete(It.Is<int>(r => r == 1)));
             notificationManager.Verify(t => t.NotifyDeletePublicFilter(It.Is<int>(r => r == 10000), It.Is<int>(r => r == 1)));
         }
 
@@ -187,9 +187,98 @@ namespace Social.UnitTest.AppServices
             domainService.Setup(t => t.Find(1)).Returns<Filter>(null);
             FilterAppService filterAppService = new FilterAppService(domainService.Object, null, null);
             //Act
-            Action action = () =>filterAppService.Delete(1);
+            Action action = () => filterAppService.Delete(1);
             //Assert
             Assert.Throws<ExceptionWithCode>(action);
+        }
+
+        [Fact]
+        public void ShouldUpdateWhenUpdateFilterIsNotFound()
+        {
+            //Arrange
+            var domainService = new Mock<IFilterService>();
+            domainService.Setup(t => t.Find(1)).Returns<Filter>(null);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, null);
+            //Act
+            Action action = () => filterAppService.Update(1, MakeFilterUpdateDto());
+            //Assert
+            Assert.Throws<ExceptionWithCode>(action);
+        }
+
+        [Fact]
+        public void ShouldUpdate()
+        {
+            //Arrange
+            var domainService = new Mock<IFilterService>();
+            var unitOfWorkManager = new Mock<IUnitOfWorkManager>();
+            var notificationManager = new Mock<INotificationManager>();
+            var agentService = new Mock<IAgentService>();
+            unitOfWorkManager.Setup(t => t.Current.SaveChanges());
+            Filter filter = MakeFilterEntity(1);
+            domainService.Setup(t => t.Find(1)).Returns(filter);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, notificationManager.Object);
+            filterAppService.UnitOfWorkManager = unitOfWorkManager.Object;
+            //Act
+            FilterDetailsDto filterDetailsDto = filterAppService.Update(1, MakeFilterUpdateDto());
+            //Assert
+            domainService.Verify(t => t.DeleteConditons(It.Is<Filter>(r => r.Id == 1)));
+            domainService.Verify(t => t.UpdateFilter(It.Is<Filter>(r => r.Id == 1), It.Is<FilterCondition[]>(r => r.FirstOrDefault().FieldId == 1)));
+            notificationManager.Verify(t => t.NotifyUpdatePublicFilter(It.Is<int>(r => r == 10000), It.Is<int>(r => r == 1)));
+            agentService.Verify(t => t.FillCreatedByName(It.Is<List<FilterDetailsDto>>(r => r.FirstOrDefault().CreatedBy == 1)));
+            AssertDtoEqualToEntity(filter, filterDetailsDto);
+            AssertDtoEqualToEntity(filter, MakeFilterCreateDto());
+        }
+
+        [Fact]
+        public void ShouldFindManageFilters()
+        {
+            //Arrange
+            var domainService = new Mock<IFilterService>();
+            var userContext = new Mock<IUserContext>();
+            var agentService = new Mock<IAgentService>();
+            domainService.Setup(t => t.FindAll()).Returns(new List<Filter>
+            {
+                MakeFilterEntity(1)
+            }.AsQueryable());
+            userContext.Setup(t => t.UserId).Returns(1);
+            agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, null);
+            filterAppService.UserContext = userContext.Object;
+            //Act
+            List<FilterManageDto> filterManageDtos =  filterAppService.FindManageFilters();
+            //Assert
+            AssertDtoEqualToEntity(MakeFilterEntity(1), filterManageDtos.FirstOrDefault());
+            Assert.Equal("a", filterManageDtos.FirstOrDefault().CreatedByName);
+        }
+
+        [Fact]
+        public void ShouldSorting()
+        {
+            //Arrange
+            var domainService = new Mock<IFilterService>();
+            var userContext = new Mock<IUserContext>();
+            var agentService = new Mock<IAgentService>();
+            domainService.Setup(t => t.FindAll()).Returns(new List<Filter>
+            {
+                MakeFilterEntity(1)
+            }.AsQueryable());
+            agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, null);
+            filterAppService.UserContext = userContext.Object;
+            //Act
+            List<FilterManageDto> filterManageDtos = filterAppService.Sorting(new List<FilterSortDto> { new FilterSortDto { Id =1,Index =2} });
+            //Assert
+            Assert.Equal("a", filterManageDtos.FirstOrDefault().CreatedByName);
+            Assert.Equal(2, filterManageDtos.FirstOrDefault().Index);
+        }
+
+        private void AssertDtoEqualToEntity(Filter entity, FilterManageDto dto)
+        {
+            Assert.NotNull(dto);
+            Assert.Equal(entity.Id, dto.Id);
+            Assert.Equal(entity.Name, dto.Name);
+            Assert.Equal(entity.Index, dto.Index);
+            Assert.Equal(entity.IfPublic, dto.IfPublic);
         }
 
         private void AssertDtoEqualToEntity(Filter entity, FilterListDto dto)
@@ -251,6 +340,22 @@ namespace Social.UnitTest.AppServices
         private FilterCreateDto MakeFilterCreateDto()
         {
             return new FilterCreateDto
+            {
+                Name = "name",
+                Index = 1,
+                IfPublic = true,
+                Type = FilterType.All,
+                LogicalExpression = "",
+                Conditions = new List<FilterConditionCreateDto>
+                {
+                    new FilterConditionCreateDto{FieldId = 1, Value = "a"  }
+                }
+            };
+        }
+
+        private FilterUpdateDto MakeFilterUpdateDto()
+        {
+            return new FilterUpdateDto
             {
                 Name = "name",
                 Index = 1,

@@ -141,15 +141,20 @@ namespace Social.Domain
                 }
                 else if (conversationField.Where(t => t.Id == filterConditon.FieldId).FirstOrDefault().DataType == FieldDataType.Option)
                 {
-                    //   var conversationFieldOption = _conversationFieldOptionService.FindAll().Where(t => t.Value == filterConditon.Value && t.FieldId == filterConditon.FieldId).ToList();
-
                     if (conversationField.Where(t => t.Id == filterConditon.FieldId && t.Options.Any(o => o.Value == filterConditon.Value)).Count() == 0)
                     {
+                        if((!departmentAddOptions.Contains(filterConditon.Value)|| !departmentFieldNames.Contains(conversationField.Where(t => t.Id == filterConditon.FieldId).FirstOrDefault().Name))
+                            && (!agentAddOptions.Contains(filterConditon.Value) || !agentsFieldNames.Contains(conversationField.Where(t => t.Id == filterConditon.FieldId).FirstOrDefault().Name)))
                         throw SocialExceptions.BadRequest($"The value's type is not Option : '{filterConditon.Value}' ");
                     }
                 }
             }
         }
+
+        private List<string> departmentAddOptions = new List<string> { "@My Department" ,"Blank"};
+        private List<string> agentAddOptions = new List<string> { "@Me", "Blank" , "@My Department Member" };
+        private List<string> agentsFieldNames = new List<string> { "Agent Assignee", "Replied Agents", "Last Replied Agent" };
+        private List<string> departmentFieldNames = new List<string> { "Department Assignee" };
 
     }
 }
