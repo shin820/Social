@@ -150,16 +150,20 @@ namespace Social.Domain.DomainServices.Facebook
                         attachment.Type = MessageAttachmentType.Image;
                     }
                 }
-
-                if (attachment.MimeType.StartsWith("video/", StringComparison.InvariantCultureIgnoreCase))
+                else if (attachment.MimeType.StartsWith("video/", StringComparison.InvariantCultureIgnoreCase))
                 {
                     attachment.Type = MessageAttachmentType.Video;
                 }
 
-                if (attachment.MimeType.StartsWith("audio/", StringComparison.InvariantCultureIgnoreCase))
+                else if (attachment.MimeType.StartsWith("audio/", StringComparison.InvariantCultureIgnoreCase))
                 {
                     attachment.Type = MessageAttachmentType.Audio;
                 }
+                else
+                {
+                    attachment.Type = MessageAttachmentType.File;
+                }
+
             }
         }
     }

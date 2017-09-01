@@ -13,7 +13,7 @@ namespace Social.Infrastructure.LogicalExpression
     {
         public static BuildResult<T> Build<T>(IDictionary<int, Expression<Func<T, bool>>> expressions, string logicalExpressions)
         {
-            var input = new AntlrInputStream(logicalExpressions);
+            var input = new AntlrInputStream(logicalExpressions.ToUpper());
             var lexer = new SimpleLogicalExpressionLexer(input);
             var tokens = new CommonTokenStream(lexer);
             var parser = new SimpleLogicalExpressionParser(tokens);
