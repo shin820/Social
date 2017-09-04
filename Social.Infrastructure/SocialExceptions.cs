@@ -56,5 +56,9 @@ namespace Social.Infrastructure
             return new ExceptionWithCode(HttpStatusCode.NotFound, 40004, msg);
         }
 
+        public static ExceptionWithCode InvalidFilterConditionValue(string fieldName, string value)
+        {
+            return new ExceptionWithCode(41000, $"'{value}' is not a valid value for {fieldName}.");
+        }
     }
 }
