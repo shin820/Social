@@ -70,6 +70,7 @@
     <Compile Include="Filters\ApiAuthorizeAttribute.cs" />
     <Compile Include="Filters\ApiExceptionFilterAttribute.cs" />
     <Compile Include="Filters\InvalidParametersFilter.cs" />
+    <Compile Include="Filters\RequiredHttpsAttribute.cs" />
     <Compile Include="Filters\UnitOfWorkFilter.cs" />
     <Compile Include="Filters\ValidateModelAttribute.cs" />
     <Compile Include="HttpRequestMessageExtensions.cs" />
