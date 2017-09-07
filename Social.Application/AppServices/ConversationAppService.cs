@@ -95,12 +95,7 @@ namespace Social.Application.AppServices
 
         public ConversationDto Find(int id)
         {
-            var conversation = _conversationService.Find(id);
-            if (conversation == null)
-            {
-                throw SocialExceptions.ConversationIdNotExists(id);
-            }
-
+            var conversation = _conversationService.CheckIfExists(id);
             var conversationDto = Mapper.Map<ConversationDto>(conversation);
             FillFields(conversationDto);
             return conversationDto;
@@ -119,11 +114,7 @@ namespace Social.Application.AppServices
 
         public void Delete(int id)
         {
-            var conversation = _conversationService.Find(id);
-            if (conversation == null)
-            {
-                throw SocialExceptions.ConversationIdNotExists(id);
-            }
+            var conversation = _conversationService.CheckIfExists(id);
             _conversationService.Delete(conversation);
         }
 
@@ -133,11 +124,7 @@ namespace Social.Application.AppServices
             int oldMaxLogId;
             using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
             {
-                Conversation conversation = _conversationService.Find(id);
-                if (conversation == null)
-                {
-                    throw SocialExceptions.ConversationIdNotExists(id);
-                }
+                Conversation conversation = _conversationService.CheckIfExists(id);
                 oldMaxLogId = conversation.Logs.Select(t => t.Id).DefaultIfEmpty().Max();
                 Mapper.Map(updateDto, conversation);
                 _conversationService.Update(conversation);
@@ -196,11 +183,7 @@ namespace Social.Application.AppServices
             ConversationDto conversationDto;
             using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
             {
-                var conversation = _conversationService.Find(conversationId);
-                if (conversation == null)
-                {
-                    throw SocialExceptions.ConversationIdNotExists(conversationId);
-                }
+                var conversation = _conversationService.CheckIfExists(conversationId);
                 maxLogId = conversation.Logs.Select(t => t.Id).DefaultIfEmpty().Max();
                 var entity = updateFunc(conversation);
 
@@ -249,13 +232,13 @@ namespace Social.Application.AppServices
 
             if (dto.AgentId.HasValue && agents != null && agents.Any())
             {
-                var agent = _agentService.Find(dto.AgentId.Value);
+                var agent = agents.FirstOrDefault(t => t.Id == dto.AgentId.Value);
                 dto.AgentName = agent?.Name;
             }
 
             if (dto.DepartmentId.HasValue && departments != null && departments.Any())
             {
-                var department = _departmentService.Find(dto.DepartmentId.Value);
+                var department = departments.FirstOrDefault(t => t.Id == dto.DepartmentId.Value);
                 dto.DepartmentName = department?.Name;
             }
 

@@ -124,6 +124,20 @@ namespace Social.WebApi.Controllers
         }
 
         /// <summary>
+        /// mark facebook page as enabled or disabled.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="ifEnable"></param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("pages/{id}/if-enable")]
+        public FacebookPageDto MarkAsEnable(int id, bool? ifEnable = true)
+        {
+            var account = _appService.MarkAsEnable(id, ifEnable);
+            return account;
+        }
+
+        /// <summary>
         /// Delete facebook page.
         /// </summary>
         /// <param name="id"></param>

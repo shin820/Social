@@ -57,7 +57,8 @@ namespace Social.Application
                 .ForMember(dest => dest.Category, src => src.MapFrom(x => x.FacebookPageCategory))
                 .ForMember(dest => dest.SignInAs, src => src.MapFrom(x => x.FacebookSignInAs))
                 .ForMember(dest => dest.Name, src => src.MapFrom(x => x.SocialUser.Name))
-                .ForMember(dest => dest.Avatar, src => src.MapFrom(x => x.SocialUser.Avatar));
+                .ForMember(dest => dest.Avatar, src => src.MapFrom(x => x.SocialUser.Avatar))
+                .ForMember(dest => dest.FacebookId, src => src.MapFrom(x => x.SocialUser.OriginalId));
 
             CreateMap<UpdateFacebookPageDto, SocialAccount>();
 

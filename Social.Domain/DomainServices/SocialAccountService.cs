@@ -18,6 +18,7 @@ namespace Social.Domain.DomainServices
         IQueryable<SocialAccount> FindAllTwitterAccounts();
         IQueryable<SocialAccount> FindAllFacebookAccounts();
         Task InsertSocialAccountInGeneralDb(SocialAccount entity);
+        SocialAccount MarkAsEnable(int id, bool? ifEnable = true);
     }
 
     public class SocialAccountService : DomainService<SocialAccount>, ISocialAccountService
@@ -32,6 +33,18 @@ namespace Social.Domain.DomainServices
         {
             _siteSocialAccountRepo = siteSocialAccountRepo;
             _socialUserRepo = socialUserRepo;
+        }
+
+        public SocialAccount MarkAsEnable(int id, bool? ifEnable = true)
+        {
+            var account = this.Find(id);
+            if (account == null)
+            {
+                throw SocialExceptions.SocialUserIdNotExists(id);
+            }
+            account.IfEnable = ifEnable.Value;
+            this.Update(account);
+            return account;
         }
 
         public override IQueryable<SocialAccount> FindAll()

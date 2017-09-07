@@ -25,6 +25,7 @@ namespace Social.Application.AppServices
         TwitterAccountDto GetAccount(int id);
         Task DeleteAccountAsync(int id);
         TwitterAccountDto UpdateAccount(int id, UpdateTwitterAccountDto dto);
+        TwitterAccountDto MarkAsEnable(int id, bool? ifEnable = true);
 
     }
 
@@ -135,5 +136,10 @@ namespace Social.Application.AppServices
             return Mapper.Map<TwitterAccountDto>(socialAccount);
         }
 
+        public TwitterAccountDto MarkAsEnable(int id, bool? ifEnable = true)
+        {
+            var socialAccount = _socialAccountService.MarkAsEnable(id, ifEnable);
+            return Mapper.Map<TwitterAccountDto>(socialAccount);
+        }
     }
 }

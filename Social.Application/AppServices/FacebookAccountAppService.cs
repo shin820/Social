@@ -24,6 +24,7 @@ namespace Social.Application.AppServices
         Task DeletePageAsync(int id);
         IList<FacebookPageListDto> GetPages();
         FacebookPageDto UpdatePage(int id, UpdateFacebookPageDto dto);
+        FacebookPageDto MarkAsEnable(int id, bool? ifEnable = true);
     }
 
     public class FacebookAccountAppService : AppService, IFacebookAccountAppService
@@ -145,6 +146,12 @@ namespace Social.Application.AppServices
             socialAccount = Mapper.Map(dto, socialAccount);
             _socialAccountService.Update(socialAccount);
 
+            return Mapper.Map<FacebookPageDto>(socialAccount);
+        }
+
+        public FacebookPageDto MarkAsEnable(int id, bool? ifEnable = true)
+        {
+            var socialAccount = _socialAccountService.MarkAsEnable(id, ifEnable);
             return Mapper.Map<FacebookPageDto>(socialAccount);
         }
     }
