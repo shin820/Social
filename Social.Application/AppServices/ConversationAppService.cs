@@ -62,19 +62,36 @@ namespace Social.Application.AppServices
 
         public IList<ConversationDto> Find(ConversationSearchDto dto)
         {
-            if (dto.Since == null && dto.Until == null)
+            //if (dto.Since == null && dto.Until == null)
+            //{
+            //    dto.Until = DateTime.UtcNow;
+            //    dto.Since = DateTime.UtcNow.AddMonths(-3);
+            //}
+
+            if (dto.MaxNumberOfDataRetrieve <= 0)
             {
-                dto.Until = DateTime.UtcNow;
-                dto.Since = DateTime.UtcNow.AddMonths(-3);
+                dto.MaxNumberOfDataRetrieve = 200;
             }
+
+            DateTime lastMessageLessThan = DateTime.MinValue;
+            if (dto.LastMessageSendTimeLessThan.HasValue)
+            {
+                lastMessageLessThan = DateTimeExtensions.FromUnixTimeSeconds(dto.LastMessageSendTimeLessThan.Value);
+            }
+
             var conversations = _conversationService.FindAll();
-            conversations = conversations.WhereIf(dto.Since != null, t => t.CreatedTime > dto.Since);
-            conversations = conversations.WhereIf(dto.Until != null, t => t.CreatedTime <= dto.Until);
+            conversations = conversations.WhereIf(dto.SinceId != null, t => t.Id > dto.SinceId);
+            conversations = conversations.WhereIf(dto.MaxId != null, t => t.Id <= dto.MaxId);
+            conversations = conversations.WhereIf(dto.LastMessageSendTimeLessThan != null, t => t.LastMessageSentTime < lastMessageLessThan);
             conversations = _conversationService.ApplyFilter(conversations, dto.FilterId);
             conversations = _conversationService.ApplyKeyword(conversations, dto.Keyword);
             conversations = _conversationService.ApplySenderOrReceiverId(conversations, dto.UserId);
 
-            List<ConversationDto> conversationDtos = conversations.Paging(dto).ProjectTo<ConversationDto>().ToList();
+            List<ConversationDto> conversationDtos = conversations.
+                OrderByDescending(t => t.LastMessageSentTime)
+                .Take(dto.MaxNumberOfDataRetrieve)
+                .ProjectTo<ConversationDto>().ToList();
+
             FillFiledsForDtoList(conversationDtos);
 
             return conversationDtos;
