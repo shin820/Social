@@ -62,19 +62,36 @@ namespace Social.Application.AppServices
 
         public IList<ConversationDto> Find(ConversationSearchDto dto)
         {
-            if (dto.Since == null && dto.Until == null)
+            //if (dto.Since == null && dto.Until == null)
+            //{
+            //    dto.Until = DateTime.UtcNow;
+            //    dto.Since = DateTime.UtcNow.AddMonths(-3);
+            //}
+
+            if (dto.MaxNumberOfDataRetrieve <= 0)
             {
-                dto.Until = DateTime.UtcNow;
-                dto.Since = DateTime.UtcNow.AddMonths(-3);
+                dto.MaxNumberOfDataRetrieve = 200;
             }
+
+            DateTime lastMessageLessThan = DateTime.MinValue;
+            if (dto.LastMessageSendTimeLessThan.HasValue)
+            {
+                lastMessageLessThan = DateTimeExtensions.FromUnixTimeSeconds(dto.LastMessageSendTimeLessThan.Value);
+            }
+
             var conversations = _conversationService.FindAll();
-            conversations = conversations.WhereIf(dto.Since != null, t => t.CreatedTime > dto.Since);
-            conversations = conversations.WhereIf(dto.Until != null, t => t.CreatedTime <= dto.Until);
+            conversations = conversations.WhereIf(dto.SinceId != null, t => t.Id > dto.SinceId);
+            conversations = conversations.WhereIf(dto.MaxId != null, t => t.Id <= dto.MaxId);
+            conversations = conversations.WhereIf(dto.LastMessageSendTimeLessThan != null, t => t.LastMessageSentTime < lastMessageLessThan);
             conversations = _conversationService.ApplyFilter(conversations, dto.FilterId);
             conversations = _conversationService.ApplyKeyword(conversations, dto.Keyword);
             conversations = _conversationService.ApplySenderOrReceiverId(conversations, dto.UserId);
 
-            List<ConversationDto> conversationDtos = conversations.Paging(dto).ProjectTo<ConversationDto>().ToList();
+            List<ConversationDto> conversationDtos = conversations.
+                OrderByDescending(t => t.LastMessageSentTime)
+                .Take(dto.MaxNumberOfDataRetrieve)
+                .ProjectTo<ConversationDto>().ToList();
+
             FillFiledsForDtoList(conversationDtos);
 
             return conversationDtos;
@@ -95,12 +112,7 @@ namespace Social.Application.AppServices
 
         public ConversationDto Find(int id)
         {
-            var conversation = _conversationService.Find(id);
-            if (conversation == null)
-            {
-                throw SocialExceptions.ConversationIdNotExists(id);
-            }
-
+            var conversation = _conversationService.CheckIfExists(id);
             var conversationDto = Mapper.Map<ConversationDto>(conversation);
             FillFields(conversationDto);
             return conversationDto;
@@ -119,11 +131,7 @@ namespace Social.Application.AppServices
 
         public void Delete(int id)
         {
-            var conversation = _conversationService.Find(id);
-            if (conversation == null)
-            {
-                throw SocialExceptions.ConversationIdNotExists(id);
-            }
+            var conversation = _conversationService.CheckIfExists(id);
             _conversationService.Delete(conversation);
         }
 
@@ -133,11 +141,7 @@ namespace Social.Application.AppServices
             int oldMaxLogId;
             using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
             {
-                Conversation conversation = _conversationService.Find(id);
-                if (conversation == null)
-                {
-                    throw SocialExceptions.ConversationIdNotExists(id);
-                }
+                Conversation conversation = _conversationService.CheckIfExists(id);
                 oldMaxLogId = conversation.Logs.Select(t => t.Id).DefaultIfEmpty().Max();
                 Mapper.Map(updateDto, conversation);
                 _conversationService.Update(conversation);
@@ -196,11 +200,7 @@ namespace Social.Application.AppServices
             ConversationDto conversationDto;
             using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
             {
-                var conversation = _conversationService.Find(conversationId);
-                if (conversation == null)
-                {
-                    throw SocialExceptions.ConversationIdNotExists(conversationId);
-                }
+                var conversation = _conversationService.CheckIfExists(conversationId);
                 maxLogId = conversation.Logs.Select(t => t.Id).DefaultIfEmpty().Max();
                 var entity = updateFunc(conversation);
 
@@ -249,13 +249,13 @@ namespace Social.Application.AppServices
 
             if (dto.AgentId.HasValue && agents != null && agents.Any())
             {
-                var agent = _agentService.Find(dto.AgentId.Value);
+                var agent = agents.FirstOrDefault(t => t.Id == dto.AgentId.Value);
                 dto.AgentName = agent?.Name;
             }
 
             if (dto.DepartmentId.HasValue && departments != null && departments.Any())
             {
-                var department = _departmentService.Find(dto.DepartmentId.Value);
+                var department = departments.FirstOrDefault(t => t.Id == dto.DepartmentId.Value);
                 dto.DepartmentName = department?.Name;
             }
 

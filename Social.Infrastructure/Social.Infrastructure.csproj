@@ -139,11 +139,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
+    <Compile Include="Enum\AgentStatus.cs" />
     <Compile Include="Enum\ConditionMatchType.cs" />
     <Compile Include="Enum\ConversationLogType.cs" />
     <Compile Include="Enum\ConversationPriority.cs" />
     <Compile Include="Enum\ConversationSource.cs" />
     <Compile Include="Enum\ConversationStatus.cs" />
+    <Compile Include="Enum\DepartmentStatus.cs" />
     <Compile Include="Enum\FieldDataType.cs" />
     <Compile Include="Enum\MessageAttachmentType.cs" />
     <Compile Include="Enum\MessageType.cs" />

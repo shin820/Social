@@ -108,6 +108,20 @@ namespace Social.WebApi.Controllers
         }
 
         /// <summary>
+        /// mark account as enabled or disabled.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="ifEnable"></param>
+        /// <returns></returns>
+        [HttpPut]
+        [Route("accounts/{id}/if-enable")]
+        public TwitterAccountDto MarkAsEnable(int id, bool? ifEnable = true)
+        {
+            var page = _appService.MarkAsEnable(id, ifEnable);
+            return page;
+        }
+
+        /// <summary>
         ///  delete account.
         /// </summary>
         /// <param name="id"></param>

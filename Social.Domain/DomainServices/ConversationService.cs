@@ -61,7 +61,7 @@ namespace Social.Domain.DomainServices
             var conversation = Find(id);
             if (conversation == null)
             {
-                throw SocialExceptions.BadRequest($"Conversation '{id}' not exists.");
+                throw SocialExceptions.ConversationIdNotExists(id);
             }
             return conversation;
         }
@@ -278,7 +278,7 @@ namespace Social.Domain.DomainServices
 
             if (conversation.AgentId != oldEntity.AgentId)
             {
-                string oldAgentName = oldEntity.AgentId != null ? _agentService.GetDisplayName(oldEntity.AgentId): "null";
+                string oldAgentName = oldEntity.AgentId != null ? _agentService.GetDisplayName(oldEntity.AgentId) : "null";
                 string newAgentName = conversation.AgentId != null ? _agentService.GetDisplayName(conversation.AgentId) : "null";
                 WriteLog(conversation, ConversationLogType.ChangeAgentAssignee, $"Agent {agent} changed Agent Assignee from {oldAgentName} to {newAgentName}");
             }

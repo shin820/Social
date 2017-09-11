@@ -1,6 +1,7 @@
 ﻿using Framework.Core;
 using Social.Domain.Entities;
 using Social.Infrastructure.Enum;
+using Social.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -37,7 +38,9 @@ namespace Social.Domain.DomainServices
         {
             var fields = this.FindAll().Include(t => t.Options).AsNoTracking().ToList();
             FillAgentOptions(fields);
+            FillAgentStatusOptions(fields);
             FillDepartmentOptions(fields);
+            FillDepartmentStatusOptions(fields);
             FillSocialAccountOptions(fields);
             FillDateTimeOptions(fields);
 
@@ -70,13 +73,40 @@ namespace Social.Domain.DomainServices
             }
         }
 
-        private void FillDepartmentOptions(IList<ConversationField> fields)
+        private void FillAgentStatusOptions(IList<ConversationField> fields)
         {
             if (!fields.Any())
             {
                 return;
             }
 
+            var agentsFieldNames = new List<string> { "Agent Assignee Status" };
+            var agentFields = fields.Where(t => t.IfSystem == true && t.DataType == FieldDataType.Option && agentsFieldNames.Contains(t.Name));
+            if (agentFields.Any())
+            {
+                AgentStatus[] statuses = new AgentStatus[] {
+                    AgentStatus.Online, AgentStatus.Offline, AgentStatus.Away };
+
+                foreach (var agentField in agentFields)
+                {
+                    agentField.Options = statuses.Select(t => new ConversationFieldOption
+                    {
+                        Id = (int)t,
+                        Name = t.GetName(),
+                        SiteId = agentField.SiteId,
+                        FieldId = agentField.Id,
+                        Value = ((int)t).ToString()
+                    }).ToList();
+                }
+            }
+        }
+
+        private void FillDepartmentOptions(IList<ConversationField> fields)
+        {
+            if (!fields.Any())
+            {
+                return;
+            }
             var departmentFieldNames = new List<string> { "Department Assignee" };
             var departmentFields = fields.Where(t => t.IfSystem == true && t.DataType == FieldDataType.Option && departmentFieldNames.Contains(t.Name));
             if (departmentFields.Any())
@@ -91,6 +121,33 @@ namespace Social.Domain.DomainServices
                         SiteId = departmentField.SiteId,
                         FieldId = departmentField.Id,
                         Value = t.Id.ToString()
+                    }).ToList();
+                }
+            }
+        }
+
+        private void FillDepartmentStatusOptions(IList<ConversationField> fields)
+        {
+            if (!fields.Any())
+            {
+                return;
+            }
+
+            var agentsFieldNames = new List<string> { "Department Assignee Status" };
+            var agentFields = fields.Where(t => t.IfSystem == true && t.DataType == FieldDataType.Option && agentsFieldNames.Contains(t.Name));
+            if (agentFields.Any())
+            {
+                DepartmentStatus[] statuses = new DepartmentStatus[] {
+                    DepartmentStatus.Online, DepartmentStatus.Offline };
+                foreach (var agentField in agentFields)
+                {
+                    agentField.Options = statuses.Select(t => new ConversationFieldOption
+                    {
+                        Id = (int)t,
+                        Name = t.GetName(),
+                        SiteId = agentField.SiteId,
+                        FieldId = agentField.Id,
+                        Value = ((int)t).ToString()
                     }).ToList();
                 }
             }

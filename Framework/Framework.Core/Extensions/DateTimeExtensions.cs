@@ -8,6 +8,13 @@ namespace Framework.Core
 {
     public static class DateTimeExtensions
     {
+        public static DateTime FromUnixTimeSeconds(long unixTimeStamp)
+        {
+            DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            epoch = epoch.AddSeconds(unixTimeStamp);
+            return epoch;
+        }
+
         public static long ToUnixTimeSeconds(this DateTime datetime)
         {
             DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);

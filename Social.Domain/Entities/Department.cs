@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Social.Domain.Entities.General
+namespace Social.Domain.Entities
 {
     public class Department : Entity
     {
