@@ -96,7 +96,11 @@ namespace Social.WebApi.Controllers
             var dto = _messageAppService.GetFacebookPostCommentMessage(messageId);
             if (dto != null)
             {
-                _hub.Clients.Group(Request.GetSiteId().ToString()).facebookCommentCreated(dto);
+                var connections = _notificationConnectionManager.GetConnectionsForConversation(Request.GetSiteId(), dto.ConversationId);
+                if (connections.Any())
+                {
+                    _hub.Clients.Group(Request.GetSiteId().ToString()).facebookCommentCreated(dto);
+                }
             }
             return Ok();
         }
@@ -108,7 +112,11 @@ namespace Social.WebApi.Controllers
             var dto = _messageAppService.GetFacebookDirectMessage(messageId);
             if (dto != null)
             {
-                _hub.Clients.Group(Request.GetSiteId().ToString()).facebookMessageCreated(dto);
+                var connections = _notificationConnectionManager.GetConnectionsForConversation(Request.GetSiteId(), dto.ConversationId);
+                if (connections.Any())
+                {
+                    _hub.Clients.Group(Request.GetSiteId().ToString()).facebookMessageCreated(dto);
+                }
             }
             return Ok();
         }
@@ -120,7 +128,11 @@ namespace Social.WebApi.Controllers
             var dto = _messageAppService.GetTwitterTweetMessage(messageId);
             if (dto != null)
             {
-                _hub.Clients.Group(Request.GetSiteId().ToString()).twitterTweetCreated(dto);
+                var connections = _notificationConnectionManager.GetConnectionsForConversation(Request.GetSiteId(), dto.ConversationId);
+                if (connections.Any())
+                {
+                    _hub.Clients.Group(Request.GetSiteId().ToString()).twitterTweetCreated(dto);
+                }
             }
             return Ok();
         }
@@ -132,7 +144,11 @@ namespace Social.WebApi.Controllers
             var dto = _messageAppService.GetTwitterDirectMessage(messageId);
             if (dto != null)
             {
-                _hub.Clients.Group(Request.GetSiteId().ToString()).twitterDirectMessageCreated(dto);
+                var connections = _notificationConnectionManager.GetConnectionsForConversation(Request.GetSiteId(), dto.ConversationId);
+                if (connections.Any())
+                {
+                    _hub.Clients.Group(Request.GetSiteId().ToString()).twitterDirectMessageCreated(dto);
+                }
             }
             return Ok();
         }
