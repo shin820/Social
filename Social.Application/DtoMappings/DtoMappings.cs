@@ -75,13 +75,13 @@ namespace Social.Application
 
             CreateMap<Agent, AgentDto>();
             CreateMap<Department, DepartmentDto>();
-
+            CreateMap<MessageAttachment, MessageAttachmentUrlDto>(); 
             CreateMap<Filter, FilterCacheItem>();
             CreateMap<FilterCacheItem, Filter>();
             CreateMap<FilterCondition, FilterConditionCache>();
             CreateMap<FilterConditionCache, FilterCondition>();
             CreateMap<ConversationField, ConversationFieldCache>();
             CreateMap<ConversationFieldCache, ConversationField>();
-        }
+    }
     }
 }

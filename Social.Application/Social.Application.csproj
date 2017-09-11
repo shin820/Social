@@ -123,6 +123,7 @@
     <Compile Include="AppServices\DepartmentAppService.cs" />
     <Compile Include="AppServices\ConversationMessageAppService.cs" />
     <Compile Include="AppServices\FacebookAccountAppService.cs" />
+    <Compile Include="AppServices\MessageAttachmentAppService.cs" />
     <Compile Include="AppServices\TwitterAccountAppService.cs" />
     <Compile Include="AppServices\TwitterAppService.cs" />
     <Compile Include="AppServices\SocialUserAppService.cs" />
@@ -166,6 +167,8 @@
     <Compile Include="Dto\FacebookAccount\PendingAddFacebookPagesDto.cs" />
     <Compile Include="Dto\FacebookAccount\FacebookSignInAsDto.cs" />
     <Compile Include="Dto\FacebookAccount\AddFaceboookPageDto.cs" />
+    <Compile Include="Dto\MessageAttachment\MessageAttachmentRawDto.cs" />
+    <Compile Include="Dto\MessageAttachment\MessageAttachmentUrlDto.cs" />
     <Compile Include="Dto\TwitterAccount\TwitterAccountDto.cs" />
     <Compile Include="Dto\TwitterAccount\TwitterAccountListDto.cs" />
     <Compile Include="Dto\TwitterAccount\UpdateTwitterAccountDto.cs" />

@@ -64,11 +64,12 @@ namespace Social.Application.AppServices
             }
 
             var messages = _messageService.FindAllByConversationId(conversationId).ToList();
+            _messageService.ChangeAttachmentUrl(messages);
             var postMessage = messages.FirstOrDefault(t => t.Source == MessageSource.FacebookPost);
             if (postMessage == null)
             {
                 return null;
-            }
+            }      
             var postDto = Mapper.Map<FacebookPostMessageDto>(postMessage);
 
             var allComments = messages.Where(t => t.Source == MessageSource.FacebookPostComment || t.Source == MessageSource.FacebookPostReplyComment).Select(t => Mapper.Map<FacebookPostCommentMessageDto>(t)).ToList();
@@ -93,11 +94,11 @@ namespace Social.Application.AppServices
                 return result;
             }
 
-            result = _messageService.FindAllByConversationId(conversationId)
+           var messages = _messageService.FindAllByConversationId(conversationId)
                 .OrderBy(t => t.SendTime)
-                .ProjectTo<FacebookMessageDto>()
                 .ToList();
-
+            _messageService.ChangeAttachmentUrl(messages);
+            result = Mapper.Map<List<FacebookMessageDto>>(messages);
             _agentService.FillAgentName(result.Cast<IHaveSendAgent>());
 
             return result;
@@ -222,5 +223,6 @@ namespace Social.Application.AppServices
             dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
             return dto;
         }
+
     }
 }
