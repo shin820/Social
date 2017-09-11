@@ -11,12 +11,8 @@ namespace Social.Domain.DomainServices
 {
     public class DepartmentAssigneeExpression : OptionExpression
     {
-        private IDepartmentService _departmentService;
-        private IUserContext _userContext;
-        public DepartmentAssigneeExpression(IUserContext userContext,  IDepartmentService departmentService) : base("Department Assignee", "")
+        public DepartmentAssigneeExpression() : base("Department Assignee", "")
         {
-            _departmentService = departmentService;
-            _userContext = userContext;
         }
 
         protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
@@ -41,7 +37,7 @@ namespace Social.Domain.DomainServices
             int value = default(int);
             if (condition.Value == "@My Department")
             {
-                value = _departmentService.GetMyDepartmentId(_userContext.UserId);
+                value = GetMyDepartmentId();
             }
             else if (condition.Value == "Blank")
             {

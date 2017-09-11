@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Social.Application.Dto;
 using Social.Application.Dto.UserInfo;
+using Social.Domain.Core;
 using Social.Domain.DomainServices;
 using Social.Domain.Entities;
 using Social.Domain.Entities.General;
@@ -74,6 +75,13 @@ namespace Social.Application
 
             CreateMap<Agent, AgentDto>();
             CreateMap<Department, DepartmentDto>();
+
+            CreateMap<Filter, FilterCacheItem>();
+            CreateMap<FilterCacheItem, Filter>();
+            CreateMap<FilterCondition, FilterConditionCache>();
+            CreateMap<FilterConditionCache, FilterCondition>();
+            CreateMap<ConversationField, ConversationFieldCache>();
+            CreateMap<ConversationFieldCache, ConversationField>();
         }
     }
 }

@@ -49,7 +49,7 @@ namespace Social.Application.AppServices
 
         public List<FilterListDto> FindAll()
         {
-            List<Filter> filters = _domainService.FindAll().Include(t => t.Conditions).Where(u => u.IfPublic == true || u.CreatedBy == UserContext.UserId).ToList();
+            List<Filter> filters = _domainService.FindFiltersInlucdeConditions(UserContext.UserId).ToList();
             List<FilterListDto> filterDtoes = new List<FilterListDto>();
             foreach (var filter in filters)
             {
@@ -111,7 +111,7 @@ namespace Social.Application.AppServices
             filter = _domainService.Insert(filter);
             CurrentUnitOfWork.SaveChanges();
 
-            _notificationManager.NotifyNewPublicFilter(filter.SiteId, filter.Id);
+            _notificationManager.NotifyNewFilter(filter.SiteId, filter.Id);
 
             var filterDto = Mapper.Map<FilterDetailsDto>(filter);
             List<FilterDetailsDto> filterDtos = new List<FilterDetailsDto>();
@@ -128,7 +128,7 @@ namespace Social.Application.AppServices
                 throw SocialExceptions.FilterNotExists(id);
             }
             _domainService.Delete(id);
-            _notificationManager.NotifyDeletePublicFilter(filter.SiteId, filter.Id);
+            _notificationManager.NotifyDeleteFilter(filter.SiteId, filter.Id);
         }
 
         public FilterDetailsDto Update(int id, FilterUpdateDto updateDto)
@@ -144,7 +144,7 @@ namespace Social.Application.AppServices
             _domainService.UpdateFilter(updateFilter, Mapper.Map<List<FilterConditionCreateDto>, List<FilterCondition>>(updateDto.Conditions.ToList()).ToArray());
             CurrentUnitOfWork.SaveChanges();
 
-            _notificationManager.NotifyUpdatePublicFilter(updateFilter.SiteId, updateFilter.Id);
+            _notificationManager.NotifyUpdateFilter(updateFilter.SiteId, updateFilter.Id);
             var filterDto = Mapper.Map<FilterDetailsDto>(updateFilter);
             List<FilterDetailsDto> filterDtos = new List<FilterDetailsDto>();
             filterDtos.Add(filterDto);

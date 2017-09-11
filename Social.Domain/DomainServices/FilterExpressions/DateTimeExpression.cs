@@ -9,7 +9,7 @@ using Social.Infrastructure.Enum;
 
 namespace Social.Domain.DomainServices.FilterExpressions
 {
-    public abstract class DateTimeExpression : IConditionExpression
+    public abstract class DateTimeExpression : ConditionExpression
     {
         private string _propertyName;
 
@@ -17,7 +17,7 @@ namespace Social.Domain.DomainServices.FilterExpressions
         {
             _propertyName = propertyName;
         }
-        public Expression<Func<Conversation, bool>> Build(FilterCondition condition)
+        public override Expression<Func<Conversation, bool>> Build(FilterCondition condition)
         {
             string date = condition.Value;
             if (condition.Value == "@Today")
@@ -56,7 +56,7 @@ namespace Social.Domain.DomainServices.FilterExpressions
             return null;
         }
 
-        public bool IsMatch(FilterCondition condition)
+        public override bool IsMatch(FilterCondition condition)
         {
             if (condition == null || condition.Field == null)
             {

@@ -150,12 +150,14 @@
     <Compile Include="Enum\MessageAttachmentType.cs" />
     <Compile Include="Enum\MessageType.cs" />
     <Compile Include="Enum\FilterType.cs" />
+    <Compile Include="Enum\OperationType.cs" />
     <Compile Include="Enum\SocialUserType.cs" />
     <Compile Include="Enum\SoicalUserSource.cs" />
     <Compile Include="Facebook\FbConversation.cs" />
     <Compile Include="Facebook\IFbClient.cs" />
     <Compile Include="IHaveCreatedBy.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="Notification\INotificationConnectionManager.cs" />
     <Compile Include="Notification\INotificationManager.cs" />
     <Compile Include="SocialExceptions.cs" />
     <Compile Include="Facebook\FacebookWebHookClient.cs" />

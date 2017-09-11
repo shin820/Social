@@ -1,41 +1,49 @@
 ﻿using Microsoft.AspNet.SignalR;
+using Social.Infrastructure;
 using System.Threading.Tasks;
+using System.Web;
+using System.Web.Http;
 
 namespace Social.WebApi.Hubs
 {
     public class NotificationHub : Hub
     {
-        //public Task JoinConversation(int conversationId)
-        //{
-        //    return Groups.Add(Context.ConnectionId, conversationId.ToString());
-        //}
-
-        //public Task LeaveConversation(int conversationId)
-        //{
-        //    return Groups.Remove(Context.ConnectionId, conversationId.ToString());
-        //}
+        public NotificationHub()
+        {
+        }
 
         public override Task OnConnected()
         {
-            Groups.Add(Context.ConnectionId, GetSiteId());
+            var connectionManager = GetConnectionManager();
+            int siteId = GetSiteId();
+            connectionManager.Connect(siteId, 0, Context.ConnectionId);
             return base.OnConnected();
         }
 
         public override Task OnDisconnected(bool stopCalled)
         {
-            Groups.Remove(Context.ConnectionId, GetSiteId());
+            var connectionManager = GetConnectionManager();
+            int siteId = GetSiteId();
+            connectionManager.Disconnect(siteId, 0, Context.ConnectionId);
             return base.OnDisconnected(stopCalled);
         }
 
         public override Task OnReconnected()
         {
-            Groups.Add(Context.ConnectionId, GetSiteId());
+            var connectionManager = GetConnectionManager();
+            int siteId = GetSiteId();
+            connectionManager.Reconnect(siteId, 0, Context.ConnectionId);
             return base.OnReconnected();
         }
 
-        private string GetSiteId()
+        private int GetSiteId()
         {
-            return Context.QueryString["siteId"];
+            return int.Parse(Context.QueryString["siteId"]);
+        }
+
+        public INotificationConnectionManager GetConnectionManager()
+        {
+            return GlobalHost.DependencyResolver.GetService(typeof(INotificationConnectionManager)) as INotificationConnectionManager;
         }
     }
 }

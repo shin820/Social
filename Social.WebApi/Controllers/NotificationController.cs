@@ -2,6 +2,7 @@
 using Microsoft.AspNet.SignalR;
 using Social.Application.AppServices;
 using Social.Application.Dto;
+using Social.Infrastructure;
 using Social.WebApi.Hubs;
 using System;
 using System.Collections;
@@ -26,29 +27,37 @@ namespace Social.WebApi.Controllers
 
         private IConversationAppService _conversationAppService;
         private IConversationMessageAppService _messageAppService;
+        private INotificationConnectionManager _notificationConnectionManager;
 
         /// <summary>
         /// NotificationController
         /// </summary>
         /// <param name="conversationAppService"></param>
         /// <param name="messageAppService"></param>
+        /// <param name="notificationConnectionManager"></param>
         public NotificationController(
             IConversationAppService conversationAppService,
-            IConversationMessageAppService messageAppService
+            IConversationMessageAppService messageAppService,
+            INotificationConnectionManager notificationConnectionManager
             )
         {
             _conversationAppService = conversationAppService;
             _messageAppService = messageAppService;
+            _notificationConnectionManager = notificationConnectionManager;
         }
 
         [Route("conversation-created")]
         [HttpGet]
         public IHttpActionResult ConversationCreated(int conversationId)
         {
-            var dto = _conversationAppService.Find(conversationId);
-            if (dto != null)
+            var connections = _notificationConnectionManager.GetConnectionsForConversation(Request.GetSiteId(), conversationId);
+            if (connections.Any())
             {
-                _hub.Clients.Group(Request.GetSiteId().ToString()).conversationCreated(dto);
+                var dto = _conversationAppService.Find(conversationId);
+                if (dto != null)
+                {
+                    _hub.Clients.Clients(connections).conversationCreated(dto);
+                }
             }
             return Ok();
         }
@@ -57,18 +66,23 @@ namespace Social.WebApi.Controllers
         [HttpGet]
         public IHttpActionResult ConversationUpdated(int conversationId, int? oldMaxLogId = null)
         {
-            var dto = _conversationAppService.Find(conversationId);
-            if (dto != null)
+            var connections = _notificationConnectionManager.GetConnectionsForConversation(Request.GetSiteId(), conversationId);
+            if (connections.Any())
             {
-                _hub.Clients.Group(Request.GetSiteId().ToString()).conversationUpdated(dto);
-            }
 
-            if (oldMaxLogId.HasValue && oldMaxLogId > 0)
-            {
-                var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxLogId.Value);
-                if (dtoList != null && dtoList.Any())
+                var dto = _conversationAppService.Find(conversationId);
+                if (dto != null)
                 {
-                    _hub.Clients.Group(Request.GetSiteId().ToString()).conversationLogCreated(dtoList);
+                    _hub.Clients.Clients(connections).conversationUpdated(dto);
+                }
+
+                if (oldMaxLogId.HasValue && oldMaxLogId > 0)
+                {
+                    var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxLogId.Value);
+                    if (dtoList != null && dtoList.Any())
+                    {
+                        _hub.Clients.Clients(connections).conversationLogCreated(dtoList);
+                    }
                 }
             }
 
@@ -128,7 +142,8 @@ namespace Social.WebApi.Controllers
         [HttpGet]
         public IHttpActionResult PublicFilterCreated(int filterId)
         {
-            _hub.Clients.Group(Request.GetSiteId().ToString()).publicFilterCreated(filterId);
+            var connections = _notificationConnectionManager.GetAllConnections();
+            _hub.Clients.Clients(connections).publicFilterCreated(filterId);
             return Ok();
         }
 
@@ -136,7 +151,8 @@ namespace Social.WebApi.Controllers
         [HttpGet]
         public IHttpActionResult PublicFilterDeleted(int filterId)
         {
-            _hub.Clients.Group(Request.GetSiteId().ToString()).publicFilterDeleted(filterId);
+            var connections = _notificationConnectionManager.GetAllConnections();
+            _hub.Clients.Clients(connections).publicFilterDeleted(filterId);
             return Ok();
         }
 
@@ -144,7 +160,8 @@ namespace Social.WebApi.Controllers
         [HttpGet]
         public IHttpActionResult PublicFilterUpdated(int filterId)
         {
-            _hub.Clients.Group(Request.GetSiteId().ToString()).publicFilterUpdated(filterId);
+            var connections = _notificationConnectionManager.GetAllConnections();
+            _hub.Clients.Clients(connections).publicFilterUpdated(filterId);
             return Ok();
         }
     }

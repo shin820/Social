@@ -99,7 +99,7 @@ namespace Social.UnitTest.AppServices
             domainService.Verify(t => t.CheckFieldIdExist(It.Is<List<FilterCondition>>(r => r.FirstOrDefault().FieldId == 1)));
             domainService.Verify(t => t.CheckFieldValue(It.Is<List<FilterCondition>>(r => r.FirstOrDefault().Value == "a")));
             agentService.Verify(t => t.FillCreatedByName(It.Is<List<FilterDetailsDto>>(r => r.FirstOrDefault().CreatedBy == 1)));
-            notificationManager.Verify(t => t.NotifyNewPublicFilter(It.Is<int>(r => r == 10000), It.Is<int>(r => r == 1)));
+            notificationManager.Verify(t => t.NotifyNewFilter(It.Is<int>(r => r == 10000), It.Is<int>(r => r == 1)));
         }
 
         [Fact]
@@ -176,7 +176,7 @@ namespace Social.UnitTest.AppServices
             filterAppService.Delete(1);
             //Assert
             domainService.Verify(t => t.Delete(It.Is<int>(r => r == 1)));
-            notificationManager.Verify(t => t.NotifyDeletePublicFilter(It.Is<int>(r => r == 10000), It.Is<int>(r => r == 1)));
+            notificationManager.Verify(t => t.NotifyDeleteFilter(It.Is<int>(r => r == 10000), It.Is<int>(r => r == 1)));
         }
 
         [Fact]
@@ -223,7 +223,7 @@ namespace Social.UnitTest.AppServices
             //Assert
             domainService.Verify(t => t.DeleteConditons(It.Is<Filter>(r => r.Id == 1)));
             domainService.Verify(t => t.UpdateFilter(It.Is<Filter>(r => r.Id == 1), It.Is<FilterCondition[]>(r => r.FirstOrDefault().FieldId == 1)));
-            notificationManager.Verify(t => t.NotifyUpdatePublicFilter(It.Is<int>(r => r == 10000), It.Is<int>(r => r == 1)));
+            notificationManager.Verify(t => t.NotifyUpdateFilter(It.Is<int>(r => r == 10000), It.Is<int>(r => r == 1)));
             agentService.Verify(t => t.FillCreatedByName(It.Is<List<FilterDetailsDto>>(r => r.FirstOrDefault().CreatedBy == 1)));
             AssertDtoEqualToEntity(filter, filterDetailsDto);
             AssertDtoEqualToEntity(filter, MakeFilterCreateDto());
@@ -245,7 +245,7 @@ namespace Social.UnitTest.AppServices
             FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, null);
             filterAppService.UserContext = userContext.Object;
             //Act
-            List<FilterManageDto> filterManageDtos =  filterAppService.FindManageFilters();
+            List<FilterManageDto> filterManageDtos = filterAppService.FindManageFilters();
             //Assert
             AssertDtoEqualToEntity(MakeFilterEntity(1), filterManageDtos.FirstOrDefault());
             Assert.Equal("a", filterManageDtos.FirstOrDefault().CreatedByName);
@@ -266,7 +266,7 @@ namespace Social.UnitTest.AppServices
             FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, null);
             filterAppService.UserContext = userContext.Object;
             //Act
-            List<FilterManageDto> filterManageDtos = filterAppService.Sorting(new List<FilterSortDto> { new FilterSortDto { Id =1,Index =2} });
+            List<FilterManageDto> filterManageDtos = filterAppService.Sorting(new List<FilterSortDto> { new FilterSortDto { Id = 1, Index = 2 } });
             //Assert
             Assert.Equal("a", filterManageDtos.FirstOrDefault().CreatedByName);
             Assert.Equal(2, filterManageDtos.FirstOrDefault().Index);

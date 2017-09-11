@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Social.Domain.DomainServices
 {
-    public abstract class OptionExpression : IConditionExpression
+    public abstract class OptionExpression : ConditionExpression
     {
         private string _propertyName;
         private string _FieldName;
@@ -20,7 +20,7 @@ namespace Social.Domain.DomainServices
             _propertyName = propertyName;
         }
 
-        public virtual bool IsMatch(FilterCondition condition)
+        public override bool IsMatch(FilterCondition condition)
         {
             if (condition == null || condition.Field == null)
             {
@@ -30,7 +30,7 @@ namespace Social.Domain.DomainServices
             return condition.Field.DataType == FieldDataType.Option && condition.Field.Name == _FieldName;
         }
 
-        public virtual Expression<Func<Conversation, bool>> Build(FilterCondition condition)
+        public override Expression<Func<Conversation, bool>> Build(FilterCondition condition)
         {
             ParameterExpression Parameter = Expression.Parameter(typeof(Conversation), "c");
             if (GetValue(condition.Value) != null)

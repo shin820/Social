@@ -107,6 +107,18 @@ namespace Framework.Core.UnitOfWork
             }
         }
 
+        public void RunWithoutTransaction(int? siteId, Action action)
+        {
+            using (var uow = Begin(new UnitOfWorkOptions { IsTransactional = false }))
+            {
+                using (Current.SetSiteId(siteId))
+                {
+                    action();
+                    uow.Complete();
+                }
+            }
+        }
+
         public async Task RunWithNewTransaction(int? siteId, Func<Task> func)
         {
             using (var uow = Begin(TransactionScopeOption.RequiresNew))

@@ -78,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppService.cs" />
+    <Compile Include="SignalR\ConnectionMapping.cs" />
     <Compile Include="DataAnnotations\EnumAttribute.cs" />
     <Compile Include="DefaultConnectionStringResolver.cs" />
     <Compile Include="DisposeAction.cs" />

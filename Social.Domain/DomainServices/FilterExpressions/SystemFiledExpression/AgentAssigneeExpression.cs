@@ -12,32 +12,29 @@ namespace Social.Domain.DomainServices
 {
     public class AgentAssigneeExpression : OptionExpression
     {
-        public AgentAssigneeExpression(IUserContext userContext, IDepartmentService departmentService) : base("Agent Assignee", "")
+        public AgentAssigneeExpression() : base("Agent Assignee", "")
         {
-            _userContext = userContext;
-            _dDepartmentService = departmentService;
         }
-        private IUserContext _userContext;
-        private IDepartmentService _dDepartmentService;
+
         protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
         {
             int? value = default(int);
             if (condition.Value == "@My Department Member")
             {
-                int[] members = _dDepartmentService.GetMyDepartmentMembers(_userContext.UserId);
+                int[] members = GetMyDepartmentMembers();
                 var predicate = PredicateBuilder.New<Conversation>();
                 foreach (int member in members)
                 {
-                    Expression<Func<Conversation, bool>> b = t => t.AgentId.HasValue&&t.AgentId.Value == member;
-                    predicate = predicate.Or(b);                   
+                    Expression<Func<Conversation, bool>> b = t => t.AgentId.HasValue && t.AgentId.Value == member;
+                    predicate = predicate.Or(b);
                 }
                 return predicate;
-            }          
+            }
             else
             {
                 value = MatchValue(condition);
             }
-             
+
             return t => t.AgentId == value;
         }
 
@@ -46,11 +43,11 @@ namespace Social.Domain.DomainServices
             int? value = default(int);
             if (condition.Value == "@My Department Member")
             {
-                int[] members = _dDepartmentService.GetMyDepartmentMembers(_userContext.UserId);
+                int[] members = GetMyDepartmentMembers();
                 var predicate = PredicateBuilder.New<Conversation>();
                 foreach (int member in members)
                 {
-                    Expression<Func<Conversation, bool>> b = t =>t.AgentId.HasValue&& t.AgentId.Value != member||!t.AgentId.HasValue;
+                    Expression<Func<Conversation, bool>> b = t => t.AgentId.HasValue && t.AgentId.Value != member || !t.AgentId.HasValue;
                     predicate = predicate.And(b);
                 }
                 return predicate;
@@ -59,7 +56,7 @@ namespace Social.Domain.DomainServices
             {
                 value = MatchValue(condition);
             }
-            
+
             return t => t.AgentId.HasValue && t.AgentId.Value != value || !t.AgentId.HasValue;
         }
 
@@ -73,7 +70,7 @@ namespace Social.Domain.DomainServices
             int? value = default(int);
             if (condition.Value == "@Me")
             {
-                value = _userContext.UserId;
+                value = GetUserId();
             }
             else if (condition.Value == "Blank")
             {
