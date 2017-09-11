@@ -73,6 +73,7 @@ namespace Social.Application
 
             CreateMap<Agent, AgentDto>();
             CreateMap<Department, DepartmentDto>();
-        }
+            CreateMap<MessageAttachment, MessageAttachmentUrlDto>();      
+    }
     }
 }

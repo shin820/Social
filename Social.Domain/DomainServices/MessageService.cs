@@ -25,6 +25,7 @@ namespace Social.Domain.DomainServices
         Message ReplyTwitterDirectMessage(int conversationId, string message, bool isCloseConversation = false);
         Message ReplyFacebookMessage(int conversationId, string content, bool isCloseConversation = false);
         Message ReplyFacebookPostOrComment(int conversationId, int postOrCommentId, string content, bool isCloseConversation = false);
+        IList<Message> ChangeAttachmentUrl(IList<Message> messages);
     }
 
     public class MessageService : DomainService<Message>, IMessageService
@@ -121,7 +122,6 @@ namespace Social.Domain.DomainServices
 
             // publish message to facebook
             string fbMessageId = _fbClient.PublishMessage(socialAccount.Token, conversation.OriginalId, content);
-
             // create message
             var message = new Message
             {
@@ -410,6 +410,22 @@ namespace Social.Domain.DomainServices
             }
 
             return previousMessages.OrderByDescending(t => t.SendTime).ToList();
+        }
+
+        public IList<Message> ChangeAttachmentUrl(IList<Message> messages)
+        {
+            foreach (var message in messages)
+            {
+                foreach (var attachment in message.Attachments)
+                {
+                    if (attachment.RawData != null)
+                    {
+                        string url = AppSettings.AttachmentUrl + $"/{attachment.Id}?siteId={UserContext.SiteId}";
+                        attachment.Url = url;
+                    }
+                }
+            }
+            return messages;
         }
     }
 }

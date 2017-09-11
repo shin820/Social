@@ -25,6 +25,7 @@ namespace Social.Domain.Entities
         public long Size { get; set; }
         public string Url { get; set; }
         public string PreviewUrl { get; set; }
+        public byte[] RawData { get; set; }
 
         public virtual Message Message { get; set; }
     }

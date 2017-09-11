@@ -17,6 +17,14 @@ namespace Social.Infrastructure
             }
         }
 
+        public static string AttachmentUrl
+        {
+            get
+            {
+                return GetAppSetting("AttachmentUrl");
+            }
+        }
+
         public static string TwitterConsumerKey
         {
             get
@@ -78,6 +86,14 @@ namespace Social.Infrastructure
             get
             {
                 return GetAppSetting("FacebookPullVisitorPostsFromFeedJob_CronExpression");
+            }
+        }
+
+        public static string FacebookGetRawDataJobCronExpression
+        {
+            get
+            {
+                return GetAppSetting("FacebookGetRawDataJob_CronExpression");
             }
         }
 

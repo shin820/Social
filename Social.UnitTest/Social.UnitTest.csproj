@@ -129,6 +129,7 @@
     <Compile Include="AppServices\FilterAppServiceTest.cs" />
     <Compile Include="AppServices\SocialUserAppServiceTest.cs" />
     <Compile Include="AppServices\TwitterAccountAppServiceTest.cs" />
+    <Compile Include="AppServices\TwitterAppServiceTest.cs" />
     <Compile Include="DependencyResolverBuilder.cs" />
     <Compile Include="AppServices\FacebookAccountAppServiceTest.cs" />
     <Compile Include="DomainServices\ConversationFieldServiceTest.cs" />

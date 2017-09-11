@@ -137,6 +137,7 @@
     <Compile Include="JobExtensions.cs" />
     <Compile Include="JobFactory.cs" />
     <Compile Include="JobBase.cs" />
+    <Compile Include="Jobs\Facebook\GetRawDataJob.cs" />
     <Compile Include="Jobs\Facebook\PullMessagesJob.cs" />
     <Compile Include="Jobs\Facebook\PullTaggedVisitorPostsJob.cs" />
     <Compile Include="Jobs\Facebook\PullVisitorPostsFromFeedJob.cs" />
