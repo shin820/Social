@@ -9,6 +9,7 @@
     </div>
     <div class="row">
         <div class="col-md-2">
+            <span>Token : <input id="txtToken" type="text" /></span>
             <span>Site Id : <input id="txtSiteId" type="text" value="10000" /></span>
             <button id="btnStart">Start</button>
             <button id="btnStop">Stop</button>
@@ -31,6 +32,9 @@
 
             $("#btnStart").click(function () {
                 hub.state.agentId = 1;
+
+                var token = $("#txtToken").val();
+                $.signalR.ajaxDefaults.headers = { Authorization: "Bearer " + token };
 
                 var siteId = $("#txtSiteId").val();
                 hub.state.siteId = siteId;

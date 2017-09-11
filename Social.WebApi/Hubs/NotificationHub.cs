@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNet.SignalR;
 using Social.Infrastructure;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.Http;
-
 namespace Social.WebApi.Hubs
 {
+    [Authorize]
     public class NotificationHub : Hub
     {
         public NotificationHub()
@@ -15,30 +13,28 @@ namespace Social.WebApi.Hubs
         public override Task OnConnected()
         {
             var connectionManager = GetConnectionManager();
-            int siteId = GetSiteId();
-            connectionManager.Connect(siteId, 0, Context.ConnectionId);
+            int userId = Context.Request.User.Identity.GetUserId().GetValueOrDefault();
+            int siteId = Context.Request.User.Identity.GetSiteId().GetValueOrDefault();
+            connectionManager.Connect(siteId, userId, Context.ConnectionId);
             return base.OnConnected();
         }
 
         public override Task OnDisconnected(bool stopCalled)
         {
             var connectionManager = GetConnectionManager();
-            int siteId = GetSiteId();
-            connectionManager.Disconnect(siteId, 0, Context.ConnectionId);
+            int userId = Context.Request.User.Identity.GetUserId().GetValueOrDefault();
+            int siteId = Context.Request.User.Identity.GetSiteId().GetValueOrDefault();
+            connectionManager.Disconnect(siteId, userId, Context.ConnectionId);
             return base.OnDisconnected(stopCalled);
         }
 
         public override Task OnReconnected()
         {
             var connectionManager = GetConnectionManager();
-            int siteId = GetSiteId();
-            connectionManager.Reconnect(siteId, 0, Context.ConnectionId);
+            int userId = Context.Request.User.Identity.GetUserId().GetValueOrDefault();
+            int siteId = Context.Request.User.Identity.GetSiteId().GetValueOrDefault();
+            connectionManager.Reconnect(siteId, userId, Context.ConnectionId);
             return base.OnReconnected();
-        }
-
-        private int GetSiteId()
-        {
-            return int.Parse(Context.QueryString["siteId"]);
         }
 
         public INotificationConnectionManager GetConnectionManager()
