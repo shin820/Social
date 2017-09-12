@@ -5,8 +5,8 @@ GO
 CREATE TABLE [t_Site_SocialAccount](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[SiteId] [int] NOT NULL,
-	[FacebookPageId] [nvarchar](100) NULL,
-	[TwitterUserId] [nvarchar](100) NULL,
+	[FacebookPageId] [nvarchar](128) NULL DEFAULT(''),
+	[TwitterUserId] [nvarchar](128) NULL DEFAULT(''),
  CONSTRAINT [PK_t_Site_SocialAccount] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

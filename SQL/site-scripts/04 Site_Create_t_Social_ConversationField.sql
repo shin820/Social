@@ -6,7 +6,7 @@ CREATE TABLE [t_Social_ConversationField](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[IfSystem] [bit] NOT NULL,
 	[DataType] [smallint] NOT NULL,
-	[Name] [nvarchar](max) NULL,
+	[Name] [nvarchar](256) NOT NULL,
 	[SiteId] [int] NOT NULL,
  CONSTRAINT [PK_t_Social_ConversationField] PRIMARY KEY CLUSTERED 
 (

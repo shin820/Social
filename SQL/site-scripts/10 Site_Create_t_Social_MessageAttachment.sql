@@ -22,14 +22,14 @@ BEGIN
 			CREATE TABLE [t_Social_MessageAttachment'+@siteIdStr+'](
 				[Id] [int] IDENTITY(1,1) NOT NULL,
 				[MessageId] [int] NOT NULL,
-				[OriginalId] [nvarchar](200) NULL,
-				[OriginalLink] [nvarchar](500) NULL,
+				[OriginalId] [nvarchar](256) NULL DEFAULT(''''),
+				[OriginalLink] [nvarchar](512) NULL DEFAULT(''''),
 				[Type] [smallint] NOT NULL,
-				[Name] [nvarchar](200) NULL,
-				[MimeType] [nvarchar](100) NULL,
+				[Name] [nvarchar](256) NULL DEFAULT(''''),
+				[MimeType] [nvarchar](128) NULL DEFAULT(''''),
 				[Size] [bigint] NOT NULL,
-				[Url] [nvarchar](500) NULL,
-				[PreviewUrl] [nvarchar](500) NULL,
+				[Url] [nvarchar](512) NULL DEFAULT(''''),
+				[PreviewUrl] [nvarchar](512) NULL DEFAULT(''''),
 				[RawData] [image] NULL,
 			 CONSTRAINT [PK_t_Social_MessageAttachment'+@siteIdStr+'] PRIMARY KEY CLUSTERED 
 			(

@@ -4,9 +4,9 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [t_Social_TwitterAuth](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[AuthorizationId] [nvarchar](50) NOT NULL,
-	[AuthorizationKey] [nvarchar](200) NOT NULL,
-	[AuthorizationSecret] [nvarchar](200) NOT NULL,
+	[AuthorizationId] [nvarchar](64) NOT NULL,
+	[AuthorizationKey] [nvarchar](256) NOT NULL,
+	[AuthorizationSecret] [nvarchar](256) NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

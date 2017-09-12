@@ -22,7 +22,7 @@ BEGIN
 			CREATE TABLE [t_Social_Conversation'+@siteIdStr+'](
 				[Id] [int] IDENTITY(1,1) NOT NULL,
 				[Source] [smallint] NOT NULL,
-				[OriginalId] [nvarchar](200) NULL,
+				[OriginalId] [nvarchar](256) NULL DEFAULT(''''),
 				[IfRead] [bit] DEFAULT(0) NOT NULL,
 				[LastMessageSentTime] [datetime] NOT NULL,
 				[LastMessageSenderId] [int] NOT NULL,
@@ -30,13 +30,13 @@ BEGIN
 				[AgentId] [int] NULL,
 				[DepartmentId] [int] NULL,
 				[Status] [smallint] NOT NULL,
-				[Subject] [nvarchar](200) NOT NULL,
+				[Subject] [nvarchar](256) NOT NULL,
 				[Priority] [smallint] NOT NULL,
-				[Note] [nvarchar](2000) NULL,
+				[Note] [nvarchar](2048) NULL DEFAULT(''''),
 				[IsDeleted] [bit] DEFAULT(0) NOT NULL,
 				[IsHidden] [bit] DEFAULT(0) NOT NULL,
 				[CreatedTime] [datetime] DEFAULT(getdate()) NOT NULL,
-				[ModifiedTime] [datetime] NULL,
+				[ModifiedTime] [datetime] NULL DEFAULT(getdate()),
 			 CONSTRAINT [PK_t_Social_Conversation'+@siteIdStr+'] PRIMARY KEY CLUSTERED 
 			(
 				[Id] ASC
