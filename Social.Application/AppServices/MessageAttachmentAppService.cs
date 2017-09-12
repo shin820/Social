@@ -18,7 +18,7 @@ namespace Social.Application.AppServices
         Task GetRawDataJob();
         MessageAttachmentUrlDto GetAttachmentDto(int id);
     }
-    public class MessageAttachmentAppService : ServiceBase,IMessageAttachmentAppService
+    public class MessageAttachmentAppService : ServiceBase, IMessageAttachmentAppService
     {
         IRepository<MessageAttachment> _messageAttachmentRepo;
 
@@ -29,15 +29,15 @@ namespace Social.Application.AppServices
 
         public async Task<List<MessageAttachmentRawDto>> GetMessageAttachments()
         {
-            var messageAttachments = _messageAttachmentRepo.FindAll()
-               .Where(t => t.Id == 2118)
-               .ToList();
             //var messageAttachments = _messageAttachmentRepo.FindAll()
-            //    .Where(t => (t.MimeType.Contains("image") || t.MimeType.Contains("audio") || t.MimeType.Contains("video"))
-            //    && t.RawData == null && t.Message.SendTime > DateTime.UtcNow.AddDays(-4))
-            //    .ToList();
+            //   .Where(t => t.Id == 2118)
+            //   .ToList();
+            var messageAttachments = _messageAttachmentRepo.FindAll()
+                .Where(t => (t.MimeType.Contains("image") || t.MimeType.Contains("audio") || t.MimeType.Contains("video"))
+                && t.RawData == null && t.Message.SendTime > DateTime.UtcNow.AddDays(-1))
+                .ToList();
             var messageAttachmentRawDtos = new List<MessageAttachmentRawDto>();
-            foreach(var messageAttachment in messageAttachments)
+            foreach (var messageAttachment in messageAttachments)
             {
                 var messageAttachmentRawDto = new MessageAttachmentRawDto();
                 messageAttachmentRawDto.Id = messageAttachment.Id;
@@ -49,7 +49,7 @@ namespace Social.Application.AppServices
 
         public async Task<List<MessageAttachmentRawDto>> AddRawData(List<MessageAttachmentRawDto> messageAttachmentRawDtos)
         {
-            foreach(var messageAttachmentRawDto in messageAttachmentRawDtos)
+            foreach (var messageAttachmentRawDto in messageAttachmentRawDtos)
             {
                 string UrlImg = messageAttachmentRawDto.Url;
                 if (UrlCheck(UrlImg))

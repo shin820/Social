@@ -205,6 +205,7 @@ CREATE TABLE [t_Social_MessageAttachment100014500](
 	[Size] [bigint] NOT NULL,
 	[Url] [nvarchar](500) NULL,
 	[PreviewUrl] [nvarchar](500) NULL,
+	[RawData] [image] NULL,
 	CONSTRAINT [PK_t_Social_MessageAttachment100014500] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
