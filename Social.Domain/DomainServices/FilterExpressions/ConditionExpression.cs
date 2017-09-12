@@ -33,6 +33,7 @@ namespace Social.Domain.DomainServices
             }
             else
             {
+                Checker.NotNull(DependencyResolver, nameof(DependencyResolver));
                 var userContext = DependencyResolver.Resolve<IUserContext>();
                 return userContext.UserId;
             }
@@ -46,6 +47,7 @@ namespace Social.Domain.DomainServices
             }
             else
             {
+                Checker.NotNull(DependencyResolver, nameof(DependencyResolver));
                 var departmentService = DependencyResolver.Resolve<IDepartmentService>();
                 return departmentService.GetMyDepartmentMembers(GetUserId());
             }
@@ -59,6 +61,7 @@ namespace Social.Domain.DomainServices
             }
             else
             {
+                Checker.NotNull(DependencyResolver, nameof(DependencyResolver));
                 var departmentService = DependencyResolver.Resolve<IDepartmentService>();
                 return departmentService.GetMyDepartmentId(GetUserId());
             }
