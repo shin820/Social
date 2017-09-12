@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Social.Domain.Core
+namespace Social.Infrastructure.Cache
 {
     public class FilterCacheItem
     {

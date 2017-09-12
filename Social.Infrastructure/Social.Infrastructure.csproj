@@ -139,6 +139,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
+    <Compile Include="Cache\AgentCacheItem.cs" />
+    <Compile Include="Cache\FilterCacheItem.cs" />
     <Compile Include="Enum\AgentStatus.cs" />
     <Compile Include="Enum\ConditionMatchType.cs" />
     <Compile Include="Enum\ConversationLogType.cs" />

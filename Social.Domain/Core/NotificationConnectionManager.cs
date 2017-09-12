@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Social.Infrastructure.Enum;
 using LinqKit;
 using AutoMapper;
+using Social.Infrastructure.Cache;
 
 namespace Social.Domain.Core
 {

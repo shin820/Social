@@ -131,9 +131,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\FilterCacheItem.cs" />
     <Compile Include="Core\NotificationConnectionManager.cs" />
-    <Compile Include="Core\AgentCacheItem.cs" />
     <Compile Include="DomainServices\AgentService.cs" />
     <Compile Include="DomainServices\ConversationFieldService.cs" />
     <Compile Include="DomainServices\ConversationService.cs" />

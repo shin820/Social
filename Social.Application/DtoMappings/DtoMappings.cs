@@ -5,6 +5,7 @@ using Social.Domain.Core;
 using Social.Domain.DomainServices;
 using Social.Domain.Entities;
 using Social.Domain.Entities.General;
+using Social.Infrastructure.Cache;
 using Social.Infrastructure.Enum;
 using Social.Infrastructure.Facebook;
 
@@ -75,13 +76,14 @@ namespace Social.Application
 
             CreateMap<Agent, AgentDto>();
             CreateMap<Department, DepartmentDto>();
-            CreateMap<MessageAttachment, MessageAttachmentUrlDto>(); 
+            CreateMap<MessageAttachment, MessageAttachmentUrlDto>();
+
             CreateMap<Filter, FilterCacheItem>();
             CreateMap<FilterCacheItem, Filter>();
             CreateMap<FilterCondition, FilterConditionCache>();
             CreateMap<FilterConditionCache, FilterCondition>();
             CreateMap<ConversationField, ConversationFieldCache>();
             CreateMap<ConversationFieldCache, ConversationField>();
-    }
+        }
     }
 }
