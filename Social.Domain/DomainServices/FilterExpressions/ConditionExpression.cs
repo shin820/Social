@@ -19,52 +19,23 @@ namespace Social.Domain.DomainServices
             return this;
         }
 
-        public IDependencyResolver DependencyResolver { get; set; }
-
         public abstract Expression<Func<Conversation, bool>> Build(FilterCondition condition);
 
         public abstract bool IsMatch(FilterCondition condition);
 
         protected int GetUserId()
         {
-            if (_options != null && _options.UserId > 0)
-            {
-                return _options.UserId;
-            }
-            else
-            {
-                Checker.NotNull(DependencyResolver, nameof(DependencyResolver));
-                var userContext = DependencyResolver.Resolve<IUserContext>();
-                return userContext.UserId;
-            }
+            return _options.GetUserId();
         }
 
         protected int[] GetMyDepartmentMembers()
         {
-            if (_options != null && _options.MyDepartmentMembers != null)
-            {
-                return _options.MyDepartmentMembers;
-            }
-            else
-            {
-                Checker.NotNull(DependencyResolver, nameof(DependencyResolver));
-                var departmentService = DependencyResolver.Resolve<IDepartmentService>();
-                return departmentService.GetMyDepartmentMembers(GetUserId());
-            }
+            return _options.GetMyDepartmentMembers();
         }
 
         protected int GetMyDepartmentId()
         {
-            if (_options != null && _options.MyDepartmentId > 0)
-            {
-                return _options.MyDepartmentId;
-            }
-            else
-            {
-                Checker.NotNull(DependencyResolver, nameof(DependencyResolver));
-                var departmentService = DependencyResolver.Resolve<IDepartmentService>();
-                return departmentService.GetMyDepartmentId(GetUserId());
-            }
+            return _options.GetMyDepartmentId();
         }
     }
 }

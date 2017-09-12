@@ -15,15 +15,17 @@ namespace Social.Domain.DomainServices.FilterExpressions
     public class FilterExpressionFactory : IFilterExpressionFactory
     {
         private IList<IConditionExpression> _conditionExpressions;
+        private IDependencyResolver _dependencyResolver;
 
         public FilterExpressionFactory(IDependencyResolver dependencyResover)
         {
             _conditionExpressions = dependencyResover.ResolveAll<IConditionExpression>();
+            _dependencyResolver = dependencyResover;
         }
 
         public Expression<Func<Conversation, bool>> Create(Filter filter)
         {
-            return Create(filter, null);
+            return Create(filter, new ExpressionBuildOptions(_dependencyResolver));
         }
 
         public Expression<Func<Conversation, bool>> Create(Filter filter, ExpressionBuildOptions options)
