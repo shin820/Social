@@ -285,6 +285,7 @@
     <Compile Include="Core\ApiAuthorizeAttribute.cs" />
     <Compile Include="Core\ControllersInstaller.cs" />
     <Compile Include="Core\IocContainer.cs" />
+    <Compile Include="Core\TokenProvider.cs" />
     <Compile Include="Core\WebApiUserContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

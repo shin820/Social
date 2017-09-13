@@ -39,7 +39,7 @@
                 var siteId = $("#txtSiteId").val();
                 hub.state.siteId = siteId;
                 $.connection.logging = true;
-                $.connection.hub.qs = { "siteId": siteId };
+                $.connection.hub.qs = { "access_token": token };
 
                 $.connection.hub.start().done(function () {
                 });

@@ -34,6 +34,7 @@ namespace Social.WebApi.Controllers
         static AccountsController()
         {
             OAuthBearerOptions = new OAuthBearerAuthenticationOptions();
+            OAuthBearerOptions.Provider = new TokenProvider();
         }
 
         [HttpPost]
