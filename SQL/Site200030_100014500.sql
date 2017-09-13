@@ -293,7 +293,7 @@ INSERT INTO [t_Social_Filter]
 VALUES
 ('My Open', 1, 1,1,0,getdate(),100014500 ),
 ('My Departments'' Open', 2, 1,1,0,getdate(),100014500 ),
-('My Offline Colleagues'' Open', 3, 1,1,0,getdate(),100014500 ),
+('My Offline Department Members'' Open', 3, 1,1,0,getdate(),100014500 ),
 ('All Open', 4, 1,1,0,getdate(),100014500 ),
 ('Unassigned', 5, 1,1,0,getdate(),100014500 ),
 ('All', 6, 1,1,0,getdate(),100014500 )
@@ -312,9 +312,9 @@ VALUES
 ((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Agent Assignee'),1,'@Me',100014500,2),
 ((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Departments'' Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Status'),2,'4',100014500,3),
 ((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Departments'' Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Department Assignee'),1,'@My Department',100014500,4),
-((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Offline Colleagues'' Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Status'),2,'4',100014500,5),
-((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Offline Colleagues'' Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Agent Assignee'),1,'@My Department Member',100014500,6),
-((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Offline Colleagues'' Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Department Assignee'),1,'Blank',100014500,7),
+((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Offline Department Members'' Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Status'),2,'4',100014500,5),
+((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Offline Department Members'' Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Agent Assignee'),1,'@My Department Member',100014500,6),
+((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Offline Department Members'' Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Department Assignee'),1,'Blank',100014500,7),
 ((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'All Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Status'),2,'4',100014500,8),
 ((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'Unassigned' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Agent Assignee'),1,'Blank',100014500,9),
 ((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'Unassigned' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Department Assignee'),1,'Blank',100014500,10)
