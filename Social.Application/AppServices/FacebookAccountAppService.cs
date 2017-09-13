@@ -100,6 +100,8 @@ namespace Social.Application.AppServices
         {
             var socialAccount = Mapper.Map<SocialAccount>(dto);
 
+            await _fbClient.SubscribeApp(dto.FacebookId, dto.AccessToken);
+
             var socialUser = _socialUserService.FindByOriginalId(dto.FacebookId, SocialUserSource.Facebook, SocialUserType.Customer);
             if (socialUser == null)
             {
@@ -116,8 +118,6 @@ namespace Social.Application.AppServices
                 socialAccount.SocialUser = socialUser;
                 await _socialAccountService.InsertSocialAccountInGeneralDb(socialAccount);
             }
-
-            await _fbClient.SubscribeApp(dto.FacebookId, dto.AccessToken);
 
             socialAccount = _socialAccountService.Find(socialAccount.Id);
             return Mapper.Map<FacebookPageDto>(socialAccount);

@@ -103,7 +103,7 @@ namespace Social.Domain.DomainServices
             int siteId = siteIdOrNull.Value;
             if (entity.SocialUser.Source == SocialUserSource.Facebook)
             {
-                await UnitOfWorkManager.Run(TransactionScopeOption.Required, null, async () =>
+                await UnitOfWorkManager.RunWithNewTransaction(null, async () =>
                 {
                     if (!_siteSocialAccountRepo.FindAll().Any(t => t.SiteId == siteId && t.FacebookPageId == entity.SocialUser.OriginalId))
                     {
@@ -114,7 +114,7 @@ namespace Social.Domain.DomainServices
 
             if (entity.SocialUser.Source == SocialUserSource.Twitter)
             {
-                await UnitOfWorkManager.Run(TransactionScopeOption.Required, null, async () =>
+                await UnitOfWorkManager.RunWithNewTransaction(null, async () =>
                 {
                     if (!_siteSocialAccountRepo.FindAll().Any(t => t.SiteId == siteId && t.TwitterUserId == entity.SocialUser.OriginalId))
                     {
