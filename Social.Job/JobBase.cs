@@ -9,6 +9,8 @@ using Framework.Core.UnitOfWork;
 using Social.Domain.Entities;
 using Social.Domain.DomainServices;
 using Social.Infrastructure.Enum;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Social.Job
 {
@@ -80,6 +82,23 @@ namespace Social.Job
             return socialAccount;
         }
 
+        protected async Task<IList<SocialAccount>> GetTwitterSocialAccounts(IJobExecutionContext context)
+        {
+            IList<SocialAccount> result = new List<SocialAccount>();
+            var siteId = context.JobDetail.GetCustomData<int>();
+            if (siteId == 0)
+            {
+                return result;
+            }
+
+            await UnitOfWorkManager.RunWithoutTransaction(siteId, async () =>
+            {
+                result = await SocialAccountService.GetAccountsAsync(SocialUserSource.Twitter);
+            });
+
+            return result;
+        }
+
         protected async Task<SocialAccount> GetFacebookSocialAccount(IJobExecutionContext context)
         {
             var siteSocicalAccount = context.JobDetail.GetCustomData<SiteSocialAccount>();
@@ -98,6 +117,23 @@ namespace Social.Job
             });
 
             return socialAccount;
+        }
+
+        protected async Task<IList<SocialAccount>> GetFacebookSocialAccounts(IJobExecutionContext context)
+        {
+            IList<SocialAccount> result = new List<SocialAccount>();
+            var siteId = context.JobDetail.GetCustomData<int>();
+            if (siteId == 0)
+            {
+                return result;
+            }
+
+            await UnitOfWorkManager.RunWithoutTransaction(siteId, async () =>
+            {
+                result = await SocialAccountService.GetAccountsAsync(SocialUserSource.Facebook);
+            });
+
+            return result;
         }
     }
 }

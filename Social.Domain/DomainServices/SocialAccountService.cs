@@ -4,6 +4,7 @@ using Social.Domain.Repositories;
 using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ namespace Social.Domain.DomainServices
     {
         SocialAccount FindAccount(int id, SocialUserSource source);
         Task<SocialAccount> GetAccountAsync(SocialUserSource source, string originalId);
+        Task<IList<SocialAccount>> GetAccountsAsync(SocialUserSource source);
         IQueryable<SocialAccount> FindAllTwitterAccounts();
         IQueryable<SocialAccount> FindAllFacebookAccounts();
         Task InsertSocialAccountInGeneralDb(SocialAccount entity);
@@ -75,6 +77,11 @@ namespace Social.Domain.DomainServices
         public async Task<SocialAccount> GetAccountAsync(SocialUserSource source, string originalId)
         {
             return await Repository.FindAll().Include(t => t.SocialUser).Where(t => t.SocialUser.OriginalId == originalId && t.SocialUser.Source == source && t.IfEnable && t.IsDeleted == false).FirstOrDefaultAsync();
+        }
+
+        public async Task<IList<SocialAccount>> GetAccountsAsync(SocialUserSource source)
+        {
+            return await Repository.FindAll().Include(t => t.SocialUser).Where(t => t.SocialUser.Source == source && t.IfEnable && t.IsDeleted == false).ToListAsync();
         }
 
         public async override Task<SocialAccount> InsertAsync(SocialAccount entity)
@@ -145,14 +152,14 @@ namespace Social.Domain.DomainServices
             int siteId = siteIdOrNull.Value;
             if (entity.SocialUser.Source == SocialUserSource.Facebook)
             {
-                await UnitOfWorkManager.Run(TransactionScopeOption.Required, null, async () =>
-                {
-                    var accoutns = _siteSocialAccountRepo.FindAll().Where(t => t.SiteId == siteId && t.FacebookPageId == entity.SocialUser.OriginalId).ToList();
-                    foreach (var account in accoutns)
-                    {
-                        await _siteSocialAccountRepo.DeleteAsync(account);
-                    }
-                });
+                await UnitOfWorkManager.RunWithNewTransaction(null, async () =>
+               {
+                   var accoutns = _siteSocialAccountRepo.FindAll().Where(t => t.SiteId == siteId && t.FacebookPageId == entity.SocialUser.OriginalId).ToList();
+                   foreach (var account in accoutns)
+                   {
+                       await _siteSocialAccountRepo.DeleteAsync(account);
+                   }
+               });
             }
 
             if (entity.SocialUser.Source == SocialUserSource.Twitter)

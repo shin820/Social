@@ -16,28 +16,17 @@ namespace Social.Job.Jobs.Facebook
 {
     public class PullVisitorPostsFromFeedJob : JobBase, ITransient
     {
-        private IFacebookAppService _service;
-
-        public PullVisitorPostsFromFeedJob(
-            IFacebookAppService service
-            )
-        {
-            _service = service;
-        }
-
-
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
-            var socialAccount = await GetFacebookSocialAccount(context);
-            if (socialAccount == null)
+            var socialAccounts = await GetFacebookSocialAccounts(context);
+            foreach (var socialAccount in socialAccounts)
             {
-                return;
+                IFacebookAppService service = DependencyResolver.Resolve<IFacebookAppService>();
+                await UnitOfWorkManager.RunWithoutTransaction(socialAccount.SiteId, async () =>
+                {
+                    await service.PullVisitorPostsFromFeed(socialAccount);
+                });
             }
-
-            await UnitOfWorkManager.RunWithoutTransaction(socialAccount.SiteId, async () =>
-            {
-                await _service.PullVisitorPostsFromFeed(socialAccount);
-            });
         }
     }
 }
