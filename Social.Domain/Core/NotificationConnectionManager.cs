@@ -189,8 +189,12 @@ namespace Social.Domain.Core
                 Id = agentId,
                 IfAdmin = false
             };
-            user.DepartmentId = _departmentService.GetMyDepartmentId(agentId);
-            user.DepartmentMembers = _departmentService.GetMyDepartmentMembers(agentId);
+
+            UnitOfWorkManager.RunWithoutTransaction(siteId, () =>
+            {
+                user.DepartmentId = _departmentService.GetMyDepartmentId(agentId);
+                user.DepartmentMembers = _departmentService.GetMyDepartmentMembers(agentId);
+            });
 
             _agentConnectionCache.RefreshKey(user);
 
