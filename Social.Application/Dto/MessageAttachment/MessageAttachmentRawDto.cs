@@ -10,6 +10,6 @@ namespace Social.Application.Dto
     {
         public int Id { get; set; }
         public string Url { get; set; }
-        public byte[] RawDate { get; set; }
+        public byte[] RawData { get; set; }
     }
 }

@@ -29,13 +29,11 @@ namespace Social.Application.AppServices
 
         public async Task<List<MessageAttachmentRawDto>> GetMessageAttachments()
         {
+            DateTime dateTime = DateTime.UtcNow.AddDays(-4);
             var messageAttachments = _messageAttachmentRepo.FindAll()
-               .Where(t => t.Id == 2118)
-               .ToList();
-            //var messageAttachments = _messageAttachmentRepo.FindAll()
-            //    .Where(t => (t.MimeType.Contains("image") || t.MimeType.Contains("audio") || t.MimeType.Contains("video"))
-            //    && t.RawData == null && t.Message.SendTime > DateTime.UtcNow.AddDays(-4))
-            //    .ToList();
+                .Where(t => (t.MimeType.Contains("image") || t.MimeType.Contains("audio") || t.MimeType.Contains("video"))
+                && t.RawData == null && t.Message.SendTime > dateTime)
+                .ToList();
             var messageAttachmentRawDtos = new List<MessageAttachmentRawDto>();
             foreach(var messageAttachment in messageAttachments)
             {
@@ -57,7 +55,7 @@ namespace Social.Application.AppServices
                     WebClient webClient = new WebClient();
                     webClient.Credentials = CredentialCache.DefaultCredentials;
                     byte[] byteData = webClient.DownloadData(UrlImg);
-                    messageAttachmentRawDto.RawDate = byteData;
+                    messageAttachmentRawDto.RawData = byteData;
                 }
             }
             return messageAttachmentRawDtos;
@@ -86,7 +84,7 @@ namespace Social.Application.AppServices
             foreach (var messageAttachmentRawDto in messageAttachmentRawDtos)
             {
                 var messageAttachment = _messageAttachmentRepo.Find(messageAttachmentRawDto.Id);
-                messageAttachment.RawData = messageAttachmentRawDto.RawDate;
+                messageAttachment.RawData = messageAttachmentRawDto.RawData;
                 _messageAttachmentRepo.Update(messageAttachment);
                 await CurrentUnitOfWork.SaveChangesAsync();
             }

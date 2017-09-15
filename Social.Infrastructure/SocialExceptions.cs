@@ -36,6 +36,11 @@ namespace Social.Infrastructure
             return NotFound($"Conversation id '{id}' not exists.");
         }
 
+        public static ExceptionWithCode ConversationIdDelete(int id)
+        {
+            return NotFound($"Conversation id '{id}' was Deleted.");
+        }
+
         public static ExceptionWithCode TwitterAccountNotExists(int id)
         {
             return NotFound($"Twitter Account with id '{id}' not exists.");

@@ -262,8 +262,9 @@ namespace Social.Infrastructure.Facebook
                 dynamic result = client.Post(url, new { message = message });
                 return result.id;
             }
-            catch (FacebookOAuthException ex)
+            catch (Exception ex)
             {
+                Logger.Error(ex.Message, ex);
                 return string.Empty;
             }
         }
@@ -277,8 +278,9 @@ namespace Social.Infrastructure.Facebook
                 dynamic result = client.Post(url, new { message = message });
                 return result.id;
             }
-            catch (FacebookOAuthException ex)
+            catch (Exception ex)
             {
+                Logger.Error(ex.Message, ex);
                 return string.Empty;
             }
         }
@@ -529,7 +531,7 @@ namespace Social.Infrastructure.Facebook
                                 messageAttachment.Url = attachmnent.video_data.url;
                                 messageAttachment.PreviewUrl = attachmnent.video_data.preview_url;
                             }
-
+                            NormarlizeAttachmentType(messageAttachment);
                             message.Attachments.Add(messageAttachment);
                         }
                     }
@@ -562,6 +564,7 @@ namespace Social.Infrastructure.Facebook
 
                             if (!string.IsNullOrWhiteSpace(messageShare.Url))
                             {
+                                NormarlizeAttachmentType(messageShare);
                                 message.Attachments.Add(messageShare);
                             }
                         }
@@ -596,6 +599,34 @@ namespace Social.Infrastructure.Facebook
             PagingConversation.data = Conversations;
 
             return PagingConversation;
+        }
+
+        private void NormarlizeAttachmentType(FbMessageAttachment attachment)
+        {
+            if (!string.IsNullOrEmpty(attachment.MimeType))
+            {
+                if (attachment.MimeType.StartsWith("image/", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (attachment.Type != MessageAttachmentType.AnimatedImage)
+                    {
+                        attachment.Type = MessageAttachmentType.Image;
+                    }
+                }
+                else if (attachment.MimeType.StartsWith("video/", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    attachment.Type = MessageAttachmentType.Video;
+                }
+
+                else if (attachment.MimeType.StartsWith("audio/", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    attachment.Type = MessageAttachmentType.Audio;
+                }
+                else
+                {
+                    attachment.Type = MessageAttachmentType.File;
+                }
+
+            }
         }
 
         public async Task<FbComment> GetPostComment(string commentId, string token, int limit = 100)

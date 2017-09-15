@@ -59,9 +59,14 @@ namespace Social.Domain.DomainServices
         public Conversation CheckIfExists(int id)
         {
             var conversation = Find(id);
-            if (conversation == null)
+            int checkNum = CheckIfDeleteOrExists(id);
+            if (checkNum == 0)
             {
                 throw SocialExceptions.ConversationIdNotExists(id);
+            }
+            else if (checkNum == -1)
+            {
+                throw SocialExceptions.ConversationIdDelete(id);
             }
             return conversation;
         }
@@ -74,6 +79,20 @@ namespace Social.Domain.DomainServices
         public Conversation Find(int id, ConversationSource source)
         {
             return FindAll().Where(t => t.Id == id && !t.IsHidden && t.Source == source).FirstOrDefault();
+        }
+
+        public int CheckIfDeleteOrExists(int id)
+        {
+            var conversation = FindAll().Where(t => t.Id == id ).FirstOrDefault();
+            if(conversation == null)
+            {
+                return 0;//Not Exist
+            }
+            else if(conversation.IsDeleted)
+            {
+                return -1;//Is delete
+            }
+            return 1;//normal
         }
 
         public override Conversation Find(int id)
@@ -243,17 +262,20 @@ namespace Social.Domain.DomainServices
 
         private void CheckStatus(Conversation oldEntity, Conversation conversation)
         {
-            if (oldEntity.Status == ConversationStatus.Closed && conversation.Status != ConversationStatus.Closed)
+            if (conversation.Source == ConversationSource.FacebookMessage || conversation.Source == ConversationSource.TwitterDirectMessage)
             {
-                //List<int> senderIds = oldEntity.Messages.Where(t => t.Sender.SocialAccount == null).Select(t => t.SenderId).Distinct().ToList();
-                //List<int> recipientIds = oldEntity.Messages.Where(t => t.Sender.SocialAccount == null && t.ReceiverId != null).Select(t => t.ReceiverId.Value).Distinct().ToList();
-                //var userIds = senderIds.Union(recipientIds).Distinct();
+                if (oldEntity.Status == ConversationStatus.Closed && conversation.Status != ConversationStatus.Closed)
+                {
+                    List<int> senderIds = oldEntity.Messages.Where(t => t.Sender.SocialAccount == null).Select(t => t.SenderId).Distinct().ToList();
+                    List<int> recipientIds = oldEntity.Messages.Where(t => t.Sender.SocialAccount == null && t.ReceiverId != null).Select(t => t.ReceiverId.Value).Distinct().ToList();
+                    var userIds = senderIds.Union(recipientIds).Distinct();
 
-                //bool isExistsOpenConversation = FindAll().Any(t => t.Id != conversation.Id && t.Status != ConversationStatus.Closed && t.Messages.Any(m => userIds.Contains(m.SenderId) || userIds.Contains(m.ReceiverId.Value)));
-                //if (isExistsOpenConversation)
-                //{
-                //    throw SocialExceptions.BadRequest("Another open conversation which belongs to the same user has been found.");
-                //}
+                    bool isExistsOpenConversation = FindAll().Any(t => t.Id != conversation.Id && t.Status != ConversationStatus.Closed && t.Messages.Any(m => userIds.Contains(m.SenderId) || userIds.Contains(m.ReceiverId.Value)));
+                    if (isExistsOpenConversation)
+                    {
+                        throw SocialExceptions.BadRequest("Another open conversation which belongs to the same user has been found.");
+                    }
+                }
             }
         }
 
