@@ -36,27 +36,37 @@ namespace Social.Job.Jobs
 
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
-            List<SiteSocialAccount> facebookAccounts = await _siteSocialAccountService.GetFacebookSiteAccountsAsync();
-            List<SiteSocialAccount> twitterAccounts = await _siteSocialAccountService.GetTwitterSiteAccountsAsync();
-
-            if (facebookAccounts != null && facebookAccounts.Any())
+            // schedule job for every site
+            List<int> facebookSiteIds = await _siteSocialAccountService.GetFacebookSiteIdsAsync();
+            if (facebookSiteIds != null && facebookSiteIds.Any())
             {
-                foreach (var facebookAccount in facebookAccounts)
+                foreach (var siteId in facebookSiteIds)
                 {
-                    RunningJobs.Schedule<PullTaggedVisitorPostsJob>(_scheduleJobManager, facebookAccount, CronTrigger(AppSettings.FacebookPullTaggedVisitorPostsJobCronExpression));
-                    RunningJobs.Schedule<PullVisitorPostsFromFeedJob>(_scheduleJobManager, facebookAccount, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
-                    RunningJobs.Schedule<PullMessagesJob>(_scheduleJobManager, facebookAccount, CronTrigger(AppSettings.FacebookPullMessagesJobCronExpression));
-                    RunningJobs.Schedule<GetRawDataJob>(_scheduleJobManager, facebookAccount, CronTrigger(AppSettings.FacebookGetRawDataJobCronExpression));
+                    RunningJobs.Schedule<PullTaggedVisitorPostsJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.FacebookPullTaggedVisitorPostsJobCronExpression));
+                    RunningJobs.Schedule<PullVisitorPostsFromFeedJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
+                    RunningJobs.Schedule<PullMessagesJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.FacebookPullMessagesJobCronExpression));
+                    RunningJobs.Schedule<GetRawDataJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.FacebookGetRawDataJobCronExpression));
                 }
             }
 
+            // schedule job for every site
+            List<int> twitterSiteIds = await _siteSocialAccountService.GetTwitterSiteIdsAsync();
+            if (twitterSiteIds != null && twitterSiteIds.Any())
+            {
+                foreach (var siteId in twitterSiteIds)
+                {
+                    RunningJobs.Schedule<TwitterPullTweetsJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.TwitterPullTweetsJobCronExpression));
+                    RunningJobs.Schedule<TwitterPullDirectMessagesJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.TwitterPullDirectMessagesJobCronExpression));
+                }
+            }
+
+            // schedule job for every twitter integration account
+            List<SiteSocialAccount> twitterAccounts = await _siteSocialAccountService.GetTwitterSiteAccountsAsync();
             if (twitterAccounts != null && twitterAccounts.Any())
             {
                 foreach (var twitterAccount in twitterAccounts)
                 {
                     RunningJobs.Schedule<TwitterUserStreamJob>(_scheduleJobManager, twitterAccount, StartNowTrigger());
-                    RunningJobs.Schedule<TwitterPullDirectMessagesJob>(_scheduleJobManager, twitterAccount, CronTrigger(AppSettings.TwitterPullDirectMessagesJobCronExpression));
-                    RunningJobs.Schedule<TwitterPullTweetsJob>(_scheduleJobManager, twitterAccount, CronTrigger(AppSettings.TwitterPullTweetsJobCronExpression));
                 }
             }
 

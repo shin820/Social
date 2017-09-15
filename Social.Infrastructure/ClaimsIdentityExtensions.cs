@@ -11,7 +11,7 @@ namespace Social.Infrastructure
 {
     public static class ClaimsIdentityExtensions
     {
-        public static long? GetUserId(this IIdentity identity)
+        public static int? GetUserId(this IIdentity identity)
         {
             Checker.NotNull(identity, nameof(identity));
 
@@ -23,16 +23,16 @@ namespace Social.Infrastructure
                 return null;
             }
 
-            return Convert.ToInt64(userIdOrNull.Value);
+            return Convert.ToInt32(userIdOrNull.Value);
         }
 
-        public static int? GetSideId(this IIdentity identity)
+        public static int? GetSiteId(this IIdentity identity)
         {
             Checker.NotNull(identity, nameof(identity));
 
             var claimsIdentity = identity as ClaimsIdentity;
 
-            var tenantIdOrNull = claimsIdentity?.Claims?.FirstOrDefault(c => c.Type == Comm100ClaimTypes.SideId);
+            var tenantIdOrNull = claimsIdentity?.Claims?.FirstOrDefault(c => c.Type == Comm100ClaimTypes.SiteId);
             if (tenantIdOrNull == null || string.IsNullOrWhiteSpace(tenantIdOrNull.Value))
             {
                 return null;

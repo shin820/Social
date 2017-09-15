@@ -17,20 +17,19 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         [Fact]
         public void ShouldFilterByIsCondition()
         {
-            var userContextMock = new Mock<IUserContext>();
-            userContextMock.Setup(t => t.UserId).Returns(1);
-
-            var deparmentMock = new Mock<IDepartmentService>();
-            deparmentMock.Setup(t => t.GetMyDepartmentId(1)).Returns(1);
-
-
             FilterCondition condition = new FilterCondition
             {
                 Field = new ConversationField { Name = "Department Assignee", DataType = FieldDataType.Option },
                 MatchType = ConditionMatchType.Is,
                 Value = "@My Department"
             };
-            var expression = new DepartmentAssigneeExpression(userContextMock.Object, deparmentMock.Object).Build(condition);
+
+            var options = new ExpressionBuildOptions
+            {
+                UserId = 1,
+                MyDepartmentId = 1
+            };
+            var expression = new DepartmentAssigneeExpression().SetOptions(options).Build(condition);
 
             var conditions = new List<Conversation>
             {
@@ -47,20 +46,18 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         [Fact]
         public void ShouldFilterByIsNotCondition()
         {
-            var userContextMock = new Mock<IUserContext>();
-            userContextMock.Setup(t => t.UserId).Returns(1);
-
-            var deparmentMock = new Mock<IDepartmentService>();
-            deparmentMock.Setup(t => t.GetMyDepartmentId(1)).Returns(1);
-
-
             FilterCondition condition = new FilterCondition
             {
                 Field = new ConversationField { Name = "Department Assignee", DataType = FieldDataType.Option },
                 MatchType = ConditionMatchType.IsNot,
                 Value = "@My Department"
             };
-            var expression = new DepartmentAssigneeExpression(userContextMock.Object, deparmentMock.Object).Build(condition);
+            var options = new ExpressionBuildOptions
+            {
+                UserId = 1,
+                MyDepartmentId = 1
+            };
+            var expression = new DepartmentAssigneeExpression().SetOptions(options).Build(condition);
 
             var conditions = new List<Conversation>
             {

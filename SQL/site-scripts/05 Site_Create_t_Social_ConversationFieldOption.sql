@@ -5,8 +5,8 @@ GO
 CREATE TABLE [t_Social_ConversationFieldOption](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[FieldId] [int] NOT NULL,
-	[Name] [nvarchar](200) NULL,
-	[Value] [nvarchar](200) NULL,
+	[Name] [nvarchar](256) NOT NULL,
+	[Value] [nvarchar](256) NOT NULL,
 	[Index] [int] NOT NULL,
 	[SiteId] [int] NOT NULL,
  CONSTRAINT [PK_t_Social_ConversationFieldOption] PRIMARY KEY CLUSTERED 

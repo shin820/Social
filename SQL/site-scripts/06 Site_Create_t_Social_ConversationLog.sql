@@ -23,7 +23,7 @@ BEGIN
 				[Id] [int] IDENTITY(1,1) NOT NULL,
 				[ConversationId] [int] NOT NULL,
 				[Type] [smallint] NOT NULL,
-				[Content] [nvarchar](500) NULL,
+				[Content] [nvarchar](512) NOT NULL,
 				[CreatedTime] [datetime] NOT NULL,
 				[CreatedBy] [int] NOT NULL
 			 CONSTRAINT [PK_t_Social_ConversationLog'+@siteIdStr+'] PRIMARY KEY CLUSTERED 

@@ -14,6 +14,8 @@ using Newtonsoft.Json;
 using Social.WebApi.Core;
 using Microsoft.Owin.Cors;
 using Framework.Core.Json;
+using Social.Infrastructure;
+using System.Web.Http;
 
 [assembly: OwinStartup(typeof(Startup))]
 
@@ -33,13 +35,15 @@ namespace Social.WebApi.App_Start
             //};
 
             //app.UseOAuthAuthorizationServer(oAuthServerOptions);
-            //app.UseOAuthBearerAuthentication(AccountsController.OAuthBearerOptions);
+            app.UseOAuthBearerAuthentication(AccountsController.OAuthBearerOptions);
 
             var settings = new JsonSerializerSettings();
             settings.ContractResolver = new SignalRContractResolver();
             var serializer = JsonSerializer.Create(settings);
             serializer.Converters.Add(new UnitDateTimeConverter());
             GlobalHost.DependencyResolver.Register(typeof(JsonSerializer), () => serializer);
+            var dependencyResolver = IocContainer.CreateDepenencyResolver();
+            GlobalHost.DependencyResolver.Register(typeof(INotificationConnectionManager), () => dependencyResolver.Resolve<INotificationConnectionManager>());
 
             //var hubConfiguration = new HubConfiguration();
             //hubConfiguration.EnableDetailedErrors = true;

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Social.Domain;
+using Social.Infrastructure.Enum;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -10,6 +12,18 @@ namespace Social.Infrastructure.Core
 {
     public class NotificationManager : INotificationManager
     {
+        private INotificationConnectionManager _connectionManager;
+        private IFilterService _filterService;
+
+        public NotificationManager(
+            INotificationConnectionManager connectionManager,
+            IFilterService filterService
+            )
+        {
+            _connectionManager = connectionManager;
+            _filterService = filterService;
+        }
+
         private TimeSpan _delayTimeSpan = TimeSpan.Zero;
 
         public async Task NotifyNewConversation(int siteId, int conversationId)
@@ -48,19 +62,34 @@ namespace Social.Infrastructure.Core
             await GetAsync($"/twitter-direct-message-created?siteId={siteId}&messageId={messageId}");
         }
 
-        public async Task NotifyNewPublicFilter(int siteId, int filterId)
+        public async Task NotifyNewFilter(int siteId, int filterId)
         {
-            await GetAsync($"/public-filter-created?siteId={siteId}&filterId={filterId}");
+            var filter = _filterService.FindFilterInlucdeConditions(filterId);
+            _connectionManager.RefreshCacheItem(filter, OperationType.Add);
+            if (filter.IfPublic)
+            {
+                await GetAsync($"/public-filter-created?siteId={siteId}&filterId={filterId}");
+            }
         }
 
-        public async Task NotifyDeletePublicFilter(int siteId, int filterId)
+        public async Task NotifyDeleteFilter(int siteId, int filterId)
         {
-            await GetAsync($"/public-filter-deleted?siteId={siteId}&filterId={filterId}");
+            var filter = _filterService.FindFilterInlucdeConditions(filterId);
+            _connectionManager.RefreshCacheItem(filter, OperationType.Delete);
+            if (filter.IfPublic)
+            {
+                await GetAsync($"/public-filter-deleted?siteId={siteId}&filterId={filterId}");
+            }
         }
 
-        public async Task NotifyUpdatePublicFilter(int siteId, int filterId)
+        public async Task NotifyUpdateFilter(int siteId, int filterId)
         {
-            await GetAsync($"/public-filter-updated?siteId={siteId}&filterId={filterId}");
+            var filter = _filterService.FindFilterInlucdeConditions(filterId);
+            _connectionManager.RefreshCacheItem(filter, OperationType.Update);
+            if (filter.IfPublic)
+            {
+                await GetAsync($"/public-filter-updated?siteId={siteId}&filterId={filterId}");
+            }
         }
 
         public async Task GetAsync(string url)

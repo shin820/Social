@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Social.Domain.DomainServices.FilterExpressions
 {
-   public abstract class NumberExpression : IConditionExpression
+    public abstract class NumberExpression : ConditionExpression
     {
         private string _propertyName;
 
@@ -18,7 +18,7 @@ namespace Social.Domain.DomainServices.FilterExpressions
             _propertyName = propertyName;
         }
 
-        public virtual bool IsMatch(FilterCondition condition)
+        public override bool IsMatch(FilterCondition condition)
         {
             if (condition == null || condition.Field == null)
             {
@@ -28,7 +28,7 @@ namespace Social.Domain.DomainServices.FilterExpressions
             return condition.Field.DataType == FieldDataType.Number && condition.Field.Name == _propertyName;
         }
 
-        public virtual Expression<Func<Conversation, bool>> Build(FilterCondition condition)
+        public override Expression<Func<Conversation, bool>> Build(FilterCondition condition)
         {
             if (condition.MatchType == ConditionMatchType.Is)
             {

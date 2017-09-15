@@ -13,5 +13,6 @@ namespace Social.Domain.DomainServices
     {
         bool IsMatch(FilterCondition condition);
         Expression<Func<Conversation, bool>> Build(FilterCondition condition);
+        IConditionExpression SetOptions(ExpressionBuildOptions options);
     }
 }

@@ -12,5 +12,6 @@ namespace Social.Domain.DomainServices
     public interface IFilterExpressionFactory : ITransient
     {
         Expression<Func<Conversation, bool>> Create(Filter filter);
+        Expression<Func<Conversation, bool>> Create(Filter filter, ExpressionBuildOptions options);
     }
 }

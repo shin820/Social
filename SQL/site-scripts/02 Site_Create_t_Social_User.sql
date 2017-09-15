@@ -4,14 +4,14 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [t_Social_User](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[OriginalId] [nvarchar](200) NOT NULL,
-	[OriginalLink] [nvarchar](500) NULL,
+	[OriginalId] [nvarchar](256) NOT NULL,
+	[OriginalLink] [nvarchar](512) NULL DEFAULT(''),
 	[Source] [smallint] NOT NULL,
-	[Name] [nvarchar](200) NOT NULL,
-	[Email] [nvarchar](200) NULL,
-	[Avatar] [nvarchar](200) NULL,
+	[Name] [nvarchar](256) NOT NULL,
+	[Email] [nvarchar](256) NULL DEFAULT(''),
+	[Avatar] [nvarchar](256) NULL DEFAULT(''),
 	[SiteId] [int] NOT NULL,
-	[ScreenName] [nvarchar](200) NULL,
+	[ScreenName] [nvarchar](256) NULL DEFAULT(''),
 	[Type] [smallint] NOT NULL,
 	[IsDeleted] [bit] DEFAULT(0) NOT NULL,
  CONSTRAINT [PK_t_Social_User] PRIMARY KEY CLUSTERED 

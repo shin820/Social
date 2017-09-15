@@ -15,17 +15,23 @@ namespace Social.Domain.DomainServices.FilterExpressions
     public class FilterExpressionFactory : IFilterExpressionFactory
     {
         private IList<IConditionExpression> _conditionExpressions;
+        private IDependencyResolver _dependencyResolver;
 
         public FilterExpressionFactory(IDependencyResolver dependencyResover)
         {
             _conditionExpressions = dependencyResover.ResolveAll<IConditionExpression>();
+            _dependencyResolver = dependencyResover;
         }
-
 
         public Expression<Func<Conversation, bool>> Create(Filter filter)
         {
-            var expressions = filter.Conditions.Select(t => GetConditionExpression(t)).Where(t => t != null).ToList();
-            if(expressions.Count() == 0)
+            return Create(filter, new ExpressionBuildOptions(_dependencyResolver));
+        }
+
+        public Expression<Func<Conversation, bool>> Create(Filter filter, ExpressionBuildOptions options)
+        {
+            var expressions = filter.Conditions.Select(t => GetConditionExpression(t, options)).Where(t => t != null).ToList();
+            if (expressions.Count() == 0)
             {
                 return t => true;
             }
@@ -54,7 +60,7 @@ namespace Social.Domain.DomainServices.FilterExpressions
             if (filter.Type == FilterType.LogicalExpression)
             {
                 var predicate = PredicateBuilder.New<Conversation>();
-                var expressionDic = filter.Conditions.ToDictionary(t => t.Index, t => GetConditionExpression(t));
+                var expressionDic = filter.Conditions.ToDictionary(t => t.Index, t => GetConditionExpression(t, options));
 
                 var buildResult = LogicalExpressionBuilder.Build(expressionDic, filter.LogicalExpression);
                 if (buildResult.IsSuccess)
@@ -66,13 +72,13 @@ namespace Social.Domain.DomainServices.FilterExpressions
             return t => true;
         }
 
-        private Expression<Func<Conversation, bool>> GetConditionExpression(FilterCondition condition)
+        private Expression<Func<Conversation, bool>> GetConditionExpression(FilterCondition condition, ExpressionBuildOptions options)
         {
             foreach (var expression in _conditionExpressions)
             {
                 if (expression.IsMatch(condition))
                 {
-                    return expression.Build(condition);
+                    return expression.SetOptions(options).Build(condition);
                 }
             }
 

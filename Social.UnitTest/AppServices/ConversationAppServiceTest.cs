@@ -28,7 +28,7 @@ namespace Social.UnitTest.AppServices
             // Arrange
             var fakeConversationEntity = MakeConversationEntity(1);
             var conversationService = new Mock<IConversationService>();
-            conversationService.Setup(t => t.Find(1)).Returns(fakeConversationEntity);
+            conversationService.Setup(t => t.CheckIfExists(1)).Returns(fakeConversationEntity);
             var messageService = MakeFakeMessageService(fakeConversationEntity.Messages);
             ConversationAppService appSerice = new ConversationAppService(
                 conversationService.Object,
@@ -44,22 +44,6 @@ namespace Social.UnitTest.AppServices
             // Assert
             Assert.NotNull(conversationDto);
             AssertDtoEqualToEntity(fakeConversationEntity, conversationDto);
-        }
-
-        [Fact]
-        public void ShouldThrowExceptionIfConverationNotFoundWhenFindById()
-        {
-            // Arrange
-            var conversationService = new Mock<IConversationService>();
-            conversationService.Setup(t => t.Find(1)).Returns<Conversation>(null);
-            var messageService = new Mock<IMessageService>();
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, messageService.Object, null, null, null, null);
-
-            // Act
-            Action action = () => { appSerice.Find(1); };
-
-            // Assert
-            Assert.Throws<ExceptionWithCode>(action);
         }
 
         [Fact]
@@ -188,7 +172,7 @@ namespace Social.UnitTest.AppServices
             // Arrange
             var fakeConversationEntity = MakeConversationEntity(1);
             var conversationService = new Mock<IConversationService>();
-            conversationService.Setup(t => t.Find(1)).Returns(fakeConversationEntity);
+            conversationService.Setup(t => t.CheckIfExists(1)).Returns(fakeConversationEntity);
             ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, null, null, null, null);
 
             // Act
@@ -196,21 +180,6 @@ namespace Social.UnitTest.AppServices
 
             // Assert
             conversationService.Verify(t => t.Delete(fakeConversationEntity));
-        }
-
-        [Fact]
-        public void ShouldThrowExceptionIfConverationNotExistsWhenDelete()
-        {
-            // Arrange
-            var conversationService = new Mock<IConversationService>();
-            conversationService.Setup(t => t.Find(1)).Returns<Conversation>(null);
-            ConversationAppService appSerice = new ConversationAppService(conversationService.Object, null, null, null, null, null);
-
-            // Act
-            Action action = () => { appSerice.Delete(1); };
-
-            // Assert
-            Assert.Throws<ExceptionWithCode>(action);
         }
 
         [Fact]

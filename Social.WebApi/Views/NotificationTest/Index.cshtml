@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Notification";
 }
 
@@ -10,14 +9,11 @@
     </div>
     <div class="row">
         <div class="col-md-2">
+            <span>Token : <input id="txtToken" type="text" /></span>
             <span>Site Id : <input id="txtSiteId" type="text" value="10000" /></span>
             <button id="btnStart">Start</button>
+            <button id="btnStop">Stop</button>
         </div>
-        @*<div class="col-md-2">
-                <span>Conversation Id : <input id="txtConversationId" type="text" /></span>
-                <button id="btnJoinConversation">Join Conversation</button>
-                <button id="btnLeaveConversation">Leave Conversation</button>
-            </div>*@
         <div class="col-md-10">
             <div id="discussion"></div>
         </div>
@@ -31,33 +27,29 @@
     <script>
         $(function () {
 
-            $.connection.hub.url = 'http://192.168.0.154:30000/signalr';
+            $.connection.hub.url = 'http://127.0.0.1:30001/signalr';
             var hub = $.connection.notificationHub;
 
             $("#btnStart").click(function () {
                 hub.state.agentId = 1;
 
+                var token = $("#txtToken").val();
+                $.signalR.ajaxDefaults.headers = { Authorization: "Bearer " + token };
+
                 var siteId = $("#txtSiteId").val();
                 hub.state.siteId = siteId;
                 $.connection.logging = true;
-                $.connection.hub.qs = { "siteId": siteId };
+                $.connection.hub.qs = { "access_token": token };
 
-                $.connection.hub.stop();
                 $.connection.hub.start().done(function () {
-
-                    $("#btnJoinConversation").click(function () {
-                        var conversationId = $("#txtConversationId").val();
-                        if (conversationId) {
-                            hub.server.joinConversation(conversationId);
-                        }
-                    });
-                    $("#btnLeaveConversation").click(function () {
-                        var conversationId = $("#txtConversationId").val();
-                        if (conversationId) {
-                            hub.server.leaveConversation(conversationId);
-                        }
-                    });
                 });
+            });
+
+            $("#btnStop").click(function () {
+                if ($.connection.hub != null) {
+                    $.connection.hub.stop().done(function () {
+                    });
+                }
             });
 
             hub.client.conversationLogCreated = function (logs) {

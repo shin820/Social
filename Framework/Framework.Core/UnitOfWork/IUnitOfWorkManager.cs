@@ -24,6 +24,7 @@ namespace Framework.Core.UnitOfWork
         Task Run(TransactionScopeOption scope, int? siteId, Func<Task> func);
         Task Run(UnitOfWorkOptions options, int? siteId, Func<Task> func);
         Task RunWithoutTransaction(int? siteId, Func<Task> func);
+        void RunWithoutTransaction(int? siteId, Action action);
         Task RunWithNewTransaction(int? siteId, Func<Task> func);
     }
 }

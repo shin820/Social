@@ -7,7 +7,7 @@ CREATE TABLE [t_Social_FilterCondition](
 	[FilterId] [int] NOT NULL,
 	[FieldId] [int] NOT NULL,
 	[MatchType] [smallint] NOT NULL,
-	[Value] [nvarchar](200) NULL,
+	[Value] [nvarchar](256) NOT NULL,
 	[SiteId] [int] NOT NULL,
 	[Index] [int] DEFAULT(0) NOT NULL,
  CONSTRAINT [PK_t_Social_FilterCondition] PRIMARY KEY CLUSTERED 

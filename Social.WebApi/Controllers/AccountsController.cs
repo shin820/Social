@@ -10,35 +10,67 @@ using System.Security.Claims;
 using System.Threading;
 using System.Web.Http;
 using Framework.Core;
+using Social.Application.AppServices;
+using Framework.WebApi;
 
 namespace Social.WebApi.Controllers
 {
     [RoutePrefix("api/accounts")]
     public class AccountsController : ApiController
     {
+        private IAgentAppService _agentAppService;
+
+        public AccountsController(IAgentAppService agentAppService)
+        {
+            _agentAppService = agentAppService;
+        }
+
         public static OAuthBearerAuthenticationOptions OAuthBearerOptions { get; private set; }
+        public static TimeSpan SessionDuration
+        {
+            get { return TimeSpan.FromMinutes(20); }
+        }
 
         static AccountsController()
         {
             OAuthBearerOptions = new OAuthBearerAuthenticationOptions();
+            OAuthBearerOptions.Provider = new TokenProvider();
         }
 
-        [ApiAuthorize(Permissions = "get_me")]
-        [HttpGet]
-        [Route("me")]
-        public Me Me()
+        [HttpPost]
+        [Route("token")]
+        public string Authenticate(AuthenticationModel model)
         {
-            ClaimsIdentity identity = Thread.CurrentPrincipal.Identity as ClaimsIdentity;
-            var me = new Me
+            var agent = _agentAppService.Find(model.UserId.Value);
+            if (agent != null)
             {
-                Id = identity.GetUserId<string>(),
-                Name = identity.GetUserName(),
-                Email = identity.Claims.FirstOrDefault(t => t.Type == ClaimTypes.Email).Value,
-                SideId = identity.GetSideId()
-            };
-
-            return me;
+                ClaimsIdentity claimsIdentity = new ClaimsIdentity("chat_server_session_identity");
+                claimsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, model.UserId.ToString()));
+                claimsIdentity.AddClaim(new Claim(ClaimTypes.Name, agent.Name));
+                claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, agent.IfAdmin ? "admin" : "agent"));
+                claimsIdentity.AddClaim(new Claim(Comm100ClaimTypes.SiteId, Request.GetSiteId().ToString()));
+                claimsIdentity.AddClaim(new Claim(Comm100ClaimTypes.SessionId, model.SessionId));
+                var ticket = new AuthenticationTicket(claimsIdentity, new AuthenticationProperties());
+                return OAuthBearerOptions.AccessTokenFormat.Protect(ticket);
+            }
+            return string.Empty;
         }
+
+        //[HttpGet]
+        //[Route("me")]
+        //public Me Me()
+        //{
+        //    ClaimsIdentity identity = Thread.CurrentPrincipal.Identity as ClaimsIdentity;
+        //    var me = new Me
+        //    {
+        //        Id = identity.GetUserId<string>(),
+        //        Name = identity.GetUserName(),
+        //        Email = identity.Claims.FirstOrDefault(t => t.Type == ClaimTypes.Email).Value,
+        //        SideId = identity.GetSideId()
+        //    };
+
+        //    return me;
+        //}
 
         //[HttpPost]
         //[Route("token")]

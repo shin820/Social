@@ -19,6 +19,12 @@ namespace Social.Job
             return _runningJobCache.ContainsKey(key);
         }
 
+        public bool IsRunning<TJob>(int siteId) where TJob : JobBase
+        {
+            string key = GetJobKey<TJob>(siteId);
+            return _runningJobCache.ContainsKey(key);
+        }
+
         public void Schedule<TJob>(IScheduleJobManager scheduleJobManager, SiteSocialAccount account, Action<TriggerBuilder> configureTrigger) where TJob : JobBase
         {
             string originalAccountId = !string.IsNullOrWhiteSpace(account.FacebookPageId) ? account.FacebookPageId : account.TwitterUserId;
@@ -54,6 +60,34 @@ namespace Social.Job
             _runningJobCache.AddOrUpdate(jobKey, runningJob, (k, job) => { return runningJob; });
         }
 
+        public void Schedule<TJob>(IScheduleJobManager scheduleJobManager, int siteId, Action<TriggerBuilder> configureTrigger) where TJob : JobBase
+        {
+            string groupName = GetJobGroup<TJob>();
+            string jobKey = GetJobKey<TJob>(siteId);
+            bool isRunning = IsRunning<TJob>(siteId);
+            if (!isRunning)
+            {
+                scheduleJobManager.ScheduleAsync<TJob, int>(
+                job =>
+                {
+                    job.WithIdentity(jobKey, groupName);
+                },
+                configureTrigger,
+                siteId
+                );
+            }
+
+            var runningJob = new RunningJob
+            {
+                JobKey = jobKey,
+                JobGroup = groupName,
+                SiteId = siteId,
+                LastScheduleTime = DateTime.UtcNow
+            };
+
+            _runningJobCache.AddOrUpdate(jobKey, runningJob, (k, job) => { return runningJob; });
+        }
+
         public void StopTimeoutJobs(IScheduler scheduler)
         {
             var timemOutJobs = _runningJobCache.Where(t => t.Value.IsTimeout).ToList();
@@ -74,6 +108,11 @@ namespace Social.Job
         public static string GetJobKey<TJob>(int siteId, string originalAccountId) where TJob : JobBase
         {
             return $"{typeof(TJob).Name} - SiteId({siteId}) - OriginalId({originalAccountId})";
+        }
+
+        public static string GetJobKey<TJob>(int siteId) where TJob : JobBase
+        {
+            return $"{typeof(TJob).Name} - SiteId({siteId})";
         }
 
         public static string GetJobGroup<TJob>() where TJob : JobBase

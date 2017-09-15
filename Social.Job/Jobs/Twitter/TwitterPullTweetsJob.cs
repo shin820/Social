@@ -12,24 +12,14 @@ namespace Social.Job.Jobs
 {
     public class TwitterPullTweetsJob : JobBase, ITransient
     {
-        private ITwitterAppService _twitterAppService;
-
-        public TwitterPullTweetsJob(
-            ITwitterAppService twitterAppService
-            )
-        {
-            _twitterAppService = twitterAppService;
-        }
-
         protected async override Task ExecuteJob(IJobExecutionContext context)
         {
-            SocialAccount socialAccount = await GetTwitterSocialAccount(context);
-            if (socialAccount == null)
+            var socialAccounts = await GetTwitterSocialAccounts(context);
+            foreach (var socialAccount in socialAccounts)
             {
-                return;
+                ITwitterAppService twitterAppService = DependencyResolver.Resolve<ITwitterAppService>();
+                await twitterAppService.PullTweets(socialAccount);
             }
-
-            await _twitterAppService.PullTweets(socialAccount);
         }
     }
 }

@@ -1,41 +1,45 @@
 ﻿using Microsoft.AspNet.SignalR;
+using Social.Infrastructure;
 using System.Threading.Tasks;
-
 namespace Social.WebApi.Hubs
 {
+    [Authorize]
     public class NotificationHub : Hub
     {
-        //public Task JoinConversation(int conversationId)
-        //{
-        //    return Groups.Add(Context.ConnectionId, conversationId.ToString());
-        //}
-
-        //public Task LeaveConversation(int conversationId)
-        //{
-        //    return Groups.Remove(Context.ConnectionId, conversationId.ToString());
-        //}
+        public NotificationHub()
+        {
+        }
 
         public override Task OnConnected()
         {
-            Groups.Add(Context.ConnectionId, GetSiteId());
+            var connectionManager = GetConnectionManager();
+            int userId = Context.Request.User.Identity.GetUserId().GetValueOrDefault();
+            int siteId = Context.Request.User.Identity.GetSiteId().GetValueOrDefault();
+            connectionManager.Connect(siteId, userId, Context.ConnectionId);
             return base.OnConnected();
         }
 
         public override Task OnDisconnected(bool stopCalled)
         {
-            Groups.Remove(Context.ConnectionId, GetSiteId());
+            var connectionManager = GetConnectionManager();
+            int userId = Context.Request.User.Identity.GetUserId().GetValueOrDefault();
+            int siteId = Context.Request.User.Identity.GetSiteId().GetValueOrDefault();
+            connectionManager.Disconnect(siteId, userId, Context.ConnectionId);
             return base.OnDisconnected(stopCalled);
         }
 
         public override Task OnReconnected()
         {
-            Groups.Add(Context.ConnectionId, GetSiteId());
+            var connectionManager = GetConnectionManager();
+            int userId = Context.Request.User.Identity.GetUserId().GetValueOrDefault();
+            int siteId = Context.Request.User.Identity.GetSiteId().GetValueOrDefault();
+            connectionManager.Reconnect(siteId, userId, Context.ConnectionId);
             return base.OnReconnected();
         }
 
-        private string GetSiteId()
+        public INotificationConnectionManager GetConnectionManager()
         {
-            return Context.QueryString["siteId"];
+            return GlobalHost.DependencyResolver.GetService(typeof(INotificationConnectionManager)) as INotificationConnectionManager;
         }
     }
 }

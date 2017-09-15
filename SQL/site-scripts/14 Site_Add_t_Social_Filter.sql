@@ -29,8 +29,8 @@ BEGIN
 		)
 		VALUES
 		(''My Open'', 1, 1,1,0,getdate(),'+@siteIdStr+' ),
-		(''My Department''''s Open'', 2, 1,1,0,getdate(),'+@siteIdStr+' ),
-		(''My Offline Colleagues'''' Open'', 3, 1,1,0,getdate(),'+@siteIdStr+' ),
+		(''My Departments'''' Open'', 2, 1,1,0,getdate(),'+@siteIdStr+' ),
+		(''My Offline Department Members'''' Open'', 3, 1,1,0,getdate(),'+@siteIdStr+' ),
 		(''All Open'', 4, 1,1,0,getdate(),'+@siteIdStr+' ),
 		(''Unassigned'', 5, 1,1,0,getdate(),'+@siteIdStr+' ),
 		(''All'', 6, 1,1,0,getdate(),'+@siteIdStr+' )

@@ -34,6 +34,11 @@ namespace Social.WebApi.Core
         {
             get
             {
+                if (HttpContext.Current == null)
+                {
+                    return 0;
+                }
+
                 string siteIdStr = string.Empty;
                 try
                 {

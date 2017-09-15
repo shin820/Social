@@ -16,6 +16,9 @@ namespace Social.Domain
 {
     public interface IFilterService : IDomainService<Filter>
     {
+        Filter FindFilterInlucdeConditions(int id);
+        IQueryable<Filter> FindAllFiltersInlucdeConditions();
+        IQueryable<Filter> FindFiltersInlucdeConditions(int userId);
         void UpdateFilter(Filter filter, FilterCondition[] contiditons);
         void DeleteConditons(Filter updateFilter);
         int GetConversationNum(Filter filter);
@@ -48,6 +51,23 @@ namespace Social.Domain
             _userRepo = userRepo;
             _conversationFieldRepo = conversationFieldRepo;
             _conversationFieldOptionService = conversationFieldOptionService;
+        }
+
+        public Filter FindFilterInlucdeConditions(int id)
+        {
+            return this.FindAll().Include(t => t.Conditions.Select(r => r.Field)).FirstOrDefault(t => t.Id == id);
+        }
+
+        public IQueryable<Filter> FindAllFiltersInlucdeConditions()
+        {
+            return this.FindAll().Include(t => t.Conditions.Select(r => r.Field));
+        }
+
+        public IQueryable<Filter> FindFiltersInlucdeConditions(int userId)
+        {
+            return this.FindAll()
+                .Include(t => t.Conditions.Select(r => r.Field))
+                .Where(t => t.IfPublic || t.CreatedBy == userId);
         }
 
         public void DeleteConditons(Filter updateFilter)
@@ -143,16 +163,16 @@ namespace Social.Domain
                 {
                     if (conversationField.Where(t => t.Id == filterConditon.FieldId && t.Options.Any(o => o.Value == filterConditon.Value)).Count() == 0)
                     {
-                        if((!departmentAddOptions.Contains(filterConditon.Value)|| !departmentFieldNames.Contains(conversationField.Where(t => t.Id == filterConditon.FieldId).FirstOrDefault().Name))
+                        if ((!departmentAddOptions.Contains(filterConditon.Value) || !departmentFieldNames.Contains(conversationField.Where(t => t.Id == filterConditon.FieldId).FirstOrDefault().Name))
                             && (!agentAddOptions.Contains(filterConditon.Value) || !agentsFieldNames.Contains(conversationField.Where(t => t.Id == filterConditon.FieldId).FirstOrDefault().Name)))
-                        throw SocialExceptions.BadRequest($"The value's type is not Option : '{filterConditon.Value}' ");
+                            throw SocialExceptions.BadRequest($"The value's type is not Option : '{filterConditon.Value}' ");
                     }
                 }
             }
         }
 
-        private List<string> departmentAddOptions = new List<string> { "@My Department" ,"Blank"};
-        private List<string> agentAddOptions = new List<string> { "@Me", "Blank" , "@My Department Member" };
+        private List<string> departmentAddOptions = new List<string> { "@My Department", "Blank" };
+        private List<string> agentAddOptions = new List<string> { "@Me", "Blank", "@My Department Member" };
         private List<string> agentsFieldNames = new List<string> { "Agent Assignee", "Replied Agents", "Last Replied Agent" };
         private List<string> departmentFieldNames = new List<string> { "Department Assignee" };
 
