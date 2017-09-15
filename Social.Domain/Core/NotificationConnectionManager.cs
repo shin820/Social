@@ -194,7 +194,7 @@ namespace Social.Domain.Core
 
             UnitOfWorkManager.RunWithoutTransaction(siteId, () =>
             {
-                user.DepartmentId = _departmentService.GetMyDepartmentId(agentId);
+                user.Departments = _departmentService.GetMyDepartmentIds(agentId);
                 user.DepartmentMembers = _departmentService.GetMyDepartmentMembers(agentId);
             });
 
