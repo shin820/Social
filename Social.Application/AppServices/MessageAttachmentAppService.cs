@@ -33,7 +33,6 @@ namespace Social.Application.AppServices
             //var messageAttachments = _messageAttachmentRepo.FindAll()
             //   .Where(t => t.Id == 2118)
             //   .ToList();
-            var date = DateTime.UtcNow.AddDays(-1);
             var messageAttachments = _messageAttachmentRepo.FindAll()
                 .Where(t => (t.MimeType.Contains("image") || t.MimeType.Contains("audio") || t.MimeType.Contains("video"))
                 && t.RawData == null && t.Message.SendTime > dateTime)
