@@ -27,7 +27,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
             var options = new ExpressionBuildOptions
             {
                 UserId = 1,
-                MyDepartmentId = 1
+                MyDepartments = new int[] { 1}
             };
             var expression = new DepartmentAssigneeExpression().SetOptions(options).Build(condition);
 
@@ -55,7 +55,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
             var options = new ExpressionBuildOptions
             {
                 UserId = 1,
-                MyDepartmentId = 1
+                MyDepartments = new int[] { 1 }
             };
             var expression = new DepartmentAssigneeExpression().SetOptions(options).Build(condition);
 

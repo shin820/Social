@@ -1,4 +1,5 @@
 ﻿using Framework.Core;
+using LinqKit;
 using Social.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -17,14 +18,39 @@ namespace Social.Domain.DomainServices
 
         protected override Expression<Func<Conversation, bool>> Is(FilterCondition condition)
         {
-            int? value = MatchValue(condition);
-            return t => t.DepartmentId.HasValue && t.DepartmentId.Value == value;
+            List<int> values = MatchValue(condition);
+            if(values == null)
+            {
+                return t => !t.DepartmentId.HasValue;
+            }
+            else
+            {
+                var predicate = PredicateBuilder.New<Conversation>();
+                foreach(int value in values)
+                {
+                    predicate.Or(t => t.DepartmentId.HasValue && t.DepartmentId.Value == value);
+                }
+                return predicate;
+            }
         }
 
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
         {
-            int? value = MatchValue(condition);
-            return t => t.DepartmentId.HasValue && t.DepartmentId.Value != value || !t.DepartmentId.HasValue;
+            List<int> values = MatchValue(condition);
+            if (values == null)
+            {
+                return t => t.DepartmentId.HasValue;
+            }
+            else
+            {
+                var predicate = PredicateBuilder.New<Conversation>();
+                foreach (int value in values)
+                {
+                    predicate.And(t => t.DepartmentId.HasValue && t.DepartmentId.Value != value);
+                }
+                predicate.Or(t => !t.DepartmentId.HasValue);
+                return predicate;
+            }
         }
 
         protected override object GetValue(string rawValue)
@@ -32,12 +58,12 @@ namespace Social.Domain.DomainServices
             return null;
         }
 
-        private int? MatchValue(FilterCondition condition)
+        private List<int> MatchValue(FilterCondition condition)
         {
-            int value = default(int);
+            List<int> values = new List<int>();
             if (condition.Value == "@My Department")
             {
-                value = GetMyDepartmentId();
+                values = GetMyDepartments().ToList();
             }
             else if (condition.Value == "Blank")
             {
@@ -45,9 +71,9 @@ namespace Social.Domain.DomainServices
             }
             else
             {
-                value = int.Parse(condition.Value);
+                values.Add(int.Parse(condition.Value));
             }
-            return value;
+            return values;
         }
     }
 }

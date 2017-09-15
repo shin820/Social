@@ -112,7 +112,7 @@ namespace Social.Domain.Core
                 var expressionBuildOptions = new ExpressionBuildOptions
                 {
                     UserId = agent.Id,
-                    MyDepartmentId = agent.DepartmentId,
+                    MyDepartments = agent.Departments,
                     MyDepartmentMembers = agent.DepartmentMembers
                 };
 
@@ -189,7 +189,7 @@ namespace Social.Domain.Core
                 Id = agentId,
                 IfAdmin = false
             };
-            user.DepartmentId = _departmentService.GetMyDepartmentId(agentId);
+            user.Departments = _departmentService.GetMyDepartmentIds(agentId);
             user.DepartmentMembers = _departmentService.GetMyDepartmentMembers(agentId);
 
             _agentConnectionCache.RefreshKey(user);

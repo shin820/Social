@@ -34,8 +34,14 @@ namespace Social.Domain.DomainServices
             {
                 value = MatchValue(condition);
             }
-
-            return t => t.AgentId == value;
+            if(value == null)
+            {
+                return t => !t.AgentId.HasValue;
+            }
+            else
+            {
+                return t => t.AgentId.HasValue && t.AgentId.Value == value;
+            }
         }
 
         protected override Expression<Func<Conversation, bool>> IsNot(FilterCondition condition)
@@ -57,7 +63,14 @@ namespace Social.Domain.DomainServices
                 value = MatchValue(condition);
             }
 
-            return t => t.AgentId.HasValue && t.AgentId.Value != value || !t.AgentId.HasValue;
+            if (value == null)
+            {
+                return t => t.AgentId.HasValue;
+            }
+            else
+            {
+                return t => !t.AgentId.HasValue || t.AgentId.Value != value;
+            }
         }
 
         protected override object GetValue(string rawValue)
