@@ -78,7 +78,7 @@ namespace Social.UnitTest.AppServices
         }
 
         [Fact]
-        public void ShouldInsertByCreateDto()
+        public async Task ShouldInsertByCreateDto()
         {
             //Arrange
             var domainService = new Mock<IFilterService>();
@@ -91,7 +91,7 @@ namespace Social.UnitTest.AppServices
             FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, notificationManager.Object);
             filterAppService.UnitOfWorkManager = unitOfWorkManager.Object;
             //Act
-            FilterDetailsDto filterDetailsDto = filterAppService.Insert(MakeFilterCreateDto());
+            FilterDetailsDto filterDetailsDto = await filterAppService.Insert(MakeFilterCreateDto());
             //Assert
             AssertDtoEqualToEntity(MakeFilterEntity(1), MakeFilterCreateDto());
             AssertDtoEqualToEntity(MakeFilterEntity(1), filterDetailsDto);
@@ -206,7 +206,7 @@ namespace Social.UnitTest.AppServices
         }
 
         [Fact]
-        public void ShouldUpdate()
+        public async Task ShouldUpdate()
         {
             //Arrange
             var domainService = new Mock<IFilterService>();
@@ -219,7 +219,7 @@ namespace Social.UnitTest.AppServices
             FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, notificationManager.Object);
             filterAppService.UnitOfWorkManager = unitOfWorkManager.Object;
             //Act
-            FilterDetailsDto filterDetailsDto = filterAppService.Update(1, MakeFilterUpdateDto());
+            FilterDetailsDto filterDetailsDto = await filterAppService.Update(1, MakeFilterUpdateDto());
             //Assert
             domainService.Verify(t => t.DeleteConditons(It.Is<Filter>(r => r.Id == 1)));
             domainService.Verify(t => t.UpdateFilter(It.Is<Filter>(r => r.Id == 1), It.Is<FilterCondition[]>(r => r.FirstOrDefault().FieldId == 1)));
