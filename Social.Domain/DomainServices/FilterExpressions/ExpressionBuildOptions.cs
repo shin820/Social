@@ -24,7 +24,7 @@ namespace Social.Domain.DomainServices
 
         public int UserId { get; set; }
         public int[] MyDepartmentMembers { get; set; }
-        public int MyDepartmentId { get; set; }
+        public int[] MyDepartments { get; set; }
         public IList<DepartmentStatus> DepartmentStatuses { get; set; }
 
 
@@ -56,17 +56,17 @@ namespace Social.Domain.DomainServices
             }
         }
 
-        public int GetMyDepartmentId()
+        public int[] GetMyDepartments()
         {
-            if (MyDepartmentId > 0)
+            if (MyDepartments != null)
             {
-                return MyDepartmentId;
+                return MyDepartments;
             }
             else
             {
                 Checker.NotNull(_dependencyResolver, nameof(_dependencyResolver));
                 var departmentService = _dependencyResolver.Resolve<IDepartmentService>();
-                return departmentService.GetMyDepartmentId(GetUserId());
+                return departmentService.GetMyDepartmentIds(GetUserId());
             }
         }
     }

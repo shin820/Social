@@ -33,9 +33,9 @@ namespace Social.Domain.DomainServices
             return _options.GetMyDepartmentMembers();
         }
 
-        protected int GetMyDepartmentId()
+        protected int[] GetMyDepartments()
         {
-            return _options.GetMyDepartmentId();
+            return _options.GetMyDepartments();
         }
     }
 }

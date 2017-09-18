@@ -12,7 +12,7 @@ namespace Social.Infrastructure.Cache
         public int SiteId { get; set; }
         public bool IfAdmin { get; set; }
 
-        public int DepartmentId { get; set; }
+        public int[] Departments { get; set; }
         public int[] DepartmentMembers { get; set; }
 
         public override bool Equals(object obj)

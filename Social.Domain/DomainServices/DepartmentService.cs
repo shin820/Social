@@ -8,7 +8,7 @@ namespace Social.Domain.DomainServices
     public interface IDepartmentService
     {
         string GetDisplayName(int? departmentId);
-        int GetMyDepartmentId(int userId);
+        int[] GetMyDepartmentIds(int userId);
         int[] GetMyDepartmentMembers(int userId);
         int[] GetMatchedStatusDepartments(int status);
         IList<Department> FindAll();
@@ -59,14 +59,14 @@ namespace Social.Domain.DomainServices
             return department == null ? "N/A" : department.Name;
         }
 
-        public int GetMyDepartmentId(int userId)
+        public int[] GetMyDepartmentIds(int userId)
         {
             if (userId == null)
             {
-                return 0;
+                return new int[] { 0};
             }
 
-            return 1;
+            return new int[] { 1};
         }
 
         public int[] GetMyDepartmentMembers(int userId)
