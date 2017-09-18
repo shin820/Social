@@ -59,7 +59,7 @@ namespace Social.Application.AppServices
             }
             _agentService.FillCreatedByName(filterDtoes);
 
-            return filterDtoes;
+            return filterDtoes.OrderBy(t => t.Index).ToList();
         }
 
         public FilterListDto FindSummary(int id)
@@ -162,7 +162,7 @@ namespace Social.Application.AppServices
                 filterDto.CreatedByName = _agentService.GetDisplayName(filter.CreatedBy);
                 filterDtos.Add(filterDto);
             }
-            return filterDtos;
+            return filterDtos.OrderBy(t => t.Index).ToList();
         }
 
         public List<FilterManageDto> Sorting(IList<FilterSortDto> dtoList)
