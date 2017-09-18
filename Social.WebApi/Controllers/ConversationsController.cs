@@ -55,6 +55,16 @@ namespace Social.WebApi.Controllers
             return _conversationAppService.Find(id);
         }
 
+        /// <summary>
+        /// Get unread conversation count for sign-in agent.
+        /// </summary>
+        /// <returns></returns>
+        [Route("unread-count")]
+        public int GetUnreadCountForCurrentAgent()
+        {
+            return _conversationAppService.GetUnReadConversationCount();
+        }
+
         //[Route()]
         //[ResponseType(typeof(ConversationDto))]
         //public IHttpActionResult PostConversation(ConversationCreateDto createDto)

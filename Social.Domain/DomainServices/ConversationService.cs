@@ -31,6 +31,7 @@ namespace Social.Domain.DomainServices
         Conversation Reopen(Conversation entity);
         Conversation MarkAsRead(Conversation entity);
         Conversation MarkAsUnRead(Conversation entity);
+        int GetUnReadConversationCount(IList<Filter> filters);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -159,6 +160,24 @@ namespace Social.Domain.DomainServices
             var expression = _filterExpressionFactory.Create(filter);
             conversations = conversations.Where(expression);
             return conversations;
+        }
+
+        public int GetUnReadConversationCount(IList<Filter> filters)
+        {
+            if (filters == null || !filters.Any())
+            {
+                return 0;
+            }
+
+            var predicate = PredicateBuilder.New<Conversation>();
+            foreach (var filter in filters)
+            {
+                var expression = _filterExpressionFactory.Create(filter);
+                predicate.Or(expression);
+            }
+
+            var conversations = Repository.FindAll().AsExpandable().Where(t => t.IsDeleted == false && t.IfRead == false);
+            return conversations.Where(predicate).Count();
         }
 
         public IQueryable<Conversation> FindAll(Filter filter)
