@@ -196,6 +196,8 @@
     <Compile Include="Entities\Conversation.cs" />
     <Compile Include="Entities\ConversationField.cs" />
     <Compile Include="Entities\ConversationFieldOption.cs" />
+    <Compile Include="Entities\CpanelConfigOption.cs" />
+    <Compile Include="Entities\DepartmentMember.cs" />
     <Compile Include="Entities\Filter.cs" />
     <Compile Include="Entities\FilterCondition.cs" />
     <Compile Include="Entities\General\Agent.cs" />
@@ -213,6 +215,7 @@
     <Compile Include="Core\SiteDataContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\SiteDataRepository.cs" />
+    <Compile Include="Repositories\CpanelConfigOptionRepositiory.cs" />
     <Compile Include="Repositories\SiteSocialAccountRepository.cs" />
   </ItemGroup>
   <ItemGroup>

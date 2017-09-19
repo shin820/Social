@@ -30,6 +30,8 @@ namespace Social.Domain.Core
         public virtual DbSet<SocialAccount> SocialAccounts { get; set; }
         public virtual DbSet<SocialUser> SocialUsers { get; set; }
         public virtual DbSet<TwitterAuth> TwitterAuths { get; set; }
+        public virtual DbSet<Department> Departments { get; set; }
+        public virtual DbSet<DepartmentMember> DepartmentMembers { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -85,6 +87,11 @@ namespace Social.Domain.Core
             modelBuilder.Entity<SocialUser>()
                 .HasOptional(t => t.SocialAccount)
                 .WithRequired(t => t.SocialUser);
+
+            modelBuilder.Entity<Department>()
+                .HasMany(t => t.Members)
+                .WithRequired(t => t.Department)
+                .HasForeignKey(t => t.DepartmentId);
         }
     }
 }

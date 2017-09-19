@@ -1,5 +1,8 @@
-﻿using Moq;
+﻿using Framework.Core;
+using Moq;
 using Social.Domain.DomainServices;
+using Social.Domain.Entities;
+using Social.Domain.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +20,8 @@ namespace Social.UnitTest
 
         public static IDepartmentService MakeDepartmentService()
         {
-            return new DepartmentService();
+            return new DepartmentService(new Mock<IRepository<Department>>().Object,
+                new Mock<ICpanelConfigOptionRepositiory>().Object);
         }
     }
 }
