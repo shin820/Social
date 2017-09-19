@@ -1,5 +1,5 @@
 ﻿using Framework.Core.UnitOfWork;
-.using Framework.WebApi;
+using Framework.WebApi;
 using Microsoft.AspNet.SignalR;
 using Social.Application.AppServices;
 using Social.Application.Dto;
@@ -76,12 +76,13 @@ namespace Social.WebApi.Controllers
         /// Get user's facebook pages, we use this api to decide which page can be integrated into our system.
         /// </summary>
         /// <param name="code">A code which provided by facebook.</param>
-        /// <param name="redirectUri">This url must be equal to the redirectUri you used when making integration request.</param>
+        /// <param name="connectionId"></param>
         /// <returns></returns>
         [HttpGet]
         [Route("pending-add-pages")]
-        public async Task<PendingAddFacebookPagesDto> GetPendingAddPages([Required]string code, [Required]string redirectUri)
+        public async Task<PendingAddFacebookPagesDto> GetPendingAddPages([Required]string code, [Required]string connectionId)
         {
+            string redirectUri = Request.RequestUri.Scheme + "://" + Request.RequestUri.Authority + Url.Route("FacebookIntegrationCallback", new { siteId = Request.GetSiteId(), connectionId = connectionId });
             return await _appService.GetPendingAddPagesAsync(code, redirectUri);
         }
 
