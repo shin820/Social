@@ -291,6 +291,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\FacebookHub.cs" />
+    <Compile Include="Hubs\SocialIntegrationHub.cs" />
     <Compile Include="Hubs\NotificationHub.cs" />
     <Compile Include="Models\Account\AuthenticationModel.cs" />
     <Compile Include="Models\Account\Me.cs" />

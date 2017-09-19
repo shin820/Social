@@ -1,8 +1,11 @@
 ﻿using Framework.Core.UnitOfWork;
+.using Framework.WebApi;
+using Microsoft.AspNet.SignalR;
 using Social.Application.AppServices;
 using Social.Application.Dto;
 using Social.Infrastructure;
 using Social.Infrastructure.Facebook;
+using Social.WebApi.Hubs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -21,6 +24,13 @@ namespace Social.WebApi.Controllers
     [RoutePrefix("api/facebook-accounts")]
     public class FacebookAccountsController : ApiController
     {
+        private Lazy<IHubContext> _hubLazy = new Lazy<IHubContext>(() => GlobalHost.ConnectionManager.GetHubContext<SocialIntegrationHub>());
+
+        private IHubContext _hub
+        {
+            get { return _hubLazy.Value; }
+        }
+
         private IUnitOfWorkManager _uowManager;
         private IFacebookAccountAppService _appService;
         private IFbClient _fbClient;
@@ -45,13 +55,21 @@ namespace Social.WebApi.Controllers
         /// <summary>
         /// Make a integration request, fron-end page should redirect to this api rather than calling this api directly.
         /// </summary>
-        /// <param name="redirectUri">After social user agree to integrated to our system, the page will redirect to this url.</param>
         /// <returns></returns>
         [HttpGet]
         [Route("integration-request")]
-        public IHttpActionResult IntegrationRequest([Required]string redirectUri)
+        public IHttpActionResult IntegrationRequest([Required]string connectionId)
         {
+            string redirectUri = Request.RequestUri.Scheme + "://" + Request.RequestUri.Authority + Url.Route("FacebookIntegrationCallback", new { siteId = Request.GetSiteId(), connectionId = connectionId });
             return Redirect(_fbClient.GetAuthUrl(redirectUri));
+        }
+
+        [HttpGet]
+        [Route("integration-callback", Name = "FacebookIntegrationCallback")]
+        public IHttpActionResult IntegrationCallback(string connectionId, string code = "")
+        {
+            _hub.Clients.Client(connectionId).facebookAuthorize(code, !string.IsNullOrEmpty(code));
+            return Ok();
         }
 
         /// <summary>
