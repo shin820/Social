@@ -20,13 +20,13 @@ namespace Framework.Core
     public interface IRepository<TEntity, TKey>
         where TEntity : Entity<TKey>
     {
-        void Delete(int id);
-        Task DeleteAsync(int id);
+        void Delete(TKey id);
+        Task DeleteAsync(TKey id);
         void Delete(TEntity entity);
         Task DeleteAsync(TEntity entity);
         void DeleteMany(TEntity[] entities);
         Task DeleteManyAsync(TEntity[] entities);
-        TEntity Find(int id);
+        TEntity Find(TKey id);
         IQueryable<TEntity> FindAsNoTracking();
         IQueryable<TEntity> FindAll();
         IQueryable<TEntity> FindAll(Expression<Func<TEntity, bool>> predicate);

@@ -1,5 +1,6 @@
 ﻿using Framework.Core;
 using Social.Domain.Entities;
+using Social.Domain.Repositories;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,33 +19,39 @@ namespace Social.Domain.DomainServices
 
     public class DepartmentService :ServiceBase, ITransient, IDepartmentService
     {
+        private IRepository<Department> _departmentRepo;
+        private ICpanelConfigOptionRepositiory _configRepo;
+
+            public DepartmentService (IRepository<Department> departmentRepo,
+                ICpanelConfigOptionRepositiory configRepo)
+        {
+            _departmentRepo = departmentRepo;
+            _configRepo = configRepo;
+        }
+
+        private IQueryable<Department> FindAllUnDeleted()
+        {
+            return _departmentRepo.FindAll().Where(t => t.IfDeleted == false);
+        }
         public IList<Department> FindAll()
         {
-            var departments = new List<Department>
-            {
-                new Department{Id=1,Name="Test Department 1"},
-                new Department{Id=2,Name="Test Department 2"},
-                new Department{Id=3,Name="Test Department 3"},
-                new Department{Id=4,Name="Test Department 4"},
-                new Department{Id=5,Name="Test Department 5"},
-            };
-
+            var departments = FindAllUnDeleted().ToList();
             return departments;
         }
 
         public Department Find(int id)
         {
-            return FindAll().FirstOrDefault(t => t.Id == id);
+            return FindAllUnDeleted().FirstOrDefault(t => t.Id == id);
         }
 
         public IList<Department> Find(IEnumerable<int> ids)
         {
-            if (ids == null)
+            if (ids == null || !ids.Any())
             {
                 return new List<Department>();
             }
 
-            return FindAll().Where(t => ids.Contains(t.Id)).ToList();
+            return FindAllUnDeleted().Where(t => ids.Contains(t.Id)).ToList();
         }
 
 
@@ -61,22 +68,22 @@ namespace Social.Domain.DomainServices
 
         public int[] GetMyDepartmentIds(int userId)
         {
-            if (userId == null)
-            {
-                return new int[] { 0};
-            }
+            var departmentIds = FindAllUnDeleted()
+                 .Where(t => t.Members.Any(m => m.RelatedId == userId && m.Type == 0))
+                 .Select(t => t.Id);
 
-            return new int[] { 1};
+            return departmentIds.ToArray();
         }
 
         public int[] GetMyDepartmentMembers(int userId)
         {
-            if (userId == null)
-            {
-                return new int[] { };
-            }
-
-            return new int[] { };
+            return FindAllUnDeleted()
+                .Where(t => t.Members.Any(m => m.RelatedId == userId && m.Type == 0))
+                .SelectMany(t => t.Members)
+                .Where(t => t.RelatedId != userId)
+                .Select(t => t.RelatedId)
+                .Distinct().
+                ToArray();
         }
 
         public int[] GetOfflineMembers(int[] agents)

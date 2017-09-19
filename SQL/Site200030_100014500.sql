@@ -235,26 +235,12 @@ INSERT INTO  [t_Social_ConversationField]
 	,[Name]
 	,[SiteId]
 )
-VALUES
-(1,4,'Source',100014500),
-(1,4,'Agent Assignee',100014500),
-(1,4,'Department Assignee',100014500),
-(1,4,'Status',100014500),
-(1,4,'Priority',100014500),
-(1,4,'Social Accounts',100014500),
-(1,4,'Replied Agents',100014500),
-(1,4,'Last Replied Agent',100014500),
-(1,1,'Last Message Sent by',100014500),
-(1,4,'Agent Assignee Status',100014500),
-(1,4,'Department Assignee Status',100014500),
-(1,1,'Social Users',100014500),
-(1,1,'Comment/Messages',100014500),
-(1,3,'Last Message Sent',100014500),
-(1,3,'Created',100014500),
-(1,3,'Last Modified',100014500),
-(1,2,'Time to Last Message',100014500),
-(1,2,'Total Messages',100014500),
-(1,2,'Conversation ID',100014500)
+SELECT
+			[IfSystem]
+			,[DataType]
+			,[Name]
+			,100014500 AS [SiteId]
+	 FROM [private.site200030].[dbo].[t_Social_ConversationField_Config]
 GO
 INSERT INTO [t_Social_ConversationFieldOption]
 (
@@ -264,21 +250,13 @@ INSERT INTO [t_Social_ConversationFieldOption]
 	,[Index]
 	,[SiteId]
 )
-VALUES
-( (SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = 'Source' AND [DataType] = 4),'Facebook Message','1',1,100014500),
-( (SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = 'Source' AND [DataType] = 4),'Facebook Visitor Post','2',2,100014500),
-( (SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = 'Source' AND [DataType] = 4),'Facebook Wall Post','3',3,100014500),
-( (SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = 'Source' AND [DataType] = 4),'Twitter Tweet','4',4,100014500),
-( (SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = 'Source' AND [DataType] = 4),'Twitter Direct Message','5',5,100014500),
-( (SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = 'Status' AND [DataType] = 4),'New','0',1,100014500),
-( (SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = 'Status' AND [DataType] = 4),'Pending Internal','1',2,100014500),
-( (SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = 'Status' AND [DataType] = 4),'Pending External','2',3,100014500),
-( (SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = 'Status' AND [DataType] = 4),'On Hold','3',4,100014500),
-( (SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = 'Status' AND [DataType] = 4),'Closed','4',5,100014500),
-( (SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = 'Priority' AND [DataType] = 4),'Low','0',1,100014500),
-( (SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = 'Priority' AND [DataType] = 4),'Normal','1',2,100014500),
-( (SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = 'Priority' AND [DataType] = 4),'High','2',3,100014500),
-( (SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = 'Priority' AND [DataType] = 4),'Urgent','3',4,100014500)
+ SELECT
+		   (SELECT [Id]AS [FieldId] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = p.FieldName )
+		      , [Name]
+			  ,[Value]
+			  ,[Index]
+			  ,100014500 AS [SiteId]
+	 FROM [t_Social_ConversationFieldOption_Config] p
 GO
 INSERT INTO [t_Social_Filter]
 (
@@ -290,13 +268,15 @@ INSERT INTO [t_Social_Filter]
 	,[CreatedTime]
 	,[SiteId]
 )
-VALUES
-('My Open', 1, 1,1,0,getdate(),100014500 ),
-('My Departments'' Open', 2, 1,1,0,getdate(),100014500 ),
-('My Offline Department Members'' Open', 3, 1,1,0,getdate(),100014500 ),
-('All Open', 4, 1,1,0,getdate(),100014500 ),
-('Unassigned', 5, 1,1,0,getdate(),100014500 ),
-('All', 6, 1,1,0,getdate(),100014500 )
+SELECT 
+		     [Name]
+			,[Index]
+			,[IfPublic]
+			,[Type]
+			,[CreatedBy]
+			,[CreatedTime]
+			,100014500 AS [SiteId]
+		FROM [t_Social_Filter_Config]
 GO
 INSERT INTO [t_Social_FilterCondition]
 (
@@ -307,16 +287,13 @@ INSERT INTO [t_Social_FilterCondition]
 	,[SiteId]
 	,[Index]
 )
-VALUES
-((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Status'),2,'4',100014500,1),
-((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Agent Assignee'),1,'@Me',100014500,2),
-((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Departments'' Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Status'),2,'4',100014500,3),
-((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Departments'' Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Department Assignee'),1,'@My Department',100014500,4),
-((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Offline Department Members'' Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Status'),2,'4',100014500,5),
-((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Offline Department Members'' Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Agent Assignee'),1,'@My Department Member',100014500,6),
-((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'My Offline Department Members'' Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Agent Assignee Status'),1,'2',100014500,7),
-((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'All Open' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Status'),2,'4',100014500,8),
-((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'Unassigned' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Agent Assignee'),1,'Blank',100014500,9),
-((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = 'Unassigned' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND Name='Department Assignee'),1,'Blank',100014500,10)
+SELECT 
+		(SELECT [Id] AS [FilterId] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = p.FilterName)
+		,(SELECT [Id] AS [FilterId] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = p.FieldName)
+		,[MatchType]
+		,[Value]
+		,100014500 AS [SiteId]
+		,[Index]
+		FROM [t_Social_FilterCondition_Config] p
 GO
 

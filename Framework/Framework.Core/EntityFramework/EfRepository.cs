@@ -53,7 +53,7 @@ namespace Framework.Core.EntityFramework
             return FindAll().Where(predicate);
         }
 
-        public TEntity Find(int id)
+        public TEntity Find(TKey id)
         {
             return DataSet.Find(id);
         }
@@ -84,7 +84,7 @@ namespace Framework.Core.EntityFramework
             }
         }
 
-        public void Delete(int id)
+        public void Delete(TKey id)
         {
             var entity = Find(id);
             if (entity != null)
@@ -93,7 +93,7 @@ namespace Framework.Core.EntityFramework
             }
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(TKey id)
         {
             var entity = Find(id);
             if (entity != null)
