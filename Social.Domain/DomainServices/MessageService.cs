@@ -340,6 +340,7 @@ namespace Social.Domain.DomainServices
                     conversation.LastMessageSentTime = replyMessage.SendTime;
                     conversation.LastRepliedAgentId = UserContext.UserId;
                     _conversationService.Update(conversation);
+
                     break;
                 }
             }

@@ -30,14 +30,14 @@ namespace Social.UnitTest.AppServices
             ConversationAppServiceTest conversationAppServiceTest = new ConversationAppServiceTest();
 
             conversationService.Setup(t => t.Find(1, ConversationSource.FacebookMessage)).Returns(conversationAppServiceTest.MakeConversationEntity(1));
-            messageService.Setup(t => t.FindAllByConversationId(1)).Returns(new List<Message> { MakeMessageEntity(1, MessageSource.FacebookMessage,null, null) }.AsQueryable());
+            messageService.Setup(t => t.FindAllByConversationId(1)).Returns(new List<Message> { MakeMessageEntity(1, MessageSource.FacebookMessage, null, null) }.AsQueryable());
 
             //Act
             IList<FacebookMessageDto> facebookMessageDtos = conversationMessageAppService.GetFacebookDirectMessages(1);
             //Assert
             Assert.True(facebookMessageDtos.Any());
             agentService.Verify(t => t.FillAgentName(It.Is<IEnumerable<IHaveSendAgent>>(r => r.First().SendAgentId == 1)));
-            AssertDtoEqualToEntity(MakeMessageEntity(1, MessageSource.FacebookMessage,null, null), facebookMessageDtos[0]);
+            AssertDtoEqualToEntity(MakeMessageEntity(1, MessageSource.FacebookMessage, null, null), facebookMessageDtos[0]);
         }
         [Fact]
         public void ShouldGetNullFacebookDirectMessages()
@@ -65,14 +65,14 @@ namespace Social.UnitTest.AppServices
 
             ConversationAppServiceTest conversationAppServiceTest = new ConversationAppServiceTest();
 
-            messageService.Setup(t => t.Find(1)).Returns(MakeMessageEntity(1, MessageSource.FacebookMessage,null, null));
+            messageService.Setup(t => t.Find(1)).Returns(MakeMessageEntity(1, MessageSource.FacebookMessage, null, null));
             agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
             //Act
             FacebookMessageDto facebookMessageDto = conversationMessageAppService.GetFacebookDirectMessage(1);
             //Assert
             Assert.NotNull(facebookMessageDto);
             Assert.Equal("a", facebookMessageDto.SendAgentName);
-            AssertDtoEqualToEntity(MakeMessageEntity(1, MessageSource.FacebookMessage,null, null), facebookMessageDto);
+            AssertDtoEqualToEntity(MakeMessageEntity(1, MessageSource.FacebookMessage, null, null), facebookMessageDto);
         }
 
         [Fact]
@@ -100,7 +100,7 @@ namespace Social.UnitTest.AppServices
             Assert.NotNull(facebookPostMessageDto);
             AssertDtoEqualToEntity(MakeMessageEntity(2, MessageSource.FacebookPostComment, 1, null), facebookPostMessageDto.Comments.FirstOrDefault());
             AssertDtoEqualToEntity(MakeMessageEntity(3, MessageSource.FacebookPostReplyComment, 2, null), facebookPostMessageDto.Comments.FirstOrDefault().ReplyComments.FirstOrDefault());
-            agentService.Verify(t => t.FillAgentName(It.Is<IEnumerable<IHaveSendAgent>>(r => r.Any(m => m.SendAgentId ==1))));
+            agentService.Verify(t => t.FillAgentName(It.Is<IEnumerable<IHaveSendAgent>>(r => r.Any(m => m.SendAgentId == 1))));
         }
 
         [Fact]
@@ -148,7 +148,7 @@ namespace Social.UnitTest.AppServices
             var agentService = new Mock<IAgentService>();
             var messageService = new Mock<IMessageService>();
 
-            messageService.Setup(t => t.Find(1)).Returns(MakeMessageEntity(1,MessageSource.FacebookPost,null, null));
+            messageService.Setup(t => t.Find(1)).Returns(MakeMessageEntity(1, MessageSource.FacebookPost, null, null));
             agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
             ConversationMessageAppService conversationMessageAppService = new ConversationMessageAppService(null,
               agentService.Object, messageService.Object, null, null);
@@ -239,7 +239,7 @@ namespace Social.UnitTest.AppServices
                 MakeMessageEntity(1,MessageSource.TwitterQuoteTweet,null,"123")
             }.AsQueryable());
             var message = MakeMessageEntity(1, MessageSource.TwitterQuoteTweet, null, "123");
-            message.Receiver = new SocialUser {Id = 1, Type = SocialUserType.IntegrationAccount};
+            message.Receiver = new SocialUser { Id = 1, Type = SocialUserType.IntegrationAccount };
             messageService.Setup(t => t.Find(1)).Returns(message);
             var user = new SocialAccount { Id = 1 };
             socialAccountService.Setup(t => t.Find(1)).Returns(user);
@@ -348,19 +348,19 @@ namespace Social.UnitTest.AppServices
         }
 
         [Fact]
-        public void ShouldReplyTwitterTweetMessage()
+        public async Task ShouldReplyTwitterTweetMessage()
         {
             //Arrange
             var agentService = new Mock<IAgentService>();
             var messageService = new Mock<IMessageService>();
 
-            messageService.Setup(t => t.ReplyTwitterTweetMessage(1,1,"123",false)).Returns(MakeMessageEntity(1, MessageSource.TwitterTypicalTweet, null, null));
+            messageService.Setup(t => t.ReplyTwitterTweetMessage(1, 1, "123", false)).Returns(MakeMessageEntity(1, MessageSource.TwitterTypicalTweet, null, null));
             agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
             ConversationMessageAppService conversationMessageAppService = new ConversationMessageAppService(null,
               agentService.Object, messageService.Object, null, null);
 
             //Act
-            TwitterTweetMessageDto twitterDirectMessageDto = conversationMessageAppService.ReplyTwitterTweetMessage(1, 1, "123", false);
+            TwitterTweetMessageDto twitterDirectMessageDto = await conversationMessageAppService.ReplyTwitterTweetMessage(1, 1, "123", false);
             //Assert
             Assert.NotNull(twitterDirectMessageDto);
             Assert.Equal("a", twitterDirectMessageDto.SendAgentName);
@@ -368,7 +368,7 @@ namespace Social.UnitTest.AppServices
         }
 
         [Fact]
-        public void ShouldReplyTwitterDirectMessage()
+        public async Task ShouldReplyTwitterDirectMessage()
         {
             //Arrange
             var agentService = new Mock<IAgentService>();
@@ -380,7 +380,7 @@ namespace Social.UnitTest.AppServices
               agentService.Object, messageService.Object, null, null);
 
             //Act
-            TwitterDirectMessageDto twitterDirectMessageDto = conversationMessageAppService.ReplyTwitterDirectMessage(1,"123", false);
+            TwitterDirectMessageDto twitterDirectMessageDto = await conversationMessageAppService.ReplyTwitterDirectMessage(1, "123", false);
             //Assert
             Assert.NotNull(twitterDirectMessageDto);
             Assert.Equal("a", twitterDirectMessageDto.SendAgentName);
@@ -388,7 +388,7 @@ namespace Social.UnitTest.AppServices
         }
 
         [Fact]
-        public void ShouldReplyFacebookMessage()
+        public async Task ShouldReplyFacebookMessage()
         {
             //Arrange
             var agentService = new Mock<IAgentService>();
@@ -400,7 +400,7 @@ namespace Social.UnitTest.AppServices
               agentService.Object, messageService.Object, null, null);
 
             //Act
-            FacebookMessageDto twitterDirectMessageDto = conversationMessageAppService.ReplyFacebookMessage(1, "123", false);
+            FacebookMessageDto twitterDirectMessageDto = await conversationMessageAppService.ReplyFacebookMessage(1, "123", false);
             //Assert
             Assert.NotNull(twitterDirectMessageDto);
             Assert.Equal("a", twitterDirectMessageDto.SendAgentName);
@@ -408,19 +408,19 @@ namespace Social.UnitTest.AppServices
         }
 
         [Fact]
-        public void ShouldReplyFacebookPostOrComment()
+        public async Task ShouldReplyFacebookPostOrComment()
         {
             //Arrange
             var agentService = new Mock<IAgentService>();
             var messageService = new Mock<IMessageService>();
 
-            messageService.Setup(t => t.ReplyFacebookPostOrComment(1,1, "123", false)).Returns(MakeMessageEntity(1, MessageSource.FacebookPostReplyComment, null, null));
+            messageService.Setup(t => t.ReplyFacebookPostOrComment(1, 1, "123", false)).Returns(MakeMessageEntity(1, MessageSource.FacebookPostReplyComment, null, null));
             agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
             ConversationMessageAppService conversationMessageAppService = new ConversationMessageAppService(null,
               agentService.Object, messageService.Object, null, null);
 
             //Act
-            FacebookPostCommentMessageDto twitterDirectMessageDto = conversationMessageAppService.ReplyFacebookPostOrComment(1,1, "123", false);
+            FacebookPostCommentMessageDto twitterDirectMessageDto = await conversationMessageAppService.ReplyFacebookPostOrComment(1, 1, "123", false);
             //Assert
             Assert.NotNull(twitterDirectMessageDto);
             Assert.Equal("a", twitterDirectMessageDto.SendAgentName);
@@ -464,7 +464,7 @@ namespace Social.UnitTest.AppServices
             Assert.Equal(entity.Source, dto.Source);
         }
 
-        private Message MakeMessageEntity(int id,MessageSource messageSource,int? parentId,string quoteTweetId)
+        private Message MakeMessageEntity(int id, MessageSource messageSource, int? parentId, string quoteTweetId)
         {
             return new Message
             {

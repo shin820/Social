@@ -184,9 +184,9 @@ namespace Social.WebApi.Controllers
         /// <param name="dto"></param>
         /// <returns></returns>
         [Route("{conversationId}/facebook-messages")]
-        public FacebookMessageDto PostFacebookMessages(int conversationId, FacebookMessagesDto dto)
+        public async Task<FacebookMessageDto> PostFacebookMessages(int conversationId, FacebookMessagesDto dto)
         {
-            return _messageAppService.ReplyFacebookMessage(conversationId, dto.Message, dto.IsCloseConversation);
+            return await _messageAppService.ReplyFacebookMessage(conversationId, dto.Message, dto.IsCloseConversation);
         }
 
         /// <summary>
@@ -207,9 +207,9 @@ namespace Social.WebApi.Controllers
         /// <param name="dto"></param>
         /// <returns></returns>
         [Route("{conversationId}/facebook-post-messages")]
-        public FacebookPostCommentMessageDto PostFacebookPostMessages(int conversationId, FacebookPostMessagesDto dto)
+        public async Task<FacebookPostCommentMessageDto> PostFacebookPostMessages(int conversationId, FacebookPostMessagesDto dto)
         {
-            return _messageAppService.ReplyFacebookPostOrComment(conversationId, dto.PostOrCommentId, dto.Message, dto.IsCloseConversation);
+            return await _messageAppService.ReplyFacebookPostOrComment(conversationId, dto.PostOrCommentId, dto.Message, dto.IsCloseConversation);
         }
 
         /// <summary>
@@ -230,9 +230,9 @@ namespace Social.WebApi.Controllers
         /// <param name="dto"></param>
         /// <returns></returns>
         [Route("{conversationId}/twitter-direct-messages")]
-        public TwitterDirectMessageDto PostTwitterDirectMessages(int conversationId, TwitterDirectMessagesDto dto)
+        public async Task<TwitterDirectMessageDto> PostTwitterDirectMessages(int conversationId, TwitterDirectMessagesDto dto)
         {
-            return _messageAppService.ReplyTwitterDirectMessage(conversationId, dto.Message, dto.IsCloseConversation);
+            return await _messageAppService.ReplyTwitterDirectMessage(conversationId, dto.Message, dto.IsCloseConversation);
         }
 
         /// <summary>
@@ -253,9 +253,9 @@ namespace Social.WebApi.Controllers
         /// <param name="dto"></param>
         /// <returns></returns>
         [Route("{conversationId}/twitter-tweet-messages")]
-        public TwitterTweetMessageDto PostTwitterTweetMessages(int conversationId, TwitterTweetMessagesDto dto)
+        public async Task<TwitterTweetMessageDto> PostTwitterTweetMessages(int conversationId, TwitterTweetMessagesDto dto)
         {
-            return _messageAppService.ReplyTwitterTweetMessage(conversationId, dto.TwitterAccountId, dto.Message, dto.IsCloseConversation);
+            return await _messageAppService.ReplyTwitterTweetMessage(conversationId, dto.TwitterAccountId, dto.Message, dto.IsCloseConversation);
         }
     }
 }
