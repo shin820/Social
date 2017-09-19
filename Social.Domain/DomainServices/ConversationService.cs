@@ -32,6 +32,7 @@ namespace Social.Domain.DomainServices
         Conversation MarkAsRead(Conversation entity);
         Conversation MarkAsUnRead(Conversation entity);
         int GetUnReadConversationCount(IList<Filter> filters);
+        void UpdateAndWriteLog(Conversation entity);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -84,12 +85,12 @@ namespace Social.Domain.DomainServices
 
         public int CheckIfDeleteOrExists(int id)
         {
-            var conversation = FindAll().Where(t => t.Id == id ).FirstOrDefault();
-            if(conversation == null)
+            var conversation = FindAll().Where(t => t.Id == id).FirstOrDefault();
+            if (conversation == null)
             {
                 return 0;//Not Exist
             }
-            else if(conversation.IsDeleted)
+            else if (conversation.IsDeleted)
             {
                 return -1;//Is delete
             }
@@ -228,6 +229,16 @@ namespace Social.Domain.DomainServices
 
         public override void Update(Conversation entity)
         {
+            Update(entity, false);
+        }
+
+        public void UpdateAndWriteLog(Conversation entity)
+        {
+            Update(entity, true);
+        }
+
+        private void Update(Conversation entity, bool ifWriteLog)
+        {
             var oldEntity = Repository.FindAsNoTracking().FirstOrDefault(t => t.Id == entity.Id);
             if (oldEntity == null)
             {
@@ -235,14 +246,17 @@ namespace Social.Domain.DomainServices
             }
 
             CheckStatus(oldEntity, entity);
-            WriteConversationLog(oldEntity, entity);
+            if (ifWriteLog)
+            {
+                WriteConversationLog(oldEntity, entity);
+            }
             base.Update(entity);
         }
 
         public Conversation Take(Conversation entity)
         {
             entity.AgentId = UserContext.UserId;
-            this.Update(entity);
+            this.UpdateAndWriteLog(entity);
 
             return entity;
         }
@@ -250,7 +264,7 @@ namespace Social.Domain.DomainServices
         public Conversation Close(Conversation entity)
         {
             entity.Status = ConversationStatus.Closed;
-            this.Update(entity);
+            this.UpdateAndWriteLog(entity);
 
             return entity;
         }
@@ -258,7 +272,7 @@ namespace Social.Domain.DomainServices
         public Conversation Reopen(Conversation entity)
         {
             entity.Status = ConversationStatus.PendingInternal;
-            this.Update(entity);
+            this.UpdateAndWriteLog(entity);
 
             return entity;
         }
@@ -266,7 +280,7 @@ namespace Social.Domain.DomainServices
         public Conversation MarkAsRead(Conversation entity)
         {
             entity.IfRead = true;
-            this.Update(entity);
+            this.UpdateAndWriteLog(entity);
 
             return entity;
         }
@@ -274,7 +288,7 @@ namespace Social.Domain.DomainServices
         public Conversation MarkAsUnRead(Conversation entity)
         {
             entity.IfRead = false;
-            this.Update(entity);
+            this.UpdateAndWriteLog(entity);
 
             return entity;
         }
