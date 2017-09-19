@@ -27,37 +27,29 @@ namespace Social.WebApi.Controllers
 
         private IConversationAppService _conversationAppService;
         private IConversationMessageAppService _messageAppService;
-        private INotificationConnectionManager _notificationConnectionManager;
 
         /// <summary>
         /// NotificationController
         /// </summary>
         /// <param name="conversationAppService"></param>
         /// <param name="messageAppService"></param>
-        /// <param name="notificationConnectionManager"></param>
         public NotificationController(
             IConversationAppService conversationAppService,
-            IConversationMessageAppService messageAppService,
-            INotificationConnectionManager notificationConnectionManager
+            IConversationMessageAppService messageAppService
             )
         {
             _conversationAppService = conversationAppService;
             _messageAppService = messageAppService;
-            _notificationConnectionManager = notificationConnectionManager;
         }
 
         [Route("conversation-created")]
         [HttpGet]
         public IHttpActionResult ConversationCreated(int conversationId)
         {
-            var connections = _notificationConnectionManager.GetConnectionsForConversation(Request.GetSiteId(), conversationId);
-            if (connections.Any())
+            var dto = _conversationAppService.Find(conversationId);
+            if (dto != null)
             {
-                var dto = _conversationAppService.Find(conversationId);
-                if (dto != null)
-                {
-                    _hub.Clients.Clients(connections).conversationCreated(dto);
-                }
+                _hub.Clients.Group(Request.GetSiteId().ToString()).conversationCreated(dto);
             }
             return Ok();
         }
@@ -66,23 +58,18 @@ namespace Social.WebApi.Controllers
         [HttpGet]
         public IHttpActionResult ConversationUpdated(int conversationId, int? oldMaxLogId = null)
         {
-            var connections = _notificationConnectionManager.GetConnectionsForConversation(Request.GetSiteId(), conversationId);
-            if (connections.Any())
+            var dto = _conversationAppService.Find(conversationId);
+            if (dto != null)
             {
+                _hub.Clients.Group(Request.GetSiteId().ToString()).conversationUpdated(dto);
+            }
 
-                var dto = _conversationAppService.Find(conversationId);
-                if (dto != null)
+            if (oldMaxLogId.HasValue && oldMaxLogId > 0)
+            {
+                var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxLogId.Value);
+                if (dtoList != null && dtoList.Any())
                 {
-                    _hub.Clients.Clients(connections).conversationUpdated(dto);
-                }
-
-                if (oldMaxLogId.HasValue && oldMaxLogId > 0)
-                {
-                    var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxLogId.Value);
-                    if (dtoList != null && dtoList.Any())
-                    {
-                        _hub.Clients.Clients(connections).conversationLogCreated(dtoList);
-                    }
+                    _hub.Clients.Group(Request.GetSiteId().ToString()).conversationLogCreated(dtoList);
                 }
             }
 
@@ -96,11 +83,8 @@ namespace Social.WebApi.Controllers
             var dto = _messageAppService.GetFacebookPostCommentMessage(messageId);
             if (dto != null)
             {
-                var connections = _notificationConnectionManager.GetConnectionsForConversation(Request.GetSiteId(), dto.ConversationId);
-                if (connections.Any())
-                {
-                    _hub.Clients.Group(Request.GetSiteId().ToString()).facebookCommentCreated(dto);
-                }
+                var excludeConnections = NotificationHub.GetConnections(dto.SendAgentId.GetValueOrDefault()).ToArray();
+                _hub.Clients.Group(Request.GetSiteId().ToString(), excludeConnections).facebookCommentCreated(dto);
             }
             return Ok();
         }
@@ -112,11 +96,8 @@ namespace Social.WebApi.Controllers
             var dto = _messageAppService.GetFacebookDirectMessage(messageId);
             if (dto != null)
             {
-                var connections = _notificationConnectionManager.GetConnectionsForConversation(Request.GetSiteId(), dto.ConversationId);
-                if (connections.Any())
-                {
-                    _hub.Clients.Group(Request.GetSiteId().ToString()).facebookMessageCreated(dto);
-                }
+                var excludeConnections = NotificationHub.GetConnections(dto.SendAgentId.GetValueOrDefault()).ToArray();
+                _hub.Clients.Group(Request.GetSiteId().ToString(), excludeConnections).facebookMessageCreated(dto);
             }
             return Ok();
         }
@@ -128,11 +109,8 @@ namespace Social.WebApi.Controllers
             var dto = _messageAppService.GetTwitterTweetMessage(messageId);
             if (dto != null)
             {
-                var connections = _notificationConnectionManager.GetConnectionsForConversation(Request.GetSiteId(), dto.ConversationId);
-                if (connections.Any())
-                {
-                    _hub.Clients.Group(Request.GetSiteId().ToString()).twitterTweetCreated(dto);
-                }
+                var excludeConnections = NotificationHub.GetConnections(dto.SendAgentId.GetValueOrDefault()).ToArray();
+                _hub.Clients.Group(Request.GetSiteId().ToString(), excludeConnections).twitterTweetCreated(dto);
             }
             return Ok();
         }
@@ -144,11 +122,8 @@ namespace Social.WebApi.Controllers
             var dto = _messageAppService.GetTwitterDirectMessage(messageId);
             if (dto != null)
             {
-                var connections = _notificationConnectionManager.GetConnectionsForConversation(Request.GetSiteId(), dto.ConversationId);
-                if (connections.Any())
-                {
-                    _hub.Clients.Group(Request.GetSiteId().ToString()).twitterDirectMessageCreated(dto);
-                }
+                var excludeConnections = NotificationHub.GetConnections(dto.SendAgentId.GetValueOrDefault()).ToArray();
+                _hub.Clients.Group(Request.GetSiteId().ToString(), excludeConnections).twitterDirectMessageCreated(dto);
             }
             return Ok();
         }
@@ -158,8 +133,7 @@ namespace Social.WebApi.Controllers
         [HttpGet]
         public IHttpActionResult PublicFilterCreated(int filterId)
         {
-            var connections = _notificationConnectionManager.GetAllConnections();
-            _hub.Clients.Clients(connections).publicFilterCreated(filterId);
+            _hub.Clients.Group(Request.GetSiteId().ToString()).publicFilterCreated(filterId);
             return Ok();
         }
 
@@ -167,8 +141,7 @@ namespace Social.WebApi.Controllers
         [HttpGet]
         public IHttpActionResult PublicFilterDeleted(int filterId)
         {
-            var connections = _notificationConnectionManager.GetAllConnections();
-            _hub.Clients.Clients(connections).publicFilterDeleted(filterId);
+            _hub.Clients.Group(Request.GetSiteId().ToString()).publicFilterDeleted(filterId);
             return Ok();
         }
 
@@ -176,8 +149,7 @@ namespace Social.WebApi.Controllers
         [HttpGet]
         public IHttpActionResult PublicFilterUpdated(int filterId)
         {
-            var connections = _notificationConnectionManager.GetAllConnections();
-            _hub.Clients.Clients(connections).publicFilterUpdated(filterId);
+            _hub.Clients.Group(Request.GetSiteId().ToString()).publicFilterUpdated(filterId);
             return Ok();
         }
     }

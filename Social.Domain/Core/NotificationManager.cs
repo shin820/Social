@@ -64,8 +64,8 @@ namespace Social.Infrastructure.Core
 
         public async Task NotifyNewFilter(int siteId, int filterId)
         {
-            var filter = _filterService.FindFilterInlucdeConditions(filterId);
-            _connectionManager.RefreshCacheItem(filter, OperationType.Add);
+            //var filter = _filterService.FindFilterInlucdeConditions(filterId);
+            //_connectionManager.RefreshCacheItem(filter, OperationType.Add);
             //if (filter.IfPublic)
             //{
             await GetAsync($"/public-filter-created?siteId={siteId}&filterId={filterId}");
@@ -74,8 +74,8 @@ namespace Social.Infrastructure.Core
 
         public async Task NotifyDeleteFilter(int siteId, int filterId)
         {
-            var filter = _filterService.FindFilterInlucdeConditions(filterId);
-            _connectionManager.RefreshCacheItem(filter, OperationType.Delete);
+            //var filter = _filterService.FindFilterInlucdeConditions(filterId);
+            //_connectionManager.RefreshCacheItem(filter, OperationType.Delete);
             //if (filter.IfPublic)
             //{
             await GetAsync($"/public-filter-deleted?siteId={siteId}&filterId={filterId}");
@@ -84,8 +84,8 @@ namespace Social.Infrastructure.Core
 
         public async Task NotifyUpdateFilter(int siteId, int filterId)
         {
-            var filter = _filterService.FindFilterInlucdeConditions(filterId);
-            _connectionManager.RefreshCacheItem(filter, OperationType.Update);
+            //var filter = _filterService.FindFilterInlucdeConditions(filterId);
+            //_connectionManager.RefreshCacheItem(filter, OperationType.Update);
             //if (filter.IfPublic)
             //{
             await GetAsync($"/public-filter-updated?siteId={siteId}&filterId={filterId}");
