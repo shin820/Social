@@ -189,12 +189,12 @@ namespace Framework.Core.EntityFramework
 
         private void SetModifiedTime(object entityObj)
         {
-            if (!(entityObj is IHaveModification))
+            if (!(entityObj is IHaveModifiedTime))
             {
                 return;
             }
 
-            var entity = (IHaveModification)entityObj;
+            var entity = (IHaveModifiedTime)entityObj;
             entity.ModifiedTime = DateTime.UtcNow;
         }
 

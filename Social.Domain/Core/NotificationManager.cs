@@ -66,30 +66,30 @@ namespace Social.Infrastructure.Core
         {
             var filter = _filterService.FindFilterInlucdeConditions(filterId);
             _connectionManager.RefreshCacheItem(filter, OperationType.Add);
-            if (filter.IfPublic)
-            {
-                await GetAsync($"/public-filter-created?siteId={siteId}&filterId={filterId}");
-            }
+            //if (filter.IfPublic)
+            //{
+            await GetAsync($"/public-filter-created?siteId={siteId}&filterId={filterId}");
+            //}
         }
 
         public async Task NotifyDeleteFilter(int siteId, int filterId)
         {
             var filter = _filterService.FindFilterInlucdeConditions(filterId);
             _connectionManager.RefreshCacheItem(filter, OperationType.Delete);
-            if (filter.IfPublic)
-            {
-                await GetAsync($"/public-filter-deleted?siteId={siteId}&filterId={filterId}");
-            }
+            //if (filter.IfPublic)
+            //{
+            await GetAsync($"/public-filter-deleted?siteId={siteId}&filterId={filterId}");
+            //}
         }
 
         public async Task NotifyUpdateFilter(int siteId, int filterId)
         {
             var filter = _filterService.FindFilterInlucdeConditions(filterId);
             _connectionManager.RefreshCacheItem(filter, OperationType.Update);
-            if (filter.IfPublic)
-            {
-                await GetAsync($"/public-filter-updated?siteId={siteId}&filterId={filterId}");
-            }
+            //if (filter.IfPublic)
+            //{
+            await GetAsync($"/public-filter-updated?siteId={siteId}&filterId={filterId}");
+            //}
         }
 
         public async Task GetAsync(string url)

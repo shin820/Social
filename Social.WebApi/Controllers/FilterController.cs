@@ -92,10 +92,10 @@ namespace Social.WebApi.Controllers
         /// <returns></returns>
         [Route()]
         [ResponseType(typeof(FilterDetailsDto))]
-        public IHttpActionResult PostFilter(FilterCreateDto createDto)
+        public async Task<IHttpActionResult> PostFilter(FilterCreateDto createDto)
         {
             createDto = createDto ?? new FilterCreateDto();
-            var filter = _appService.Insert(createDto);
+            var filter = await _appService.Insert(createDto);
 
             return CreatedAtRoute("GetFilter", new { id = filter.Id }, filter);
         }
@@ -107,10 +107,10 @@ namespace Social.WebApi.Controllers
         /// <param name="createDto"></param>
         /// <returns></returns>
         [Route("{id}", Name = "PutFilter")]
-        public FilterDetailsDto PutFilter(int id, FilterUpdateDto createDto)
+        public async Task<FilterDetailsDto> PutFilter(int id, FilterUpdateDto createDto)
         {
             createDto = createDto ?? new FilterUpdateDto();
-            return _appService.Update(id, createDto);
+            return await _appService.Update(id, createDto);
         }
 
         /// <summary>
@@ -119,9 +119,9 @@ namespace Social.WebApi.Controllers
         /// <param name="id">filter id</param>
         /// <returns></returns>
         [Route("{id}")]
-        public int DeleteFilter(int id)
+        public async Task<int> DeleteFilter(int id)
         {
-            _appService.Delete(id);
+            await _appService.Delete(id);
             return id;
         }
 

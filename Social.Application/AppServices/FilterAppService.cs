@@ -22,9 +22,9 @@ namespace Social.Application.AppServices
         FilterListDto FindSummary(int id);
         List<FilterManageDto> FindManageFilters();
         FilterDetailsDto Find(int id);
-        FilterDetailsDto Insert(FilterCreateDto createDto);
-        void Delete(int id);
-        FilterDetailsDto Update(int id, FilterUpdateDto updateDto);
+        Task<FilterDetailsDto> Insert(FilterCreateDto createDto);
+        Task Delete(int id);
+        Task<FilterDetailsDto> Update(int id, FilterUpdateDto updateDto);
         List<FilterManageDto> Sorting(IList<FilterSortDto> dtoList);
         bool HasConversation(int filterId, int conversationId);
     }
@@ -59,7 +59,7 @@ namespace Social.Application.AppServices
             }
             _agentService.FillCreatedByName(filterDtoes);
 
-            return filterDtoes;
+            return filterDtoes.OrderBy(t => t.Index).ToList();
         }
 
         public FilterListDto FindSummary(int id)
@@ -99,7 +99,7 @@ namespace Social.Application.AppServices
             return _domainService.HasConversation(filter, conversationId);
         }
 
-        public FilterDetailsDto Insert(FilterCreateDto createDto)
+        public async Task<FilterDetailsDto> Insert(FilterCreateDto createDto)
         {
             var filter = Mapper.Map<Filter>(createDto);
 
@@ -111,7 +111,7 @@ namespace Social.Application.AppServices
             filter = _domainService.Insert(filter);
             CurrentUnitOfWork.SaveChanges();
 
-            _notificationManager.NotifyNewFilter(filter.SiteId, filter.Id);
+            await _notificationManager.NotifyNewFilter(filter.SiteId, filter.Id);
 
             var filterDto = Mapper.Map<FilterDetailsDto>(filter);
             List<FilterDetailsDto> filterDtos = new List<FilterDetailsDto>();
@@ -120,7 +120,7 @@ namespace Social.Application.AppServices
             return filterDto;
         }
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
             var filter = _domainService.Find(id);
             if (filter == null)
@@ -128,10 +128,10 @@ namespace Social.Application.AppServices
                 throw SocialExceptions.FilterNotExists(id);
             }
             _domainService.Delete(id);
-            _notificationManager.NotifyDeleteFilter(filter.SiteId, filter.Id);
+            await _notificationManager.NotifyDeleteFilter(filter.SiteId, filter.Id);
         }
 
-        public FilterDetailsDto Update(int id, FilterUpdateDto updateDto)
+        public async Task<FilterDetailsDto> Update(int id, FilterUpdateDto updateDto)
         {
             var updateFilter = _domainService.Find(id);
             if (updateFilter == null)
@@ -144,7 +144,7 @@ namespace Social.Application.AppServices
             _domainService.UpdateFilter(updateFilter, Mapper.Map<List<FilterConditionCreateDto>, List<FilterCondition>>(updateDto.Conditions.ToList()).ToArray());
             CurrentUnitOfWork.SaveChanges();
 
-            _notificationManager.NotifyUpdateFilter(updateFilter.SiteId, updateFilter.Id);
+            await _notificationManager.NotifyUpdateFilter(updateFilter.SiteId, updateFilter.Id);
             var filterDto = Mapper.Map<FilterDetailsDto>(updateFilter);
             List<FilterDetailsDto> filterDtos = new List<FilterDetailsDto>();
             filterDtos.Add(filterDto);
@@ -162,7 +162,7 @@ namespace Social.Application.AppServices
                 filterDto.CreatedByName = _agentService.GetDisplayName(filter.CreatedBy);
                 filterDtos.Add(filterDto);
             }
-            return filterDtos;
+            return filterDtos.OrderBy(t => t.Index).ToList();
         }
 
         public List<FilterManageDto> Sorting(IList<FilterSortDto> dtoList)

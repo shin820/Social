@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using Framework.Core;
 using Social.Application.Dto;
+using Social.Domain;
 using Social.Domain.DomainServices;
 using Social.Domain.Entities;
 using Social.Domain.Entities.General;
@@ -31,6 +32,7 @@ namespace Social.Application.AppServices
         Task<ConversationDto> ReopenAsync(int conversationId);
         Task<ConversationDto> MarkAsReadAsync(int conversationId);
         Task<ConversationDto> MarkAsUnReadAsync(int conversationId);
+        int GetUnReadConversationCount();
     }
 
     public class ConversationAppService : AppService, IConversationAppService
@@ -117,6 +119,12 @@ namespace Social.Application.AppServices
             FillFields(conversationDto);
             return conversationDto;
 
+        }
+
+        public int GetUnReadConversationCount()
+        {
+            var filters = DependencyResolver.Resolve<IFilterService>().FindFiltersInlucdeConditions(UserContext.UserId).ToList();
+            return _conversationService.GetUnReadConversationCount(filters);
         }
 
         public ConversationDto Insert(ConversationCreateDto createDto)
