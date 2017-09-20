@@ -60,7 +60,8 @@ namespace Social.WebApi.Controllers
         [Route("integration-request")]
         public IHttpActionResult IntegrationRequest([Required]string connectionId)
         {
-            string redirectUri = Request.RequestUri.Scheme + "://" + Request.RequestUri.Authority + Url.Route("FacebookIntegrationCallback", new { siteId = Request.GetSiteId(), connectionId = connectionId });
+            //string redirectUri = Request.RequestUri.Scheme + "://" + Request.RequestUri.Authority + Url.Route("FacebookIntegrationCallback", new { siteId = Request.GetSiteId(), connectionId = connectionId });
+            string redirectUri = $"http://51ab54a8.ngrok.io/api/facebook-accounts/integration-callback?siteId={Request.GetSiteId()}&connectionId={connectionId}";
             return Redirect(_fbClient.GetAuthUrl(redirectUri));
         }
 
@@ -82,7 +83,8 @@ namespace Social.WebApi.Controllers
         [Route("pending-add-pages")]
         public async Task<PendingAddFacebookPagesDto> GetPendingAddPages([Required]string code, [Required]string connectionId)
         {
-            string redirectUri = Request.RequestUri.Scheme + "://" + Request.RequestUri.Authority + Url.Route("FacebookIntegrationCallback", new { siteId = Request.GetSiteId(), connectionId = connectionId });
+            //string redirectUri = Request.RequestUri.Scheme + "://" + Request.RequestUri.Authority + Url.Route("FacebookIntegrationCallback", new { siteId = Request.GetSiteId(), connectionId = connectionId });
+            string redirectUri = $"http://51ab54a8.ngrok.io/api/facebook-accounts/integration-callback?siteId={Request.GetSiteId()}&connectionId={connectionId}";
             return await _appService.GetPendingAddPagesAsync(code, redirectUri);
         }
 
