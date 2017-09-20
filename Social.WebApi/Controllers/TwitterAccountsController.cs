@@ -1,8 +1,11 @@
 ﻿using Framework.Core;
 using Framework.Core.UnitOfWork;
+using Framework.WebApi;
+using Microsoft.AspNet.SignalR;
 using Social.Application.AppServices;
 using Social.Application.Dto;
 using Social.Infrastructure;
+using Social.WebApi.Hubs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -20,6 +23,13 @@ namespace Social.WebApi.Controllers
     [RoutePrefix("api/twitter-accounts")]
     public class TwitterAccountsController : ApiController
     {
+        private Lazy<IHubContext> _hubLazy = new Lazy<IHubContext>(() => GlobalHost.ConnectionManager.GetHubContext<TwitterHub>());
+
+        private IHubContext _hub
+        {
+            get { return _hubLazy.Value; }
+        }
+
         private IUnitOfWorkManager _uowManager;
         private ITwitterAccountAppService _appService;
 
@@ -34,15 +44,15 @@ namespace Social.WebApi.Controllers
         /// <summary>
         /// Make a integration request, fron-end page should redirect to this api rather than calling this api directly.
         /// </summary>
-        /// <param name="redirectUri">After social user grant related permissions to our system, current page will redirect to this url.</param>
+        /// <param name="connectionId">singalr connection id.</param>
         /// <returns></returns>
         [HttpGet]
         [Route("integration-request")]
-        public IHttpActionResult IntegrationRequest([Required]string redirectUri)
+        public IHttpActionResult IntegrationRequest([Required]string connectionId)
         {
             int siteId = _uowManager.Current.GetSiteId().Value;
             // Specify the url you want the user to be redirected to\
-            string url = Request.RequestUri.Scheme + "://" + Request.RequestUri.Authority + Url.Route("ValidateAuth", new { siteId = siteId, redirectUri = redirectUri });
+            string url = Request.RequestUri.Scheme + "://" + Request.RequestUri.Authority + Url.Route("TwitterIntegrationCallback", new { siteId = Request.GetSiteId(), connectionId = connectionId });
 
             IAuthenticationContext authenticationContext = _appService.InitAuthentication(url);
             return Redirect(authenticationContext.AuthorizationURL);
@@ -52,15 +62,16 @@ namespace Social.WebApi.Controllers
         /// This api is used by twitter.
         /// </summary>
         /// <param name="authorization_id"></param>
-        /// <param name="redirectUri"></param>
+        /// <param name="connectionId">singalr connection id.</param>
         /// <param name="oauth_verifier"></param>
         /// <returns></returns>
         [HttpGet]
-        [Route("validate-twitter-auth", Name = "ValidateAuth")]
-        public async Task<IHttpActionResult> ValidateTwitterAuth(string authorization_id, string redirectUri, string oauth_verifier = null)
+        [Route("integration-callback", Name = "TwitterIntegrationCallback")]
+        public async Task<IHttpActionResult> IntegrationCallback(string connectionId, string authorization_id, string oauth_verifier = null)
         {
             await _appService.AddAccountAsync(authorization_id, oauth_verifier);
-            return Redirect(redirectUri);
+            _hub.Clients.Client(connectionId).twitterAuthorize();
+            return Ok();
         }
 
         /// <summary>

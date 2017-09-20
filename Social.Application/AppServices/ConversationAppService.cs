@@ -152,7 +152,7 @@ namespace Social.Application.AppServices
                 Conversation conversation = _conversationService.CheckIfExists(id);
                 oldMaxLogId = conversation.Logs.Select(t => t.Id).DefaultIfEmpty().Max();
                 Mapper.Map(updateDto, conversation);
-                _conversationService.Update(conversation);
+                _conversationService.UpdateAndWriteLog(conversation);
                 conversationDto = Mapper.Map<ConversationDto>(conversation);
                 FillFields(conversationDto);
                 uow.Complete();
