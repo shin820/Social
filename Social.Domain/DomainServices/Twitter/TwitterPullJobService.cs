@@ -1,4 +1,5 @@
 ﻿using Framework.Core;
+using Social.Domain.DomainServices.Twitter;
 using Social.Domain.Entities;
 using Social.Infrastructure;
 using Social.Infrastructure.Twitter;
@@ -46,10 +47,15 @@ namespace Social.Domain.DomainServices
             var messages = recivedMessages.Concat(sentMessages).OrderBy(t => t.CreatedAt);
             foreach (var message in messages)
             {
+                TwitterProcessResult result = null;
                 await UnitOfWorkManager.RunWithNewTransaction(account.SiteId, async () =>
                 {
-                    await _twitterService.ProcessDirectMessage(account, message);
+                    result = await _twitterService.ProcessDirectMessage(account, message);
                 });
+                if (result != null)
+                {
+                    await result.Notify(account.SiteId);
+                }
             }
         }
 
@@ -144,10 +150,15 @@ namespace Social.Domain.DomainServices
             var tweets = receivedTweets.Concat(sentTweets).OrderBy(t => t.CreatedAt);
             foreach (var tweet in tweets)
             {
+                TwitterProcessResult result = null;
                 await UnitOfWorkManager.RunWithNewTransaction(account.SiteId, async () =>
                 {
-                    await _twitterService.ProcessTweet(account, tweet);
+                    result = await _twitterService.ProcessTweet(account, tweet);
                 });
+                if (result != null)
+                {
+                    await result.Notify(account.SiteId);
+                }
             }
         }
 
