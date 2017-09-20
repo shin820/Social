@@ -24,7 +24,7 @@ namespace Social.WebApi.Controllers
     [RoutePrefix("api/facebook-accounts")]
     public class FacebookAccountsController : ApiController
     {
-        private Lazy<IHubContext> _hubLazy = new Lazy<IHubContext>(() => GlobalHost.ConnectionManager.GetHubContext<SocialIntegrationHub>());
+        private Lazy<IHubContext> _hubLazy = new Lazy<IHubContext>(() => GlobalHost.ConnectionManager.GetHubContext<FacebookHub>());
 
         private IHubContext _hub
         {

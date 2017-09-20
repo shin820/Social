@@ -23,7 +23,7 @@ namespace Social.WebApi.Controllers
     [RoutePrefix("api/twitter-accounts")]
     public class TwitterAccountsController : ApiController
     {
-        private Lazy<IHubContext> _hubLazy = new Lazy<IHubContext>(() => GlobalHost.ConnectionManager.GetHubContext<SocialIntegrationHub>());
+        private Lazy<IHubContext> _hubLazy = new Lazy<IHubContext>(() => GlobalHost.ConnectionManager.GetHubContext<TwitterHub>());
 
         private IHubContext _hub
         {
