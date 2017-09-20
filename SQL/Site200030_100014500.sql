@@ -240,7 +240,7 @@ SELECT
 			,[DataType]
 			,[Name]
 			,100014500 AS [SiteId]
-	 FROM [private.site200030].[dbo].[t_Social_ConversationField_Config]
+	 FROM [t_Social_ConversationField_Config]
 GO
 INSERT INTO [t_Social_ConversationFieldOption]
 (
