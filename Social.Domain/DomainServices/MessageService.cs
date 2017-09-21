@@ -122,6 +122,10 @@ namespace Social.Domain.DomainServices
 
             // publish message to facebook
             string fbMessageId = _fbClient.PublishMessage(socialAccount.Token, conversation.OriginalId, content);
+            if (string.IsNullOrWhiteSpace(fbMessageId))
+            {
+                return null;
+            }
             // create message
             var message = new Message
             {

@@ -24,26 +24,12 @@ BEGIN
 			,[Name]
 			,[SiteId]
 		)
-		VALUES
-		(1,4,''Source'','+@siteIdStr+'),
-		(1,4,''Agent Assignee'','+@siteIdStr+'),
-		(1,4,''Department Assignee'','+@siteIdStr+'),
-		(1,4,''Status'','+@siteIdStr+'),
-		(1,4,''Priority'','+@siteIdStr+'),
-		(1,4,''Social Accounts'','+@siteIdStr+'),
-		(1,4,''Replied Agents'','+@siteIdStr+'),
-		(1,4,''Last Replied Agent'','+@siteIdStr+'),
-		(1,1,''Last Message Sent by'','+@siteIdStr+'),
-		(1,4,''Agent Assignee Status'','+@siteIdStr+'),
-		(1,4,''Department Assignee Status'','+@siteIdStr+'),
-		(1,1,''Social Users'','+@siteIdStr+'),
-		(1,1,''Comment/Messages'','+@siteIdStr+'),
-		(1,3,''Last Message Sent'','+@siteIdStr+'),
-		(1,3,''Created'','+@siteIdStr+'),
-		(1,3,''Last Modified'','+@siteIdStr+'),
-		(1,2,''Time to Last Message'','+@siteIdStr+'),
-		(1,2,''Total Messages'','+@siteIdStr+'),
-		(1,2,''Conversation ID'','+@siteIdStr+')
+		SELECT
+			[IfSystem]
+			,[DataType]
+			,[Name]
+			,@siteIdStr AS [SiteId]
+	 FROM [t_Social_ConversationField_Config]
 		'
 	EXEC(@sql)
 	SET @siteId=@siteId+1

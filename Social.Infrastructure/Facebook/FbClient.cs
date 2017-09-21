@@ -289,8 +289,16 @@ namespace Social.Infrastructure.Facebook
         {
             FacebookClient client = new FacebookClient(token);
             string url = $"/{fbConversationId}/messages";
-            dynamic result = client.Post(url, new { message = message });
-            return result.id;
+            try
+            {
+                dynamic result = client.Post(url, new { message = message });
+                return result.id;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.Message, ex);
+                return string.Empty;
+            }
         }
 
         public async Task<IList<FbMessage>> GetMessagesFromConversationId(string token, string fbConversationId, int limit)
