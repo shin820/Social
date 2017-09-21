@@ -29,11 +29,12 @@
 
             $.connection.hub.url = 'http://127.0.0.1:30001/signalr';
             var hub = $.connection.notificationHub;
-            var integrationHub = $.connection.socialIntegrationHub;
-            integrationHub.client.twitterAuthorize = function () {
+            var facebookHub = $.connection.facebookHub;
+            var twitterHub = $.connection.twitterHub;
+            twitterHub.client.twitterAuthorize = function () {
                 console.log("get twiiter authroize notification.")
             };
-            integrationHub.client.facebookAuthorize = function (code, isAuthorize) {
+            facebookHub.client.facebookAuthorize = function (code, isAuthorize) {
                 console.log("get facebook authroize notification.")
                 console.log("code = " + code);
                 console.log("isAuthorize = " + isAuthorize)

@@ -65,7 +65,7 @@ namespace Social.WebApi.Controllers
         }
 
         [HttpGet]
-        [Route("integration-callback", Name = "FacebookIntegrationCallback")]
+        [Route("integration-callback/{connectionId}", Name = "FacebookIntegrationCallback")]
         public IHttpActionResult IntegrationCallback(string connectionId, string code = "")
         {
             _hub.Clients.Client(connectionId).facebookAuthorize(code, !string.IsNullOrEmpty(code));
