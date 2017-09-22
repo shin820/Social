@@ -212,12 +212,15 @@ namespace Social.Application.AppServices
                 uow.Complete();
             }
             var dto = Mapper.Map<FacebookMessageDto>(message);
-            dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
-
-            if (_notificationManager != null)
+            if (dto != null)
             {
-                await _notificationManager.NotifyUpdateConversation(UserContext.SiteId.GetValueOrDefault(), message.ConversationId);
-                await _notificationManager.NotifyNewFacebookMessage(UserContext.SiteId.GetValueOrDefault(), message.Id);
+                dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
+
+                if (_notificationManager != null)
+                {
+                    await _notificationManager.NotifyUpdateConversation(UserContext.SiteId.GetValueOrDefault(), message.ConversationId);
+                    await _notificationManager.NotifyNewFacebookMessage(UserContext.SiteId.GetValueOrDefault(), message.Id);
+                }
             }
             return dto;
         }
