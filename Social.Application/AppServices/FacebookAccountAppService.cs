@@ -111,7 +111,7 @@ namespace Social.Application.AppServices
             else
             {
                 // convert customer to integration account
-                socialUser.Type = SocialUserType.Customer;
+                socialUser.Type = SocialUserType.IntegrationAccount;
                 socialUser.SocialAccount = socialAccount;
                 _socialUserService.Update(socialUser);
 
