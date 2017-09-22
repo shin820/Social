@@ -69,8 +69,21 @@ namespace Social.WebApi.Controllers
         [Route("integration-callback", Name = "TwitterIntegrationCallback")]
         public async Task<IHttpActionResult> IntegrationCallback(string connectionId, string authorization_id, string oauth_verifier = null)
         {
-            await _appService.AddAccountAsync(authorization_id, oauth_verifier);
-            _hub.Clients.Client(connectionId).twitterAuthorize();
+            string errorInfo = string.Empty;
+            try
+            {
+                await _appService.AddAccountAsync(authorization_id, oauth_verifier);
+            }
+            catch (ExceptionWithCode codeEx)
+            {
+                errorInfo = codeEx.Message;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+            }
+
+            _hub.Clients.Client(connectionId).twitterAuthorize(errorInfo);
             return Ok();
         }
 
