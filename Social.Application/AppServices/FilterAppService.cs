@@ -12,6 +12,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Social.Application.AppServices
 {
@@ -138,12 +139,14 @@ namespace Social.Application.AppServices
             {
                 throw SocialExceptions.FilterNotExists(id);
             }
-
-            _domainService.DeleteConditons(updateFilter);
-            Mapper.Map(updateDto, updateFilter);
-            _domainService.UpdateFilter(updateFilter, Mapper.Map<List<FilterConditionCreateDto>, List<FilterCondition>>(updateDto.Conditions.ToList()).ToArray());
-            CurrentUnitOfWork.SaveChanges();
-
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                _domainService.DeleteConditons(updateFilter);
+                Mapper.Map(updateDto, updateFilter);
+                _domainService.UpdateFilter(updateFilter, Mapper.Map<List<FilterConditionCreateDto>, List<FilterCondition>>(updateDto.Conditions.ToList()).ToArray());
+                CurrentUnitOfWork.SaveChanges();
+                uow.Complete();
+            }
             await _notificationManager.NotifyUpdateFilter(updateFilter.SiteId, updateFilter.Id);
             var filterDto = Mapper.Map<FilterDetailsDto>(updateFilter);
             List<FilterDetailsDto> filterDtos = new List<FilterDetailsDto>();
