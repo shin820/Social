@@ -31,7 +31,7 @@ BEGIN
 			  ,[Value]
 			  ,[Index]
 			  ,@siteIdStr AS [SiteId]
-	 FROM [t_Social_ConversationFieldOption_Config] p
+	 FROM [Comm100.General].[dbo].[t_Social_ConversationFieldOption_Config] p
 	 '
 	EXEC(@sql)
 	SET @siteId=@siteId+1

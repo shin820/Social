@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.3
+VisualStudioVersion = 15.0.26430.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Social.Infrastructure", "Social.Infrastructure\Social.Infrastructure.csproj", "{FE79D2DF-6B23-4278-9C84-FC1D6487C45B}"
 EndProject
@@ -35,6 +35,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "general-scripts", "general-scripts", "{1C16B363-5983-4B55-A523-3F0404C8E643}"
 	ProjectSection(SolutionItems) = preProject
 		SQL\general-scripts\01 General_Create_t_Site_SocialAccount.sql = SQL\general-scripts\01 General_Create_t_Site_SocialAccount.sql
+		SQL\general-scripts\02 General_Create_t_Social_ConversationField_Config.sql = SQL\general-scripts\02 General_Create_t_Social_ConversationField_Config.sql
+		SQL\general-scripts\03 General_Create_t_Social_ConversationFieldOption_Config.sql = SQL\general-scripts\03 General_Create_t_Social_ConversationFieldOption_Config.sql
+		SQL\general-scripts\04 General_Create_t_Social_Filter_Config.sql = SQL\general-scripts\04 General_Create_t_Social_Filter_Config.sql
+		SQL\general-scripts\05 General_Create_t_Social_FilterCondition_Config.sql = SQL\general-scripts\05 General_Create_t_Social_FilterCondition_Config.sql
+		SQL\general-scripts\06 General_Add_t_Social_ConversationField_Config.sql = SQL\general-scripts\06 General_Add_t_Social_ConversationField_Config.sql
+		SQL\general-scripts\07 General_Add_t_Social_ConversationFieldOption_Config.sql = SQL\general-scripts\07 General_Add_t_Social_ConversationFieldOption_Config.sql
+		SQL\general-scripts\08 General_Add_t_Social_Filter_Config.sql = SQL\general-scripts\08 General_Add_t_Social_Filter_Config.sql
+		SQL\general-scripts\09 General_Add_t_Social_FilterCondition_Config.sql = SQL\general-scripts\09 General_Add_t_Social_FilterCondition_Config.sql
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "site-scripts", "site-scripts", "{0AD65EAC-67BB-46C1-8383-4BA61D0F7197}"

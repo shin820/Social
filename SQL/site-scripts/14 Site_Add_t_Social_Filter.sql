@@ -35,7 +35,7 @@ BEGIN
 			,[CreatedBy]
 			,[CreatedTime]
 			,@siteIdStr AS [SiteId]
-		FROM [t_Social_Filter_Config]
+		FROM [Comm100.General].[dbo].[t_Social_Filter_Config]
 		'
 	EXEC(@sql)
 	SET @siteId=@siteId+1

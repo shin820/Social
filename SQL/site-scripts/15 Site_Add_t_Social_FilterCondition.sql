@@ -35,7 +35,7 @@ BEGIN
 		,[Value]
 		,@siteIdStr AS [SiteId]
 		,[Index]
-		FROM [t_Social_FilterCondition_Config] p
+		FROM [Comm100.General].[dbo].[t_Social_FilterCondition_Config] p
 		'
 	EXEC(@sql)
 	SET @siteId=@siteId+1
