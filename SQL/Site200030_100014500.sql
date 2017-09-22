@@ -240,7 +240,7 @@ SELECT
 			,[DataType]
 			,[Name]
 			,100014500 AS [SiteId]
-	 FROM [t_Social_ConversationField_Config]
+	 FROM [Comm100.General].[dbo].[t_Social_ConversationField_Config]
 GO
 INSERT INTO [t_Social_ConversationFieldOption]
 (
@@ -256,7 +256,7 @@ INSERT INTO [t_Social_ConversationFieldOption]
 			  ,[Value]
 			  ,[Index]
 			  ,100014500 AS [SiteId]
-	 FROM [t_Social_ConversationFieldOption_Config] p
+	 FROM [Comm100.General].[dbo].[t_Social_ConversationFieldOption_Config] p
 GO
 INSERT INTO [t_Social_Filter]
 (
@@ -276,7 +276,7 @@ SELECT
 			,[CreatedBy]
 			,[CreatedTime]
 			,100014500 AS [SiteId]
-		FROM [t_Social_Filter_Config]
+		FROM [Comm100.General].[dbo].[t_Social_Filter_Config]
 GO
 INSERT INTO [t_Social_FilterCondition]
 (
@@ -294,6 +294,6 @@ SELECT
 		,[Value]
 		,100014500 AS [SiteId]
 		,[Index]
-		FROM [t_Social_FilterCondition_Config] p
+		FROM [Comm100.General].[dbo].[t_Social_FilterCondition_Config] p
 GO
 
