@@ -29,7 +29,7 @@ namespace Social.Application.AppServices
 
         public async Task<List<MessageAttachmentRawDto>> GetMessageAttachments()
         {
-            DateTime dateTime = DateTime.UtcNow.AddDays(-4);
+            DateTime dateTime = DateTime.UtcNow.AddHours(-1);
             //var messageAttachments = _messageAttachmentRepo.FindAll()
             //   .Where(t => t.Id == 2118)
             //   .ToList();
