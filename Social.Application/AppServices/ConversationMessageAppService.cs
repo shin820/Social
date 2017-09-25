@@ -166,12 +166,7 @@ namespace Social.Application.AppServices
 
         public async Task<TwitterTweetMessageDto> ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, string messageContent, bool isCloseConversation = false)
         {
-            Message message;
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
-            {
-                message = _messageService.ReplyTwitterTweetMessage(conversationId, tweetAccountId, messageContent, isCloseConversation);
-                uow.Complete();
-            }
+            Message message = _messageService.ReplyTwitterTweetMessage(conversationId, tweetAccountId, messageContent, isCloseConversation);
             var dto = Mapper.Map<TwitterTweetMessageDto>(message);
             dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
 
@@ -186,12 +181,7 @@ namespace Social.Application.AppServices
 
         public async Task<TwitterDirectMessageDto> ReplyTwitterDirectMessage(int conversationId, string messageContent, bool isCloseConversation = false)
         {
-            Message message;
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
-            {
-                message = _messageService.ReplyTwitterDirectMessage(conversationId, messageContent, isCloseConversation);
-                uow.Complete();
-            }
+            Message message = _messageService.ReplyTwitterDirectMessage(conversationId, messageContent, isCloseConversation);
             var dto = Mapper.Map<TwitterDirectMessageDto>(message);
             dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
 
