@@ -177,7 +177,7 @@ namespace Social.Domain.DomainServices
                 predicate.Or(expression);
             }
 
-            var conversations = Repository.FindAll().AsExpandable().Where(t => t.IsDeleted == false && t.IfRead == false);
+            var conversations = Repository.FindAll().AsExpandable().Where(t => t.IsHidden == false && t.IsDeleted == false && t.IfRead == false);
             return conversations.Where(predicate).Count();
         }
 
@@ -295,6 +295,19 @@ namespace Social.Domain.DomainServices
 
         private void CheckStatus(Conversation oldEntity, Conversation conversation)
         {
+            if (conversation.Source == ConversationSource.FacebookMessage)
+            {
+                CheckStatus(oldEntity, conversation, ConversationSource.FacebookMessage);
+            }
+
+            if (conversation.Source == ConversationSource.TwitterDirectMessage)
+            {
+                CheckStatus(oldEntity, conversation, ConversationSource.TwitterDirectMessage);
+            }
+        }
+
+        private void CheckStatus(Conversation oldEntity, Conversation conversation, ConversationSource source)
+        {
             if (conversation.Source == ConversationSource.FacebookMessage || conversation.Source == ConversationSource.TwitterDirectMessage)
             {
                 if (oldEntity.Status == ConversationStatus.Closed && conversation.Status != ConversationStatus.Closed)
@@ -303,7 +316,7 @@ namespace Social.Domain.DomainServices
                     List<int> recipientIds = oldEntity.Messages.Where(t => t.Sender.SocialAccount == null && t.ReceiverId != null).Select(t => t.ReceiverId.Value).Distinct().ToList();
                     var userIds = senderIds.Union(recipientIds).Distinct();
 
-                    bool isExistsOpenConversation = FindAll().Any(t => t.Id != conversation.Id && t.Status != ConversationStatus.Closed && t.Messages.Any(m => userIds.Contains(m.SenderId) || userIds.Contains(m.ReceiverId.Value)));
+                    bool isExistsOpenConversation = FindAll().Any(t => t.Source == source && t.Id != conversation.Id && t.Status != ConversationStatus.Closed && t.Messages.Any(m => userIds.Contains(m.SenderId) || userIds.Contains(m.ReceiverId.Value)));
                     if (isExistsOpenConversation)
                     {
                         throw SocialExceptions.BadRequest("Another open conversation which belongs to the same user has been found.");
