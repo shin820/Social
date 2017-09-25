@@ -69,6 +69,7 @@ namespace Social.Domain.DomainServices
                         FieldId = agentField.Id,
                         Value = t.Id.ToString()
                     }).ToList();
+                    agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id,SiteId = agentField.SiteId,Name = "Unassigned", Value = "@Blank"});
                 }
             }
         }
@@ -122,6 +123,7 @@ namespace Social.Domain.DomainServices
                         FieldId = departmentField.Id,
                         Value = t.Id.ToString()
                     }).ToList();
+                    departmentField.Options.Add(new ConversationFieldOption { FieldId = departmentField.Id, SiteId = departmentField.SiteId, Name = "Unassigned", Value = "@Blank" });
                 }
             }
         }
