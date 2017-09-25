@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Transactions;
 using Tweetinvi.Models;
 using Message = Social.Domain.Entities.Message;
 
@@ -96,8 +97,8 @@ namespace Social.Domain.DomainServices
         {
             return Repository.FindAll()
                 .Include(t => t.Attachments)
-                .Include(t => t.Sender.SocialAccount)
-                .Include(t => t.Receiver.SocialAccount)
+                .Include(t => t.Sender)
+                .Include(t => t.Receiver)
                 .Where(t => t.ConversationId == conversationId);
         }
 
@@ -110,7 +111,7 @@ namespace Social.Domain.DomainServices
             }
 
             var messages = FindAllByConversationId(conversation.Id).ToList();
-            SocialAccount socialAccount = GetSocialAccountsFromMessages(messages).FirstOrDefault();
+            SocialAccount socialAccount = GetSocialAccountFromMessages(messages);
             if (socialAccount == null)
             {
                 throw SocialExceptions.BadRequest("Facebook integration account can't be found from conversation.");
@@ -138,17 +139,28 @@ namespace Social.Domain.DomainServices
                 OriginalId = fbMessageId,
                 Source = MessageSource.FacebookMessage
             };
-            Repository.Insert(message);
-            CurrentUnitOfWork.SaveChanges();
 
-            // upadte conversation
-            conversation.Status = isCloseConversation ? ConversationStatus.Closed : ConversationStatus.PendingExternal;
-            conversation.LastMessageSenderId = message.SenderId;
-            conversation.LastMessageSentTime = message.SendTime;
-            conversation.LastRepliedAgentId = UserContext.UserId;
-            _conversationService.Update(conversation);
+            Save(message, isCloseConversation);
 
             return message;
+        }
+
+        private void Save(Message message, bool isCloseConversation)
+        {
+            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
+            {
+                Repository.Insert(message);
+                CurrentUnitOfWork.SaveChanges();
+
+                // upadte conversation
+                var conversation = _conversationService.Find(message.ConversationId);
+                conversation.Status = isCloseConversation ? ConversationStatus.Closed : ConversationStatus.PendingExternal;
+                conversation.LastMessageSenderId = message.SenderId;
+                conversation.LastMessageSentTime = message.SendTime;
+                conversation.LastRepliedAgentId = UserContext.UserId;
+                _conversationService.Update(conversation);
+                uow.Complete();
+            }
         }
 
         public Message ReplyFacebookPostOrComment(int conversationId, int postOrCommentId, string content, bool isCloseConversation = false)
@@ -161,7 +173,7 @@ namespace Social.Domain.DomainServices
 
             var messages = FindAllInlcudeDeletedByConversationId(conversation.Id).ToList();
             var postMessage = messages.FirstOrDefault(t => t.ParentId == null);
-            SocialAccount socialAccount = GetSocialAccountsFromMessages(messages).FirstOrDefault();
+            SocialAccount socialAccount = GetSocialAccountFromMessages(messages);
             if (socialAccount == null)
             {
                 throw SocialExceptions.BadRequest("Facebook integration account can't be found from conversation.");
@@ -210,15 +222,8 @@ namespace Social.Domain.DomainServices
                 {
                     comment.Source = MessageSource.FacebookPostReplyComment;
                 }
-                Repository.Insert(comment);
-                CurrentUnitOfWork.SaveChanges();
 
-                // upadte conversation
-                conversation.Status = isCloseConversation ? ConversationStatus.Closed : ConversationStatus.PendingExternal;
-                conversation.LastMessageSenderId = comment.SenderId;
-                conversation.LastMessageSentTime = comment.SendTime;
-                conversation.LastRepliedAgentId = UserContext.UserId;
-                _conversationService.Update(conversation);
+                Save(comment, isCloseConversation);
 
                 break;
             }
@@ -363,38 +368,33 @@ namespace Social.Domain.DomainServices
             return Repository.FindAll().Any(t => t.Source == messageSource && t.OriginalId == originalId);
         }
 
+        private SocialAccount GetSocialAccountFromMessages(IList<Message> messages)
+        {
+            var accounts = GetSocialAccountsFromMessages(messages);
+            var account = accounts.FirstOrDefault(t => t.IsDeleted == false);
+            if (account == null && accounts.Any())
+            {
+                //if intefration account was deleted and integrated again,we should use the new social account.
+                var originalId = accounts.First().SocialUser.OriginalId;
+                account = _socialAccountService.FindAll().Where(t => t.SocialUser.OriginalId == originalId).FirstOrDefault();
+            }
+            return account;
+        }
+
         private IList<SocialAccount> GetSocialAccountsFromMessages(IList<Message> messages)
         {
-            var accountsWhichSendMessage =
+            var accountsWhoSendMessage =
                 messages.Where(t => t.Sender.Type == SocialUserType.IntegrationAccount)
-                .Select(t => t.Sender.SocialAccount)
+                .Select(t => t.Sender.Id)
                 .Distinct()
                 .ToList();
-            var accountsWhichReceiveMessage =
+            var accountsWhoReceiveMessage =
                 messages.Where(t => t.Receiver != null && t.Receiver.Type == SocialUserType.IntegrationAccount)
-                .Select(t => t.Receiver.SocialAccount)
+                .Select(t => t.Receiver.Id)
                 .Distinct()
                 .ToList();
-            List<SocialAccount> accounts = new List<SocialAccount>();
-            foreach (var accountWithSendMessage in accountsWhichSendMessage)
-            {
-                if (accounts.Any(t => t.Id == accountWithSendMessage.Id))
-                {
-                    continue;
-                }
-                accounts.Add(accountWithSendMessage);
-            }
-
-            foreach (var accountWhichReceiveMessage in accountsWhichReceiveMessage)
-            {
-                if (accounts.Any(t => t.Id == accountWhichReceiveMessage.Id))
-                {
-                    continue;
-                }
-                accounts.Add(accountWhichReceiveMessage);
-            }
-
-            return accounts;
+            List<int> accountIds = accountsWhoSendMessage.Union(accountsWhoReceiveMessage).Distinct().ToList();
+            return _socialAccountService.FindAllAndContainsDeleted().Where(t => accountIds.Contains(t.Id)).ToList();
         }
 
         private IList<Message> GetFacebookPreviousMessages(IList<Message> messages, int previousMessageId)

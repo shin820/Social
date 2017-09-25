@@ -205,12 +205,7 @@ namespace Social.Application.AppServices
 
         public async Task<FacebookMessageDto> ReplyFacebookMessage(int conversationId, string content, bool isCloseConversation = false)
         {
-            Message message;
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
-            {
-                message = _messageService.ReplyFacebookMessage(conversationId, content, isCloseConversation);
-                uow.Complete();
-            }
+            Message message = _messageService.ReplyFacebookMessage(conversationId, content, isCloseConversation);
             var dto = Mapper.Map<FacebookMessageDto>(message);
             if (dto != null)
             {
@@ -227,12 +222,7 @@ namespace Social.Application.AppServices
 
         public async Task<FacebookPostCommentMessageDto> ReplyFacebookPostOrComment(int conversationId, int postOrCommentId, string content, bool isCloseConversation = false)
         {
-            Message message;
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
-            {
-                message = _messageService.ReplyFacebookPostOrComment(conversationId, postOrCommentId, content, isCloseConversation);
-                uow.Complete();
-            }
+            Message message = _messageService.ReplyFacebookPostOrComment(conversationId, postOrCommentId, content, isCloseConversation);
             var dto = Mapper.Map<FacebookPostCommentMessageDto>(message);
             dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
 

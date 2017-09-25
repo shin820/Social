@@ -60,13 +60,12 @@ namespace Social.Domain.DomainServices
 
         public Conversation CheckIfExists(int id)
         {
-            var conversation = Find(id);
-            int checkNum = CheckIfDeleteOrExists(id);
-            if (checkNum == 0)
+            var conversation = Repository.Find(id);
+            if (conversation == null)
             {
                 throw SocialExceptions.ConversationIdNotExists(id);
             }
-            else if (checkNum == -1)
+            if (conversation.IsDeleted)
             {
                 throw SocialExceptions.ConversationIdDelete(id);
             }
@@ -81,20 +80,6 @@ namespace Social.Domain.DomainServices
         public Conversation Find(int id, ConversationSource source)
         {
             return FindAll().Where(t => t.Id == id && !t.IsHidden && t.Source == source).FirstOrDefault();
-        }
-
-        public int CheckIfDeleteOrExists(int id)
-        {
-            var conversation = FindAll().Where(t => t.Id == id).FirstOrDefault();
-            if (conversation == null)
-            {
-                return 0;//Not Exist
-            }
-            else if (conversation.IsDeleted)
-            {
-                return -1;//Is delete
-            }
-            return 1;//normal
         }
 
         public override Conversation Find(int id)
