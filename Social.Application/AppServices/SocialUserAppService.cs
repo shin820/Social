@@ -42,16 +42,15 @@ namespace Social.Application.AppServices
             _twitterClient = twitterClient;
         }
 
-
         public async Task<UserInfoDto> FindPublicInfoAsync(int socialUserId)
         {
-            SocialUser user = _domainService.Find(socialUserId);
+            UserInfoDto userInfoDto = new UserInfoDto { Id = socialUserId };
+            SocialUser user = _domainService.FindAllWithDeleted().FirstOrDefault(t => t.Id == socialUserId);
             if (user == null)
             {
-                throw SocialExceptions.SocialUserIdNotExists(socialUserId);
+                return userInfoDto;
             }
 
-            UserInfoDto userInfoDto = new UserInfoDto { Id = user.Id };
             if (user.Source == SocialUserSource.Facebook)
             {
                 FbUser facebookInfo = await _fbClient.GetUserInfo(user.OriginalId);
@@ -62,28 +61,43 @@ namespace Social.Application.AppServices
                 userInfoDto.OriginalId = facebookInfo.id;
                 userInfoDto.Avatar = facebookInfo.pic;
 
+                if (user.Avatar != userInfoDto.Avatar || user.Email != userInfoDto.Email)
+                {
+                    user.Avatar = userInfoDto.Avatar;
+                    user.Email = userInfoDto.Email;
+                    _domainService.Update(user);
+                }
             }
             else if (user.Source == SocialUserSource.Twitter)
             {
-                var account = _domainService.FindAll().Where(t => t.Type == SocialUserType.IntegrationAccount && t.Source == SocialUserSource.Twitter).Select(t => t.SocialAccount).First();
-                IUser twitterUserInfo = _twitterClient.GetUser(account.Token, account.TokenSecret, long.Parse(user.OriginalId));
-                if (twitterUserInfo != null)
+                var account = _domainService.FindAll().Where(t => t.Type == SocialUserType.IntegrationAccount && t.Source == SocialUserSource.Twitter).Select(t => t.SocialAccount).FirstOrDefault();
+                if (account != null)
                 {
-                    userInfoDto.Source = SocialUserSource.Twitter;
-                    userInfoDto.Name = twitterUserInfo.Name;
-                    userInfoDto.OriginalId = twitterUserInfo.Id.ToString();
-                    userInfoDto.Avatar = twitterUserInfo.ProfileImageUrl;
-                    userInfoDto.Link = TwitterHelper.GetUserUrl(twitterUserInfo.ScreenName);
-                    userInfoDto.ScreenName = twitterUserInfo.ScreenName;
-                    userInfoDto.Location = twitterUserInfo.Location;
-                    userInfoDto.FollowersCount = twitterUserInfo.FollowersCount;
-                    userInfoDto.FriendsCount = twitterUserInfo.FriendsCount;
-                    userInfoDto.StatusesCount = twitterUserInfo.StatusesCount;
-                    userInfoDto.Description = twitterUserInfo.Description;
-                    userInfoDto.JoinedDate = twitterUserInfo.CreatedAt;
-                    if (twitterUserInfo.Entities.Website != null)
+                    IUser twitterUserInfo = _twitterClient.GetUser(account.Token, account.TokenSecret, long.Parse(user.OriginalId));
+                    if (twitterUserInfo != null)
                     {
-                        userInfoDto.Website = twitterUserInfo.Entities.Website.Urls.First().DisplayedURL;
+                        userInfoDto.Source = SocialUserSource.Twitter;
+                        userInfoDto.Name = twitterUserInfo.Name;
+                        userInfoDto.OriginalId = twitterUserInfo.Id.ToString();
+                        userInfoDto.Avatar = twitterUserInfo.ProfileImageUrl;
+                        userInfoDto.Link = TwitterHelper.GetUserUrl(twitterUserInfo.ScreenName);
+                        userInfoDto.ScreenName = twitterUserInfo.ScreenName;
+                        userInfoDto.Location = twitterUserInfo.Location;
+                        userInfoDto.FollowersCount = twitterUserInfo.FollowersCount;
+                        userInfoDto.FriendsCount = twitterUserInfo.FriendsCount;
+                        userInfoDto.StatusesCount = twitterUserInfo.StatusesCount;
+                        userInfoDto.Description = twitterUserInfo.Description;
+                        userInfoDto.JoinedDate = twitterUserInfo.CreatedAt;
+                        if (twitterUserInfo.Entities.Website != null)
+                        {
+                            userInfoDto.Website = twitterUserInfo.Entities.Website.Urls.First().DisplayedURL;
+                        }
+                        if (user.Avatar != userInfoDto.Avatar || user.Email != userInfoDto.Email)
+                        {
+                            user.Avatar = userInfoDto.Avatar;
+                            user.Email = userInfoDto.Email;
+                            _domainService.Update(user);
+                        }
                     }
                 }
             }

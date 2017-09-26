@@ -280,7 +280,7 @@ namespace Social.Domain.DomainServices
                 throw SocialExceptions.BadRequest("Conversation source must be twitter tweet.");
             }
 
-            SocialAccount twitterAccount = _socialAccountService.FindAllAndContainsDeleted().FirstOrDefault(t => t.Id == twitterAccountId);
+            SocialAccount twitterAccount = _socialAccountService.FindAllWithDeleted().FirstOrDefault(t => t.Id == twitterAccountId);
             if (twitterAccount != null && twitterAccount.IsDeleted)
             {
                 twitterAccount = _socialAccountService.FindAll().FirstOrDefault(t => t.SocialUser.OriginalId == twitterAccount.SocialUser.OriginalId);
@@ -371,7 +371,7 @@ namespace Social.Domain.DomainServices
                 .Distinct()
                 .ToList();
             List<int> accountIds = accountsWhoSendMessage.Union(accountsWhoReceiveMessage).Distinct().ToList();
-            return _socialAccountService.FindAllAndContainsDeleted().Where(t => accountIds.Contains(t.Id)).ToList();
+            return _socialAccountService.FindAllWithDeleted().Where(t => accountIds.Contains(t.Id)).ToList();
         }
 
         private IList<Message> GetFacebookPreviousMessages(IList<Message> messages, int previousMessageId)

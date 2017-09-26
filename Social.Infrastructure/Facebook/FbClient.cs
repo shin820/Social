@@ -138,7 +138,7 @@ namespace Social.Infrastructure.Facebook
                     };
                     if (item.picture != null && item.picture.data != null)
                     {
-                        if (item.picture.data.is_silhouette == true)
+                        if (item.picture.data.url != null)
                         {
                             page.Avatar = item.picture.data.url;
                         }

@@ -15,12 +15,11 @@ namespace Social.Domain.DomainServices
 {
     public interface ISocialUserService : IDomainService<SocialUser>
     {
-        //Task<SocialUser> GetOrCreateSocialUser(int siteId, string token, string fbUserId, string fbUserEmail);
+        IQueryable<SocialUser> FindAllWithDeleted();
         Task<SocialUser> GetOrCreateTwitterUser(IUser twitterUser);
         Task<SocialUser> GetOrCreateTwitterUser(string orignalUserId);
         Task<SocialUser> GetOrCreateFacebookUser(string token, string fbUserId);
         Task<List<SocialUser>> GetOrCreateSocialUsers(string token, List<FbUser> fbSenders);
-        SocialUser FindByOriginalId(string originalId, SocialUserSource souce, SocialUserType type);
     }
 
     public class SocialUserService : DomainService<SocialUser>, ISocialUserService
@@ -32,36 +31,11 @@ namespace Social.Domain.DomainServices
             _fbClient = fbClient;
         }
 
+        public IQueryable<SocialUser> FindAllWithDeleted()
+        {
+            return base.FindAll();
+        }
 
-        //public async Task<SocialUser> GetOrCreateSocialUser(int siteId, string token, string fbUserId, string fbUserEmail)
-        //{
-        //    var user = Repository.FindAll().Where(t => t.SiteId == siteId && t.OriginalId == fbUserId).FirstOrDefault();
-        //    if (user == null)
-        //    {
-        //        FbUser fbUser = await FbClient.GetUserInfo(token, fbUserId);
-        //        user = new SocialUser
-        //        {
-        //            OriginalId = fbUser.id,
-        //            Name = fbUser.name,
-        //            Email = fbUser.email
-        //        };
-        //        user.SiteId = siteId;
-        //        await Repository.InsertAsync(user);
-        //    }
-
-        //    //bool ifUserInfoUpdated =
-        //    //    socialUser.Email != facebookUser.Email
-        //    //    || socialUser.Avatar != facebookUser.Avatar;
-        //    //if (ifUserInfoUpdated)
-        //    //{
-        //    //    socialUser.Email = facebookUser.Email;
-        //    //    socialUser.Avatar = facebookUser.Avatar;
-        //    //    await Repository.UpdateAsync(socialUser);
-        //    //    return socialUser;
-        //    //}
-
-        //    return user;
-        //}
         public override IQueryable<SocialUser> FindAll()
         {
             return base.FindAll().Where(t => t.IsDeleted == false);
@@ -72,14 +46,12 @@ namespace Social.Domain.DomainServices
             return base.FindAll().Where(t => t.IsDeleted == false).FirstOrDefault(t => t.Id == id);
         }
 
-        public SocialUser FindByOriginalId(string originalId, SocialUserSource source, SocialUserType type)
+        private SocialUser FindByOriginalId(string originalId, SocialUserSource source)
         {
-            return FindAll().Where(t => t.OriginalId == originalId && t.Source == source && t.Type == type).FirstOrDefault();
-        }
-
-        public SocialUser FindByOriginalId(string originalId, SocialUserSource source)
-        {
-            return FindAll().Where(t => t.OriginalId == originalId && t.Source == source).FirstOrDefault();
+            return FindAllWithDeleted()
+                .Where(t => t.OriginalId == originalId && t.Source == source)
+                .OrderByDescending(t => t.Id)
+                .FirstOrDefault();
         }
 
         public async Task<SocialUser> GetOrCreateTwitterUser(IUser twitterUser)
@@ -104,6 +76,14 @@ namespace Social.Domain.DomainServices
                     CurrentUnitOfWork.SaveChanges();
                 });
             }
+
+            if (user.IsDeleted)
+            {
+                user.IsDeleted = false;
+                user.Type = SocialUserType.Customer;
+                Update(user);
+            }
+
             return user;
         }
 
@@ -134,6 +114,14 @@ namespace Social.Domain.DomainServices
                     });
                 }
             }
+
+            if (user.IsDeleted)
+            {
+                user.IsDeleted = false;
+                user.Type = SocialUserType.Customer;
+                Update(user);
+            }
+
             return user;
         }
 
@@ -163,6 +151,14 @@ namespace Social.Domain.DomainServices
                     });
                 }
             }
+
+            if (user.IsDeleted)
+            {
+                user.IsDeleted = false;
+                user.Type = SocialUserType.Customer;
+                Update(user);
+            }
+
             return user;
         }
 
@@ -179,7 +175,7 @@ namespace Social.Domain.DomainServices
 
             List<SocialUser> senders = new List<SocialUser>();
             var fbSenderIds = uniqueFbSenders.Select(t => t.id).ToList();
-            var existingUsers = FindAll().Where(t => t.Source == SocialUserSource.Facebook && fbSenderIds.Contains(t.OriginalId)).ToList();
+            var existingUsers = FindAllWithDeleted().Where(t => t.Source == SocialUserSource.Facebook && fbSenderIds.Contains(t.OriginalId)).ToList();
             senders.AddRange(existingUsers);
             uniqueFbSenders.RemoveAll(t => existingUsers.Any(e => e.OriginalId == t.id));
             foreach (var fbSender in uniqueFbSenders)
@@ -198,6 +194,17 @@ namespace Social.Domain.DomainServices
                     senders.Add(sender);
                 });
             }
+
+            foreach (var sender in senders)
+            {
+                if (sender.IsDeleted)
+                {
+                    sender.IsDeleted = false;
+                    sender.Type = SocialUserType.Customer;
+                    Update(sender);
+                }
+            }
+
             return senders;
         }
     }

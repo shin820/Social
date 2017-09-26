@@ -44,7 +44,7 @@ namespace Social.Domain.DomainServices.Twitter
         public async Task<TwitterProcessResult> ProcessTweet(SocialAccount currentAccount, ITweet currentTweet)
         {
             TwitterProcessResult result = new TwitterProcessResult(_notificationManager);
-            IList<SocialAccount> allAccounts = _socialAccountService.FindAllTwitterAccounts().ToList();
+            IList<SocialAccount> allAccounts = await _socialAccountService.GetAccountsAsync(SocialUserSource.Twitter);
 
             if (!ShouldProcess(currentAccount, allAccounts, currentTweet))
             {
