@@ -3,6 +3,7 @@ using Social.Domain.Entities;
 using Social.Infrastructure.Facebook;
 using Social.Infrastructure.Enum;
 using Framework.Core;
+using System.Linq;
 
 namespace Social.Domain.DomainServices.Facebook
 {
@@ -56,11 +57,16 @@ namespace Social.Domain.DomainServices.Facebook
 
             message.ConversationId = conversation.Id;
             conversation.IfRead = false;
-            conversation.Messages.Add(message);
             conversation.Status = sender.Id != socialAccount.Id ? ConversationStatus.PendingInternal : ConversationStatus.PendingExternal;
             conversation.LastMessageSenderId = message.SenderId;
             conversation.LastMessageSentTime = message.SendTime;
-            conversation.TryToMakeWallPostVisible(socialAccount);
+
+            if (conversation.TryToMakeWallPostVisible(socialAccount))
+            {
+                result.WithNewConversation(conversation);
+            }
+
+            conversation.Messages.Add(message);
 
             await UpdateConversation(conversation);
             await CurrentUnitOfWork.SaveChangesAsync();
