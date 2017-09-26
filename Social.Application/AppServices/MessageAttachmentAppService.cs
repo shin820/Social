@@ -3,11 +3,13 @@ using AutoMapper.QueryableExtensions;
 using Framework.Core;
 using Social.Application.Dto;
 using Social.Domain.Entities;
+using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,9 +33,11 @@ namespace Social.Application.AppServices
         {
             DateTime dateTime = DateTime.UtcNow.AddHours(-1);
             //var messageAttachments = _messageAttachmentRepo.FindAll()
-            //   .Where(t => t.Id == 2118)
+            //   .Where(t => t.Id == 100)
             //   .ToList();
             var messageAttachments = _messageAttachmentRepo.FindAll()
+                .Where(t => t.Message.Source == MessageSource.FacebookMessage || t.Message.Source == MessageSource.FacebookPost || t.Message.Source == MessageSource.FacebookPostComment
+                || t.Message.Source == MessageSource.FacebookPostReplyComment)
                 .Where(t => (t.MimeType.Contains("image") || t.MimeType.Contains("audio") || t.MimeType.Contains("video"))
                 && t.RawData == null && t.Message.SendTime > dateTime)
                 .ToList();
@@ -55,9 +59,8 @@ namespace Social.Application.AppServices
                 string UrlImg = messageAttachmentRawDto.Url;
                 if (UrlCheck(UrlImg))
                 {
-                    WebClient webClient = new WebClient();
-                    webClient.Credentials = CredentialCache.DefaultCredentials;
-                    byte[] byteData = webClient.DownloadData(UrlImg);
+                    HttpClient httpClient = new HttpClient();
+                    byte[] byteData =await httpClient.GetByteArrayAsync(UrlImg);
                     messageAttachmentRawDto.RawData = byteData;
                 }
             }

@@ -139,11 +139,11 @@ namespace Social.Application.AppServices
             {
                 throw SocialExceptions.FilterNotExists(id);
             }
+            _domainService.DeleteConditons(updateFilter);
+            Mapper.Map(updateDto, updateFilter);
+            _domainService.UpdateFilter(updateFilter, Mapper.Map<List<FilterConditionCreateDto>, List<FilterCondition>>(updateDto.Conditions.ToList()).ToArray());
             using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
             {
-                _domainService.DeleteConditons(updateFilter);
-                Mapper.Map(updateDto, updateFilter);
-                _domainService.UpdateFilter(updateFilter, Mapper.Map<List<FilterConditionCreateDto>, List<FilterCondition>>(updateDto.Conditions.ToList()).ToArray());
                 CurrentUnitOfWork.SaveChanges();
                 uow.Complete();
             }
