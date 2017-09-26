@@ -14,6 +14,7 @@ namespace Social.Domain.DomainServices
 {
     public interface ISocialAccountService : IDomainService<SocialAccount>
     {
+        IQueryable<SocialAccount> FindAllAndContainsDeleted();
         SocialAccount FindAccount(int id, SocialUserSource source);
         Task<SocialAccount> GetAccountAsync(SocialUserSource source, string originalId);
         Task<IList<SocialAccount>> GetAccountsAsync(SocialUserSource source);
@@ -52,6 +53,11 @@ namespace Social.Domain.DomainServices
         public override IQueryable<SocialAccount> FindAll()
         {
             return Repository.FindAll().Include(t => t.SocialUser).Where(t => t.IsDeleted == false);
+        }
+
+        public IQueryable<SocialAccount> FindAllAndContainsDeleted()
+        {
+            return Repository.FindAll();
         }
 
         public override SocialAccount Find(int id)

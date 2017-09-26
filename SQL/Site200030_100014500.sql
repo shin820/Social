@@ -236,11 +236,11 @@ INSERT INTO  [t_Social_ConversationField]
 	,[SiteId]
 )
 SELECT
-			[IfSystem]
-			,[DataType]
-			,[Name]
-			,100014500 AS [SiteId]
-	 FROM [Comm100.General].[dbo].[t_Social_ConversationField_Config]
+	[IfSystem]
+	,[DataType]
+	,[Name]
+	,100014500 AS [SiteId]
+	FROM [Comm100.General].[dbo].[t_Social_ConversationField_Config]
 GO
 INSERT INTO [t_Social_ConversationFieldOption]
 (
@@ -251,12 +251,12 @@ INSERT INTO [t_Social_ConversationFieldOption]
 	,[SiteId]
 )
  SELECT
-		   (SELECT [Id]AS [FieldId] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = p.FieldName )
-		      , [Name]
-			  ,[Value]
-			  ,[Index]
-			  ,100014500 AS [SiteId]
-	 FROM [Comm100.General].[dbo].[t_Social_ConversationFieldOption_Config] p
+	(SELECT [Id]AS [FieldId] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = p.FieldName )
+	, [Name]
+	,[Value]
+	,[Index]
+	,100014500 AS [SiteId]
+	FROM [Comm100.General].[dbo].[t_Social_ConversationFieldOption_Config] p
 GO
 INSERT INTO [t_Social_Filter]
 (
@@ -269,14 +269,14 @@ INSERT INTO [t_Social_Filter]
 	,[SiteId]
 )
 SELECT 
-		     [Name]
-			,[Index]
-			,[IfPublic]
-			,[Type]
-			,[CreatedBy]
-			,[CreatedTime]
-			,100014500 AS [SiteId]
-		FROM [Comm100.General].[dbo].[t_Social_Filter_Config]
+	[Name]
+	,[Index]
+	,[IfPublic]
+	,[Type]
+	,[CreatedBy]
+	,[CreatedTime]
+	,100014500 AS [SiteId]
+	FROM [Comm100.General].[dbo].[t_Social_Filter_Config]
 GO
 INSERT INTO [t_Social_FilterCondition]
 (
@@ -288,12 +288,12 @@ INSERT INTO [t_Social_FilterCondition]
 	,[Index]
 )
 SELECT 
-		(SELECT [Id] AS [FilterId] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = p.FilterName)
-		,(SELECT [Id] AS [FilterId] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = p.FieldName)
-		,[MatchType]
-		,[Value]
-		,100014500 AS [SiteId]
-		,[Index]
-		FROM [Comm100.General].[dbo].[t_Social_FilterCondition_Config] p
+	(SELECT [Id] AS [FilterId] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = p.FilterName)
+	,(SELECT [Id] AS [FilterId] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = p.FieldName)
+	,[MatchType]
+	,[Value]
+	,100014500 AS [SiteId]
+	,[Index]
+	FROM [Comm100.General].[dbo].[t_Social_FilterCondition_Config] p
 GO
 

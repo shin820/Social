@@ -166,12 +166,7 @@ namespace Social.Application.AppServices
 
         public async Task<TwitterTweetMessageDto> ReplyTwitterTweetMessage(int conversationId, int tweetAccountId, string messageContent, bool isCloseConversation = false)
         {
-            Message message;
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
-            {
-                message = _messageService.ReplyTwitterTweetMessage(conversationId, tweetAccountId, messageContent, isCloseConversation);
-                uow.Complete();
-            }
+            Message message = _messageService.ReplyTwitterTweetMessage(conversationId, tweetAccountId, messageContent, isCloseConversation);
             var dto = Mapper.Map<TwitterTweetMessageDto>(message);
             dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
 
@@ -186,12 +181,7 @@ namespace Social.Application.AppServices
 
         public async Task<TwitterDirectMessageDto> ReplyTwitterDirectMessage(int conversationId, string messageContent, bool isCloseConversation = false)
         {
-            Message message;
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
-            {
-                message = _messageService.ReplyTwitterDirectMessage(conversationId, messageContent, isCloseConversation);
-                uow.Complete();
-            }
+            Message message = _messageService.ReplyTwitterDirectMessage(conversationId, messageContent, isCloseConversation);
             var dto = Mapper.Map<TwitterDirectMessageDto>(message);
             dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
 
@@ -205,12 +195,7 @@ namespace Social.Application.AppServices
 
         public async Task<FacebookMessageDto> ReplyFacebookMessage(int conversationId, string content, bool isCloseConversation = false)
         {
-            Message message;
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
-            {
-                message = _messageService.ReplyFacebookMessage(conversationId, content, isCloseConversation);
-                uow.Complete();
-            }
+            Message message = _messageService.ReplyFacebookMessage(conversationId, content, isCloseConversation);
             var dto = Mapper.Map<FacebookMessageDto>(message);
             if (dto != null)
             {
@@ -227,12 +212,7 @@ namespace Social.Application.AppServices
 
         public async Task<FacebookPostCommentMessageDto> ReplyFacebookPostOrComment(int conversationId, int postOrCommentId, string content, bool isCloseConversation = false)
         {
-            Message message;
-            using (var uow = UnitOfWorkManager.Begin(TransactionScopeOption.RequiresNew))
-            {
-                message = _messageService.ReplyFacebookPostOrComment(conversationId, postOrCommentId, content, isCloseConversation);
-                uow.Complete();
-            }
+            Message message = _messageService.ReplyFacebookPostOrComment(conversationId, postOrCommentId, content, isCloseConversation);
             var dto = Mapper.Map<FacebookPostCommentMessageDto>(message);
             dto.SendAgentName = _agentService.GetDisplayName(dto.SendAgentId);
 

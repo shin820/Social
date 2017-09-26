@@ -81,7 +81,7 @@ namespace Social.Application.AppServices
                 lastMessageLessThan = DateTimeExtensions.FromUnixTimeSeconds(dto.LastMessageSendTimeLessThan.Value);
             }
 
-            var conversations = _conversationService.FindAll();
+            var conversations = _conversationService.FindAll().Where(t => t.IsHidden == false);
             conversations = conversations.WhereIf(dto.SinceId != null, t => t.Id > dto.SinceId);
             conversations = conversations.WhereIf(dto.MaxId != null, t => t.Id <= dto.MaxId);
             conversations = conversations.WhereIf(dto.LastMessageSendTimeLessThan != null, t => t.LastMessageSentTime < lastMessageLessThan);

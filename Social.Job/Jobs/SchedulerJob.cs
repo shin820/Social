@@ -43,22 +43,22 @@ namespace Social.Job.Jobs
                 foreach (var siteId in facebookSiteIds)
                 {
                     RunningJobs.Schedule<PullTaggedVisitorPostsJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.FacebookPullTaggedVisitorPostsJobCronExpression));
-                    RunningJobs.Schedule<PullVisitorPostsFromFeedJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
-                    RunningJobs.Schedule<PullMessagesJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.FacebookPullMessagesJobCronExpression));
+                    //RunningJobs.Schedule<PullVisitorPostsFromFeedJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.FacebookPullVisitorPostsFromFeedJobCronExpression));
+                    //RunningJobs.Schedule<PullMessagesJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.FacebookPullMessagesJobCronExpression));
                     RunningJobs.Schedule<GetRawDataJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.FacebookGetRawDataJobCronExpression));
                 }
             }
 
             // schedule job for every site
-            List<int> twitterSiteIds = await _siteSocialAccountService.GetTwitterSiteIdsAsync();
-            if (twitterSiteIds != null && twitterSiteIds.Any())
-            {
-                foreach (var siteId in twitterSiteIds)
-                {
-                    RunningJobs.Schedule<TwitterPullTweetsJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.TwitterPullTweetsJobCronExpression));
-                    RunningJobs.Schedule<TwitterPullDirectMessagesJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.TwitterPullDirectMessagesJobCronExpression));
-                }
-            }
+            //List<int> twitterSiteIds = await _siteSocialAccountService.GetTwitterSiteIdsAsync();
+            //if (twitterSiteIds != null && twitterSiteIds.Any())
+            //{
+            //    foreach (var siteId in twitterSiteIds)
+            //    {
+            //        RunningJobs.Schedule<TwitterPullTweetsJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.TwitterPullTweetsJobCronExpression));
+            //        RunningJobs.Schedule<TwitterPullDirectMessagesJob>(_scheduleJobManager, siteId, CronTrigger(AppSettings.TwitterPullDirectMessagesJobCronExpression));
+            //    }
+            //}
 
             // schedule job for every twitter integration account
             List<SiteSocialAccount> twitterAccounts = await _siteSocialAccountService.GetTwitterSiteAccountsAsync();
