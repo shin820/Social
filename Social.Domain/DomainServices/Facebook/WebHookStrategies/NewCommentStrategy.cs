@@ -71,8 +71,11 @@ namespace Social.Domain.DomainServices.Facebook
             await UpdateConversation(conversation);
             await CurrentUnitOfWork.SaveChangesAsync();
 
-            result.WithUpdatedConversation(conversation);
-            result.WithNewMessage(message);
+            if (!conversation.IsHidden)
+            {
+                result.WithUpdatedConversation(conversation);
+                result.WithNewMessage(message);
+            }
 
             return result;
         }
