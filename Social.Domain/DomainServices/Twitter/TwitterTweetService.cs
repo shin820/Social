@@ -44,38 +44,57 @@ namespace Social.Domain.DomainServices.Twitter
         public async Task<TwitterProcessResult> ProcessTweet(SocialAccount currentAccount, ITweet currentTweet)
         {
             TwitterProcessResult result = new TwitterProcessResult(_notificationManager);
-            IList<SocialAccount> allAccounts = await _socialAccountService.GetAccountsAsync(SocialUserSource.Twitter);
 
-            if (!ShouldProcess(currentAccount, allAccounts, currentTweet))
+            // ignore if first tweet was sent by integration account.
+            // 集成账号创建的第一条tweet不需要创建conversation.
+            if (IsFirstTweetCreateByCurrentIntegrationAccount(currentAccount, currentTweet))
             {
-                return new TwitterProcessResult(_notificationManager);
+                return result;
+            }
+
+            // ignore if tweet was created by customer but didn't mention current account.
+            // 客户创建的Tweet, 但是没有@当前集成账号，不需要创建conversation.
+            if (IsTweetCreatedByAnotherButDoNotMentionIntegrationAccount(currentAccount, currentTweet))
+            {
+                return result;
+            }
+
+            // ignore if tweet was sent at agent console.
+            // tweet是在访客监控页面由agent回复的，则不需要再次处理
+            if (IsSendAtAgentConsole(currentTweet))
+            {
+                return result;
+            }
+
+            IList<SocialAccount> allAccounts = await _socialAccountService.GetAccountsAsync(SocialUserSource.Twitter);
+            // ignore if tweet created by another integration account.
+            // tweet由其他集成账号创建，其他账号的任务会处理，不需要重复处理请求。
+            if (IsCreateByOtherIntegrationAccount(currentAccount, allAccounts, currentTweet))
+            {
+                return result;
+            }
+            // ignore if first tweet was sent by other integration account.
+            // 集成账号创建的第一条tweet不需要创建conversation.
+            if (IsFristTweetCreateByOtherIntegrationAccount(currentAccount, allAccounts, currentTweet))
+            {
+                return result;
+            }
+            // ignore if tweet mentioned multiple integration account 
+            // and other integration account should process this tweet in case we process the same tweet again;
+            // 客户创建的Tweet, 但是@了多个集成账号，让优先级高（按@顺序）的集成账号处理, 防止数据重复被处理。
+            if (IsTweetCreatedByAnotherAndMentionedAnotherIntegrationAccount(currentAccount, allAccounts, currentTweet))
+            {
+                return result;
             }
 
             List<ITweet> tweets = _twitterTreeWalker.BuildTweetTree(currentTweet);
             return await AddTweets(currentAccount, allAccounts, tweets);
         }
 
-        private bool ShouldProcess(SocialAccount currentAccount, IList<SocialAccount> allAccounts, ITweet currentTweet)
+        private bool IsCreateByOtherIntegrationAccount(SocialAccount currentAccount, IList<SocialAccount> allAccounts, ITweet currentTweet)
         {
-            // ignore if first tweet is sent by integration account.
-            if (IsFirstTweetCreateByCurrentIntegrationAccount(currentAccount, currentTweet))
-            {
-                return false;
-            }
-
-            // ignore if first tweet is sent by other integration account.
-            if (IsFristTweetCreateByOtherIntegrationAccount(currentAccount, allAccounts, currentTweet))
-            {
-                return false;
-            }
-
-            // ignore if tweet is created by another but not mention me.
-            if (IsTweetCreatedByAnotherButDoNotMentionIntegrationAccount(currentAccount, currentTweet))
-            {
-                return false;
-            }
-
-            return true;
+            return currentTweet.CreatedBy.IdStr != currentAccount.SocialUser.OriginalId
+                && allAccounts.Any(t => t.SocialUser.OriginalId == currentTweet.CreatedBy.IdStr);
         }
 
         private bool IsFirstTweetCreateByCurrentIntegrationAccount(SocialAccount currentAccount, ITweet currentTweet)
@@ -98,6 +117,45 @@ namespace Social.Domain.DomainServices.Twitter
             return isCreatedByAnother && !isMentionMe;
         }
 
+        private bool IsTweetCreatedByAnotherAndMentionedAnotherIntegrationAccount(SocialAccount currentAccount, IList<SocialAccount> allAccounts, ITweet currentTweet)
+        {
+            bool isCreatedByAnother = currentTweet.CreatedBy.IdStr != currentAccount.SocialUser.OriginalId;
+            bool shouldProcessByOtherIntegrationAccount = false;
+            bool hasOtherIntegrationAccount =
+                currentTweet.UserMentions.Any(t => t.IdStr != currentAccount.SocialUser.OriginalId && allAccounts.Any(a => a.SocialUser.OriginalId == t.IdStr));
+
+            if (hasOtherIntegrationAccount)
+            {
+                var firstIntegrationAccount = currentTweet.UserMentions.FirstOrDefault(t => allAccounts.Any(a => a.SocialUser.OriginalId == t.IdStr));
+
+                if (firstIntegrationAccount != null && firstIntegrationAccount.IdStr != currentAccount.SocialUser.OriginalId)
+                {
+                    shouldProcessByOtherIntegrationAccount = true;
+                }
+            }
+
+            return isCreatedByAnother && shouldProcessByOtherIntegrationAccount;
+        }
+
+        private bool IsReplyToIrrelevantPerson(SocialAccount currentAccount, IList<SocialAccount> allAccounts, ITweet currentTweet, IList<ITweet> tweets)
+        {
+            bool isSendByIntegratioAccont = IsIntegrationAccount(currentTweet.CreatedBy.IdStr, allAccounts);
+            if (isSendByIntegratioAccont)
+            {
+                var inReplyToStatus = tweets.FirstOrDefault(t => t.Id == currentTweet.InReplyToStatusId);
+                if (inReplyToStatus != null)
+                {
+                    return inReplyToStatus.UserMentions.All(t => !allAccounts.Any(x => x.SocialUser.OriginalId == t.IdStr));
+                }
+            }
+            return false;
+        }
+
+        private bool IsSendAtAgentConsole(ITweet currentTweet)
+        {
+            return _messageService.FindAll().Any(t => t.OriginalId == currentTweet.IdStr && t.SendAgentId != null);
+        }
+
         private async Task<TwitterProcessResult> AddTweets(SocialAccount currentAccount, IList<SocialAccount> allAccounts, List<ITweet> tweets)
         {
             var result = new TwitterProcessResult(_notificationManager);
@@ -108,19 +166,27 @@ namespace Social.Domain.DomainServices.Twitter
 
             tweets = tweets.OrderByDescending(t => t.CreatedAt).ToList();
 
+            // 如果是集成账号回复的客户的tweet，并且客户的tweet没有@任何集成账号，则不处理
+            if (IsReplyToIrrelevantPerson(currentAccount, allAccounts, tweets.First(), tweets))
+            {
+                return result;
+            }
+
             foreach (var tweet in tweets)
             {
-                // if no intergration account involved.
+                // if current integration account doesn't involved.
                 if (!IsIntergrationAccountInvolved(tweet, allAccounts))
                 {
                     continue;
                 }
 
-                await UnitOfWorkManager.RunWithNewTransaction(currentAccount.SiteId, async () =>
+                // ignore if processed before.
+                if (_messageService.FindAll().Any(t => t.OriginalId == tweet.IdStr))
                 {
-                    await AddTweet(result, currentAccount, allAccounts, tweets, tweet);
-                    CurrentUnitOfWork.SaveChanges();
-                });
+                    break;
+                }
+
+                await AddTweet(result, currentAccount, allAccounts, tweets, tweet);
             }
 
             return result;
@@ -128,65 +194,88 @@ namespace Social.Domain.DomainServices.Twitter
 
         private bool IsIntergrationAccountInvolved(ITweet tweet, IList<SocialAccount> allAccounts)
         {
+            // tweet is created by current integration account or mentioned current integration account.
             return IsIntegrationAccount(tweet.CreatedBy.IdStr, allAccounts) || tweet.UserMentions.Any(t => IsIntegrationAccount(t.IdStr, allAccounts));
         }
 
-        private async Task AddTweet(TwitterProcessResult result, SocialAccount account, IList<SocialAccount> socialAccounts, List<ITweet> tweets, ITweet currentTweet)
+        private async Task AddTweet(
+            TwitterProcessResult result,
+            SocialAccount currentAccount,
+            IList<SocialAccount> allAccounts,
+            List<ITweet> tweets,
+            ITweet currentTweet)
         {
             var senderOriginalId = currentTweet.CreatedBy.IdStr;
-            var receiverOrignalId = GetReceiverOriginalId(account, socialAccounts, currentTweet);
+            var receiverOrignalId = GetReceiverOriginalId(currentAccount, allAccounts, currentTweet);
             if (string.IsNullOrEmpty(receiverOrignalId))
             {
                 return;
             }
             // integration account sent to intergration account
-            if (IsIntegrationAccount(senderOriginalId, socialAccounts)
-                && IsIntegrationAccount(receiverOrignalId, socialAccounts))
+            // 集成账号@集成账号
+            if (IsIntegrationAccount(senderOriginalId, allAccounts)
+                && IsIntegrationAccount(receiverOrignalId, allAccounts))
             {
-                List<string> customerOriginalIds = _twitterTreeWalker.FindCustomerOriginalIdsInTweetTree(currentTweet, tweets, socialAccounts);
+                List<string> customerOriginalIds = _twitterTreeWalker.FindCustomerOriginalIdsInTweetTree(currentTweet, tweets, allAccounts);
                 if (!customerOriginalIds.Any())
                 {
                     return;
                 }
 
-                await SaveTweet(result, account, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
+                await SaveTweet(result, currentAccount, allAccounts, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
             }
 
             // integration account sent to customer
-            if (IsIntegrationAccount(senderOriginalId, socialAccounts)
-                && !IsIntegrationAccount(receiverOrignalId, socialAccounts))
+            // 集成账号@客户
+            if (IsIntegrationAccount(senderOriginalId, allAccounts)
+                && !IsIntegrationAccount(receiverOrignalId, allAccounts))
             {
                 var customerOriginalIds = new List<string> { receiverOrignalId };
-                await SaveTweet(result, account, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
+                await SaveTweet(result, currentAccount, allAccounts, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
             }
 
             // customer sent to integration account
-            if (!IsIntegrationAccount(senderOriginalId, socialAccounts)
-                && IsIntegrationAccount(receiverOrignalId, socialAccounts))
+            // 客户@集成账号
+            if (!IsIntegrationAccount(senderOriginalId, allAccounts)
+                && IsIntegrationAccount(receiverOrignalId, allAccounts))
             {
                 var customerOriginalIds = new List<string> { senderOriginalId };
-                await SaveTweet(result, account, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
+                await SaveTweet(result, currentAccount, allAccounts, currentTweet, tweets, senderOriginalId, receiverOrignalId, customerOriginalIds);
             }
         }
 
-        private async Task SaveTweet(TwitterProcessResult result, SocialAccount account, ITweet currentTweet, List<ITweet> tweets, string senderOriginalId, string receiverOriginalId, List<string> customerOrginalIds)
+        private async Task SaveTweet(
+            TwitterProcessResult result,
+            SocialAccount currentAccount,
+            IList<SocialAccount> allAccounts,
+            ITweet currentTweet,
+            List<ITweet> tweets,
+            string senderOriginalId,
+            string receiverOriginalId,
+            List<string> customerOrginalIds)
         {
             var sender = await _socialUserService.GetOrCreateTwitterUser(senderOriginalId);
             var receiver = await _socialUserService.GetOrCreateTwitterUser(receiverOriginalId);
-            var conversations = FindConversations(tweets, customerOrginalIds);
+
             var message = TwitterConverter.ConvertToMessage(currentTweet);
             message.SenderId = sender.Id;
             message.ReceiverId = receiver.Id;
-            SaveConversations(result, account, conversations, message);
+
+            await UnitOfWorkManager.RunWithNewTransaction(currentAccount.SiteId, async () =>
+            {
+                var conversations = await FindConversations(tweets, customerOrginalIds);
+                await SaveConversations(result, currentAccount, allAccounts, conversations, message);
+            });
+
         }
 
-        private IList<Conversation> FindConversations(IList<ITweet> tweets, List<string> customerOriginalIds)
+        private async Task<IList<Conversation>> FindConversations(IList<ITweet> tweets, List<string> customerOriginalIds)
         {
             List<string> tweetIds = tweets.Select(t => t.IdStr).ToList();
-            return _conversationService.FindAll().Include(t => t.Messages)
+            return await _conversationService.FindAll().Include(t => t.Messages)
                   .Where(c => c.Messages.Any(m => tweetIds.Contains(m.OriginalId)))
                   .Where(c => c.Messages.Any(m => customerOriginalIds.Contains(m.Sender.OriginalId) || customerOriginalIds.Contains(m.Receiver.OriginalId)))
-                  .ToList();
+                  .ToListAsync();
         }
 
         private string GetReceiverOriginalId(SocialAccount account, IList<SocialAccount> socialAccounts, ITweet currentTweet)
@@ -225,7 +314,12 @@ namespace Social.Domain.DomainServices.Twitter
             return socialAccounts.Any(t => t.SocialUser.OriginalId == originalId);
         }
 
-        private void SaveConversations(TwitterProcessResult result, SocialAccount account, IList<Conversation> conversations, Message message)
+        private async Task SaveConversations(
+            TwitterProcessResult result,
+            SocialAccount currentAccount,
+            IList<SocialAccount> allAccounts,
+            IList<Conversation> conversations,
+            Message message)
         {
             if (conversations.Any())
             {
@@ -240,12 +334,13 @@ namespace Social.Domain.DomainServices.Twitter
                     if (message.SendTime > conversation.LastMessageSentTime)
                     {
                         conversation.IfRead = false;
-                        conversation.Status = message.SenderId == account.Id ? ConversationStatus.PendingExternal : ConversationStatus.PendingInternal;
+                        bool isSendByIntegrationAccount = allAccounts.Any(t => t.Id == message.SenderId);
+                        conversation.Status = isSendByIntegrationAccount ? ConversationStatus.PendingExternal : ConversationStatus.PendingInternal;
                         conversation.LastMessageSenderId = message.SenderId;
                         conversation.LastMessageSentTime = message.SendTime;
                     }
                     _conversationService.Update(conversation);
-                    CurrentUnitOfWork.SaveChanges();
+                    await CurrentUnitOfWork.SaveChangesAsync();
                     result.WithUpdatedConversation(conversation);
                     result.WithNewMessage(message);
                 }
@@ -263,8 +358,8 @@ namespace Social.Domain.DomainServices.Twitter
                     LastMessageSentTime = message.SendTime
                 };
                 conversation.Messages.Add(message);
-                _conversationService.AddConversation(account, conversation);
-                CurrentUnitOfWork.SaveChanges();
+                _conversationService.AddConversation(currentAccount, conversation);
+                await CurrentUnitOfWork.SaveChangesAsync();
                 result.WithNewConversation(conversation);
             }
         }

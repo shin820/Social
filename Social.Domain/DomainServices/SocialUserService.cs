@@ -110,7 +110,6 @@ namespace Social.Domain.DomainServices
                     await UnitOfWorkManager.RunWithNewTransaction(CurrentUnitOfWork.GetSiteId(), async () =>
                     {
                         await Repository.InsertAsync(user);
-                        CurrentUnitOfWork.SaveChanges();
                     });
                 }
             }
@@ -147,7 +146,6 @@ namespace Social.Domain.DomainServices
                     await UnitOfWorkManager.RunWithNewTransaction(CurrentUnitOfWork.GetSiteId(), async () =>
                     {
                         await InsertAsync(user);
-                        CurrentUnitOfWork.SaveChanges();
                     });
                 }
             }

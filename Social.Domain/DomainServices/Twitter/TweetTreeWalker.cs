@@ -48,7 +48,6 @@ namespace Social.Domain.DomainServices.Twitter
                    .Concat(FindCustomerOriginalIdsFromDecendantsInTweetTree(currentTweet, tweets, socialAccounts)).Distinct().ToList();
         }
 
-
         private List<string> FindCustomerOriginalIdsFromAncestorsInTweetTree(ITweet currentTweet, List<ITweet> tweets, IList<SocialAccount> socialAccounts)
         {
             List<string> customerOriginalIds = new List<string>();
@@ -57,14 +56,11 @@ namespace Social.Domain.DomainServices.Twitter
                 return customerOriginalIds;
             }
 
-            if (!IsIntegrationAccount(currentTweet.CreatedBy.IdStr, socialAccounts))
+            // customer @ integration account
+            if (!IsIntegrationAccount(currentTweet.CreatedBy.IdStr, socialAccounts)
+                && currentTweet.UserMentions.Any(t => IsIntegrationAccount(t.IdStr, socialAccounts)))
             {
                 customerOriginalIds.Add(currentTweet.CreatedBy.IdStr);
-            }
-
-            if (currentTweet.UserMentions.Any() && !IsIntegrationAccount(currentTweet.UserMentions.First().IdStr, socialAccounts))
-            {
-                customerOriginalIds.Add(currentTweet.UserMentions.First().IdStr);
             }
 
             if (currentTweet.InReplyToStatusId != null)
@@ -80,14 +76,11 @@ namespace Social.Domain.DomainServices.Twitter
         {
             List<string> customerOriginalIds = new List<string>();
 
-            if (!IsIntegrationAccount(currentTweet.CreatedBy.IdStr, socialAccounts))
+            // customer @ integration account
+            if (!IsIntegrationAccount(currentTweet.CreatedBy.IdStr, socialAccounts)
+                && currentTweet.UserMentions.Any(t => IsIntegrationAccount(t.IdStr, socialAccounts)))
             {
                 customerOriginalIds.Add(currentTweet.CreatedBy.IdStr);
-            }
-
-            if (currentTweet.UserMentions.Any() && !IsIntegrationAccount(currentTweet.UserMentions.First().IdStr, socialAccounts))
-            {
-                customerOriginalIds.Add(currentTweet.UserMentions.First().IdStr);
             }
 
             var decendants = tweets.Where(t => t.InReplyToStatusId == currentTweet.Id);
