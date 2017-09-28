@@ -33,6 +33,7 @@ namespace Social.Domain.DomainServices
         Conversation MarkAsUnRead(Conversation entity);
         int GetUnReadConversationCount(IList<Filter> filters);
         void UpdateAndWriteLog(Conversation entity);
+        void CheckIfCanReopen(Conversation enitty);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -230,7 +231,11 @@ namespace Social.Domain.DomainServices
                 return;
             }
 
-            CheckStatus(oldEntity, entity);
+            if (oldEntity.Status == ConversationStatus.Closed && entity.Status != ConversationStatus.Closed)
+            {
+                CheckIfCanReopen(entity);
+            }
+
             if (ifWriteLog)
             {
                 WriteConversationLog(oldEntity, entity);
@@ -278,34 +283,31 @@ namespace Social.Domain.DomainServices
             return entity;
         }
 
-        private void CheckStatus(Conversation oldEntity, Conversation conversation)
+        public void CheckIfCanReopen(Conversation entity)
         {
-            if (conversation.Source == ConversationSource.FacebookMessage)
+            if (entity.Source == ConversationSource.FacebookMessage)
             {
-                CheckStatus(oldEntity, conversation, ConversationSource.FacebookMessage);
+                CheckIfCanReopen(entity, ConversationSource.FacebookMessage);
             }
 
-            if (conversation.Source == ConversationSource.TwitterDirectMessage)
+            if (entity.Source == ConversationSource.TwitterDirectMessage)
             {
-                CheckStatus(oldEntity, conversation, ConversationSource.TwitterDirectMessage);
+                CheckIfCanReopen(entity, ConversationSource.TwitterDirectMessage);
             }
         }
 
-        private void CheckStatus(Conversation oldEntity, Conversation conversation, ConversationSource source)
+        private void CheckIfCanReopen(Conversation conversation, ConversationSource source)
         {
             if (conversation.Source == ConversationSource.FacebookMessage || conversation.Source == ConversationSource.TwitterDirectMessage)
             {
-                if (oldEntity.Status == ConversationStatus.Closed && conversation.Status != ConversationStatus.Closed)
-                {
-                    List<int> senderIds = oldEntity.Messages.Where(t => t.Sender.SocialAccount == null).Select(t => t.SenderId).Distinct().ToList();
-                    List<int> recipientIds = oldEntity.Messages.Where(t => t.Sender.SocialAccount == null && t.ReceiverId != null).Select(t => t.ReceiverId.Value).Distinct().ToList();
-                    var userIds = senderIds.Union(recipientIds).Distinct();
+                List<int> senderIds = conversation.Messages.Where(t => t.Sender.SocialAccount == null).Select(t => t.SenderId).Distinct().ToList();
+                List<int> recipientIds = conversation.Messages.Where(t => t.Sender.SocialAccount == null && t.ReceiverId != null).Select(t => t.ReceiverId.Value).Distinct().ToList();
+                var userIds = senderIds.Union(recipientIds).Distinct();
 
-                    bool isExistsOpenConversation = FindAll().Any(t => t.Source == source && t.Id != conversation.Id && t.Status != ConversationStatus.Closed && t.Messages.Any(m => userIds.Contains(m.SenderId) || userIds.Contains(m.ReceiverId.Value)));
-                    if (isExistsOpenConversation)
-                    {
-                        throw SocialExceptions.BadRequest("Another open conversation which belongs to the same user has been found.");
-                    }
+                Conversation existsOpenConversation = FindAll().FirstOrDefault(t => t.Source == source && t.Id != conversation.Id && t.Status != ConversationStatus.Closed && t.Messages.Any(m => userIds.Contains(m.SenderId) || userIds.Contains(m.ReceiverId.Value)));
+                if (existsOpenConversation != null)
+                {
+                    throw SocialExceptions.BadRequest($"Another open conversation '{existsOpenConversation.GetConversationNum()}' which belongs to the user has been found.");
                 }
             }
         }

@@ -100,6 +100,10 @@ namespace Social.Domain.DomainServices
             {
                 throw SocialExceptions.BadRequest("Conversation source must be facebook message.");
             }
+            if (conversation.Status == ConversationStatus.Closed)
+            {
+                _conversationService.CheckIfCanReopen(conversation);
+            }
 
             var messages = Repository.FindAll().Include(t => t.Sender).Include(t => t.Receiver).Where(t => t.ConversationId == conversation.Id).ToList();
             SocialAccount socialAccount = GetSocialAccountFromMessages(messages);
@@ -234,6 +238,10 @@ namespace Social.Domain.DomainServices
             if (conversation.Source != ConversationSource.TwitterDirectMessage)
             {
                 throw SocialExceptions.BadRequest("Conversation source must be twitter direct message.");
+            }
+            if (conversation.Status == ConversationStatus.Closed)
+            {
+                _conversationService.CheckIfCanReopen(conversation);
             }
 
             var messages = Repository.FindAll().Include(t => t.Sender).Include(t => t.Receiver).Where(t => t.ConversationId == conversation.Id).ToList();

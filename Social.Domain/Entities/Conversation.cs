@@ -71,5 +71,10 @@ namespace Social.Domain.Entities
 
             return false;
         }
+
+        public string GetConversationNum()
+        {
+            return "S" + Id;
+        }
     }
 }
