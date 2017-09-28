@@ -68,10 +68,6 @@ namespace Social.Domain.DomainServices.Facebook
                 await UpdateConversation(existingConversation);
                 await CurrentUnitOfWork.SaveChangesAsync();
 
-                if (isNewMessage)
-                {
-                    result.WithUpdatedConversation(existingConversation);
-                }
                 result.WithNewMessage(message);
             }
             else

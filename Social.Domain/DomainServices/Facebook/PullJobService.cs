@@ -342,7 +342,6 @@ namespace Social.Domain.DomainServices.Facebook
                         conversation.LastMessageSenderId = message.SenderId;
                         conversation.LastMessageSentTime = message.SendTime;
                         conversation.TryToMakeWallPostVisible(_account);
-                        result.WithUpdatedConversation(conversation);
                         result.WithNewMessage(message);
                     }
 
@@ -402,7 +401,6 @@ namespace Social.Domain.DomainServices.Facebook
                         conversation.LastMessageSenderId = message.SenderId;
                         conversation.LastMessageSentTime = message.SendTime;
                         conversation.TryToMakeWallPostVisible(_account);
-                        result.WithUpdatedConversation(conversation);
                         result.WithNewMessage(message);
                     }
                     uow.Complete();

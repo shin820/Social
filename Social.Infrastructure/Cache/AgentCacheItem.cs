@@ -8,8 +8,26 @@ namespace Social.Infrastructure.Cache
 {
     public class AgentCacheItem
     {
-        public int Id { get; set; }
-        public int SiteId { get; set; }
+        private DateTime _expireTime;
+
+        public AgentCacheItem(int agentId, int siteId)
+        {
+            Id = agentId;
+            SiteId = siteId;
+            _expireTime = DateTime.UtcNow.AddMinutes(20);
+        }
+
+        public bool IsExpired
+        {
+            get
+            {
+                return DateTime.UtcNow > _expireTime;
+            }
+        }
+
+        public int Id { get; private set; }
+        public int SiteId { get; private set; }
+
         public bool IfAdmin { get; set; }
 
         public int[] Departments { get; set; }

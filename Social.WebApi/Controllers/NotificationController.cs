@@ -27,19 +27,24 @@ namespace Social.WebApi.Controllers
 
         private IConversationAppService _conversationAppService;
         private IConversationMessageAppService _messageAppService;
+        private INotificationConnectionManager _notificationConnectionManager;
+
 
         /// <summary>
         /// NotificationController
         /// </summary>
         /// <param name="conversationAppService"></param>
         /// <param name="messageAppService"></param>
+        /// <param name="notificationConnectionManager"></param>
         public NotificationController(
             IConversationAppService conversationAppService,
-            IConversationMessageAppService messageAppService
+            IConversationMessageAppService messageAppService,
+            INotificationConnectionManager notificationConnectionManager
             )
         {
             _conversationAppService = conversationAppService;
             _messageAppService = messageAppService;
+            _notificationConnectionManager = notificationConnectionManager;
         }
 
         [Route("conversation-created")]
@@ -49,7 +54,8 @@ namespace Social.WebApi.Controllers
             var dto = _conversationAppService.Find(conversationId);
             if (dto != null)
             {
-                _hub.Clients.Group(Request.GetSiteId().ToString()).conversationCreated(dto);
+                var connections = _notificationConnectionManager.GetConnections(Request.GetSiteId(), dto.AgentId, dto.DepartmentId);
+                _hub.Clients.Clients(connections).conversationCreated(dto);
             }
             return Ok();
         }
@@ -62,14 +68,15 @@ namespace Social.WebApi.Controllers
             if (dto != null)
             {
                 _hub.Clients.Group(Request.GetSiteId().ToString()).conversationUpdated(dto);
-            }
 
-            if (oldMaxLogId.HasValue && oldMaxLogId > 0)
-            {
-                var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxLogId.Value);
-                if (dtoList != null && dtoList.Any())
+                if (oldMaxLogId.HasValue && oldMaxLogId > 0)
                 {
-                    _hub.Clients.Group(Request.GetSiteId().ToString()).conversationLogCreated(dtoList);
+                    var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxLogId.Value);
+                    if (dtoList != null && dtoList.Any())
+                    {
+                        var connections = _notificationConnectionManager.GetConnections(Request.GetSiteId(), dto.AgentId, dto.DepartmentId);
+                        _hub.Clients.Clients(connections).conversationLogCreated(dtoList);
+                    }
                 }
             }
 
@@ -80,11 +87,17 @@ namespace Social.WebApi.Controllers
         [HttpGet]
         public IHttpActionResult FacebookCommentMessageCreated(int messageId)
         {
-            var dto = _messageAppService.GetFacebookPostCommentMessage(messageId);
-            if (dto != null)
+            var message = _messageAppService.GetFacebookPostCommentMessage(messageId);
+            if (message != null)
             {
-                var excludeConnections = NotificationHub.GetConnections(dto.SendAgentId.GetValueOrDefault()).ToArray();
-                _hub.Clients.Group(Request.GetSiteId().ToString(), excludeConnections).facebookCommentCreated(dto);
+                var conversation = _conversationAppService.Find(message.ConversationId);
+                if (conversation != null)
+                {
+                    var connections = _notificationConnectionManager.GetConnections(Request.GetSiteId(), conversation.AgentId, conversation.DepartmentId);
+                    var excludeConnections = _notificationConnectionManager.GetConnections(Request.GetSiteId(), message.SendAgentId.GetValueOrDefault());
+                    _hub.Clients.Clients(connections.Except(excludeConnections).ToList()).facebookCommentCreated(message);
+                    _hub.Clients.Clients(connections).conversationUpdated(conversation);
+                }
             }
             return Ok();
         }
@@ -93,11 +106,17 @@ namespace Social.WebApi.Controllers
         [HttpGet]
         public IHttpActionResult FacebookMessageCreated(int messageId)
         {
-            var dto = _messageAppService.GetFacebookDirectMessage(messageId);
-            if (dto != null)
+            var message = _messageAppService.GetFacebookDirectMessage(messageId);
+            if (message != null)
             {
-                var excludeConnections = NotificationHub.GetConnections(dto.SendAgentId.GetValueOrDefault()).ToArray();
-                _hub.Clients.Group(Request.GetSiteId().ToString(), excludeConnections).facebookMessageCreated(dto);
+                var conversation = _conversationAppService.Find(message.ConversationId);
+                if (conversation != null)
+                {
+                    var connections = _notificationConnectionManager.GetConnections(Request.GetSiteId(), conversation.AgentId, conversation.DepartmentId);
+                    var excludeConnections = _notificationConnectionManager.GetConnections(Request.GetSiteId(), message.SendAgentId.GetValueOrDefault());
+                    _hub.Clients.Clients(connections.Except(excludeConnections).ToList()).facebookMessageCreated(message);
+                    _hub.Clients.Clients(connections).conversationUpdated(conversation);
+                }
             }
             return Ok();
         }
@@ -106,11 +125,17 @@ namespace Social.WebApi.Controllers
         [HttpGet]
         public IHttpActionResult TwitterTweetCreated(int messageId)
         {
-            var dto = _messageAppService.GetTwitterTweetMessage(messageId);
-            if (dto != null)
+            var message = _messageAppService.GetTwitterTweetMessage(messageId);
+            if (message != null)
             {
-                var excludeConnections = NotificationHub.GetConnections(dto.SendAgentId.GetValueOrDefault()).ToArray();
-                _hub.Clients.Group(Request.GetSiteId().ToString(), excludeConnections).twitterTweetCreated(dto);
+                var conversation = _conversationAppService.Find(message.ConversationId);
+                if (conversation != null)
+                {
+                    var connections = _notificationConnectionManager.GetConnections(Request.GetSiteId(), conversation.AgentId, conversation.DepartmentId);
+                    var excludeConnections = _notificationConnectionManager.GetConnections(Request.GetSiteId(), message.SendAgentId.GetValueOrDefault());
+                    _hub.Clients.Clients(connections.Except(excludeConnections).ToList()).twitterTweetCreated(message);
+                    _hub.Clients.Clients(connections).conversationUpdated(conversation);
+                }
             }
             return Ok();
         }
@@ -119,11 +144,17 @@ namespace Social.WebApi.Controllers
         [HttpGet]
         public IHttpActionResult TwitterDirectMessageCreated(int messageId)
         {
-            var dto = _messageAppService.GetTwitterDirectMessage(messageId);
-            if (dto != null)
+            var message = _messageAppService.GetTwitterDirectMessage(messageId);
+            if (message != null)
             {
-                var excludeConnections = NotificationHub.GetConnections(dto.SendAgentId.GetValueOrDefault()).ToArray();
-                _hub.Clients.Group(Request.GetSiteId().ToString(), excludeConnections).twitterDirectMessageCreated(dto);
+                var conversation = _conversationAppService.Find(message.ConversationId);
+                if (conversation != null)
+                {
+                    var connections = _notificationConnectionManager.GetConnections(Request.GetSiteId(), conversation.AgentId, conversation.DepartmentId);
+                    var excludeConnections = _notificationConnectionManager.GetConnections(Request.GetSiteId(), message.SendAgentId.GetValueOrDefault());
+                    _hub.Clients.Clients(connections.Except(excludeConnections).ToList()).twitterDirectMessageCreated(message);
+                    _hub.Clients.Clients(connections).conversationUpdated(conversation);
+                }
             }
             return Ok();
         }

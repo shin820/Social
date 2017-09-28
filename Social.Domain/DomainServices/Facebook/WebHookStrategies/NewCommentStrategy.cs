@@ -73,7 +73,6 @@ namespace Social.Domain.DomainServices.Facebook
 
             if (!conversation.IsHidden)
             {
-                result.WithUpdatedConversation(conversation);
                 result.WithNewMessage(message);
             }
 
