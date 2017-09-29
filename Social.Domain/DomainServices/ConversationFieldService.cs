@@ -70,6 +70,7 @@ namespace Social.Domain.DomainServices
                         Value = t.Id.ToString()
                     }).ToList();
                     agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id,SiteId = agentField.SiteId,Name = "Unassigned", Value = "Blank"});
+                    agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id, SiteId = agentField.SiteId, Name = _agentService.Find(UserContext.UserId).Name, Value = "@Me" });
                 }
             }
         }
