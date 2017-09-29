@@ -12,6 +12,7 @@ using System.Web.Http;
 using Framework.Core;
 using Social.Application.AppServices;
 using Framework.WebApi;
+using Microsoft.Owin.Security.Jwt;
 
 namespace Social.WebApi.Controllers
 {
@@ -26,6 +27,7 @@ namespace Social.WebApi.Controllers
         }
 
         public static OAuthBearerAuthenticationOptions OAuthBearerOptions { get; private set; }
+        public static JwtBearerAuthenticationOptions JwtBearerOptions { get; private set; }
         public static TimeSpan SessionDuration
         {
             get { return TimeSpan.FromMinutes(20); }
@@ -33,8 +35,10 @@ namespace Social.WebApi.Controllers
 
         static AccountsController()
         {
+            JwtBearerOptions = new JwtTokenOptions();
             OAuthBearerOptions = new OAuthBearerAuthenticationOptions();
             OAuthBearerOptions.Provider = new TokenProvider();
+            OAuthBearerOptions.AccessTokenFormat = new JwtTokenFormat(TimeSpan.FromDays(7));
         }
 
         [HttpPost]

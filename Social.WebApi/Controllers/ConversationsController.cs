@@ -1,4 +1,5 @@
-﻿using Social.Application.AppServices;
+﻿using Framework.WebApi.Filters;
+using Social.Application.AppServices;
 using Social.Application.Dto;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -13,6 +14,7 @@ namespace Social.WebApi.Controllers
     /// Api about conversations.
     /// </summary>
     [RoutePrefix("api/conversations")]
+    [ApiAuthorize()]
     public class ConversationsController : ApiController
     {
         private IConversationAppService _conversationAppService;
