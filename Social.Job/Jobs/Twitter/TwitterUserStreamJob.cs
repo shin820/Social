@@ -19,8 +19,14 @@ namespace Social.Job.Jobs
             ITwitterAppService twitterAppService = DependencyResolver.Resolve<ITwitterAppService>();
 
             SocialAccount socialAccount = await GetTwitterSocialAccount(context);
+            // accoun may be disabed.
             if (socialAccount == null)
             {
+                var siteSocicalAccount = context.JobDetail.GetCustomData<SiteSocialAccount>();
+                if (siteSocicalAccount != null)
+                {
+                    SchedulerJob.RemoveRunningJob<TwitterUserStreamJob>(siteSocicalAccount.SiteId, siteSocicalAccount.TwitterUserId);
+                }
                 return;
             }
 

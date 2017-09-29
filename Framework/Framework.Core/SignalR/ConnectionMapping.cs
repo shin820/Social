@@ -30,26 +30,16 @@ namespace Framework.Core.SignalR
                     connections = new HashSet<string>();
                     _connections.Add(key, connections);
                 }
+                else
+                {
+                    // refresh key 
+                    _connections.Remove(key);
+                    _connections.Add(key, connections);
+                }
 
                 lock (connections)
                 {
                     connections.Add(connectionId);
-                }
-            }
-        }
-
-        public void Add(T key, HashSet<string> connectionIds)
-        {
-            if (!connectionIds.Any())
-            {
-                return;
-            }
-
-            lock (_connections)
-            {
-                if (!_connections.ContainsKey(key))
-                {
-                    _connections.Add(key, connectionIds);
                 }
             }
         }
@@ -75,17 +65,6 @@ namespace Framework.Core.SignalR
             return Enumerable.Empty<string>();
         }
 
-        public void Remove(T key)
-        {
-            lock (_connections)
-            {
-                if (_connections.ContainsKey(key))
-                {
-                    _connections.Remove(key);
-                }
-            }
-        }
-
         public void Remove(T key, string connectionId)
         {
             lock (_connections)
@@ -108,31 +87,9 @@ namespace Framework.Core.SignalR
             }
         }
 
-        public void Remove(string connectionId)
-        {
-            lock (_connections)
-            {
-                foreach (var connections in _connections.Values)
-                {
-                    connections.Remove(connectionId);
-                }
-
-                var emptyKeys = _connections.Where(t => t.Value.Count == 0).Select(t => t.Key).ToImmutableList();
-                foreach (var emptyKey in emptyKeys)
-                {
-                    _connections.Remove(emptyKey);
-                }
-            }
-        }
-
         public IImmutableList<T> GetKeys()
         {
             return _connections.Keys.ToImmutableList();
-        }
-
-        public IImmutableList<T> GetKeys(IEnumerable<string> connctions)
-        {
-            return _connections.Where(t => t.Value.Intersect(connctions).Any()).Select(t => t.Key).ToImmutableList();
         }
 
         public void RefreshKey(T key)
@@ -146,14 +103,6 @@ namespace Framework.Core.SignalR
                 {
                     _connections.Add(key, connections);
                 }
-            }
-        }
-
-        public bool IsExist(T key)
-        {
-            lock (_connections)
-            {
-                return _connections.ContainsKey(key);
             }
         }
     }

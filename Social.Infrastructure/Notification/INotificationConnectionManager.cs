@@ -12,8 +12,7 @@ namespace Social.Infrastructure
         void Connect(int siteId, int agentId, string connectionId);
         void Reconnect(int siteId, int agentId, string connectionId);
         void Disconnect(int siteId, int agentId, string connectionId);
-        void RefreshCacheItem<T>(T Key, OperationType oprtType);
-        IList<string> GetAllConnections();
-        IList<string> GetConnectionsForConversation(int siteId, int conversationId);
+        IList<string> GetConnections(int siteId, int? agentAssignee, int? departmentAssigneee);
+        IList<string> GetConnections(int siteId, int agentId);
     }
 }

@@ -60,13 +60,21 @@ namespace Social.Domain.Entities
 
         public virtual SocialUser LastMessageSender { get; set; }
 
-        public void TryToMakeWallPostVisible(SocialAccount account)
+        public bool TryToMakeWallPostVisible(SocialAccount account)
         {
             if (Source == ConversationSource.FacebookWallPost
                 && IsHidden && LastMessageSenderId != account.Id)
             {
                 IsHidden = false;
+                return true;
             }
+
+            return false;
+        }
+
+        public string GetConversationNum()
+        {
+            return "S" + Id;
         }
     }
 }

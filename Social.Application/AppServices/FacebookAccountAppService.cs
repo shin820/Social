@@ -30,23 +30,22 @@ namespace Social.Application.AppServices
     public class FacebookAccountAppService : AppService, IFacebookAccountAppService
     {
         private ISocialAccountService _socialAccountService;
-        private ISocialUserService _socialUserService;
         private IFbClient _fbClient;
 
         public FacebookAccountAppService(
             ISocialAccountService socialAccountService,
-            ISocialUserService socialUserService,
             IFbClient fbClient
             )
         {
             _socialAccountService = socialAccountService;
-            _socialUserService = socialUserService;
             _fbClient = fbClient;
         }
 
         public IList<FacebookPageListDto> GetPages()
         {
-            return _socialAccountService.FindAll().Where(t => t.SocialUser.Source == SocialUserSource.Facebook).ProjectTo<FacebookPageListDto>().ToList();
+            return _socialAccountService.FindAll()
+                .Where(t => t.SocialUser.Type == SocialUserType.IntegrationAccount && t.SocialUser.Source == SocialUserSource.Facebook)
+                .ProjectTo<FacebookPageListDto>().ToList();
         }
 
         public async Task<PendingAddFacebookPagesDto> GetPendingAddPagesAsync(string code, string redirectUri)
@@ -55,13 +54,9 @@ namespace Social.Application.AppServices
             FbUser me = await _fbClient.GetMe(userToken);
             IList<FbPage> pages = await _fbClient.GetPages(userToken);
             List<string> pageIds = pages.Select(t => t.Id).ToList();
-            foreach (var page in pages)
-            {
-                FbUser fbUser = await _fbClient.GetUserInfo(userToken, page.Id);
-                page.Avatar = fbUser.pic;
-            }
             var facebookAccounts = _socialAccountService.FindAll()
-                .Where(t => t.SocialUser.Source == SocialUserSource.Facebook && pageIds.Contains(t.SocialUser.OriginalId))
+                .Where(t => t.SocialUser.Type == SocialUserType.IntegrationAccount
+                && t.SocialUser.Source == SocialUserSource.Facebook && pageIds.Contains(t.SocialUser.OriginalId))
                 .ToList();
 
             var result = new PendingAddFacebookPagesDto
@@ -99,27 +94,9 @@ namespace Social.Application.AppServices
         public async Task<FacebookPageDto> AddPageAsync(AddFaceboookPageDto dto)
         {
             var socialAccount = Mapper.Map<SocialAccount>(dto);
+            socialAccount.SocialUser = Mapper.Map<SocialUser>(dto);
 
-            await _fbClient.SubscribeApp(dto.FacebookId, dto.AccessToken);
-
-            var socialUser = _socialUserService.FindByOriginalId(dto.FacebookId, SocialUserSource.Facebook, SocialUserType.Customer);
-            if (socialUser == null)
-            {
-                socialAccount.SocialUser = Mapper.Map<SocialUser>(dto);
-                await _socialAccountService.InsertAsync(socialAccount);
-            }
-            else
-            {
-                // convert customer to integration account
-                socialUser.Type = SocialUserType.IntegrationAccount;
-                socialUser.SocialAccount = socialAccount;
-                _socialUserService.Update(socialUser);
-
-                socialAccount.SocialUser = socialUser;
-                await _socialAccountService.InsertSocialAccountInGeneralDb(socialAccount);
-            }
-
-            socialAccount = _socialAccountService.Find(socialAccount.Id);
+            socialAccount = await _socialAccountService.AddFacebookPageAsync(socialAccount, dto.FacebookId);
             return Mapper.Map<FacebookPageDto>(socialAccount);
         }
 

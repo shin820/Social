@@ -91,7 +91,12 @@ namespace Social.Domain.DomainServices.Facebook
             conversation.Messages.Add(message);
             await AddConversation(socialAccount, conversation);
             await CurrentUnitOfWork.SaveChangesAsync();
-            result.WithNewConversation(conversation);
+
+            if (!conversation.IsHidden)
+            {
+                result.WithNewConversation(conversation);
+            }
+
             return result;
         }
     }

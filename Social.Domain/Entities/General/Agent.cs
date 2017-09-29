@@ -11,5 +11,6 @@ namespace Social.Domain.Entities.General
     {
         public string Name { get; set; }
         public int Status { get; set; }
+        public bool IfAdmin { get; set; }
     }
 }

@@ -172,7 +172,6 @@ namespace Social.Application.AppServices
 
             if (_notificationManager != null)
             {
-                await _notificationManager.NotifyUpdateConversation(UserContext.SiteId.GetValueOrDefault(), message.ConversationId);
                 await _notificationManager.NotifyNewTwitterTweet(UserContext.SiteId.GetValueOrDefault(), message.Id);
             }
 
@@ -187,7 +186,6 @@ namespace Social.Application.AppServices
 
             if (_notificationManager != null)
             {
-                await _notificationManager.NotifyUpdateConversation(UserContext.SiteId.GetValueOrDefault(), message.ConversationId);
                 await _notificationManager.NotifyNewTwitterDirectMessage(UserContext.SiteId.GetValueOrDefault(), message.Id);
             }
             return dto;
@@ -203,7 +201,6 @@ namespace Social.Application.AppServices
 
                 if (_notificationManager != null)
                 {
-                    await _notificationManager.NotifyUpdateConversation(UserContext.SiteId.GetValueOrDefault(), message.ConversationId);
                     await _notificationManager.NotifyNewFacebookMessage(UserContext.SiteId.GetValueOrDefault(), message.Id);
                 }
             }
@@ -218,7 +215,6 @@ namespace Social.Application.AppServices
 
             if (_notificationManager != null)
             {
-                await _notificationManager.NotifyUpdateConversation(UserContext.SiteId.GetValueOrDefault(), message.ConversationId);
                 await _notificationManager.NotifyNewFacebookComment(UserContext.SiteId.GetValueOrDefault(), message.Id);
             }
             return dto;

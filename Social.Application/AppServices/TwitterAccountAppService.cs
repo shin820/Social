@@ -32,17 +32,14 @@ namespace Social.Application.AppServices
     public class TwitterAccountAppService : AppService, ITwitterAccountAppService
     {
         private ISocialAccountService _socialAccountService;
-        private ISocialUserService _socialUserService;
         private ITwitterAuthService _twitterAuthService;
 
         public TwitterAccountAppService(
             ISocialAccountService socialAccountService,
-            ISocialUserService socialUserService,
             ITwitterAuthService twitterAuthService
             )
         {
             _socialAccountService = socialAccountService;
-            _socialUserService = socialUserService;
             _twitterAuthService = twitterAuthService;
         }
 
@@ -54,50 +51,12 @@ namespace Social.Application.AppServices
 
         public async Task AddAccountAsync(string authorizationId, string oauthVerifier)
         {
-            var user = await _twitterAuthService.ValidateAuthAsync(authorizationId, oauthVerifier);
-            if (user != null)
-            {
-                SocialAccount account = new SocialAccount
-                {
-                    Token = user.Credentials.AccessToken,
-                    TokenSecret = user.Credentials.AccessTokenSecret,
-                    IfConvertMessageToConversation = true,
-                    IfConvertTweetToConversation = true,
-                    IfEnable = true
-                };
-
-                var socialUser = _socialUserService.FindByOriginalId(user.IdStr, SocialUserSource.Twitter, SocialUserType.Customer);
-                if (socialUser != null)
-                {
-                    //convert customer to integration account;
-                    socialUser.Type = SocialUserType.IntegrationAccount;
-                    socialUser.SocialAccount = account;
-                    _socialUserService.Update(socialUser);
-                    account.SocialUser = socialUser;
-                    await _socialAccountService.InsertSocialAccountInGeneralDb(account);
-                }
-                else
-                {
-                    account.SocialUser = new SocialUser
-                    {
-                        Name = user.Name,
-                        ScreenName = user.ScreenName,
-                        Email = user.Email,
-                        Source = SocialUserSource.Twitter,
-                        Type = SocialUserType.IntegrationAccount,
-                        Avatar = user.ProfileImageUrl,
-                        OriginalId = user.IdStr,
-                        OriginalLink = TwitterHelper.GetUserUrl(user.ScreenName)
-                    };
-
-                    await _socialAccountService.InsertAsync(account);
-                }
-            }
+            await _socialAccountService.AddTwitterAccountAsync(authorizationId, oauthVerifier);
         }
 
         public IList<TwitterAccountListDto> GetAccounts()
         {
-            return _socialAccountService.FindAll().Where(t => t.SocialUser.Source == SocialUserSource.Twitter).ProjectTo<TwitterAccountListDto>().ToList();
+            return _socialAccountService.FindAll().Where(t => t.SocialUser.Type == SocialUserType.IntegrationAccount && t.SocialUser.Source == SocialUserSource.Twitter).ProjectTo<TwitterAccountListDto>().ToList();
         }
 
         public TwitterAccountDto GetAccount(int id)

@@ -16,68 +16,8 @@ using Xunit;
 
 namespace Social.UnitTest.AppServices
 {
-    public class TwitterAccountAppServiceTest: TestBase
+    public class TwitterAccountAppServiceTest : TestBase
     {
-        [Fact]
-        public async void ShouldAddAccountAsync()
-        {
-            //Arrange
-            var socialAccountService = new Mock<ISocialAccountService>();
-            var socialUserService = new Mock<ISocialUserService>();
-            var twitterAuthService = new Mock<ITwitterAuthService>();
-            var authenticatedUser = new Mock<IAuthenticatedUser>();
-            var twitterCredentials = new Mock<ITwitterCredentials>();
-
-            twitterCredentials.Setup(t => t.AccessToken).Returns("token");
-            twitterCredentials.Setup(t => t.AccessTokenSecret).Returns("tokenSecret");
-            authenticatedUser.Setup(t => t.Credentials).Returns(twitterCredentials.Object);
-            authenticatedUser.Setup(t => t.IdStr).Returns("originalId");
-            socialUserService.Setup(t => t.FindByOriginalId("originalId", SocialUserSource.Twitter, SocialUserType.Customer)).Returns(new SocialUser
-            {
-               Id = 1
-            });
-            twitterAuthService.Setup(t => t.ValidateAuthAsync("123", "verifier")).ReturnsAsync(authenticatedUser.Object);
-            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object,
-                socialUserService.Object,twitterAuthService.Object);
-            //Act
-            TwitterAccountAppService.AddAccountAsync("123", "verifier");
-            //Assert
-            socialUserService.Verify(t => t.Update(It.Is<SocialUser>(r => r.Id == 1 && r.Type == SocialUserType.IntegrationAccount && r.SocialAccount.Token == "token")));
-            socialAccountService.Verify(t => t.InsertSocialAccountInGeneralDb(It.Is<SocialAccount>(r => r.Token == "token"&& r.TokenSecret == "tokenSecret"
-            && r.SocialUser.Id == 1)));
-
-        }
-
-        [Fact]
-        public async void ShouldAddAccountAsyncWhenSocialUserIsNotFound()
-        {
-            //Arrange
-            var socialAccountService = new Mock<ISocialAccountService>();
-            var socialUserService = new Mock<ISocialUserService>();
-            var twitterAuthService = new Mock<ITwitterAuthService>();
-            var authenticatedUser = new Mock<IAuthenticatedUser>();
-            var twitterCredentials = new Mock<ITwitterCredentials>();
-
-            twitterCredentials.Setup(t => t.AccessToken).Returns("token");
-            twitterCredentials.Setup(t => t.AccessTokenSecret).Returns("tokenSecret");
-            authenticatedUser.Setup(t => t.Credentials).Returns(twitterCredentials.Object);
-            authenticatedUser.Setup(t => t.IdStr).Returns("originalId");
-            authenticatedUser.Setup(t => t.Name).Returns("name");
-            authenticatedUser.Setup(t => t.ScreenName).Returns("screenName");
-            authenticatedUser.Setup(t => t.Email).Returns("email");
-            authenticatedUser.Setup(t => t.ProfileImageUrl).Returns("avatar");
-            socialUserService.Setup(t => t.FindByOriginalId("", SocialUserSource.Twitter, SocialUserType.Customer)).Returns<SocialUser>(null);
-            twitterAuthService.Setup(t => t.ValidateAuthAsync("123", "verifier")).ReturnsAsync(authenticatedUser.Object);
-            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object,
-                socialUserService.Object, twitterAuthService.Object);
-            //Act
-            TwitterAccountAppService.AddAccountAsync("123", "verifier");
-            //Assert
-            socialAccountService.Verify(t => t.InsertAsync(It.Is<SocialAccount>(r => r.Token == "token" && r.TokenSecret == "tokenSecret"&& r.SocialUser.Name == "name"
-            && r.SocialUser.ScreenName == "screenName" && r.SocialUser.Email == "email" && r.SocialUser.Source == SocialUserSource.Twitter && r.SocialUser.Type == SocialUserType.IntegrationAccount
-            && r.SocialUser.Avatar == "avatar" && r.SocialUser.OriginalId == "originalId" && r.SocialUser.OriginalLink == TwitterHelper.GetUserUrl("screenName"))));
-        }
-
         [Fact]
         public void ShouldGetAccounts()
         {
@@ -88,8 +28,7 @@ namespace Social.UnitTest.AppServices
             {
                 new SocialAccount{ Id =1, SocialUser = new SocialUser{ Source = SocialUserSource.Twitter} }
             }.AsQueryable());
-            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object,
-                null,null);
+            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object, null);
             //Act
             IList<TwitterAccountListDto> twitterAccountListDtos = TwitterAccountAppService.GetAccounts();
             //Assert
@@ -103,12 +42,11 @@ namespace Social.UnitTest.AppServices
             //Arrange
             var socialAccountService = new Mock<ISocialAccountService>();
 
-            socialAccountService.Setup(t => t.FindAccount(1,SocialUserSource.Twitter)).Returns(
-                new SocialAccount{ Id =1});
-            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object,
-                null, null);
+            socialAccountService.Setup(t => t.FindAccount(1, SocialUserSource.Twitter)).Returns(
+                new SocialAccount { Id = 1 });
+            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object, null);
             //Act
-            TwitterAccountDto twitterAccountDto =TwitterAccountAppService.GetAccount(1);
+            TwitterAccountDto twitterAccountDto = TwitterAccountAppService.GetAccount(1);
             //Assert
             Assert.NotNull(twitterAccountDto);
             Assert.Equal(1, twitterAccountDto.Id);
@@ -121,10 +59,9 @@ namespace Social.UnitTest.AppServices
             var socialAccountService = new Mock<ISocialAccountService>();
 
             socialAccountService.Setup(t => t.FindAccount(1, SocialUserSource.Twitter)).Returns<SocialAccount>(null);
-            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object,
-                null, null);
+            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object, null);
             //Act
-            Action action =() => TwitterAccountAppService.GetAccount(1);
+            Action action = () => TwitterAccountAppService.GetAccount(1);
             //Assert
             Assert.Throws<ExceptionWithCode>(action);
         }
@@ -137,8 +74,7 @@ namespace Social.UnitTest.AppServices
 
             socialAccountService.Setup(t => t.FindAccount(1, SocialUserSource.Twitter)).Returns(
                 new SocialAccount { Id = 1 });
-            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object,
-                null, null);
+            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object, null);
             //Act
             TwitterAccountAppService.DeleteAccountAsync(1);
             //Assert
@@ -152,8 +88,7 @@ namespace Social.UnitTest.AppServices
             var socialAccountService = new Mock<ISocialAccountService>();
 
             socialAccountService.Setup(t => t.FindAccount(1, SocialUserSource.Twitter)).Returns<SocialAccount>(null);
-            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object,
-                null, null);
+            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object, null);
             //Act
             Func<Task> action = () => TwitterAccountAppService.DeleteAccountAsync(1);
             //Assert
@@ -168,13 +103,12 @@ namespace Social.UnitTest.AppServices
 
             socialAccountService.Setup(t => t.FindAccount(1, SocialUserSource.Twitter)).Returns(
                 new SocialAccount { Id = 1 });
-            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object,
-                null, null);
+            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object, null);
             //Act
-            TwitterAccountDto twitterAccountDto =TwitterAccountAppService.UpdateAccount(1,new UpdateTwitterAccountDto {IfEnable = true });
+            TwitterAccountDto twitterAccountDto = TwitterAccountAppService.UpdateAccount(1, new UpdateTwitterAccountDto { IfEnable = true });
             //Assert
             Assert.NotNull(twitterAccountDto);
-            socialAccountService.Verify(t => t.Update(It.Is<SocialAccount>(r => r.Id == 1&& r.IfEnable == true)));
+            socialAccountService.Verify(t => t.Update(It.Is<SocialAccount>(r => r.Id == 1 && r.IfEnable == true)));
             Assert.Equal(1, twitterAccountDto.Id);
             Assert.Equal(true, twitterAccountDto.IfEnable);
         }
@@ -186,8 +120,7 @@ namespace Social.UnitTest.AppServices
             var socialAccountService = new Mock<ISocialAccountService>();
 
             socialAccountService.Setup(t => t.FindAccount(1, SocialUserSource.Twitter)).Returns<SocialAccount>(null);
-            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object,
-                null, null);
+            TwitterAccountAppService TwitterAccountAppService = new TwitterAccountAppService(socialAccountService.Object, null);
             //Act
             Action action = () => TwitterAccountAppService.UpdateAccount(1, new UpdateTwitterAccountDto { IfEnable = true });
             //Assert

@@ -22,12 +22,10 @@ namespace Social.UnitTest.AppServices
         {
             //Arrange
             var socialAccountService = new Mock<ISocialAccountService>();
-            var socialUserService = new Mock<ISocialUserService>();
             var fbClient = new Mock<IFbClient>();
 
             socialAccountService.Setup(t => t.FindAll()).Returns(new List<SocialAccount> { new SocialAccount { SocialUser = new SocialUser { Source = SocialUserSource.Facebook } } }.AsQueryable());
-            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object,
-              socialUserService.Object, fbClient.Object);
+            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object, fbClient.Object);
 
             //Act
             IList<FacebookPageListDto> facebookPageListDtos = conversationMessageAppService.GetPages();
@@ -53,8 +51,7 @@ namespace Social.UnitTest.AppServices
             {
                 new SocialAccount{ Id =1,SocialUser = new SocialUser{ OriginalId = "1",Source = SocialUserSource.Facebook} }
             }.AsQueryable());
-            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object,
-               socialUserService.Object, fbClient.Object);
+            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object, fbClient.Object);
 
             //Act
             Task<PendingAddFacebookPagesDto> pendingAddFacebookPagesDto = conversationMessageAppService.GetPendingAddPagesAsync("a", "b");
@@ -75,8 +72,7 @@ namespace Social.UnitTest.AppServices
             var fbClient = new Mock<IFbClient>();
 
             socialAccountService.Setup(t => t.FindAccount(1, SocialUserSource.Facebook)).Returns(new SocialAccount { Id = 1 });
-            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object,
-              socialUserService.Object, fbClient.Object);
+            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object, fbClient.Object);
 
             //Act
             FacebookPageDto facebookPageListDtos = conversationMessageAppService.GetPage(1);
@@ -94,56 +90,12 @@ namespace Social.UnitTest.AppServices
             var fbClient = new Mock<IFbClient>();
 
             socialAccountService.Setup(t => t.FindAccount(1, SocialUserSource.Facebook)).Returns<SocialAccount>(null);
-            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object,
-              socialUserService.Object, fbClient.Object);
+            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object, fbClient.Object);
 
             //Act
             Action action = () => conversationMessageAppService.GetPage(1);
             //Assert
             Assert.Throws<ExceptionWithCode>(action);
-        }
-
-        [Fact]
-        public void ShouldAddPageAsync()
-        {
-            //Arrange
-            var socialAccountService = new Mock<ISocialAccountService>();
-            var socialUserService = new Mock<ISocialUserService>();
-            var fbClient = new Mock<IFbClient>();
-            socialUserService.Setup(t => t.FindByOriginalId("1", SocialUserSource.Facebook, SocialUserType.Customer)).Returns(new SocialUser { Id = 1 });
-            socialAccountService.Setup(t => t.Find(0)).Returns(new SocialAccount { Id = 1 });
-            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object,
-              socialUserService.Object, fbClient.Object);
-
-            //Act
-            Task<FacebookPageDto> facebookPageDto = conversationMessageAppService.AddPageAsync(new AddFaceboookPageDto { FacebookId = "1", AccessToken = "123" });
-            //Assert
-            Assert.NotNull(facebookPageDto);
-            Assert.Equal(1, facebookPageDto.Result.Id);
-            socialUserService.Verify(t => t.Update(It.Is<SocialUser>(r => r.SocialAccount.Token == "123")));
-            socialAccountService.Verify(t => t.InsertSocialAccountInGeneralDb(It.Is<SocialAccount>(r => r.Token == "123")));
-            fbClient.Verify(t => t.SubscribeApp(It.Is<string>(s => s == "1"), It.Is<string>(k => k == "123")));
-        }
-
-        [Fact]
-        public void ShouldAddPageAsyncWhenSocialUserIsNotFound()
-        {
-            //Arrange
-            var socialAccountService = new Mock<ISocialAccountService>();
-            var socialUserService = new Mock<ISocialUserService>();
-            var fbClient = new Mock<IFbClient>();
-            socialUserService.Setup(t => t.FindByOriginalId("1", SocialUserSource.Facebook, SocialUserType.Customer)).Returns<SocialUser>(null);
-            socialAccountService.Setup(t => t.Find(0)).Returns(new SocialAccount { Id = 1 });
-            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object,
-              socialUserService.Object, fbClient.Object);
-
-            //Act
-            Task<FacebookPageDto> facebookPageDto = conversationMessageAppService.AddPageAsync(new AddFaceboookPageDto { FacebookId = "1", AccessToken = "123" });
-            //Assert
-            Assert.NotNull(facebookPageDto);
-            Assert.Equal(1, facebookPageDto.Result.Id);
-            socialAccountService.Verify(t => t.InsertAsync(It.Is<SocialAccount>(r => r.Token == "123")));
-            fbClient.Verify(t => t.SubscribeApp(It.Is<string>(s => s == "1"), It.Is<string>(k => k == "123")));
         }
 
         [Fact]
@@ -154,8 +106,7 @@ namespace Social.UnitTest.AppServices
             var socialUserService = new Mock<ISocialUserService>();
             var fbClient = new Mock<IFbClient>();
             socialAccountService.Setup(t => t.FindAccount(1, SocialUserSource.Facebook)).Returns(new SocialAccount { Id = 1, SocialUser = new SocialUser { OriginalId = "1" }, Token = "123" });
-            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object,
-              socialUserService.Object, fbClient.Object);
+            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object, fbClient.Object);
 
             //Act
             conversationMessageAppService.DeletePageAsync(1);
@@ -170,14 +121,13 @@ namespace Social.UnitTest.AppServices
             //Arrange
             var socialAccountService = new Mock<ISocialAccountService>();
             socialAccountService.Setup(t => t.FindAccount(1, SocialUserSource.Facebook)).Returns<SocialAccount>(null);
-            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object,
-              null, null);
+            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object, null);
 
             //Act
             Action action = () => conversationMessageAppService.DeletePageAsync(1).Start();
             //Assert
             Assert.NotNull(conversationMessageAppService.DeletePageAsync(1).Exception);
-           // Assert.Throws<ExceptionWithCode>(action);
+            // Assert.Throws<ExceptionWithCode>(action);
         }
 
         [Fact]
@@ -188,8 +138,7 @@ namespace Social.UnitTest.AppServices
             var socialUserService = new Mock<ISocialUserService>();
             var fbClient = new Mock<IFbClient>();
             socialAccountService.Setup(t => t.FindAccount(1, SocialUserSource.Facebook)).Returns(new SocialAccount { Id = 1, SocialUser = new SocialUser { OriginalId = "1" }, Token = "123" });
-            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object,
-              socialUserService.Object, fbClient.Object);
+            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object, fbClient.Object);
 
             //Act
             FacebookPageDto facebookPageDto = conversationMessageAppService.UpdatePage(1, new UpdateFacebookPageDto { });
@@ -206,8 +155,7 @@ namespace Social.UnitTest.AppServices
             var socialUserService = new Mock<ISocialUserService>();
             var fbClient = new Mock<IFbClient>();
             socialAccountService.Setup(t => t.FindAccount(1, SocialUserSource.Facebook)).Returns<SocialAccount>(null);
-            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object,
-              socialUserService.Object, fbClient.Object);
+            FacebookAccountAppService conversationMessageAppService = new FacebookAccountAppService(socialAccountService.Object, fbClient.Object);
             //Act
             Action action = () => conversationMessageAppService.UpdatePage(1, new UpdateFacebookPageDto { });
             //Assert
