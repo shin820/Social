@@ -53,7 +53,7 @@ namespace Social.Domain.DomainServices
                 var predicate = PredicateBuilder.New<Conversation>();
                 foreach (int member in members)
                 {
-                    Expression<Func<Conversation, bool>> b = t => t.AgentId.HasValue && t.AgentId.Value != member || !t.AgentId.HasValue;
+                    Expression<Func<Conversation, bool>> b = t => !t.AgentId.HasValue || t.AgentId.Value != member;
                     predicate = predicate.And(b);
                 }
                 return predicate;

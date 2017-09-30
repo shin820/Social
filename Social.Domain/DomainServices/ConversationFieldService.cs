@@ -71,6 +71,7 @@ namespace Social.Domain.DomainServices
                     }).ToList();
                     agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id,SiteId = agentField.SiteId,Name = "Unassigned", Value = "Blank"});
                     agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id, SiteId = agentField.SiteId, Name = _agentService.Find(UserContext.UserId).Name, Value = "@Me" });
+                    agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id, SiteId = agentField.SiteId, Name = "My Department Member", Value = "@My Department Member" });
                 }
             }
         }
@@ -125,6 +126,7 @@ namespace Social.Domain.DomainServices
                         Value = t.Id.ToString()
                     }).ToList();
                     departmentField.Options.Add(new ConversationFieldOption { FieldId = departmentField.Id, SiteId = departmentField.SiteId, Name = "Unassigned", Value = "Blank" });
+                    departmentField.Options.Add(new ConversationFieldOption { FieldId = departmentField.Id, SiteId = departmentField.SiteId, Name = "My Department", Value = "@My Department" });
                 }
             }
         }
