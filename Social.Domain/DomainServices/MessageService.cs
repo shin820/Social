@@ -137,7 +137,7 @@ namespace Social.Domain.DomainServices
 
             Save(message, isCloseConversation);
 
-            return message;
+            return this.Find(message.Id);
         }
 
         private void Save(Message message, bool isCloseConversation)
@@ -227,7 +227,7 @@ namespace Social.Domain.DomainServices
                 throw SocialExceptions.OriginalPostOrTweetHasBeenDeleted();
             }
 
-            return comment;
+            return this.Find(comment.Id);
         }
 
         public Message ReplyTwitterDirectMessage(int conversationId, string message, bool isCloseConversation = false)
@@ -276,7 +276,7 @@ namespace Social.Domain.DomainServices
 
             Save(directMessage, isCloseConversation);
 
-            return directMessage;
+            return this.Find(directMessage.Id);
         }
 
         public Message ReplyTwitterTweetMessage(int conversationId, int twitterAccountId, string content, bool isCloseConversation = false)
@@ -344,7 +344,7 @@ namespace Social.Domain.DomainServices
                 throw SocialExceptions.OriginalPostOrTweetHasBeenDeleted();
             }
 
-            return replyMessage;
+            return this.Find(replyMessage.Id);
         }
 
 

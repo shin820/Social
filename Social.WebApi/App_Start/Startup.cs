@@ -35,7 +35,7 @@ namespace Social.WebApi.App_Start
             //};
 
             //app.UseOAuthAuthorizationServer(oAuthServerOptions);
-            app.UseOAuthBearerAuthentication(AccountsController.OAuthBearerOptions);
+            app.UseJwtBearerAuthentication(AccountsController.JwtBearerOptions);
 
             var settings = new JsonSerializerSettings();
             settings.ContractResolver = new SignalRContractResolver();
