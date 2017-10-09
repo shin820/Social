@@ -28,7 +28,7 @@ BEGIN
 			[IfSystem]
 			,[DataType]
 			,[Name]
-			,@siteIdStr AS [SiteId]
+			,'+@siteIdStr+' AS [SiteId]
 	 FROM [Comm100.General].[dbo].[t_Social_ConversationField_Config]
 		'
 	EXEC(@sql)

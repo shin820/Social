@@ -33,8 +33,8 @@ BEGIN
 			,[IfPublic]
 			,[Type]
 			,[CreatedBy]
-			,[CreatedTime]
-			,@siteIdStr AS [SiteId]
+			,getdate()
+			,'+@siteIdStr+' AS [SiteId]
 		FROM [Comm100.General].[dbo].[t_Social_Filter_Config]
 		'
 	EXEC(@sql)

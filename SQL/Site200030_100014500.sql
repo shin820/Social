@@ -274,7 +274,7 @@ SELECT
 	,[IfPublic]
 	,[Type]
 	,[CreatedBy]
-	,[CreatedTime]
+	,getdate()
 	,100014500 AS [SiteId]
 	FROM [Comm100.General].[dbo].[t_Social_Filter_Config]
 GO
