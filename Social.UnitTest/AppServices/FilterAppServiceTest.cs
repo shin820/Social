@@ -34,7 +34,7 @@ namespace Social.UnitTest.AppServices
                 filter
             }.AsQueryable());
             domainService.Setup(t => t.GetConversationNum(filter)).Returns(1);
-            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, notificationManager.Object);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, notificationManager.Object,null);
             filterAppService.UserContext = userContext.Object;
             //Act
             List<FilterListDto> filterListDtos = filterAppService.FindAll();
@@ -53,7 +53,7 @@ namespace Social.UnitTest.AppServices
             var agentService = new Mock<IAgentService>();
             domainService.Setup(t => t.Find(1)).Returns(MakeFilterEntity(1));
             agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
-            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, null);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, null, null);
 
             //Act
             FilterDetailsDto filterDetailsDto = filterAppService.Find(1);
@@ -69,7 +69,7 @@ namespace Social.UnitTest.AppServices
             //Arrange
             var domainService = new Mock<IFilterService>();
             domainService.Setup(t => t.Find(1)).Returns<Filter>(null);
-            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, null);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, null, null);
 
             //Act
             Action action = () => filterAppService.Find(1);
@@ -88,7 +88,7 @@ namespace Social.UnitTest.AppServices
 
             unitOfWorkManager.Setup(t => t.Current.SaveChanges());
             domainService.Setup(t => t.Insert(It.Is<Filter>(r => r.Name == "name"))).Returns(MakeFilterEntity(1));
-            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, notificationManager.Object);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, notificationManager.Object, null);
             filterAppService.UnitOfWorkManager = unitOfWorkManager.Object;
             //Act
             FilterDetailsDto filterDetailsDto = await filterAppService.Insert(MakeFilterCreateDto());
@@ -112,7 +112,7 @@ namespace Social.UnitTest.AppServices
             domainService.Setup(t => t.Find(1)).Returns(filter);
             domainService.Setup(t => t.GetConversationNum(filter)).Returns(1);
             agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
-            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, null);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, null, null);
             //Act
             FilterListDto filterListDto = filterAppService.FindSummary(1);
             //Assert
@@ -128,7 +128,7 @@ namespace Social.UnitTest.AppServices
             //Arrange
             var domainService = new Mock<IFilterService>();
             domainService.Setup(t => t.Find(1)).Returns<Filter>(null);
-            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, null);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, null, null);
             //Act
             Action action = () => filterAppService.FindSummary(1);
             //Assert
@@ -143,7 +143,7 @@ namespace Social.UnitTest.AppServices
             Filter filter = MakeFilterEntity(1);
             domainService.Setup(t => t.Find(1)).Returns(filter);
             domainService.Setup(t => t.HasConversation(filter, 1)).Returns(true);
-            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, null);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, null, null);
             //Act
             bool hasConversation = filterAppService.HasConversation(1, 1);
             //Assert
@@ -156,7 +156,7 @@ namespace Social.UnitTest.AppServices
             //Arrange
             var domainService = new Mock<IFilterService>();
             domainService.Setup(t => t.Find(1)).Returns<Filter>(null);
-            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, null);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, null, null);
             //Act
             Action action = () => filterAppService.HasConversation(1, 1);
             //Assert
@@ -171,7 +171,7 @@ namespace Social.UnitTest.AppServices
             var notificationManager = new Mock<INotificationManager>();
             Filter filter = MakeFilterEntity(1);
             domainService.Setup(t => t.Find(1)).Returns(filter);
-            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, notificationManager.Object);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, notificationManager.Object, null);
             //Act
             filterAppService.Delete(1);
             //Assert
@@ -185,7 +185,7 @@ namespace Social.UnitTest.AppServices
             //Arrange
             var domainService = new Mock<IFilterService>();
             domainService.Setup(t => t.Find(1)).Returns<Filter>(null);
-            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, null);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, null, null);
             //Act
             Action action = () => filterAppService.Delete(1);
             //Assert
@@ -198,7 +198,7 @@ namespace Social.UnitTest.AppServices
             //Arrange
             var domainService = new Mock<IFilterService>();
             domainService.Setup(t => t.Find(1)).Returns<Filter>(null);
-            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, null);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, null, null, null);
             //Act
             Action action = () => filterAppService.Update(1, MakeFilterUpdateDto());
             //Assert
@@ -216,7 +216,7 @@ namespace Social.UnitTest.AppServices
             unitOfWorkManager.Setup(t => t.Current.SaveChanges());
             Filter filter = MakeFilterEntity(1);
             domainService.Setup(t => t.Find(1)).Returns(filter);
-            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, notificationManager.Object);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, notificationManager.Object, null);
             filterAppService.UnitOfWorkManager = unitOfWorkManager.Object;
             //Act
             FilterDetailsDto filterDetailsDto = await filterAppService.Update(1, MakeFilterUpdateDto());
@@ -242,7 +242,7 @@ namespace Social.UnitTest.AppServices
             }.AsQueryable());
             userContext.Setup(t => t.UserId).Returns(1);
             agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
-            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, null);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, null, null);
             filterAppService.UserContext = userContext.Object;
             //Act
             List<FilterManageDto> filterManageDtos = filterAppService.FindManageFilters();
@@ -263,7 +263,7 @@ namespace Social.UnitTest.AppServices
                 MakeFilterEntity(1)
             }.AsQueryable());
             agentService.Setup(t => t.GetDisplayName(1)).Returns("a");
-            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, null);
+            FilterAppService filterAppService = new FilterAppService(domainService.Object, agentService.Object, null, null);
             filterAppService.UserContext = userContext.Object;
             //Act
             List<FilterManageDto> filterManageDtos = filterAppService.Sorting(new List<FilterSortDto> { new FilterSortDto { Id = 1, Index = 2 } });

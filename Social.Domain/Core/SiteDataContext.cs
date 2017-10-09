@@ -32,6 +32,7 @@ namespace Social.Domain.Core
         public virtual DbSet<TwitterAuth> TwitterAuths { get; set; }
         public virtual DbSet<Department> Departments { get; set; }
         public virtual DbSet<DepartmentMember> DepartmentMembers { get; set; }
+        public virtual DbSet<AuditLog> AuditLog { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

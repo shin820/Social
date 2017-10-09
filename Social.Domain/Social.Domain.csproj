@@ -133,6 +133,7 @@
   <ItemGroup>
     <Compile Include="Core\NotificationConnectionManager.cs" />
     <Compile Include="DomainServices\AgentService.cs" />
+    <Compile Include="DomainServices\AuditLogService.cs" />
     <Compile Include="DomainServices\ConversationFieldService.cs" />
     <Compile Include="DomainServices\ConversationService.cs" />
     <Compile Include="DomainServices\DepartmentService.cs" />
@@ -193,6 +194,7 @@
     <Compile Include="DomainServices\Twitter\TweetTreeWalker.cs" />
     <Compile Include="DomainServices\Twitter\TwitterUtil.cs" />
     <Compile Include="DomainServices\UserInfoService.cs" />
+    <Compile Include="Entities\AuditLog.cs" />
     <Compile Include="Entities\Conversation.cs" />
     <Compile Include="Entities\ConversationField.cs" />
     <Compile Include="Entities\ConversationFieldOption.cs" />

@@ -36,16 +36,19 @@ namespace Social.Application.AppServices
         private IFilterService _domainService;
         private IAgentService _agentService;
         private INotificationManager _notificationManager;
+        private IAuditLogService _auditLogService;
 
         public FilterAppService(
             IFilterService domainService,
             IAgentService agentService,
-            INotificationManager notificationManager
+            INotificationManager notificationManager,
+            IAuditLogService auditLogService
             )
         {
             _domainService = domainService;
             _agentService = agentService;
             _notificationManager = notificationManager;
+            _auditLogService = auditLogService;
         }
 
         public List<FilterListDto> FindAll()
@@ -118,6 +121,7 @@ namespace Social.Application.AppServices
             List<FilterDetailsDto> filterDtos = new List<FilterDetailsDto>();
             filterDtos.Add(filterDto);
             _agentService.FillCreatedByName(filterDtos);
+            _auditLogService.Audit(3, $"Add Filter (Id: {filterDto.Id})", null, filterDto);
             return filterDto;
         }
 
