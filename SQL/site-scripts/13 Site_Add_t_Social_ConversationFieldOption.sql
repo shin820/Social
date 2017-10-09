@@ -26,11 +26,11 @@ BEGIN
 			  ,[SiteId]
 		  )
 		 SELECT
-		   (SELECT [Id]AS [FieldId] FROM [t_Social_ConversationField] WHERE [SiteId] = @siteIdStr AND [Name] = p.FieldName )
+		   (SELECT [Id]AS [FieldId] FROM [t_Social_ConversationField] WHERE [SiteId] = '+@siteIdStr+' AND [Name] = p.FieldName )
 		      , [Name]
 			  ,[Value]
 			  ,[Index]
-			  ,@siteIdStr AS [SiteId]
+			  ,'+@siteIdStr+' AS [SiteId]
 	 FROM [Comm100.General].[dbo].[t_Social_ConversationFieldOption_Config] p
 	 '
 	EXEC(@sql)
