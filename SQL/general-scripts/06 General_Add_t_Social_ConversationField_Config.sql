@@ -2,7 +2,7 @@
 		DECLARE @sql varchar(max)
 		SET @sql=
 		'
-		INSERT INTO  [t_Social_ConversationField]
+		INSERT INTO  [t_Social_ConversationField_Config]
 		(
 			[IfSystem]
 			,[DataType]

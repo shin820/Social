@@ -289,7 +289,7 @@ INSERT INTO [t_Social_FilterCondition]
 )
 SELECT 
 	(SELECT [Id] AS [FilterId] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = p.FilterName)
-	,(SELECT [Id] AS [FilterId] FROM [t_Social_Filter] WHERE [SiteId] = 100014500 AND [Name] = p.FieldName)
+	,(SELECT [Id] AS [FieldId] FROM [t_Social_ConversationField] WHERE [SiteId] = 100014500 AND [Name] = p.FieldName)
 	,[MatchType]
 	,[Value]
 	,100014500 AS [SiteId]
