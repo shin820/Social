@@ -19,6 +19,11 @@ BEGIN
 
 		SET @sql=
 		'
+		IF OBJECT_ID(''t_Social_FilterCondition'') IS NOT NULL
+		AND OBJECT_ID(''t_Social_Filter'') IS NOT NULL
+		AND OBJECT_ID(''t_Social_ConversationField'') IS NOT NULL
+		AND NOT EXISTS (SELECT * FROM [t_Social_FilterCondition] WHERE SiteId='+@siteIdStr+')
+		BEGIN
 		INSERT INTO [t_Social_FilterCondition]
 		(
 			[FilterId]
@@ -36,6 +41,7 @@ BEGIN
 		,'+@siteIdStr+' AS [SiteId]
 		,[Index]
 		FROM [Comm100.General].[dbo].[t_Social_FilterCondition_Config] p
+		END
 		'
 	EXEC(@sql)
 	SET @siteId=@siteId+1

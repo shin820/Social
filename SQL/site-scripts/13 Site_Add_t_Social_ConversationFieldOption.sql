@@ -17,6 +17,10 @@ BEGIN
 		DECLARE @sql varchar(max)
 		SET @sql=
 		'
+		IF OBJECT_ID(''t_Social_ConversationFieldOption'') IS NOT NULL
+		AND OBJECT_ID(''t_Social_ConversationField'') IS NOT NULL
+		AND NOT EXISTS(SELECT * FROM [t_Social_ConversationFieldOption] WHERE SiteId='+@siteIdStr+')
+		BEGIN
 		INSERT INTO [t_Social_ConversationFieldOption]
 		  (
 			   [FieldId]
@@ -31,7 +35,8 @@ BEGIN
 			  ,[Value]
 			  ,[Index]
 			  ,'+@siteIdStr+' AS [SiteId]
-	 FROM [Comm100.General].[dbo].[t_Social_ConversationFieldOption_Config] p
+		FROM [Comm100.General].[dbo].[t_Social_ConversationFieldOption_Config] p
+		END
 	 '
 	EXEC(@sql)
 	SET @siteId=@siteId+1

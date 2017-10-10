@@ -1,4 +1,5 @@
 ﻿IF OBJECT_ID('t_Social_FilterCondition_Config') IS NOT NULL
+AND NOT EXISTS (SELECT * FROM [t_Social_FilterCondition_Config])
 BEGIN
 	INSERT INTO [t_Social_FilterCondition_Config]
 	(
