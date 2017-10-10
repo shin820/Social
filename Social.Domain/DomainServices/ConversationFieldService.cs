@@ -165,7 +165,7 @@ namespace Social.Domain.DomainServices
                 return;
             }
 
-            var fieldNames = new List<string> { "Social Accounts" };
+            var fieldNames = new List<string> { "Social Page/Account" };
             var matchFileds = fields.Where(t => t.IfSystem == true && t.DataType == FieldDataType.Option && fieldNames.Contains(t.Name));
             if (matchFileds.Any())
             {

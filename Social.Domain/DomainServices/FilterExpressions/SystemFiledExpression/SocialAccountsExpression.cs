@@ -10,7 +10,7 @@ namespace Social.Domain.DomainServices
 {
     public class SocialAccountsExpression: OptionExpression
     {
-        public SocialAccountsExpression():base("Social Accounts","")
+        public SocialAccountsExpression():base("Social Page/Account", "")
         {
         }
 

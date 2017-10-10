@@ -83,7 +83,7 @@ namespace Social.UnitTest.DomainServices
 
             conversationFieldServiceMock.Setup(t => t.FindAll()).Returns(new List<ConversationField>
             {
-                new ConversationField{ Id = 1,Name = "Social Accounts", IfSystem = true, DataType = FieldDataType.Option}
+                new ConversationField{ Id = 1,Name = "Social Page/Account", IfSystem = true, DataType = FieldDataType.Option}
             }.AsQueryable());
             socialUserServiceMock.Setup(t => t.FindAll()).Returns(new List<SocialUser>
             {

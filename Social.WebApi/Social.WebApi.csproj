@@ -246,6 +246,7 @@
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="Controllers\AccountsController.cs" />
     <Compile Include="Controllers\AgentController.cs" />
+    <Compile Include="Controllers\AttachmentController.cs" />
     <Compile Include="Controllers\DepartmentController.cs" />
     <Compile Include="Controllers\FacebookController.cs" />
     <Compile Include="Controllers\NotificationController.cs" />
@@ -436,7 +437,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>51154</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://127.0.0.1:30001/</IISUrl>
+          <IISUrl>http://localhost:30001/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

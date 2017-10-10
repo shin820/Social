@@ -24,7 +24,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         //{
         //    FilterCondition condition = new FilterCondition
         //    {
-        //        Field = new ConversationField { Name = "Time to Last Message", DataType = FieldDataType.Number },
+        //        Field = new ConversationField { Name = "Time Since Last Message", DataType = FieldDataType.Number },
         //        MatchType = ConditionMatchType.Is,
         //        Value = "0"
         //    };
@@ -74,7 +74,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         //{
         //    FilterCondition condition = new FilterCondition
         //    {
-        //        Field = new ConversationField { Name = "Time to Last Message", DataType = FieldDataType.Number },
+        //        Field = new ConversationField { Name = "Time Since Last Message", DataType = FieldDataType.Number },
         //        MatchType = ConditionMatchType.IsNot,
         //        Value = "0"
         //    };
@@ -98,7 +98,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         //{
         //    FilterCondition condition = new FilterCondition
         //    {
-        //        Field = new ConversationField { Name = "Time to Last Message", DataType = FieldDataType.Number },
+        //        Field = new ConversationField { Name = "Time Since Last Message", DataType = FieldDataType.Number },
         //        MatchType = ConditionMatchType.IsLessThan,
         //        Value = "2"
         //    };
@@ -122,7 +122,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         //{
         //    FilterCondition condition = new FilterCondition
         //    {
-        //        Field = new ConversationField { Name = "Time to Last Message", DataType = FieldDataType.Number },
+        //        Field = new ConversationField { Name = "Time Since Last Message", DataType = FieldDataType.Number },
         //        MatchType = ConditionMatchType.IsMoreThan,
         //        Value = "1"
         //    };
