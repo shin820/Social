@@ -130,5 +130,17 @@ namespace Framework.Core.UnitOfWork
                 }
             }
         }
+
+        public void RunWithNewTransaction(int? siteId, Action action)
+        {
+            using (var uow = Begin(TransactionScopeOption.RequiresNew))
+            {
+                using (Current.SetSiteId(siteId))
+                {
+                    action();
+                    uow.Complete();
+                }
+            }
+        }
     }
 }
