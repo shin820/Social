@@ -12,7 +12,7 @@ namespace Social.Domain.DomainServices
 {
     public class LastModifiedExpression : DateTimeExpression
     {
-        public LastModifiedExpression() : base("Last Modified")
+        public LastModifiedExpression() : base("Last Modified Date")
         {
         }
 

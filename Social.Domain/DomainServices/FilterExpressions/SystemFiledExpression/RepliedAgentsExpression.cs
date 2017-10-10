@@ -11,7 +11,7 @@ namespace Social.Domain.DomainServices
 { 
     public class RepliedAgentsExpression : OptionExpression
     {
-        public RepliedAgentsExpression():base("Replied Agents", "")
+        public RepliedAgentsExpression():base("Replied Agent", "")
         {
         }
 

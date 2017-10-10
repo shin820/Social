@@ -112,7 +112,7 @@ namespace Social.UnitTest.DomainServices
 
             conversationFieldServiceMock.Setup(t => t.FindAll()).Returns(new List<ConversationField>
             {
-                new ConversationField{ Id = 1,Name = "Created", IfSystem = true, DataType = FieldDataType.DateTime}
+                new ConversationField{ Id = 1,Name = "Created Date", IfSystem = true, DataType = FieldDataType.DateTime}
             }.AsQueryable());
             var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
             conversationFieldService.Repository = conversationFieldServiceMock.Object;
