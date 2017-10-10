@@ -23,6 +23,10 @@ namespace Social.WebApi.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     public class FacebookWebHookController : ApiController
     {
+        private static readonly List<string> _fbEntries =
+           new List<string>();
+        private static readonly object _lock = new object();
+
         private IFacebookAppService _facebookWebHookAppService;
 
         /// <summary>
@@ -58,25 +62,34 @@ namespace Social.WebApi.Controllers
         /// <returns></returns>
         public async Task<IHttpActionResult> Post()
         {
+            var request = Request;
+            string fbEntry = await request.Content.ReadAsStringAsync();
+            Hub.Clients.All.newRaw(fbEntry);
+
+            lock (_lock)
+            {
+                if (_fbEntries.Contains(fbEntry))
+                {
+                    return Ok(); //facebook will push duplicated data, we should ignore duplicated data.
+                }
+
+                _fbEntries.Add(fbEntry);
+            }
+
             try
             {
-                var request = Request;
-                string rawData = await request.Content.ReadAsStringAsync();
-                Hub.Clients.All.newRaw(rawData);
-
                 FbHookData data = await request.Content.ReadAsAsync<FbHookData>();
                 await _facebookWebHookAppService.ProcessWebHookData(data);
-
-                if (data == null || !data.Entry.Any())
-                {
-                    return Ok();
-                }
             }
             catch (Exception ex)
             {
                 Logger.Error(ex);
                 Hub.Clients.All.newRaw(ex.StackTrace);
-                return Ok();
+            }
+
+            lock (_lock)
+            {
+                _fbEntries.Remove(fbEntry);
             }
 
             return Ok();
