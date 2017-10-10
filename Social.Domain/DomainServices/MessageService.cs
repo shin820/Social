@@ -100,10 +100,8 @@ namespace Social.Domain.DomainServices
             {
                 throw SocialExceptions.BadRequest("Conversation source must be facebook message.");
             }
-            if (conversation.Status == ConversationStatus.Closed)
-            {
-                _conversationService.CheckIfCanReopen(conversation);
-            }
+
+            _conversationService.CheckIfCanReopenWhenReply(conversation);
 
             var messages = Repository.FindAll().Include(t => t.Sender).Include(t => t.Receiver).Where(t => t.ConversationId == conversation.Id).ToList();
             SocialAccount socialAccount = GetSocialAccountFromMessages(messages);
@@ -239,29 +237,27 @@ namespace Social.Domain.DomainServices
             {
                 throw SocialExceptions.BadRequest("Conversation source must be twitter direct message.");
             }
-            if (conversation.Status == ConversationStatus.Closed)
-            {
-                _conversationService.CheckIfCanReopen(conversation);
-            }
+
+            _conversationService.CheckIfCanReopenWhenReply(conversation);
 
             var messages = Repository.FindAll().Include(t => t.Sender).Include(t => t.Receiver).Where(t => t.ConversationId == conversation.Id).ToList();
             SocialAccount twitterAccount = GetSocialAccountFromMessages(messages);
             if (twitterAccount == null)
             {
-                throw SocialExceptions.BadRequest("Twitter account has been deleted.");
+                throw SocialExceptions.BadRequest($"Twitter account has been deleted.");
             }
 
             var customer = messages.Where(t => t.IsDeleted == false && t.Sender.Type == SocialUserType.Customer)
                 .OrderByDescending(t => t.SendTime).Select(t => t.Sender).FirstOrDefault();
             if (customer == null)
             {
-                throw SocialExceptions.BadRequest("Cant't find last message from conversation.");
+                throw new NotSupportedException($"Cant't find last message from conversation. Conversation Id={conversationId}.");
             }
 
             IUser prviousTwitterUser = twitterService.GetUser(twitterAccount, long.Parse(customer.OriginalId));
             if (prviousTwitterUser == null)
             {
-                throw SocialExceptions.BadRequest("Cant't find twitter user.");
+                throw new NotSupportedException($"Cant't find twitter user. Conversation Id={conversationId}.");
             }
 
             // publish twitter direct message

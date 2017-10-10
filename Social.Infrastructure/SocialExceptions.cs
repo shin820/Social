@@ -65,5 +65,10 @@ namespace Social.Infrastructure
         {
             return new ExceptionWithCode(41000, $"'{value}' is not a valid value for {fieldName}.");
         }
+
+        public static ExceptionWithCode OnlyOneOpenConversationAllowedForPrivateMessage()
+        {
+            return new ExceptionWithCode(HttpStatusCode.BadRequest, 42001, "Another open conversation has been found.");
+        }
     }
 }
