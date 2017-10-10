@@ -33,6 +33,7 @@ namespace Social.Application.AppServices
         Task<ConversationDto> MarkAsReadAsync(int conversationId);
         Task<ConversationDto> MarkAsUnReadAsync(int conversationId);
         int GetUnReadConversationCount();
+        bool IfCanReopen(int conversationId);
     }
 
     public class ConversationAppService : AppService, IConversationAppService
@@ -190,6 +191,17 @@ namespace Social.Application.AppServices
         public async Task<ConversationDto> ReopenAsync(int conversationId)
         {
             return await UpdateConversation(conversationId, _conversationService.Reopen);
+        }
+
+        public bool IfCanReopen(int conversationId)
+        {
+            var conversation = _conversationService.CheckIfExists(conversationId);
+            if (conversation.Status != ConversationStatus.Closed)
+            {
+                return false;
+            }
+
+            return _conversationService.IfCanReopen(conversation);
         }
 
         public async Task<ConversationDto> MarkAsReadAsync(int conversationId)

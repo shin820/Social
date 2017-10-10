@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Social.Domain.DomainServices
@@ -33,7 +34,8 @@ namespace Social.Domain.DomainServices
         Conversation MarkAsUnRead(Conversation entity);
         int GetUnReadConversationCount(IList<Filter> filters);
         void UpdateAndWriteLog(Conversation entity);
-        void CheckIfCanReopen(Conversation enitty);
+        void CheckIfCanReopenWhenReply(Conversation enitty);
+        bool IfCanReopen(Conversation conversation);
     }
 
     public class ConversationService : DomainService<Conversation>, IConversationService
@@ -104,6 +106,13 @@ namespace Social.Domain.DomainServices
             if (!string.IsNullOrEmpty(keyword))
             {
                 var predicate = PredicateBuilder.New<Conversation>();
+
+                int? id = ExtractIdFromKeyword(keyword.Trim());
+                if (id.HasValue)
+                {
+                    predicate = predicate.Or(t => t.Id == id.Value);
+                }
+
                 predicate = predicate.Or(t => t.Subject.Contains(keyword));
                 predicate = predicate.Or(t => t.Note.Contains(keyword));
                 predicate = predicate.Or(t => t.Messages.Any(m => m.Content.Contains(keyword) || m.Sender.Name.Contains(keyword) || m.Receiver.Name.Contains(keyword)));
@@ -112,6 +121,17 @@ namespace Social.Domain.DomainServices
             }
 
             return conversations;
+        }
+
+        private int? ExtractIdFromKeyword(string keyword)
+        {
+            int id;
+            if (Regex.IsMatch(keyword, "^S[0-9]+$", RegexOptions.IgnoreCase) && int.TryParse(keyword.Substring(1), out id))
+            {
+                return id;
+            }
+
+            return null;
         }
 
         public IQueryable<Conversation> ApplySenderOrReceiverId(IQueryable<Conversation> conversations, int? userId)
@@ -231,10 +251,7 @@ namespace Social.Domain.DomainServices
                 return;
             }
 
-            if (oldEntity.Status == ConversationStatus.Closed && entity.Status != ConversationStatus.Closed)
-            {
-                CheckIfCanReopen(entity);
-            }
+            CheckIfCanReopenWhenUpdate(oldEntity, entity);
 
             if (ifWriteLog)
             {
@@ -283,20 +300,29 @@ namespace Social.Domain.DomainServices
             return entity;
         }
 
-        public void CheckIfCanReopen(Conversation entity)
+        private void CheckIfCanReopenWhenUpdate(Conversation oldEntity, Conversation newEntity)
         {
-            if (entity.Source == ConversationSource.FacebookMessage)
+            if (oldEntity.Status == ConversationStatus.Closed && newEntity.Status != ConversationStatus.Closed)
             {
-                CheckIfCanReopen(entity, ConversationSource.FacebookMessage);
-            }
-
-            if (entity.Source == ConversationSource.TwitterDirectMessage)
-            {
-                CheckIfCanReopen(entity, ConversationSource.TwitterDirectMessage);
+                if (!IfCanReopen(oldEntity))
+                {
+                    throw SocialExceptions.OnlyOneOpenConversationAllowedForPrivateMessage();
+                }
             }
         }
 
-        private void CheckIfCanReopen(Conversation conversation, ConversationSource source)
+        public void CheckIfCanReopenWhenReply(Conversation conversation)
+        {
+            if (conversation.Status == ConversationStatus.Closed)
+            {
+                if (!IfCanReopen(conversation))
+                {
+                    throw SocialExceptions.OnlyOneOpenConversationAllowedForPrivateMessage();
+                }
+            }
+        }
+
+        public bool IfCanReopen(Conversation conversation)
         {
             if (conversation.Source == ConversationSource.FacebookMessage || conversation.Source == ConversationSource.TwitterDirectMessage)
             {
@@ -304,12 +330,11 @@ namespace Social.Domain.DomainServices
                 List<int> recipientIds = conversation.Messages.Where(t => t.Sender.SocialAccount == null && t.ReceiverId != null).Select(t => t.ReceiverId.Value).Distinct().ToList();
                 var userIds = senderIds.Union(recipientIds).Distinct();
 
-                Conversation existsOpenConversation = FindAll().FirstOrDefault(t => t.Source == source && t.Id != conversation.Id && t.Status != ConversationStatus.Closed && t.Messages.Any(m => userIds.Contains(m.SenderId) || userIds.Contains(m.ReceiverId.Value)));
-                if (existsOpenConversation != null)
-                {
-                    throw SocialExceptions.BadRequest($"Another open conversation '{existsOpenConversation.GetConversationNum()}' which belongs to the user has been found.");
-                }
+                Conversation existsOpenConversation = FindAll().FirstOrDefault(t => t.Source == conversation.Source && t.Id != conversation.Id && t.Status != ConversationStatus.Closed && t.Messages.Any(m => userIds.Contains(m.SenderId) || userIds.Contains(m.ReceiverId.Value)));
+                return existsOpenConversation == null;
             }
+
+            return true;
         }
 
         private void WriteConversationLog(Conversation oldEntity, Conversation conversation)

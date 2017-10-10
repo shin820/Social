@@ -122,6 +122,18 @@ namespace Social.WebApi.Controllers
         }
 
         /// <summary>
+        /// If can reopen a conversation
+        /// </summary>
+        /// <param name="id">conversation id</param>
+        /// <returns></returns>
+        [Route("{id}/if-can-reopen")]
+        [HttpGet]
+        public bool IfCanReopenConversation(int id)
+        {
+            return _conversationAppService.IfCanReopen(id);
+        }
+
+        /// <summary>
         /// Close conversation.
         /// </summary>
         /// <param name="id"></param>
