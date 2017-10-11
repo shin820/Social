@@ -17,13 +17,13 @@ namespace Social.Domain.DomainServices
         IList<Department> Find(IEnumerable<int> ids);
     }
 
-    public class DepartmentService :ServiceBase, ITransient, IDepartmentService
+    public class DepartmentService : ServiceBase, ITransient, IDepartmentService
     {
         private IRepository<Department> _departmentRepo;
         private ICpanelConfigOptionRepositiory _configRepo;
 
-            public DepartmentService (IRepository<Department> departmentRepo,
-                ICpanelConfigOptionRepositiory configRepo)
+        public DepartmentService(IRepository<Department> departmentRepo,
+            ICpanelConfigOptionRepositiory configRepo)
         {
             _departmentRepo = departmentRepo;
             _configRepo = configRepo;
@@ -31,7 +31,12 @@ namespace Social.Domain.DomainServices
 
         private IQueryable<Department> FindAllUnDeleted()
         {
-            return _departmentRepo.FindAll().Where(t => t.IfDeleted == false);
+            return new List<Department>
+            {
+                new Department{Id=1,Name="Test"}
+            }.AsQueryable();
+
+            //return _departmentRepo.FindAll().Where(t => t.IfDeleted == false);
         }
         public IList<Department> FindAll()
         {
