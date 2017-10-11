@@ -11,7 +11,7 @@ namespace Social.Domain.DomainServices.FilterExpressions.SystemFiledExpression
 {
     public class SocialUsersExpression : StringExpression
     {
-        public SocialUsersExpression() : base("Social Users")
+        public SocialUsersExpression() : base("Social User")
         {
         }
 

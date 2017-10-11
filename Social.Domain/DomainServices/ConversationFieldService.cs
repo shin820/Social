@@ -165,7 +165,7 @@ namespace Social.Domain.DomainServices
                 return;
             }
 
-            var fieldNames = new List<string> { "Social Accounts" };
+            var fieldNames = new List<string> { "Social Page/Account" };
             var matchFileds = fields.Where(t => t.IfSystem == true && t.DataType == FieldDataType.Option && fieldNames.Contains(t.Name));
             if (matchFileds.Any())
             {
@@ -191,7 +191,7 @@ namespace Social.Domain.DomainServices
                 return;
             }
 
-            var fieldNames = new List<string> { "Last Message Sent", "Created", "Last Modified" };
+            var fieldNames = new List<string> { "Last Message Sent", "Created Date", "Last Modified Date" };
             var matchFileds = fields.Where(t => t.IfSystem == true && t.DataType == FieldDataType.DateTime && fieldNames.Contains(t.Name));
             if (matchFileds.Any())
             {

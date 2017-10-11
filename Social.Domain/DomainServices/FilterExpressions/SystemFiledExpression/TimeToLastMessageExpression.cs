@@ -12,7 +12,7 @@ namespace Social.Domain.DomainServices
 {
     public class TimeToLastMessageExpression : NumberExpression
     {
-        public TimeToLastMessageExpression() : base("Time to Last Message")
+        public TimeToLastMessageExpression() : base("Time Since Last Message")
         {
         }
 

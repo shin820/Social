@@ -17,7 +17,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         {
             FilterCondition condition = new FilterCondition
             {
-                Field = new ConversationField { Name = "Replied Agents", DataType = FieldDataType.Option },
+                Field = new ConversationField { Name = "Replied Agent", DataType = FieldDataType.Option },
                 MatchType = ConditionMatchType.Is,
                 Value = "1"
             };
@@ -41,7 +41,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         {
             FilterCondition condition = new FilterCondition
             {
-                Field = new ConversationField { Name = "Replied Agents", DataType = FieldDataType.Option },
+                Field = new ConversationField { Name = "Replied Agent", DataType = FieldDataType.Option },
                 MatchType = ConditionMatchType.IsNot,
                 Value = "1"
             };

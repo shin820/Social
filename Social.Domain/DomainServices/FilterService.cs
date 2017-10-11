@@ -173,7 +173,7 @@ namespace Social.Domain
 
         private List<string> departmentAddOptions = new List<string> { "@My Department", "Blank" };
         private List<string> agentAddOptions = new List<string> { "@Me", "Blank", "@My Department Member" };
-        private List<string> agentsFieldNames = new List<string> { "Agent Assignee", "Replied Agents", "Last Replied Agent" };
+        private List<string> agentsFieldNames = new List<string> { "Agent Assignee", "Replied Agent", "Last Replied Agent" };
         private List<string> departmentFieldNames = new List<string> { "Department Assignee" };
 
     }
