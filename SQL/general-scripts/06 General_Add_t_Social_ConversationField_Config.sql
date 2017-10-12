@@ -19,7 +19,7 @@ BEGIN
 	(1,1,'Last Message Sent by'),
 	(1,4,'Agent Assignee Status'),
 	(1,4,'Department Assignee Status'),
-	(1,1,'Social Users'),
+	(1,1,'Social User'),
 	(1,1,'Comment/Messages'),
 	(1,3,'Last Message Sent'),
 	(1,3,'Created Date'),
