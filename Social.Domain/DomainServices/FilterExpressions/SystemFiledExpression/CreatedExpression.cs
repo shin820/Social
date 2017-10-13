@@ -12,7 +12,7 @@ namespace Social.Domain.DomainServices
 {
     public class CreatedExpression : DateTimeExpression
     {
-        public CreatedExpression() : base("Created Date")
+        public CreatedExpression() : base("Date Created")
         {
         }
 

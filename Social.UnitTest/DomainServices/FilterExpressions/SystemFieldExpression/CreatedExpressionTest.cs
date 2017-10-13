@@ -17,7 +17,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         {
             FilterCondition condition = new FilterCondition
             {
-                Field = new ConversationField { Name = "Created Date", DataType = FieldDataType.DateTime },
+                Field = new ConversationField { Name = "Date Created", DataType = FieldDataType.DateTime },
                 MatchType = ConditionMatchType.Is,
                 Value = "@Today"
             };
@@ -42,7 +42,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         {
             FilterCondition condition = new FilterCondition
             {
-                Field = new ConversationField { Name = "Created Date", DataType = FieldDataType.DateTime },
+                Field = new ConversationField { Name = "Date Created", DataType = FieldDataType.DateTime },
                 MatchType = ConditionMatchType.Before,
                 Value = "@Today"
             };
@@ -67,7 +67,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         {
             FilterCondition condition = new FilterCondition
             {
-                Field = new ConversationField { Name = "Created Date", DataType = FieldDataType.DateTime },
+                Field = new ConversationField { Name = "Date Created", DataType = FieldDataType.DateTime },
                 MatchType = ConditionMatchType.After,
                 Value = "@Yesterday"
             };
@@ -91,7 +91,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         {
             FilterCondition condition = new FilterCondition
             {
-                Field = new ConversationField { Name = "Created Date", DataType = FieldDataType.DateTime },
+                Field = new ConversationField { Name = "Date Created", DataType = FieldDataType.DateTime },
                 MatchType = ConditionMatchType.Between,
                 Value = DateTime.UtcNow.AddDays(-3).ToString("yyyy-MM-dd hh:mm:ss") + '|' + DateTime.UtcNow.AddDays(-1).ToString("yyyy-MM-dd hh:mm:ss")
             };
@@ -115,7 +115,7 @@ namespace Social.UnitTest.DomainService.FilterExpressions.SystemFieldExpression
         {
             FilterCondition condition = new FilterCondition
             {
-                Field = new ConversationField { Name = "Created Date", DataType = FieldDataType.DateTime },
+                Field = new ConversationField { Name = "Date Created", DataType = FieldDataType.DateTime },
                 MatchType = ConditionMatchType.Is,
                 Value = "0"
             };

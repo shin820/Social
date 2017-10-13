@@ -22,7 +22,7 @@ BEGIN
 	(1,1,'Social User'),
 	(1,1,'Comment/Messages'),
 	(1,3,'Last Message Sent'),
-	(1,3,'Created Date'),
+	(1,3,'Date Created'),
 	(1,3,'Last Modified Date'),
 	(1,2,'Time Since Last Message'),
 	(1,2,'Total Messages'),
