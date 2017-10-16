@@ -45,6 +45,7 @@ BEGIN
 			CREATE INDEX IX_t_Social_Message'+@siteIdStr+'_OriginalId_Source ON t_Social_Message'+@siteIdStr+'([OriginalId],[Source] ASC)
 			CREATE INDEX IX_t_Social_Message'+@siteIdStr+'_SenderId ON t_Social_Message'+@siteIdStr+'([SenderId] ASC)
 	        CREATE INDEX IX_t_Social_Message'+@siteIdStr+'_ReceiverId ON t_Social_Message'+@siteIdStr+'([ReceiverId] ASC)
+			CREATE INDEX IX_t_Social_Message'+@siteIdStr+'_ConversationId ON t_Social_Message'+@siteIdStr+'([ConversationId] ASC)
 		END
 		'
 	EXEC(@sql)

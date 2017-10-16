@@ -44,6 +44,12 @@ namespace Social.Infrastructure.LogicalExpression
         {
             var left = Visit(context.expr(0));
             var right = Visit(context.expr(1));
+
+            if (left == null || right == null)
+            {
+                return t => false;
+            }
+
             return left.And(right);
         }
 
@@ -51,6 +57,12 @@ namespace Social.Infrastructure.LogicalExpression
         {
             var left = Visit(context.expr(0));
             var right = Visit(context.expr(1));
+
+            if (left == null || right == null)
+            {
+                return t => false;
+            }
+
             return left.Or(right);
         }
 
