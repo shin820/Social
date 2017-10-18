@@ -22,5 +22,6 @@ namespace Social.Domain.Core
         }
 
         public virtual DbSet<SiteSocialAccount> Conversations { get; set; }
+        public virtual DbSet<Config> Config { get; set; }       
     }
 }
