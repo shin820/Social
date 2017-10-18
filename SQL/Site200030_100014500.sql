@@ -73,6 +73,10 @@ CREATE TABLE [t_Social_Conversation100014500](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+CREATE INDEX IX_t_Social_Conversation100014500_LastMessageSentTime ON t_Social_Conversation100014500([LastMessageSentTime] DESC)
+GO
+CREATE INDEX IX_t_Social_Conversation100014500_LastMessageSenderId ON t_Social_Conversation100014500(LastMessageSenderId ASC)
+GO
 CREATE TABLE [t_Social_ConversationField](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[IfSystem] [bit] NOT NULL,
@@ -120,6 +124,8 @@ ALTER TABLE [t_Social_ConversationLog100014500]  WITH CHECK ADD  CONSTRAINT [FK_
 REFERENCES [t_Social_Conversation100014500] ([Id])
 GO
 ALTER TABLE [t_Social_ConversationLog100014500] CHECK CONSTRAINT [FK_t_Social_ConversationLog100014500_t_Social_Conversation100014500_ConversationId]
+GO
+CREATE INDEX IX_t_Social_ConversationLog100014500_ConversationId ON t_Social_ConversationLog100014500([ConversationId] ASC) 
 GO
 CREATE TABLE [t_Social_Filter](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
@@ -194,6 +200,8 @@ CREATE INDEX IX_t_Social_Message100014500_SenderId ON t_Social_Message100014500(
 GO
 CREATE INDEX IX_t_Social_Message100014500_ReceiverId ON t_Social_Message100014500([ReceiverId] ASC)
 GO
+CREATE INDEX IX_t_Social_Message100014500_ConversationId ON t_Social_Message100014500([ConversationId] ASC)
+GO
 CREATE TABLE [t_Social_MessageAttachment100014500](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[MessageId] [int] NOT NULL,
@@ -216,6 +224,8 @@ ALTER TABLE [t_Social_MessageAttachment100014500]  WITH CHECK ADD  CONSTRAINT [F
 REFERENCES [t_Social_Message100014500] ([Id])
 GO
 ALTER TABLE [t_Social_MessageAttachment100014500] CHECK CONSTRAINT [FK_t_Social_MessageAttachment100014500_t_Social_Message100014500_MessageId]
+GO
+CREATE INDEX IX_t_Social_MessageAttachment100014500_MessageId ON t_Social_MessageAttachment100014500([MessageId] ASC)
 GO
 CREATE TABLE [t_Social_TwitterAuth](
 	[Id] [int] IDENTITY(1,1) NOT NULL,

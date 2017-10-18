@@ -40,6 +40,7 @@ BEGIN
 			ALTER TABLE [t_Social_MessageAttachment'+@siteIdStr+']  WITH CHECK ADD  CONSTRAINT [FK_t_Social_MessageAttachment'+@siteIdStr+'_t_Social_Message'+@siteIdStr+'_MessageId] FOREIGN KEY([MessageId])
 REFERENCES [t_Social_Message'+@siteIdStr+'] ([Id])
 			ALTER TABLE [t_Social_MessageAttachment'+@siteIdStr+'] CHECK CONSTRAINT [FK_t_Social_MessageAttachment'+@siteIdStr+'_t_Social_Message'+@siteIdStr+'_MessageId]
+			CREATE INDEX IX_t_Social_MessageAttachment'+@siteIdStr+'_MessageId ON t_Social_MessageAttachment'+@siteIdStr+'([MessageId] ASC)
 		END
 		'
 	EXEC(@sql)

@@ -42,6 +42,8 @@ BEGIN
 				[Id] ASC
 			)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 			) ON [PRIMARY]
+			CREATE INDEX IX_t_Social_Conversation'+@siteIdStr+'_LastMessageSentTime ON t_Social_Conversation'+@siteIdStr+'([LastMessageSentTime] DESC)
+			CREATE INDEX IX_t_Social_Conversation'+@siteIdStr+'_LastMessageSenderId ON t_Social_Conversation'+@siteIdStr+'([LastMessageSenderId] ASC)
 		END
 		'
 	EXEC(@sql)

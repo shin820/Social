@@ -73,7 +73,7 @@ namespace Social.Application.AppServices
 
             if (dto.MaxNumberOfDataRetrieve <= 0)
             {
-                dto.MaxNumberOfDataRetrieve = 200;
+                dto.MaxNumberOfDataRetrieve = 100;
             }
 
             DateTime lastMessageLessThan = DateTime.MinValue;
@@ -164,11 +164,12 @@ namespace Social.Application.AppServices
 
         public IList<ConversationLogDto> GetLogs(int converationId)
         {
-            return _logService.FindAll()
+            var logs = _logService.FindAll()
                 .Where(t => t.ConversationId == converationId)
-                .OrderByDescending(t => t.CreatedTime)
                 .ProjectTo<ConversationLogDto>()
                 .ToList();
+
+            return logs.OrderByDescending(t => t.CreatedTime).ToList();
         }
 
         public IList<ConversationLogDto> GetNewLogs(int conversationId, int oldMaxLogId)

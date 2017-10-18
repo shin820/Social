@@ -34,6 +34,7 @@ BEGIN
 			ALTER TABLE [t_Social_ConversationLog'+@siteIdStr+']  WITH CHECK ADD  CONSTRAINT [FK_t_Social_ConversationLog'+@siteIdStr+'_t_Social_Conversation'+@siteIdStr+'_ConversationId] FOREIGN KEY([ConversationId])
 REFERENCES [t_Social_Conversation'+@siteIdStr+'] ([Id])
 			ALTER TABLE [t_Social_ConversationLog'+@siteIdStr+'] CHECK CONSTRAINT [FK_t_Social_ConversationLog'+@siteIdStr+'_t_Social_Conversation'+@siteIdStr+'_ConversationId]
+			CREATE INDEX IX_t_Social_ConversationLog'+@siteIdStr+'_ConversationId ON t_Social_ConversationLog'+@siteIdStr+'([ConversationId] ASC)
 		END
 		'
 	EXEC(@sql)
