@@ -34,7 +34,7 @@ namespace Social.UnitTest.DomainServices
                 new Agent { Id=2,Name="Test Agent 2"},
                 new Agent { Id=3,Name="Test Agent 3"}
             });
-            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
+            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object, null, null);
             conversationFieldService.Repository = conversationFieldServiceMock.Object;
             // Act
             var fields = conversationFieldService.FindAllAndFillOptions();
@@ -63,7 +63,7 @@ namespace Social.UnitTest.DomainServices
                 new Department{Id=3,Name="Test Department 3"},
                 new Department{Id=4,Name="Test Department 4"}
             });
-            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
+            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object, null, null);
             conversationFieldService.Repository = conversationFieldServiceMock.Object;
             // Act
             var fields = conversationFieldService.FindAllAndFillOptions();
@@ -92,7 +92,7 @@ namespace Social.UnitTest.DomainServices
                 new SocialUser{Id=3,Name="Test SocialUser 3"},
                 new SocialUser{Id=4,Name="Test SocialUser 4", Type = SocialUserType.IntegrationAccount}
             }.AsQueryable());
-            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
+            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object, null, null);
             conversationFieldService.Repository = conversationFieldServiceMock.Object;
             // Act
             var fields = conversationFieldService.FindAllAndFillOptions();
@@ -114,7 +114,7 @@ namespace Social.UnitTest.DomainServices
             {
                 new ConversationField{ Id = 1,Name = "Date Created", IfSystem = true, DataType = FieldDataType.DateTime}
             }.AsQueryable());
-            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object);
+            var conversationFieldService = new ConversationFieldService(departmentServiceMock.Object, agentServiceMock.Object, socialUserServiceMock.Object,null,null);
             conversationFieldService.Repository = conversationFieldServiceMock.Object;
             // Act
             var fields = conversationFieldService.FindAllAndFillOptions();
