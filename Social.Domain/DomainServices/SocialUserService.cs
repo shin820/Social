@@ -92,7 +92,7 @@ namespace Social.Domain.DomainServices
             var user = FindByOriginalId(orignalUserId, SocialUserSource.Twitter);
             if (user == null)
             {
-                IUser twitterUser = User.GetUserFromId(long.Parse(orignalUserId));
+                IUser twitterUser = Tweetinvi.User.GetUserFromId(long.Parse(orignalUserId));
                 user = FindByOriginalId(orignalUserId, SocialUserSource.Twitter);
                 if (user == null)
                 {

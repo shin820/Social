@@ -31,12 +31,12 @@ namespace Social.Domain.DomainServices
 
         private IQueryable<Department> FindAllUnDeleted()
         {
-            return new List<Department>
-            {
-                new Department{Id=1,Name="Test"}
-            }.AsQueryable();
+            //return new List<Department>
+            //{
+            //    new Department{Id=1,Name="Test"}
+            //}.AsQueryable();
 
-            //return _departmentRepo.FindAll().Where(t => t.IfDeleted == false);
+            return _departmentRepo.FindAll().Where(t => t.IfDeleted == false);
         }
         public IList<Department> FindAll()
         {
