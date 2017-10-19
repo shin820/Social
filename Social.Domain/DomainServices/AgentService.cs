@@ -13,7 +13,6 @@ namespace Social.Domain.DomainServices
     public interface IAgentService
     {
         string GetDisplayName(int? id);
-        void FillAgentName(IEnumerable<IHaveSendAgent> list);
         void FillCreatedByName(IEnumerable<IHaveCreatedBy> list);
         int[] GetMatchedStatusAgents(int status);
         IList<Agent> FindAll();
@@ -80,22 +79,22 @@ namespace Social.Domain.DomainServices
             return agent == null ? "N/A" : agent.Name;
         }
 
-        public void FillAgentName(IEnumerable<IHaveSendAgent> list)
-        {
-            List<int> agentIds = list.Where(t => t.SendAgentId != null).Select(t => t.SendAgentId.Value).Distinct().ToList();
-            if (agentIds.Any())
-            {
-                var agents = FindAll().ToList();
-                foreach (var item in list)
-                {
-                    var agent = agents.FirstOrDefault(t => t.Id == item.SendAgentId);
-                    if (agent != null)
-                    {
-                        item.SendAgentName = agent.Name;
-                    }
-                }
-            }
-        }
+        //public void FillAgentName(IEnumerable<IHaveSendAgent> list)
+        //{
+        //    List<int> agentIds = list.Where(t => t.SendAgentId != null).Select(t => t.SendAgentId.Value).Distinct().ToList();
+        //    if (agentIds.Any())
+        //    {
+        //        var agents = FindAll().ToList();
+        //        foreach (var item in list)
+        //        {
+        //            var agent = agents.FirstOrDefault(t => t.Id == item.SendAgentId);
+        //            if (agent != null)
+        //            {
+        //                item.SendAgentName = agent.Name;
+        //            }
+        //        }
+        //    }
+        //}
 
         public void FillCreatedByName(IEnumerable<IHaveCreatedBy> list)
         {

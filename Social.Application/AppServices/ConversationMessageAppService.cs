@@ -77,7 +77,6 @@ namespace Social.Application.AppServices
             var postDto = Mapper.Map<FacebookPostMessageDto>(postMessage);
 
             var allComments = messages.Where(t => t.Source == MessageSource.FacebookPostComment || t.Source == MessageSource.FacebookPostReplyComment).Select(t => Mapper.Map<FacebookPostCommentMessageDto>(t)).ToList();
-            _agentService.FillAgentName(allComments.Cast<IHaveSendAgent>());
 
             postDto.Comments = allComments.Where(t => t.ParentId == postDto.Id).OrderBy(t => t.SendTime).ToList();
             foreach (var comment in postDto.Comments)
@@ -103,7 +102,6 @@ namespace Social.Application.AppServices
                  .ToList();
             _messageService.ChangeAttachmentUrl(messages);
             result = Mapper.Map<List<FacebookMessageDto>>(messages);
-            _agentService.FillAgentName(result.Cast<IHaveSendAgent>());
 
             return result;
         }
@@ -121,7 +119,6 @@ namespace Social.Application.AppServices
                 .OrderBy(t => t.SendTime)
                 .ProjectTo<TwitterDirectMessageDto>()
                 .ToList();
-            _agentService.FillAgentName(result.Cast<IHaveSendAgent>());
 
             return result;
         }
@@ -139,7 +136,6 @@ namespace Social.Application.AppServices
                 .OrderBy(t => t.SendTime)
                 .ProjectTo<TwitterTweetMessageDto>()
                 .ToList();
-            _agentService.FillAgentName(result.Cast<IHaveSendAgent>());
             result.ForEach(t => { t.ParentId = t.ParentId == null ? -1 : t.ParentId; }); // -1?, front-end need this value by now.
 
             var messageDtoWithQuote = result.Where(t => !string.IsNullOrWhiteSpace(t.QuoteTweetId)).FirstOrDefault();

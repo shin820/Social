@@ -82,6 +82,10 @@ namespace Social.Domain.Core
                 .HasOptional(t => t.Parent)
                 .WithMany(t => t.Children)
                 .HasForeignKey(t => t.ParentId).WillCascadeOnDelete(false);
+            modelBuilder.Entity<Message>()
+                .HasOptional(t => t.SendAgent)
+                .WithMany()
+                .HasForeignKey(t => t.SendAgentId).WillCascadeOnDelete(false);
 
             modelBuilder.Entity<Filter>()
                 .HasMany(t => t.Conditions)
