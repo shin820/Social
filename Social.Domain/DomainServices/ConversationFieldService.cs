@@ -44,6 +44,11 @@ namespace Social.Domain.DomainServices
         public IList<ConversationField> FindAllAndFillOptions()
         {
             var fields = this.FindAll().Include(t => t.Options).AsNoTracking().ToList();
+            if(!CheckIfDepartmentEnable())
+            {
+                fields.RemoveAll(t => t.Name.Contains("Department"));
+            }
+
             FillAgentOptions(fields);
             FillAgentStatusOptions(fields);
             FillDepartmentOptions(fields);
@@ -52,6 +57,17 @@ namespace Social.Domain.DomainServices
             FillDateTimeOptions(fields);
 
             return fields;
+        }
+        
+        public bool CheckIfDepartmentEnable()
+        {
+            int siteId = CurrentUnitOfWork.GetSiteId().HasValue ? CurrentUnitOfWork.GetSiteId().Value : -1;
+            bool ifDepartmentEnable = false;
+            UnitOfWorkManager.RunWithNewTransaction(null, () =>
+            {
+                ifDepartmentEnable = _configRepository.FindAll().Where(t => t.Id == siteId).First().IfDepartmentEnable;
+            });
+            return ifDepartmentEnable;
         }
 
         private void FillAgentOptions(IList<ConversationField> fields)
@@ -77,8 +93,12 @@ namespace Social.Domain.DomainServices
                         Value = t.Id.ToString()
                     }).ToList();
                     agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id, SiteId = agentField.SiteId, Name = "Unassigned", Value = "Blank" });
-                    agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id, SiteId = agentField.SiteId, Name = _agentService.Find(UserContext.UserId).Name, Value = "@Me" });
-                    agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id, SiteId = agentField.SiteId, Name = "My Department Member", Value = "@My Department Member" });
+                    agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id, SiteId = agentField.SiteId, Name = "@Me", Value = "@Me" });
+                    if (CheckIfDepartmentEnable())
+                    {
+                        agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id, SiteId = agentField.SiteId, Name = "@My Department Member", Value = "@My Department Member" });
+
+                    }
                 }
             }
         }
@@ -96,7 +116,7 @@ namespace Social.Domain.DomainServices
             {
                 AgentStatus[] statuses = new AgentStatus[] {
                     AgentStatus.Online, AgentStatus.Offline};
-                int siteId = CurrentUnitOfWork.GetSiteId().HasValue ? CurrentUnitOfWork.GetSiteId().Value: -1;
+                int siteId = CurrentUnitOfWork.GetSiteId().HasValue ? CurrentUnitOfWork.GetSiteId().Value : -1;
                 CustomAwayStatus[] customAwayStatuses = _statusrRepo.FindAll().Where(t => t.SiteId == siteId && t.IfDeleted == false).ToArray();
 
                 bool ifCustomAwayEnable = false;
@@ -166,7 +186,7 @@ namespace Social.Domain.DomainServices
                         Value = t.Id.ToString()
                     }).ToList();
                     departmentField.Options.Add(new ConversationFieldOption { FieldId = departmentField.Id, SiteId = departmentField.SiteId, Name = "Unassigned", Value = "Blank" });
-                    departmentField.Options.Add(new ConversationFieldOption { FieldId = departmentField.Id, SiteId = departmentField.SiteId, Name = "My Department", Value = "@My Department" });
+                    departmentField.Options.Add(new ConversationFieldOption { FieldId = departmentField.Id, SiteId = departmentField.SiteId, Name = "@My Department", Value = "@My Department" });
                 }
             }
         }

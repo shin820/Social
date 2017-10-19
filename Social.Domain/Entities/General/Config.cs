@@ -14,5 +14,6 @@ namespace Social.Domain.Entities
         [Column("SiteId")]
         public new int Id { get; set; }
         public bool IfCustomAwayEnable { get; set; }
+        public bool IfDepartmentEnable { get; set; }
     }
 }
