@@ -8,6 +8,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Social.Domain.Repositories;
 
 namespace Social.Domain.DomainServices
 {
@@ -22,16 +23,22 @@ namespace Social.Domain.DomainServices
         private IDepartmentService _departmentService;
         private IAgentService _agentService;
         private ISocialUserService _socialUserService;
+        private IRepository<CustomAwayStatus> _statusrRepo;
+        private IConfigRepository _configRepository;
 
         public ConversationFieldService(
             IDepartmentService departmentService,
             IAgentService agentService,
-            ISocialUserService socialUserService
+            ISocialUserService socialUserService,
+            IRepository<CustomAwayStatus> statusrRepo,
+             IConfigRepository configRepository
             )
         {
             _departmentService = departmentService;
             _agentService = agentService;
             _socialUserService = socialUserService;
+            _statusrRepo = statusrRepo;
+            _configRepository = configRepository;
         }
 
         public IList<ConversationField> FindAllAndFillOptions()
@@ -69,7 +76,7 @@ namespace Social.Domain.DomainServices
                         FieldId = agentField.Id,
                         Value = t.Id.ToString()
                     }).ToList();
-                    agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id,SiteId = agentField.SiteId,Name = "Unassigned", Value = "Blank"});
+                    agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id, SiteId = agentField.SiteId, Name = "Unassigned", Value = "Blank" });
                     agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id, SiteId = agentField.SiteId, Name = _agentService.Find(UserContext.UserId).Name, Value = "@Me" });
                     agentField.Options.Add(new ConversationFieldOption { FieldId = agentField.Id, SiteId = agentField.SiteId, Name = "My Department Member", Value = "@My Department Member" });
                 }
@@ -88,7 +95,15 @@ namespace Social.Domain.DomainServices
             if (agentFields.Any())
             {
                 AgentStatus[] statuses = new AgentStatus[] {
-                    AgentStatus.Online, AgentStatus.Offline, AgentStatus.Away };
+                    AgentStatus.Online, AgentStatus.Offline};
+                int siteId = CurrentUnitOfWork.GetSiteId().HasValue ? CurrentUnitOfWork.GetSiteId().Value: -1;
+                CustomAwayStatus[] customAwayStatuses = _statusrRepo.FindAll().Where(t => t.SiteId == siteId && t.IfDeleted == false).ToArray();
+
+                bool ifCustomAwayEnable = false;
+                UnitOfWorkManager.RunWithNewTransaction(null, () =>
+                {
+                    ifCustomAwayEnable = _configRepository.FindAll().Where(t => t.Id == siteId).First().IfCustomAwayEnable;
+                });
 
                 foreach (var agentField in agentFields)
                 {
@@ -100,6 +115,31 @@ namespace Social.Domain.DomainServices
                         FieldId = agentField.Id,
                         Value = ((int)t).ToString()
                     }).ToList();
+                    if (ifCustomAwayEnable)
+                    {
+                        foreach (var customAwayStatus in customAwayStatuses)
+                        {
+                            agentField.Options.Add(new ConversationFieldOption
+                            {
+                                Id = customAwayStatus.Id,
+                                Name = customAwayStatus.Name,
+                                SiteId = agentField.SiteId,
+                                FieldId = agentField.Id,
+                                Value = customAwayStatus.Id.ToString()
+                            });
+                        }
+                    }
+                    else
+                    {
+                        agentField.Options.Add(new ConversationFieldOption
+                        {
+                            Id = (int)AgentStatus.Away,
+                            Name = AgentStatus.Away.GetName(),
+                            SiteId = agentField.SiteId,
+                            FieldId = agentField.Id,
+                            Value = ((int)AgentStatus.Away).ToString()
+                        });
+                    }
                 }
             }
         }
