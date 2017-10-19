@@ -143,6 +143,10 @@ namespace Social.Application.AppServices
             {
                 throw SocialExceptions.FilterNotExists(id);
             }
+            if(updateDto.IfPublic == false && updateFilter.IfPublic == true)
+            {
+                updateFilter.CreatedBy = UserContext.UserId;
+            }
             _domainService.DeleteConditons(updateFilter);
             Mapper.Map(updateDto, updateFilter);
             _domainService.UpdateFilter(updateFilter, Mapper.Map<List<FilterConditionCreateDto>, List<FilterCondition>>(updateDto.Conditions.ToList()).ToArray());
