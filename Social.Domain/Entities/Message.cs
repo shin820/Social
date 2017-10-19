@@ -60,6 +60,8 @@ namespace Social.Domain.Entities
 
         public virtual SocialUser Receiver { get; set; }
 
+        public virtual User SendAgent { get; set; } 
+
         public virtual IList<Message> Children { get; set; }
 
         public int IntegrationAccountId

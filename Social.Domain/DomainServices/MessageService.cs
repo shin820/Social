@@ -75,6 +75,7 @@ namespace Social.Domain.DomainServices
         {
             return FindAll()
                 .Include(t => t.Attachments)
+                .Include(t => t.SendAgent)
                 .Include(t => t.Sender.SocialAccount)
                 .Include(t => t.Receiver.SocialAccount)
                 .Where(t => t.ConversationId == conversationId);
