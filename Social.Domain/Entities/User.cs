@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Social.Domain.Entities.LiveChat
+namespace Social.Domain.Entities
 {
     [Table("t_User")]
     public class User : Entity, IShardingBySiteId
@@ -16,10 +16,11 @@ namespace Social.Domain.Entities.LiveChat
         [MaxLength(128)]
         public string Name { get; set; }
 
-        public short UserType { get; set; }
+        public byte UserType { get; set; }
 
         public bool IfActive { get; set; }
 
         public bool IfDeleted { get; set; }
+        public bool IfAdmin { get; set; }
     }
 }

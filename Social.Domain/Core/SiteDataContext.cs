@@ -30,6 +30,7 @@ namespace Social.Domain.Core
         public virtual DbSet<SocialAccount> SocialAccounts { get; set; }
         public virtual DbSet<SocialUser> SocialUsers { get; set; }
         public virtual DbSet<TwitterAuth> TwitterAuths { get; set; }
+        public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Department> Departments { get; set; }
         public virtual DbSet<DepartmentMember> DepartmentMembers { get; set; }
         public virtual DbSet<AuditLog> AuditLog { get; set; }
@@ -53,6 +54,16 @@ namespace Social.Domain.Core
                 .HasRequired(t => t.LastMessageSender)
                 .WithMany()
                 .HasForeignKey(t => t.LastMessageSenderId)
+                .WillCascadeOnDelete(false);
+            modelBuilder.Entity<Conversation>()
+                .HasOptional(t => t.Agent)
+                .WithMany()
+                .HasForeignKey(t => t.AgentId)
+                .WillCascadeOnDelete(false);
+            modelBuilder.Entity<Conversation>()
+                .HasOptional(t => t.Department)
+                .WithMany()
+                .HasForeignKey(t => t.DepartmentId)
                 .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<Message>()

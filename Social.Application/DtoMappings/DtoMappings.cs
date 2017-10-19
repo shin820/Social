@@ -8,6 +8,7 @@ using Social.Domain.Entities.General;
 using Social.Infrastructure.Cache;
 using Social.Infrastructure.Enum;
 using Social.Infrastructure.Facebook;
+using System.Linq;
 
 namespace Social.Application
 {
@@ -18,7 +19,9 @@ namespace Social.Application
             CreateMap<Conversation, ConversationDto>()
                 .ForMember(dto => dto.LastMessageSenderName, opt => opt.MapFrom(s => s.LastMessageSender.Name))
                 .ForMember(dto => dto.LastMessageSenderAvatar, opt => opt.MapFrom(s => s.LastMessageSender.Avatar))
-                .ForMember(dto => dto.LastMessageSenderUrl, opt => opt.MapFrom(s => s.LastMessageSender.OriginalLink));
+                .ForMember(dto => dto.LastMessageSenderUrl, opt => opt.MapFrom(s => s.LastMessageSender.OriginalLink))
+                .ForMember(dto => dto.AgentName, opt => opt.MapFrom(s => s.Agent.Name))
+                .ForMember(dto => dto.DepartmentName, opt => opt.MapFrom(s => s.Department.Name));
             CreateMap<ConversationCreateDto, Conversation>();
             CreateMap<FilterCreateDto, Filter>();
             CreateMap<Filter, FilterListDto>();

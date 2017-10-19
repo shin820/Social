@@ -15,7 +15,7 @@ namespace Social.UnitTest
     {
         public static IAgentService MakeAgentService()
         {
-            return new AgentService();
+            return new AgentService(null);
         }
 
         public static IDepartmentService MakeDepartmentService()

@@ -1,4 +1,5 @@
 ﻿using Framework.Core;
+using Social.Domain.Entities;
 using Social.Domain.Entities.General;
 using Social.Infrastructure;
 using System;
@@ -22,23 +23,35 @@ namespace Social.Domain.DomainServices
 
     public class AgentService : ServiceBase, ITransient, IAgentService
     {
+        private IRepository<User> _userRepo;
+
+        public AgentService(IRepository<User> userRepo)
+        {
+            _userRepo = userRepo;
+        }
+
         public IList<Agent> FindAll()
         {
-            var agents = new List<Agent>
-            {
-                new Agent { Id=1,Name="Test Agent 1"},
-                new Agent { Id=2,Name="Test Agent 2"},
-                new Agent { Id=3,Name="Test Agent 3"},
-                new Agent { Id=4,Name="Test Agent 4"},
-                new Agent { Id=5,Name="Test Agent 5"},
-                new Agent { Id=6,Name="Test Agent 6"},
-                new Agent { Id=7,Name="Test Agent 7"},
-                new Agent { Id=8,Name="Test Agent 8"},
-                new Agent { Id=9,Name="Test Agent 9"},
-                new Agent { Id=10,Name="Test Agent 10"},
-            };
+            var agents = _userRepo.FindAll()
+                .Where(t => t.UserType == 1 && t.IfActive && t.IfDeleted == false)
+                .Select(t => new Agent { Id = t.Id, Name = t.Name, IfAdmin = t.IfAdmin }).ToList();
 
-            return agents;
+            return agents.OrderBy(t => t.Name).ToList();
+            //var agents = new List<Agent>
+            //{
+            //    new Agent { Id=1,Name="Test Agent 1"},
+            //    new Agent { Id=2,Name="Test Agent 2"},
+            //    new Agent { Id=3,Name="Test Agent 3"},
+            //    new Agent { Id=4,Name="Test Agent 4"},
+            //    new Agent { Id=5,Name="Test Agent 5"},
+            //    new Agent { Id=6,Name="Test Agent 6"},
+            //    new Agent { Id=7,Name="Test Agent 7"},
+            //    new Agent { Id=8,Name="Test Agent 8"},
+            //    new Agent { Id=9,Name="Test Agent 9"},
+            //    new Agent { Id=10,Name="Test Agent 10"},
+            //};
+
+            //return agents;
         }
 
         public Agent Find(int id)

@@ -103,13 +103,11 @@ namespace Social.Application.AppServices
         private void FillFiledsForDtoList(IList<ConversationDto> conversationDtos)
         {
             var allMessages = _messageService.FindAllByConversationIds(conversationDtos.Select(t => t.Id).ToArray()).ToList();
-            var agents = _agentService.Find(conversationDtos.Where(t => t.AgentId.HasValue).Select(t => t.AgentId.Value)).ToList();
-            var departments = _departmentService.Find(conversationDtos.Where(t => t.DepartmentId.HasValue).Select(t => t.DepartmentId.Value)).ToList();
 
             foreach (var conversationDto in conversationDtos)
             {
                 var messages = allMessages.Where(t => t.ConversationId == conversationDto.Id).ToList();
-                FillFields(conversationDto, agents, departments, messages);
+                FillFields(conversationDto, messages);
             }
         }
 
@@ -235,49 +233,17 @@ namespace Social.Application.AppServices
 
         private void FillFields(ConversationDto conversationDto)
         {
-            List<Agent> agents = new List<Agent>();
-            if (conversationDto.AgentId.HasValue)
-            {
-                var agent = _agentService.Find(conversationDto.AgentId.Value);
-                if (agent != null)
-                {
-                    agents.Add(agent);
-                }
-            }
-
-            List<Department> departments = new List<Department>();
-            if (conversationDto.DepartmentId.HasValue)
-            {
-                var department = _departmentService.Find(conversationDto.DepartmentId.Value);
-                if (department != null)
-                {
-                    departments.Add(department);
-                }
-            }
-
             var messages = _messageService
                 .FindAllByConversationId(conversationDto.Id).ToList();
 
-            FillFields(conversationDto, agents, departments, messages);
+            FillFields(conversationDto, messages);
         }
 
-        private void FillFields(ConversationDto dto, IList<Agent> agents, IList<Department> departments, IList<Message> messages)
+        private void FillFields(ConversationDto dto, IList<Message> messages)
         {
             if (dto == null)
             {
                 return;
-            }
-
-            if (dto.AgentId.HasValue && agents != null && agents.Any())
-            {
-                var agent = agents.FirstOrDefault(t => t.Id == dto.AgentId.Value);
-                dto.AgentName = agent?.Name;
-            }
-
-            if (dto.DepartmentId.HasValue && departments != null && departments.Any())
-            {
-                var department = departments.FirstOrDefault(t => t.Id == dto.DepartmentId.Value);
-                dto.DepartmentName = department?.Name;
             }
 
             if (messages != null && messages.Any())

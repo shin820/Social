@@ -186,7 +186,7 @@
     <Compile Include="Entities\Department.cs" />
     <Compile Include="Entities\General\Config.cs" />
     <Compile Include="Entities\General\SiteSocialAccount.cs" />
-    <Compile Include="Entities\General\User.cs" />
+    <Compile Include="Entities\User.cs" />
     <Compile Include="Entities\Message.cs" />
     <Compile Include="Entities\MessageAttachment.cs" />
     <Compile Include="Entities\ConversationLog.cs" />

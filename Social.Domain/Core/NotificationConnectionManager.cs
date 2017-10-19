@@ -2,7 +2,6 @@
 using Framework.Core.SignalR;
 using Social.Domain.DomainServices;
 using Social.Domain.Entities;
-using Social.Domain.Entities.LiveChat;
 using Social.Infrastructure;
 using System;
 using System.Collections.Generic;
