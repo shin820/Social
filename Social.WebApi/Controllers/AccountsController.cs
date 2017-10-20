@@ -60,6 +60,13 @@ namespace Social.WebApi.Controllers
             return string.Empty;
         }
 
+        [HttpGet]
+        [Route("empty")]
+        public IHttpActionResult Empty()
+        {
+            return Ok();
+        }
+
         //[HttpGet]
         //[Route("me")]
         //public Me Me()
