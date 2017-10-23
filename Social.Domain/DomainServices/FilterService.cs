@@ -1,6 +1,7 @@
 ﻿using Framework.Core;
 using Social.Domain.DomainServices;
 using Social.Domain.Entities;
+using Social.Domain.Repositories;
 using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
@@ -35,6 +36,7 @@ namespace Social.Domain
         private IRepository<SocialUser> _userRepo;
         private IConversationFieldService _conversationFieldOptionService;
         private IConversationService _conversation;
+        private IConfigRepository _configRepository;
 
         public FilterService(
             IRepository<FilterCondition> filterConditionRepo,
@@ -42,7 +44,8 @@ namespace Social.Domain
             IRepository<Conversation> conversationService,
             IRepository<SocialUser> userRepo, IConversationService conversation,
             IRepository<ConversationField> conversationFieldRepo,
-            IConversationFieldService conversationFieldOptionService)
+            IConversationFieldService conversationFieldOptionService,
+            IConfigRepository configRepository)
         {
             _filterConditionRepo = filterConditionRepo;
             _filterRepo = filterRepo;
@@ -51,6 +54,7 @@ namespace Social.Domain
             _userRepo = userRepo;
             _conversationFieldRepo = conversationFieldRepo;
             _conversationFieldOptionService = conversationFieldOptionService;
+            _configRepository = configRepository;
         }
 
         public Filter FindFilterInlucdeConditions(int id)
@@ -65,9 +69,20 @@ namespace Social.Domain
 
         public IQueryable<Filter> FindFiltersInlucdeConditions(int userId)
         {
-            return this.FindAll()
+            var filters = this.FindAll()
                 .Include(t => t.Conditions.Select(r => r.Field))
-                .Where(t => t.IfPublic || t.CreatedBy == userId);
+                .Where(t => t.IfPublic || t.CreatedBy == userId).ToList();
+            int siteId = CurrentUnitOfWork.GetSiteId().HasValue ? CurrentUnitOfWork.GetSiteId().Value : -1;
+            bool ifDepartmentEnable = false;
+            UnitOfWorkManager.RunWithNewTransaction(null, () =>
+            {
+                ifDepartmentEnable = _configRepository.FindAll().Where(t => t.Id == siteId).First().IfDepartmentEnable;
+            });
+            if (!ifDepartmentEnable)
+            {
+                filters.RemoveAll(t => t.Name.Contains("Department"));
+            }
+            return filters.AsQueryable();
         }
 
         public void DeleteConditons(Filter updateFilter)
