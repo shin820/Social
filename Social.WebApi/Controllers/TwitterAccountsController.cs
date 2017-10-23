@@ -99,6 +99,18 @@ namespace Social.WebApi.Controllers
         }
 
         /// <summary>
+        /// Get accounts and ignore permission check.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route()]
+        public IList<TwitterAccountListDto> GetAccountsWithoutPermissionCheck()
+        {
+            return _appService.GetAccounts();
+        }
+
+
+        /// <summary>
         /// Get account by id.
         /// </summary>
         /// <param name="id"></param>
