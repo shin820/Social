@@ -6,6 +6,7 @@ using Social.Domain;
 using Social.Domain.DomainServices;
 using Social.Domain.Entities;
 using Social.Domain.Entities.General;
+using Social.Domain.Repositories;
 using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
@@ -45,6 +46,7 @@ namespace Social.Application.AppServices
         private IDepartmentService _departmentService;
         private IDomainService<ConversationLog> _logService;
         private INotificationManager _notificationManager;
+        private IConfigRepository _configRepository;
 
         public ConversationAppService(
             IConversationService conversationService,
@@ -52,7 +54,8 @@ namespace Social.Application.AppServices
             IAgentService agentService,
             IDepartmentService departmentService,
             IDomainService<ConversationLog> logService,
-            INotificationManager notificationManager
+            INotificationManager notificationManager,
+            IConfigRepository configRepository
             )
         {
             _conversationService = conversationService;
@@ -61,6 +64,7 @@ namespace Social.Application.AppServices
             _departmentService = departmentService;
             _logService = logService;
             _notificationManager = notificationManager;
+            _configRepository = configRepository;
         }
 
         public IList<ConversationDto> Find(ConversationSearchDto dto)
@@ -103,7 +107,20 @@ namespace Social.Application.AppServices
         private void FillFiledsForDtoList(IList<ConversationDto> conversationDtos)
         {
             var allMessages = _messageService.FindAllByConversationIds(conversationDtos.Select(t => t.Id).ToArray()).ToList();
-
+            int siteId = CurrentUnitOfWork.GetSiteId().HasValue ? CurrentUnitOfWork.GetSiteId().Value : -1;
+            bool ifDepartmentEnable = true;
+            UnitOfWorkManager.RunWithNewTransaction(null, () =>
+            {
+                ifDepartmentEnable = _configRepository.FindAll().Where(t => t.Id == siteId).First().IfDepartmentEnable;
+            });
+            if (ifDepartmentEnable == false)
+            {
+                foreach (var conversationDto in conversationDtos)
+                {
+                    conversationDto.DepartmentId = null;
+                    conversationDto.DepartmentName = null;
+                }
+            }
             foreach (var conversationDto in conversationDtos)
             {
                 var messages = allMessages.Where(t => t.ConversationId == conversationDto.Id).ToList();
