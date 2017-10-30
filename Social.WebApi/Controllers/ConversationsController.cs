@@ -67,15 +67,15 @@ namespace Social.WebApi.Controllers
             return _conversationAppService.GetUnReadConversationCount();
         }
 
-        //[Route()]
-        //[ResponseType(typeof(ConversationDto))]
-        //public IHttpActionResult PostConversation(ConversationCreateDto createDto)
-        //{
-        //    createDto = createDto ?? new ConversationCreateDto();
-        //    var conversation = _conversationAppService.Insert(createDto);
+        [Route()]
+        [ResponseType(typeof(ConversationDto))]
+        public IHttpActionResult PostConversation(ConversationCreateDto createDto)
+        {
+            createDto = createDto ?? new ConversationCreateDto();
+            var conversation = _conversationAppService.Insert(createDto);
 
-        //    return CreatedAtRoute("GetConversation", new { id = conversation.Id }, conversation);
-        //}
+            return CreatedAtRoute("GetConversation", new { id = conversation.Id }, conversation);
+        }
 
         //[Route("{id}")]
         //public IHttpActionResult DeleteConversation(int id)

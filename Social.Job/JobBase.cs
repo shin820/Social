@@ -11,6 +11,7 @@ using Social.Domain.DomainServices;
 using Social.Infrastructure.Enum;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Social.Job
 {
@@ -131,6 +132,7 @@ namespace Social.Job
             await UnitOfWorkManager.RunWithoutTransaction(siteId, async () =>
             {
                 result = await SocialAccountService.GetAccountsAsync(SocialUserSource.Facebook);
+                //result = result.Where(t => t.Id == 430031).ToList();
             });
 
             return result;

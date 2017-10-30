@@ -18,6 +18,7 @@ BEGIN
 		SET @sql=
 		'
 		IF NOT EXISTS (SELECT name FROM sysobjects WHERE type=''U'' AND name=''t_Social_MessageAttachment'+@siteIdStr+''')
+		AND EXISTS (SELECT 1 FROM [Comm100.General].[dbo].[t_Site] WHERE Id='+@siteIdStr+')
 		BEGIN
 			CREATE TABLE [t_Social_MessageAttachment'+@siteIdStr+'](
 				[Id] [int] IDENTITY(1,1) NOT NULL,

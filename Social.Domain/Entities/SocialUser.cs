@@ -48,7 +48,7 @@ namespace Social.Domain.Entities
         [MaxLength(200)]
         public string Email { get; set; }
 
-        [MaxLength(200)]
+        [MaxLength(256)]
         public string Avatar { get; set; }
 
         public bool IsDeleted { get; set; }
