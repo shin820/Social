@@ -13,5 +13,8 @@ namespace Social.Application.Dto
         public string Url { get; set; }
         public string PreviewUrl { get; set; }
         public string Name { get; set; }
+        public string MimeType { get; set; }
+
+        public string FileType { get; set; }
     }
 }

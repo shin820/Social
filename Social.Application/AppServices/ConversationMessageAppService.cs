@@ -77,14 +77,33 @@ namespace Social.Application.AppServices
             var postDto = Mapper.Map<FacebookPostMessageDto>(postMessage);
 
             var allComments = messages.Where(t => t.Source == MessageSource.FacebookPostComment || t.Source == MessageSource.FacebookPostReplyComment).Select(t => Mapper.Map<FacebookPostCommentMessageDto>(t)).ToList();
-
+            foreach (var comment in allComments)
+            {
+                ChangeAttachmentMimeType(postDto.Attachments);
+            }
             postDto.Comments = allComments.Where(t => t.ParentId == postDto.Id).OrderBy(t => t.SendTime).ToList();
             foreach (var comment in postDto.Comments)
             {
                 comment.ReplyComments = allComments.Where(t => t.ParentId == comment.Id).OrderBy(t => t.SendTime).ToList();
             }
+            ChangeAttachmentMimeType(postDto.Attachments);
 
             return postDto;
+        }
+
+        private void ChangeAttachmentMimeType(List<MessageAttachmentDto> attachments)
+        {
+            foreach (var attachment in attachments)
+            {
+                if (attachment.MimeType != null )
+                {
+                    attachment.FileType = MimeTypeMap.GetExtension(attachment.MimeType);
+                }
+                else
+                {
+                    attachment.MimeType = null;
+                }
+            }
         }
 
         public IList<FacebookMessageDto> GetFacebookDirectMessages(int conversationId)
@@ -102,7 +121,10 @@ namespace Social.Application.AppServices
                  .ToList();
             _messageService.ChangeAttachmentUrl(messages);
             result = Mapper.Map<List<FacebookMessageDto>>(messages);
-
+            foreach (var message in result)
+            {
+                ChangeAttachmentMimeType(message.Attachments);
+            }
             return result;
         }
 
@@ -119,7 +141,10 @@ namespace Social.Application.AppServices
                 .OrderBy(t => t.SendTime)
                 .ProjectTo<TwitterDirectMessageDto>()
                 .ToList();
-
+            foreach (var message in result)
+            {
+                ChangeAttachmentMimeType(message.Attachments);
+            }
             return result;
         }
 
@@ -137,7 +162,10 @@ namespace Social.Application.AppServices
                 .ProjectTo<TwitterTweetMessageDto>()
                 .ToList();
             result.ForEach(t => { t.ParentId = t.ParentId == null ? -1 : t.ParentId; }); // -1?, front-end need this value by now.
-
+            foreach (var message in result)
+            {
+                ChangeAttachmentMimeType(message.Attachments);
+            }
             var messageDtoWithQuote = result.Where(t => !string.IsNullOrWhiteSpace(t.QuoteTweetId)).FirstOrDefault();
             if (messageDtoWithQuote == null)
             {
