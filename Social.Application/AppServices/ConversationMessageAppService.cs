@@ -8,6 +8,7 @@ using Social.Infrastructure;
 using Social.Infrastructure.Enum;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -79,7 +80,7 @@ namespace Social.Application.AppServices
             var allComments = messages.Where(t => t.Source == MessageSource.FacebookPostComment || t.Source == MessageSource.FacebookPostReplyComment).Select(t => Mapper.Map<FacebookPostCommentMessageDto>(t)).ToList();
             foreach (var comment in allComments)
             {
-                ChangeAttachmentMimeType(postDto.Attachments);
+                ChangeAttachmentMimeType(comment.Attachments);
             }
             postDto.Comments = allComments.Where(t => t.ParentId == postDto.Id).OrderBy(t => t.SendTime).ToList();
             foreach (var comment in postDto.Comments)
@@ -95,13 +96,20 @@ namespace Social.Application.AppServices
         {
             foreach (var attachment in attachments)
             {
-                if (attachment.MimeType != null )
-                {
-                    attachment.FileType = MimeTypeMap.GetExtension(attachment.MimeType);
+                FileInfo fileInfo = new FileInfo(new Uri(attachment.Url).AbsolutePath);
+                string extension = fileInfo.Extension;
+                if (!string.IsNullOrEmpty(extension))
+                {                 
+                    if (!extension.StartsWith("."))
+                    {
+                        extension = "." + extension;
+                    }
+                    attachment.FileType = extension;
+                    //MimeTypeMap.GetExtension(attachment.MimeType);
                 }
                 else
                 {
-                    attachment.MimeType = null;
+                    attachment.FileType = null;
                 }
             }
         }
