@@ -15,7 +15,7 @@ namespace Social.Application.Dto
         [Required]
         [MaxLength(2000)]
         public string AccessToken { get; set; }
-        [MaxLength(200)]
+        [MaxLength(256)]
         public string Avatar { get; set; }
         [MaxLength(200)]
         public string Name { get; set; }

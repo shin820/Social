@@ -108,12 +108,12 @@ namespace Social.Application.AppServices
         {
             var allMessages = _messageService.FindAllByConversationIds(conversationDtos.Select(t => t.Id).ToArray()).ToList();
             int siteId = CurrentUnitOfWork.GetSiteId().HasValue ? CurrentUnitOfWork.GetSiteId().Value : -1;
-            bool ifDepartmentEnable = true;
+            bool? ifDepartmentEnable = true;
             UnitOfWorkManager.RunWithNewTransaction(null, () =>
             {
-                ifDepartmentEnable = _configRepository.FindAll().Where(t => t.Id == siteId).First().IfDepartmentEnable;
+                ifDepartmentEnable = _configRepository.FindAll().Where(t => t.Id == siteId).FirstOrDefault()?.IfDepartmentEnable;
             });
-            if (ifDepartmentEnable == false)
+            if (ifDepartmentEnable.GetValueOrDefault() == false)
             {
                 foreach (var conversationDto in conversationDtos)
                 {

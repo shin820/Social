@@ -107,7 +107,7 @@ namespace Social.Infrastructure.Facebook
 
         public string GetAuthUrl(string redirectUri)
         {
-            return $"https://www.facebook.com/v2.9/dialog/oauth?client_id={AppSettings.FacebookClientId}&redirect_uri={redirectUri}&scope=manage_pages,publish_pages,pages_messaging,pages_messaging_phone_number,read_page_mailboxes,pages_show_list";
+            return $"https://www.facebook.com/v2.9/dialog/oauth?client_id={AppSettings.FacebookClientId}&redirect_uri={redirectUri}&scope=manage_pages,publish_pages,read_page_mailboxes,pages_show_list";
         }
 
 
