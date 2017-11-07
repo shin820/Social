@@ -69,14 +69,12 @@ namespace Social.WebApi.Controllers
             {
                 _hub.Clients.Group(Request.GetSiteId().ToString()).conversationUpdated(dto);
 
-                if (oldMaxLogId.HasValue && oldMaxLogId > 0)
+                oldMaxLogId = oldMaxLogId ?? 0;
+                var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxLogId.Value);
+                if (dtoList != null && dtoList.Any())
                 {
-                    var dtoList = _conversationAppService.GetNewLogs(conversationId, oldMaxLogId.Value);
-                    if (dtoList != null && dtoList.Any())
-                    {
-                        var connections = _notificationConnectionManager.GetConnections(Request.GetSiteId(), dto.AgentId, dto.DepartmentId);
-                        _hub.Clients.Clients(connections).conversationLogCreated(dtoList);
-                    }
+                    var connections = _notificationConnectionManager.GetConnections(Request.GetSiteId(), dto.AgentId, dto.DepartmentId);
+                    _hub.Clients.Clients(connections).conversationLogCreated(dtoList);
                 }
             }
 
