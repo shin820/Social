@@ -277,6 +277,17 @@ namespace Social.Application.AppServices
                     dto.CustomerAvatar = lastMessageSendByCustomer.Sender.Avatar;
                 }
 
+                if (lastMessageSendByCustomer == null)
+                {
+                    var lastCustomer = messages.FirstOrDefault(t => t.Receiver.IsCustomer);
+                    if (lastCustomer != null)
+                    {
+                        dto.CustomerId = lastCustomer.ReceiverId.GetValueOrDefault();
+                        dto.CustomerName = lastCustomer.Receiver?.ScreenNameOrNormalName;
+                        dto.CustomerAvatar = lastCustomer.Receiver?.Avatar;
+                    }
+                }
+
                 var lastMessageByIntegrationAccount = messages.FirstOrDefault(t => t.IntegrationAccount != null);
                 if (lastMessageByIntegrationAccount != null)
                 {

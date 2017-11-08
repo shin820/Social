@@ -42,6 +42,7 @@ namespace Social.Job.Jobs
 
             stream.MessageReceived += async (sender, args) =>
             {
+                socialAccount = await GetTwitterSocialAccount(context);
                 if (socialAccount.IfConvertMessageToConversation)
                 {
                     Auth.SetCredentials(creds);
@@ -52,6 +53,7 @@ namespace Social.Job.Jobs
             stream.MessageSent += async (sender, args) =>
             {
                 await Task.Delay(1000);
+                socialAccount = await GetTwitterSocialAccount(context);
                 if (socialAccount.IfConvertMessageToConversation)
                 {
                     Auth.SetCredentials(creds);
@@ -62,6 +64,7 @@ namespace Social.Job.Jobs
             stream.TweetCreatedByAnyone += async (sender, args) =>
             {
                 await Task.Delay(1000);
+                socialAccount = await GetTwitterSocialAccount(context);
                 if (socialAccount.IfConvertTweetToConversation)
                 {
                     Auth.SetCredentials(creds);
