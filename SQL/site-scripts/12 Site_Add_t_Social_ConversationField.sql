@@ -17,9 +17,6 @@ BEGIN
 		DECLARE @sql varchar(max)
 		SET @sql=
 		'
-		IF OBJECT_ID(''t_Social_ConversationField'') IS NOT NULL
-		AND NOT EXISTS (SELECT * FROM [t_Social_ConversationField] WHERE SiteId='+@siteIdStr+')
-		BEGIN
 		INSERT INTO  [t_Social_ConversationField]
 		(
 			[IfSystem]
@@ -27,13 +24,26 @@ BEGIN
 			,[Name]
 			,[SiteId]
 		)
-		SELECT
-			[IfSystem]
-			,[DataType]
-			,[Name]
-			,'+@siteIdStr+' AS [SiteId]
-	    FROM [Comm100.General].[dbo].[t_Social_ConversationField_Config]
-		END
+		VALUES
+		(1,4,''Source'','+@siteIdStr+'),
+		(1,4,''Agent Assignee'','+@siteIdStr+'),
+		(1,4,''Department Assignee'','+@siteIdStr+'),
+		(1,4,''Status'','+@siteIdStr+'),
+		(1,4,''Priority'','+@siteIdStr+'),
+		(1,4,''Social Page/Account'','+@siteIdStr+'),
+		(1,4,''Replied Agent'','+@siteIdStr+'),
+		(1,4,''Last Replied Agent'','+@siteIdStr+'),
+		(1,1,''Last Message Sent by'','+@siteIdStr+'),
+		(1,4,''Agent Assignee Status'','+@siteIdStr+'),
+		(1,4,''Department Assignee Status'','+@siteIdStr+'),
+		(1,1,''Social User'','+@siteIdStr+'),
+		(1,1,''Comment/Messages'','+@siteIdStr+'),
+		(1,3,''Last Message Sent'','+@siteIdStr+'),
+		(1,3,''Date Created'','+@siteIdStr+'),
+		(1,3,''Last Modified Date'','+@siteIdStr+'),
+		(1,2,''Time Since Last Message'','+@siteIdStr+'),
+		(1,2,''Total Messages'','+@siteIdStr+'),
+		(1,2,''Conversation ID'','+@siteIdStr+')
 		'
 	EXEC(@sql)
 	SET @siteId=@siteId+1
