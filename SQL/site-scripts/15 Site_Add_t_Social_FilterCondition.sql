@@ -19,11 +19,6 @@ BEGIN
 
 		SET @sql=
 		'
-		IF OBJECT_ID(''t_Social_FilterCondition'') IS NOT NULL
-		AND OBJECT_ID(''t_Social_Filter'') IS NOT NULL
-		AND OBJECT_ID(''t_Social_ConversationField'') IS NOT NULL
-		AND NOT EXISTS (SELECT * FROM [t_Social_FilterCondition] WHERE SiteId='+@siteIdStr+')
-		BEGIN
 		INSERT INTO [t_Social_FilterCondition]
 		(
 			[FilterId]
@@ -33,15 +28,17 @@ BEGIN
 			,[SiteId]
 			,[Index]
 		)
-		SELECT 
-		(SELECT [Id] AS [FilterId] FROM [t_Social_Filter] WHERE [SiteId] = '+@siteIdStr+' AND [Name] = p.FilterName)
-		,(SELECT [Id] AS [FieldId] FROM [t_Social_ConversationField] WHERE [SiteId] = '+@siteIdStr+' AND [Name] = p.FieldName)
-		,[MatchType]
-		,[Value]
-		,'+@siteIdStr+' AS [SiteId]
-		,[Index]
-		FROM [Comm100.General].[dbo].[t_Social_FilterCondition_Config] p
-		END
+		VALUES
+		((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = '+@siteIdStr+' AND [Name] = ''My Open'' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = '+@siteIdStr+' AND Name=''Status''),2,''4'','+@siteIdStr+',1),
+		((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = '+@siteIdStr+' AND [Name] = ''My Open'' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = '+@siteIdStr+' AND Name=''Agent Assignee''),1,''@Me'','+@siteIdStr+',2),
+		((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = '+@siteIdStr+' AND [Name] = ''My Departments'''' Open'' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = '+@siteIdStr+' AND Name=''Status''),2,''4'','+@siteIdStr+',1),
+		((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = '+@siteIdStr+' AND [Name] = ''My Departments'''' Open'' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = '+@siteIdStr+' AND Name=''Department Assignee''),1,''@My Department'','+@siteIdStr+',2),
+		((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = '+@siteIdStr+' AND [Name] = ''My Offline Department Members'''' Open'' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = '+@siteIdStr+' AND Name=''Status''),2,''4'','+@siteIdStr+',1),
+		((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = '+@siteIdStr+' AND [Name] = ''My Offline Department Members'''' Open'' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = '+@siteIdStr+' AND Name=''Agent Assignee''),1,''@My Department Member'','+@siteIdStr+',2),
+		((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = '+@siteIdStr+' AND [Name] = ''My Offline Department Members'''' Open'' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = '+@siteIdStr+' AND Name=''Agent Assignee Status''),1,''2'','+@siteIdStr+',3),
+		((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = '+@siteIdStr+' AND [Name] = ''All Open'' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = '+@siteIdStr+' AND Name=''Status''),2,''4'','+@siteIdStr+',1),
+		((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = '+@siteIdStr+' AND [Name] = ''Unassigned'' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = '+@siteIdStr+' AND Name=''Agent Assignee''),1,''Blank'','+@siteIdStr+',1),
+		((SELECT [Id] FROM [t_Social_Filter] WHERE [SiteId] = '+@siteIdStr+' AND [Name] = ''Unassigned'' AND [IfPublic] = 1),(SELECT [Id] FROM [t_Social_ConversationField] WHERE [SiteId] = '+@siteIdStr+' AND Name=''Department Assignee''),1,''Blank'','+@siteIdStr+',2)
 		'
 	EXEC(@sql)
 	SET @siteId=@siteId+1

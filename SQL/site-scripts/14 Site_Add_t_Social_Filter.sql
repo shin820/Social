@@ -17,9 +17,6 @@ BEGIN
 		DECLARE @sql varchar(max)
 		SET @sql=
 		'
-		IF OBJECT_ID(''t_Social_Filter'') IS NOT NULL
-		AND NOT EXISTS (SELECT * FROM [t_Social_Filter] WHERE SiteId='+@siteIdStr+')
-		BEGIN
 		INSERT INTO [t_Social_Filter]
 		(
 			[Name]
@@ -30,16 +27,13 @@ BEGIN
 			,[CreatedTime]
 			,[SiteId]
 		)
-		SELECT 
-		     [Name]
-			,[Index]
-			,[IfPublic]
-			,[Type]
-			,[CreatedBy]
-			,getdate()
-			,'+@siteIdStr+' AS [SiteId]
-		FROM [Comm100.General].[dbo].[t_Social_Filter_Config]
-		END
+		VALUES
+		(''My Open'', 1, 1,1,0,getdate(),'+@siteIdStr+' ),
+		(''My Departments'''' Open'', 2, 1,1,0,getdate(),'+@siteIdStr+' ),
+		(''My Offline Department Members'''' Open'', 3, 1,1,0,getdate(),'+@siteIdStr+' ),
+		(''All Open'', 4, 1,1,0,getdate(),'+@siteIdStr+' ),
+		(''Unassigned'', 5, 1,1,0,getdate(),'+@siteIdStr+' ),
+		(''All'', 6, 1,1,0,getdate(),'+@siteIdStr+' )
 		'
 	EXEC(@sql)
 	SET @siteId=@siteId+1
